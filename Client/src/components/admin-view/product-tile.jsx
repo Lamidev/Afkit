@@ -1,144 +1,16 @@
-// import { Button } from "../ui/button";
-// import { Card, CardContent, CardFooter } from "../ui/card";
-
-// function AdminProductTile({
-//   product,
-//   setFormData,
-//   setOpenCreateProductsDialog,
-//   setCurrentEditedId,
-//   handleDelete,
-// }) {
-//   return (
-//     <Card className="w-full max-w-sm mx-auto transform transition duration-300 hover:scale-105 hover:bg-gray-200 shadow hover:shadow-lg rounded-lg">
-//       <div>
-//         <div className="relative">
-//           <img
-//             src={product?.image}
-//             alt={product?.title}
-//             className="w-full h-[300px] object-cover rounded-t-lg"
-//           />
-//         </div>
-//         <CardContent>
-//           <h2 className="text-xl font-bold mb-2 mt-2">{product?.title}</h2>
-//           <div className="flex justify-between items-center mb-2">
-//             <span
-//               className={`${
-//                 product?.salePrice > 0 ? "line-through" : ""
-//               } text-lg font-semibold text-primary`}
-//             >
-//               ₦{product?.price}
-//             </span>
-//             {product?.salePrice > 0 ? (
-//               <span className="text-lg font-bold">₦{product?.salePrice}</span>
-//             ) : null}
-//           </div>
-//           {/* <div className="text-sm text-gray-600">Condition: {product?.condition === "new" ? "Brand New" : "Used"}</div> */}
-//           <div className="text-lg font-semibold ">
-//             Condition: {product?.condition}{" "}
-//             {/* Directly display the condition */}
-//           </div>
-//         </CardContent>
-//         <CardFooter className="flex justify-between items-center">
-//           <Button
-//             onClick={() => {
-//               setOpenCreateProductsDialog(true);
-//               setCurrentEditedId(product?._id);
-//               console.log("Editing product data:", product);
-//               setFormData(product);
-//             }}
-//           >
-//             Edit
-//           </Button>
-//           <Button onClick={() => handleDelete(product?._id)}>Delete</Button>
-//         </CardFooter>
-//       </div>
-//     </Card>
-//   );
-// }
-
-// export default AdminProductTile;
-
-// import { Button } from "../ui/button";
-// import { motion } from "framer-motion";
-
-// function AdminProductTile({
-//   product,
-//   setFormData,
-//   setOpenCreateProductsDialog,
-//   setCurrentEditedId,
-//   handleDelete,
-// }) {
-//   // Format price with commas for NGN
-//   const formatPrice = (price) => {
-//     return new Intl.NumberFormat("en-NG").format(price);
-//   };
-
-//   return (
-//     <motion.div
-//       className="w-full max-w-sm mx-auto bg-white rounded-lg shadow hover:shadow-lg overflow-hidden"
-//       whileHover={{ scale: 1.03 }}
-//       transition={{ duration: 0.3 }}
-//     >
-//       <div className="relative">
-//         <motion.div whileHover={{ scale: 1.05 }} transition={{ duration: 0.3 }}>
-//           <img
-//             src={product?.image}
-//             alt={product?.title}
-//             className="w-full h-[300px] object-cover"
-//           />
-//         </motion.div>
-//       </div>
-
-//       <div className="p-4">
-//         {/* Product title and price */}
-//         <h2 className="text-xl font-bold mb-2">{product?.title}</h2>
-//         <div className="text-lg font-semibold text-primary mb-3">
-//           ₦{formatPrice(product?.price)}
-//         </div>
-
-//         {/* Product condition */}
-//         <div className="text-lg font-semibold mb-4">
-//           Condition: {product?.condition}{" "}
-//         </div>
-
-//         {/* Action buttons */}
-//         <div className="flex justify-between gap-2">
-//           <Button
-//             className="flex-1"
-//             onClick={() => {
-//               setOpenCreateProductsDialog(true);
-//               setCurrentEditedId(product?._id);
-//               setFormData(product);
-//             }}
-//           >
-//             Edit
-//           </Button>
-//           <Button
-//             variant="destructive"
-//             className="flex-1"
-//             onClick={() => handleDelete(product?._id)}
-//           >
-//             Delete
-//           </Button>
-//         </div>
-//       </div>
-//     </motion.div>
-//   );
-// }
-
-// export default AdminProductTile;
 
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { ImageOff } from "lucide-react";
+import { ImageOff, Trash2, Pencil } from "lucide-react";
+import { useState } from "react";
 
 function AdminProductTile({
   product,
   setFormData,
   setOpenCreateProductsDialog,
   setCurrentEditedId,
-  handleDelete,
-  isDeleting,
+  setProductToDelete,
+  setShowDeleteModal,
 }) {
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-NG", {
@@ -147,9 +19,11 @@ function AdminProductTile({
     }).format(price);
   };
 
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
   return (
     <motion.div
-      className="w-full max-w-sm mx-auto bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+      className="w-full bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow relative group"
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.2 }}
     >
@@ -168,22 +42,23 @@ function AdminProductTile({
         )}
       </div>
 
-      <div className="p-4 space-y-2">
-        <h2 className="text-lg font-semibold line-clamp-1">{product.title}</h2>
+      <div className="p-3 space-y-1">
+        <h2 className="text-sm font-semibold line-clamp-1">{product.title}</h2>
         
         <div className="flex items-center justify-between">
-          <span className="text-primary font-medium">
+          <span className="text-primary text-sm font-medium">
             {formatPrice(product.price)}
           </span>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {product.condition}
           </span>
         </div>
 
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-1 pt-2">
           <Button
             variant="outline"
-            className="flex-1"
+            size="sm"
+            className="flex-1 text-xs h-8"
             onClick={() => {
               setOpenCreateProductsDialog(true);
               setCurrentEditedId(product._id);
@@ -193,17 +68,51 @@ function AdminProductTile({
               });
             }}
           >
+            <Pencil className="mr-1 h-3 w-3" />
             Edit
           </Button>
+          
           <Button
-            variant="destructive"
-            className="flex-1"
-            onClick={() => handleDelete(product._id)}
-            disabled={isDeleting}
+            variant="ghost"
+            size="sm"
+            className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
+            onClick={() => setShowConfirmDelete(true)}
           >
-            {isDeleting ? "Deleting..." : "Delete"}
+            <Trash2 className="h-3 w-3" />
           </Button>
         </div>
+
+        {showConfirmDelete && (
+          <div className="absolute inset-0 flex justify-center items-center z-50 bg-white bg-opacity-90 rounded-lg">
+            <div className="p-2 text-center">
+              <h2 className="text-sm font-semibold mb-2">
+                Confirm Deletion
+              </h2>
+              <p className="text-xs mb-3">
+                Are you sure you want to delete this product?
+              </p>
+              <div className="flex justify-center gap-2">
+                <Button
+                  onClick={() => {
+                    setProductToDelete(product._id);
+                    setShowDeleteModal(true);
+                    setShowConfirmDelete(false);
+                  }}
+                  className="bg-red-500 hover:bg-red-600 text-white text-xs h-8 px-2"
+                >
+                  <Trash2 className="mr-1 h-3 w-3" />
+                  Delete
+                </Button>
+                <Button
+                  onClick={() => setShowConfirmDelete(false)}
+                  className="bg-gray-300 hover:bg-gray-400 text-black text-xs h-8 px-2"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );

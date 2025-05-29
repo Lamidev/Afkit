@@ -25,7 +25,7 @@ function ProductImageUpload({
   const [previews, setPreviews] = useState([]);
 
   const handleImageFileChange = (e) => {
-    const files = Array.from(e.target.files).slice(0, 4);
+    const files = Array.from(e.target.files).slice(0, 8);
     if (files.length > 0) {
       handleNewFiles(files);
     }
@@ -39,7 +39,7 @@ function ProductImageUpload({
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const files = Array.from(e.dataTransfer.files).slice(0, 4);
+    const files = Array.from(e.dataTransfer.files).slice(0, 8);
     if (files.length > 0) {
       handleNewFiles(files);
     }
@@ -101,7 +101,7 @@ function ProductImageUpload({
   return (
     <div className={`w-full mt-4 ${isCustomStyling ? "" : "max-w-md mx-auto"}`}>
       <Label className="text-lg font-semibold mb-2 block">
-        Product Images {!isEditMode && "(Max 4)"}
+        Product Images {!isEditMode && "(Max 8)"}
       </Label>
       
       <div
@@ -134,7 +134,7 @@ function ProductImageUpload({
               {isEditMode ? "Edit images not available" : "Drag & drop or click to upload"}
             </span>
             {!isEditMode && (
-              <span className="text-sm text-muted-foreground">Max 4 images (JPEG, PNG)</span>
+              <span className="text-sm text-muted-foreground">Max 8 images (JPEG, PNG)</span>
             )}
           </label>
         ) : (
