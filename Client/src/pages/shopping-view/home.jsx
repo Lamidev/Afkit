@@ -1,5 +1,6 @@
 
 
+
 // import { motion } from "framer-motion";
 // import { Button } from "@/components/ui/button";
 // import { Airplay, Apple, CloudLightning, Laptop, LaptopMinimal, ShoppingBag, Smartphone, TabletSmartphone, Tv, CheckCircle, AlertCircle, ShieldCheck } from "lucide-react";
@@ -15,14 +16,14 @@
 // import CustomerReviews from "@/components/shopping-view/customer-reviews";
 // import { toast } from "sonner";
 // import { getOrCreateSessionId } from "@/components/utils/session";
-// import SearchMenu from "@/components/shopping-view/search-menu";
+
 
 // const categoriesWithIcon = [
 //   { id: "smartphones", label: "Smartphones", icon: Smartphone },
 //   { id: "laptops", label: "Laptops", icon: Laptop },
 //   { id: "monitors", label: "Monitors", icon: Tv },
 //   { id: "accessories", label: "Accessories", icon: CloudLightning },
-//   { id: "products", label: "All Products", icon: ShoppingBag },
+//   { id: "all-products", label: "All Products", icon: ShoppingBag },
 // ];
 
 // const brandsWithIcon = [
@@ -30,10 +31,15 @@
 //   { id: "samsung", label: "Samsung", icon: Airplay },
 //   { id: "dell", label: "Dell", icon: LaptopMinimal },
 //   { id: "hp", label: "HP", icon: TabletSmartphone },
-//   { id: "products", label: "All Products", icon: ShoppingBag },
+//   { id: "all-products", label: "All Products", icon: ShoppingBag },
 // ];
 
 // const supportFeatures = [
+//   {
+//     icon: FaShieldAlt,
+//     title: "Six Month Warranty",
+//     description: "All products come with a 6-month warranty for your peace of mind.",
+//   },
 //   {
 //     icon: FaTruck,
 //     title: "Swift & Secure Delivery",
@@ -46,13 +52,8 @@
 //   },
 //   {
 //     icon: FaHeadset,
-//     title: "24/7 Support",
+//     title: "Free online tech support",
 //     description: "We are available 24/7 to assist you with any question, or issues you may have.",
-//   },
-//   {
-//     icon: FaShieldAlt,
-//     title: "Six Month Warranty",
-//     description: "All products come with a 6-month warranty for your peace of mind.",
 //   },
 // ];
 
@@ -87,24 +88,31 @@
 //   };
 
 //   useEffect(() => {
-//     const shuffledProducts = shuffleArray([...productList]).slice(0, 8);
-//     setFeaturedProducts(shuffledProducts);
+//     const updateFeaturedProducts = () => {
+//       const shuffled = shuffleArray([...productList]);
+//       setFeaturedProducts(shuffled.slice(0, 8));
+//     };
+
+//     updateFeaturedProducts();
+
 //     const interval = setInterval(() => {
-//       setFeaturedProducts(shuffleArray([...productList]).slice(0, 8));
+//       updateFeaturedProducts();
 //     }, 60 * 60 * 1000);
+
 //     return () => clearInterval(interval);
 //   }, [productList]);
 
+//   const handleNavigateToListingPage = (item, section) => {
+//     sessionStorage.removeItem("filters");
 
-
-//   const handleNavigateToListingPage = (category, type) => {
-//     if (type === "category") {
-//       // Clear any existing filters and set only the selected category
-//       const queryParams = new URLSearchParams();
-//       queryParams.set("category", category.id);
-//       navigate(`/shop/listing?${queryParams.toString()}`);
+//     if (item.id === "all-products") {
+//       navigate(`/shop/listing`);
 //     } else {
-//       navigate("/shop/listing");
+//       const currentFilter = { [section]: [item.id] };
+//       sessionStorage.setItem("filters", JSON.stringify(currentFilter));
+//       const queryParams = new URLSearchParams();
+//       queryParams.set(section, item.id);
+//       navigate(`/shop/listing?${queryParams.toString()}`);
 //     }
 //   };
 
@@ -189,6 +197,7 @@
 //     fetchCart();
 //   }, [dispatch, user]);
 
+//   // Image slider auto-advance effect (kept here for the new slider section)
 //   useEffect(() => {
 //     const timer = setInterval(() => {
 //       setCurrentSlide((prevSlide) => (prevSlide + 1) % featureImageList.length);
@@ -197,118 +206,80 @@
 //   }, [featureImageList]);
 
 //   useEffect(() => {
-//     if (productList.length === 0) {
-//       dispatch(fetchAllFilteredProducts({
+//     dispatch(
+//       fetchAllFilteredProducts({
 //         filterParams: {},
 //         sortParams: "price-lowtohigh",
-//       }));
-//     }
-//   }, [dispatch, productList.length]);
+//       })
+//     );
+//   }, [dispatch]);
 
 //   useEffect(() => {
 //     dispatch(getFeatureImages());
 //   }, [dispatch]);
 
 //   return (
-
-    
 //     <div className="flex flex-col space-y-8 sm:space-y-12 px-4 sm:px-6">
-      
-//       <section className="bg-white py-8 px-4 shadow-sm">
-//         <div className="max-w-7xl mx-auto">
-//           <SearchMenu/>
-//         </div>
-//       </section>
 
-
-//       {/* Hero Section */}
-// <section className="w-full flex items-center justify-center py-8 sm:py-12">
-//   <div className="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-//     <motion.div
-//       initial={{ opacity: 0, y: 40 }}
-//       animate={{ opacity: 1, y: 0 }}
-//       transition={{ duration: 0.6 }}
-//       className="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center h-full text-left space-y-6"
-//     >
-//       <motion.h1
-//         className="text-2xl sm:text-3xl font-bold text-gray-700 leading-tight"
-//         initial={{ opacity: 0, y: 20 }}
-//         animate={{ opacity: 1, y: 0 }}
-//         transition={{ duration: 0.5 }}
-//       >
-//         <span className="flex items-center gap-2 mb-2">
-//           <ShieldCheck className="text-orange-500 w-8 h-10" />
-//           Your No.1 store that offers 
-//         </span>
-//         <span className="text-orange-500 font-extrabold">
-//           6 months warranty
-//         </span>
-//         <span> {""} on all UK-used gadgets</span>
-//       </motion.h1>
-
-//       <motion.div
-//         initial={{ scale: 1 }}
-//         animate={{ scale: [1, 1.05, 1] }}
-//         transition={{
-//           duration: 1.5,
-//           repeat: Infinity,
-//           repeatType: "loop",
-//         }}
-//       >
-//         <Button
-//           onClick={() => navigate("/shop/listing")}
-//           className="bg-blue-900 hover:bg-blue-700 text-white font-bold px-6 py-3 uppercase text-sm sm:text-base"
-//         >
-//           Shop Now
-//         </Button>
-//       </motion.div>
-//     </motion.div>
-
-//     <div className="relative w-full h-[250px] sm:h-[350px] md:h-[450px] overflow-hidden rounded-xl shadow-md">
-//       {featureImageList?.map((slide, index) => (
-//         <motion.div
-//           key={index}
-//           className="absolute top-0 left-0 w-full h-full"
-//           initial={{ opacity: 0 }}
-//           animate={{ opacity: index === currentSlide ? 1 : 0 }}
-//           transition={{ duration: 1 }}
-//         >
-//           <img
-//             src={slide?.image}
-//             className="w-full h-full object-cover"
-//             alt={`Slide ${index + 1}`}
-//           />
-//         </motion.div>
-//       ))}
-//     </div>
-//   </div>
-// </section>
-
-//       {/* Top Products */}
-//       <section className="max-w-7xl mx-auto">
-//         <h2 className="text-xl sm:text-2xl font-bold mb-6">Top Products</h2>
-//         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-//           {productList.slice(0, 8).map((productItem, index) => (
-//             <motion.div
-//               key={productItem._id}
-//               initial={{ opacity: 0, x: -50 }}
-//               animate={{ opacity: 1, x: 0 }}
-//               transition={{ duration: 0.5, delay: index * 0.1 }}
-//               whileHover={{ scale: 1.03 }}
+//       {/* --- REVISED HERO SECTION --- */}
+//       <section className="w-full flex items-center justify-center py-8 sm:py-12 bg-gray-50 rounded-xl shadow-lg">
+//         <div className="max-w-4xl w-full text-center"> {/* Adjusted max-width and forced center alignment */}
+//           <motion.div
+//             initial={{ opacity: 0, y: 40 }}
+//             animate={{ opacity: 1, y: 0 }}
+//             transition={{ duration: 0.6 }}
+//             className="p-6 sm:p-8" // Added padding for smaller screens
+//           >
+//             <motion.h1
+//               className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 leading-tight mb-6" // Added mb-6 for spacing
+//               initial={{ opacity: 0, y: 20 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               transition={{ duration: 0.5 }}
 //             >
-//               <ShoppingProductTile
-//                 product={productItem}
-//                 handleAddToCart={handleAddToCart}
-//                 handleViewDetails={handleViewProductDetails}
-//               />
+//               <span className="flex items-start justify-center gap-2 mb-2"> {/* Centered content */}
+//                 <ShieldCheck className="text-orange-500 w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 mt-1" />
+//                 Your No.1 store that offers
+//               </span>
+//               <motion.span
+//                 className="text-orange-500 font-extrabold block text-3xl sm:text-4xl md:text-5xl lg:text-6xl my-2"
+//                 initial={{ scale: 1 }}
+//                 animate={{ scale: [1, 1.05, 1] }}
+//                 transition={{
+//                   duration: 1.5,
+//                   repeat: Infinity,
+//                   repeatType: "loop",
+//                 }}
+//               >
+//                 6 months warranty
+//               </motion.span>
+//               <span className="block">on all UK-used gadgets</span>
+//             </motion.h1>
+
+//             <motion.div
+//               initial={{ scale: 1 }}
+//               animate={{ scale: [1, 1.05, 1] }}
+//               transition={{
+//                 duration: 1.5,
+//                 repeat: Infinity,
+//                 repeatType: "loop",
+//               }}
+//             >
+//               <Button
+//                 onClick={() => handleNavigateToListingPage({ id: "all-products" }, null)}
+//                 className="bg-blue-900 hover:bg-blue-700 text-white font-bold px-6 py-3 uppercase text-sm sm:text-base"
+//               >
+//                 Shop Now
+//               </Button>
 //             </motion.div>
-//           ))}
+//           </motion.div>
 //         </div>
 //       </section>
+//       {/* --- END REVISED HERO SECTION --- */}
 
+//       ---
 
-//         {/* Shop by category - Reduced vertical padding */}
-//         <section className="py-6 sm:py-8 bg-gray-50 px-4 sm:px-6"> {/* Changed py-8 sm:py-12 to py-6 sm:py-8 */}
+//       {/* Shop by category - Reduced vertical padding */}
+//       <section className="py-6 sm:py-8 bg-gray-50 px-4 sm:px-6">
 //         <div className="max-w-7xl mx-auto">
 //           <div className="flex justify-start mb-6 sm:mb-8">
 //             <h2 className="text-xl sm:text-2xl font-bold">Shop by category</h2>
@@ -322,7 +293,7 @@
 //               >
 //                 <Card
 //                   onClick={() =>
-//                     handleNavigateToListingPage({ id }, "category")
+//                     handleNavigateToListingPage({ id }, id === "all-products" ? null : "category")
 //                   }
 //                   className="cursor-pointer hover:shadow-md h-full"
 //                 >
@@ -339,28 +310,62 @@
 //         </div>
 //       </section>
 
+//       ---
 
-//       {/* Featured Products */}
+//       {/* Top Products */}
 //       <section className="max-w-7xl mx-auto">
-//         <h2 className="text-xl sm:text-2xl font-bold mb-6">Featured Products</h2>
+//         <h2 className="text-xl sm:text-2xl font-bold mb-6">Top Products</h2>
 //         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-//           {featuredProducts.map((productItem, index) => (
-//             <motion.div
-//               key={productItem._id}
-//               initial={{ opacity: 0, x: -50 }}
-//               animate={{ opacity: 1, x: 0 }}
-//               transition={{ duration: 0.5, delay: index * 0.1 }}
-//               whileHover={{ scale: 1.03 }}
-//             >
-//               <ShoppingProductTile
-//                 product={productItem}
-//                 handleAddToCart={handleAddToCart}
-//                 handleViewDetails={handleViewProductDetails}
-//               />
-//             </motion.div>
-//           ))}
+//           {productList.length > 0 ? (
+//             productList.slice(0, 8).map((productItem, index) => (
+//               <motion.div
+//                 key={productItem._id}
+//                 initial={{ opacity: 0, x: -50 }}
+//                 animate={{ opacity: 1, x: 0 }}
+//                 transition={{ duration: 0.5, delay: index * 0.1 }}
+//                 whileHover={{ scale: 1.03 }}
+//               >
+//                 <ShoppingProductTile
+//                   product={productItem}
+//                   handleAddToCart={handleAddToCart}
+//                   handleViewDetails={handleViewProductDetails}
+//                 />
+//               </motion.div>
+//             ))
+//           ) : (
+//             <div className="col-span-full text-center text-gray-500">Loading products...</div>
+//           )}
 //         </div>
 //       </section>
+
+//       ---
+
+//       {/* --- NEW IMAGE SLIDER SECTION --- */}
+//       <section className="w-full flex items-center justify-center py-8 sm:py-12">
+//         <div className="max-w-7xl w-full">
+//           <h2 className="text-xl sm:text-2xl font-bold mb-6 text-center">Featured Gadgets</h2> {/* Added a title for the slider */}
+//           <div className="relative w-full h-[250px] sm:h-[350px] md:h-[450px] overflow-hidden rounded-xl shadow-md">
+//             {featureImageList?.map((slide, index) => (
+//               <motion.div
+//                 key={index}
+//                 className="absolute top-0 left-0 w-full h-full"
+//                 initial={{ opacity: 0 }}
+//                 animate={{ opacity: index === currentSlide ? 1 : 0 }}
+//                 transition={{ duration: 1 }}
+//               >
+//                 <img
+//                   src={slide?.image}
+//                   className="w-full h-full object-cover"
+//                   alt={`Slide ${index + 1}`}
+//                 />
+//               </motion.div>
+//             ))}
+//           </div>
+//         </div>
+//       </section>
+//       {/* --- END NEW IMAGE SLIDER SECTION --- */}
+
+//       ---
 
 //       {/* Support Features */}
 //       <section className="max-w-7xl mx-auto">
@@ -377,7 +382,7 @@
 //               >
 //                 <Card>
 //                   <CardContent className="flex flex-col items-center p-4">
-//                     <Icon className="w-8 h-8 mb-3 text-peach-500" />
+//                     <Icon className="w-8 h-8 mb-3 text-blue-800" />
 //                     <h3 className="font-bold text-base mb-2 text-center">{feature.title}</h3>
 //                     <p className="text-xs text-center text-gray-600">{feature.description}</p>
 //                   </CardContent>
@@ -387,6 +392,8 @@
 //           })}
 //         </div>
 //       </section>
+
+//       ---
 
 //       <CustomerReviews />
 //     </div>
@@ -416,9 +423,9 @@ const categoriesWithIcon = [
   { id: "smartphones", label: "Smartphones", icon: Smartphone },
   { id: "laptops", label: "Laptops", icon: Laptop },
   { id: "monitors", label: "Monitors", icon: Tv },
-  { id: "all-products", label: "All Products", icon: ShoppingBag }, 
   { id: "accessories", label: "Accessories", icon: CloudLightning },
-  
+  { id: "all-products", label: "All Products", icon: ShoppingBag }, 
+ 
 ];
 
 const brandsWithIcon = [
@@ -426,10 +433,15 @@ const brandsWithIcon = [
   { id: "samsung", label: "Samsung", icon: Airplay },
   { id: "dell", label: "Dell", icon: LaptopMinimal },
   { id: "hp", label: "HP", icon: TabletSmartphone },
-  { id: "all-products", label: "All Products", icon: ShoppingBag }, // Renamed id to 'all-products' for clarity
+  { id: "all-products", label: "All Products", icon: ShoppingBag }, 
 ];
 
 const supportFeatures = [
+  {
+    icon: FaShieldAlt,
+    title: "Six Month Warranty",
+    description: "All products come with a 6-month warranty for your peace of mind.",
+  },
   {
     icon: FaTruck,
     title: "Swift & Secure Delivery",
@@ -442,14 +454,10 @@ const supportFeatures = [
   },
   {
     icon: FaHeadset,
-    title: "24/7 Support",
+    title: "Free online tech support",
     description: "We are available 24/7 to assist you with any question, or issues you may have.",
   },
-  {
-    icon: FaShieldAlt,
-    title: "Six Month Warranty",
-    description: "All products come with a 6-month warranty for your peace of mind.",
-  },
+  
 ];
 
 function ShoppingHome() {
@@ -483,29 +491,35 @@ function ShoppingHome() {
   };
 
   useEffect(() => {
-    const shuffledProducts = shuffleArray([...productList]).slice(0, 8);
-    setFeaturedProducts(shuffledProducts);
+    // This effect shuffles and slices the *current* productList for "Top Products" and "Featured Products"
+    // It will react to changes in productList from the Redux store.
+    const updateFeaturedProducts = () => {
+      const shuffled = shuffleArray([...productList]);
+      setFeaturedProducts(shuffled.slice(0, 8)); // Ensure you have enough products to slice
+    };
+
+    updateFeaturedProducts(); // Initial update when productList changes
+
+    // Interval to re-shuffle and update every hour
     const interval = setInterval(() => {
-      setFeaturedProducts(shuffleArray([...productList]).slice(0, 8));
-    }, 60 * 60 * 1000);
+      updateFeaturedProducts();
+    }, 60 * 60 * 1000); // Every hour
+
     return () => clearInterval(interval);
-  }, [productList]);
+  }, [productList]); // Re-run this effect when productList changes
 
-  // Modified handleNavigateToListingPage
+
+  // Modified handleNavigateToListingPage (from previous update, keep this)
   const handleNavigateToListingPage = (item, section) => {
-    sessionStorage.removeItem("filters"); // Always clear previous filters
+    sessionStorage.removeItem("filters"); 
 
-    // If 'all-products' is clicked or section is not provided (e.g., direct navigation to listing)
     if (item.id === "all-products") {
-      // For "All Products", do NOT set any filter in sessionStorage.
-      // The listing page will default to showing all products.
-      navigate(`/shop/listing`); // Navigate without any specific query params
+      navigate(`/shop/listing`); 
     } else {
-      // For specific categories/brands, set the filter in sessionStorage and as a URL param
       const currentFilter = { [section]: [item.id] };
       sessionStorage.setItem("filters", JSON.stringify(currentFilter));
       const queryParams = new URLSearchParams();
-      queryParams.set(section, item.id); // Add the specific category to URL params
+      queryParams.set(section, item.id); 
       navigate(`/shop/listing?${queryParams.toString()}`);
     }
   };
@@ -599,113 +613,102 @@ function ShoppingHome() {
     return () => clearInterval(timer);
   }, [featureImageList]);
 
+  // --- START OF THE CRITICAL CHANGE ---
+  // This useEffect now always fetches a fresh, unfiltered list when ShoppingHome mounts.
   useEffect(() => {
-    if (productList.length === 0) {
-      dispatch(fetchAllFilteredProducts({
-        filterParams: {},
-        sortParams: "price-lowtohigh",
-      }));
-    }
-  }, [dispatch, productList.length]);
+    dispatch(
+      fetchAllFilteredProducts({
+        filterParams: {}, // Always an empty filter object for the home page
+        sortParams: "price-lowtohigh", // Always a default sort for the home page
+      })
+    );
+  }, [dispatch]); // Only dispatch changes, ensuring it runs once on mount.
+  // --- END OF THE CRITICAL CHANGE ---
+
 
   useEffect(() => {
     dispatch(getFeatureImages());
   }, [dispatch]);
 
   return (
-
-
     <div className="flex flex-col space-y-8 sm:space-y-12 px-4 sm:px-6">
-
-
       {/* Hero Section */}
       <section className="w-full flex items-center justify-center py-8 sm:py-12">
-        <div className="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-          <motion.div
+    <div className="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center h-full text-left space-y-6"
-          >
+        >
             <motion.h1
-              className="text-2xl sm:text-3xl font-bold text-gray-700 leading-tight"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+                className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-700 leading-tight"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
             >
-              <span className="flex items-center gap-2 mb-2">
-                <ShieldCheck className="text-orange-500 w-8 h-10" />
-                Your No.1 store that offers
-              </span>
-              <span className="text-orange-500 font-extrabold">
-                6 months warranty
-              </span>
-              <span> {""} on all UK-used gadgets</span>
+                <span className="flex items-start gap-2 mb-2">
+                    <ShieldCheck className="text-orange-500 w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 mt-1" />
+                    Your No.1 store that offers
+                </span>
+                {/* --- ANIMATED WARRANTY TEXT HERE --- */}
+                <motion.span
+                    className="text-orange-500 font-extrabold block text-3xl sm:text-4xl md:text-5xl lg:text-6xl my-2"
+                    initial={{ scale: 1 }} // Start at normal size
+                    animate={{ scale: [1, 1.05, 1] }} // Scale out, then back in
+                    transition={{
+                        duration: 1.5,
+                        repeat: Infinity,
+                        repeatType: "loop",
+                    }}
+                >
+                    6 months warranty
+                </motion.span>
+                {/* --- END ANIMATED WARRANTY TEXT --- */}
+                <span className="block">on all UK-used gadgets</span>
             </motion.h1>
 
             <motion.div
-              initial={{ scale: 1 }}
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{
-                duration: 1.5,
-                repeat: Infinity,
-                repeatType: "loop",
-              }}
+                initial={{ scale: 1 }}
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    repeatType: "loop",
+                }}
             >
-              <Button
-                onClick={() => handleNavigateToListingPage({ id: "all-products" }, null)} // Use 'all-products' ID for navigation
-                className="bg-blue-900 hover:bg-blue-700 text-white font-bold px-6 py-3 uppercase text-sm sm:text-base"
-              >
-                Shop Now
-              </Button>
+                <Button
+                    onClick={() => handleNavigateToListingPage({ id: "all-products" }, null)}
+                    className="bg-blue-900 hover:bg-blue-700 text-white font-bold px-6 py-3 uppercase text-sm sm:text-base"
+                >
+                    Shop Now
+                </Button>
             </motion.div>
-          </motion.div>
+        </motion.div>
 
-          <div className="relative w-full h-[250px] sm:h-[350px] md:h-[450px] overflow-hidden rounded-xl shadow-md">
+        <div className="relative w-full h-[250px] sm:h-[350px] md:h-[450px] overflow-hidden rounded-xl shadow-md">
             {featureImageList?.map((slide, index) => (
-              <motion.div
-                key={index}
-                className="absolute top-0 left-0 w-full h-full"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: index === currentSlide ? 1 : 0 }}
-                transition={{ duration: 1 }}
-              >
-                <img
-                  src={slide?.image}
-                  className="w-full h-full object-cover"
-                  alt={`Slide ${index + 1}`}
-                />
-              </motion.div>
+                <motion.div
+                    key={index}
+                    className="absolute top-0 left-0 w-full h-full"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: index === currentSlide ? 1 : 0 }}
+                    transition={{ duration: 1 }}
+                >
+                    <img
+                        src={slide?.image}
+                        className="w-full h-full object-cover"
+                        alt={`Slide ${index + 1}`}
+                    />
+                </motion.div>
             ))}
-          </div>
         </div>
-      </section>
-
-      {/* Top Products */}
-      <section className="max-w-7xl mx-auto">
-        <h2 className="text-xl sm:text-2xl font-bold mb-6">Top Products</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {productList.slice(0, 8).map((productItem, index) => (
-            <motion.div
-              key={productItem._id}
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ scale: 1.03 }}
-            >
-              <ShoppingProductTile
-                product={productItem}
-                handleAddToCart={handleAddToCart}
-                handleViewDetails={handleViewProductDetails}
-              />
-            </motion.div>
-          ))}
-        </div>
-      </section>
+    </div>
+</section>  
 
 
-      {/* Shop by category - Reduced vertical padding */}
-      <section className="py-6 sm:py-8 bg-gray-50 px-4 sm:px-6"> {/* Changed py-8 sm:py-12 to py-6 sm:py-8 */}
+  {/* Shop by category - Reduced vertical padding */}
+  <section className="py-6 sm:py-8 bg-gray-50 px-4 sm:px-6"> 
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-start mb-6 sm:mb-8">
             <h2 className="text-xl sm:text-2xl font-bold">Shop by category</h2>
@@ -719,7 +722,6 @@ function ShoppingHome() {
               >
                 <Card
                   onClick={() =>
-                    // Pass "category" section if it's a specific category, else pass null
                     handleNavigateToListingPage({ id }, id === "all-products" ? null : "category")
                   }
                   className="cursor-pointer hover:shadow-md h-full"
@@ -737,28 +739,34 @@ function ShoppingHome() {
         </div>
       </section>
 
-
-      {/* Featured Products */}
+      {/* Top Products */}
       <section className="max-w-7xl mx-auto">
-        <h2 className="text-xl sm:text-2xl font-bold mb-6">Featured Products</h2>
+        <h2 className="text-xl sm:text-2xl font-bold mb-6">Top Products</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {featuredProducts.map((productItem, index) => (
-            <motion.div
-              key={productItem._id}
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{ scale: 1.03 }}
-            >
-              <ShoppingProductTile
-                product={productItem}
-                handleAddToCart={handleAddToCart}
-                handleViewDetails={handleViewProductDetails}
-              />
-            </motion.div>
-          ))}
+          {/* Ensure productList is populated before slicing, or handle empty state */}
+          {productList.length > 0 ? (
+            productList.slice(0, 8).map((productItem, index) => (
+              <motion.div
+                key={productItem._id}
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.03 }}
+              >
+                <ShoppingProductTile
+                  product={productItem}
+                  handleAddToCart={handleAddToCart}
+                  handleViewDetails={handleViewProductDetails}
+                />
+              </motion.div>
+            ))
+          ) : (
+            <div className="col-span-full text-center text-gray-500">Loading products...</div>
+          )}
         </div>
       </section>
+
+
 
       {/* Support Features */}
       <section className="max-w-7xl mx-auto">
@@ -775,7 +783,7 @@ function ShoppingHome() {
               >
                 <Card>
                   <CardContent className="flex flex-col items-center p-4">
-                    <Icon className="w-8 h-8 mb-3 text-peach-500" />
+                    <Icon className="w-8 h-8 mb-3 text-blue-900" />
                     <h3 className="font-bold text-base mb-2 text-center">{feature.title}</h3>
                     <p className="text-xs text-center text-gray-600">{feature.description}</p>
                   </CardContent>

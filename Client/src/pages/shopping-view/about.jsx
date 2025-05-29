@@ -52,6 +52,11 @@ const AboutPage = () => {
 >
   {[
     {
+      Icon: FaCheckCircle,
+      title: "6 Months Warranty",
+      desc: "Enjoy peace of mind with a 6-month warranty on select products.",
+    },
+    {
       Icon: FaShieldAlt,
       title: "Quality Products",
       desc: "We source only the best quality gadgets from trusted manufacturers.",
@@ -66,17 +71,13 @@ const AboutPage = () => {
       title: "Fast Delivery",
       desc: "Quick and secure delivery to your doorstep.",
     },
-    {
-      Icon: FaCheckCircle,
-      title: "6 Months Warranty",
-      desc: "Enjoy peace of mind with a 6-month warranty on select products.",
-    },
+    
   ].map((item, index) => (
     <div
       key={index}
       className="bg-card rounded-2xl shadow-lg p-8 text-center hover:shadow-xl transition duration-300"
     >
-      <item.Icon size={48} className="text-peach-500 mx-auto mb-4" />
+      <item.Icon size={48} className="text-blue-900 mx-auto mb-4" />
       <h3 className="text-xl font-bold text-primary mb-3">
         {item.title}
       </h3>

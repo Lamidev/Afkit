@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 function SearchProducts() {
   const [keyword, setKeyword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [searchParams] = useSearchParams(); // No need for setSearchParams if external component sets it
+  const [searchParams] = useSearchParams();
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ function SearchProducts() {
       setKeyword(""); // Clear local state if no keyword in URL
       dispatch(resetSearchResults()); // Clear previous search results
     }
-  }, [location.search, dispatch, searchParams]); // `searchParams` is derived from `location.search`, but keeping it as dependency is harmless
+  }, [location.search, dispatch, searchParams]);
 
   // Effect to fetch cart items (existing logic)
   useEffect(() => {
@@ -51,13 +51,13 @@ function SearchProducts() {
       } catch (error) {
         console.error('Failed to fetch cart:', error);
         if (!user) {
-          localStorage.removeItem('guestSessionId'); // Clear session if fetching failed for guest
+          localStorage.removeItem('guestSessionId');
         }
       }
     };
 
     fetchCart();
-  }, [dispatch, user]); // Depend on dispatch and user to re-fetch if user changes
+  }, [dispatch, user]);
 
   const handleAddToCart = async (getCurrentProductId, getTotalStock) => {
     try {
@@ -174,14 +174,16 @@ function SearchProducts() {
             Search Results for "{keyword}"
           </motion.h2>
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+            // --- UPDATED CLASS NAMES HERE ---
+            className="grid grid-cols-2 md:grid-cols-4 gap-6"
+            // --- END UPDATED CLASS NAMES ---
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
             {searchResults.map((item) => (
               <motion.div
-                key={item.id} // Ensure `item.id` is a stable unique identifier
+                key={item.id}
                 whileHover={{ scale: 1.03 }}
                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
               >

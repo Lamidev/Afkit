@@ -1,12 +1,11 @@
 
 
-
 import { LogOut, Menu, ShoppingCart, User, Search } from "lucide-react";
 import { Link, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { shoppingViewHeaderMenuItems } from "@/config";
+import { shoppingViewHeaderMenuItems } from "@/config"; // This import path remains the same
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -37,28 +36,38 @@ import UserCartWrapper from "../../components/shopping-view/cart-wrapper";
 
 function MenuItems({ closeSheet }) {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation(); // Keep if needed for other logic, but not for category handling here
+  const [searchParams, setSearchParams] = useSearchParams(); // Keep to manipulate URL search params
 
-  function handleNavigate(getCurrentMenuItem) {
+  function handleNavigate(menuItem) {
+    // It's good practice to clear this, though with URL params, it's less critical for state persistence.
     sessionStorage.removeItem("filters");
 
-    if (
-      getCurrentMenuItem.id !== "home" &&
-      getCurrentMenuItem.id !== "products" &&
-      getCurrentMenuItem.id !== "about"
-    ) {
-      const currentFilter = { category: [getCurrentMenuItem.id] };
-      sessionStorage.setItem("filters", JSON.stringify(currentFilter));
+    let targetPath = menuItem.path;
+    let newSearchParams = new URLSearchParams(searchParams); // Start with current search params
 
-      if (location.pathname.includes("listing")) {
-        setSearchParams(new URLSearchParams(`?category=${getCurrentMenuItem.id}`));
-        return;
-      }
+    // Check if the menu item is a category that should go to the /shop/listing page
+    // and apply the category as a search parameter.
+    // We check against the `path` because 'products' also goes to /shop/listing but without a category param initially.
+    if (menuItem.path === "/shop/listing" && menuItem.id !== "products") {
+      // This means it's a specific category like 'smartphones', 'laptops', etc.
+      // The `path` in config is simplified to "/shop/listing" for these,
+      // and we use the `id` to set the category search param.
+      newSearchParams.set("category", menuItem.id);
+      targetPath = "/shop/listing"; // Ensure we are always navigating to the base listing path
+    } else {
+      // For 'home', 'products', 'about', or any other direct path,
+      // ensure the 'category' search parameter is removed.
+      newSearchParams.delete("category");
     }
 
-    navigate(getCurrentMenuItem.path);
-    closeSheet();
+    // Construct the full URL with or without search parameters
+    const fullPath = newSearchParams.toString()
+      ? `${targetPath}?${newSearchParams.toString()}`
+      : targetPath;
+
+    navigate(fullPath);
+    closeSheet(); // Close the sheet after navigation
   }
 
   return (
@@ -233,11 +242,13 @@ function ShoppingHeader() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-full max-w-xs">
+            {/* Pass closeSheet to MenuItems and HeaderRightContent */}
             <MenuItems closeSheet={() => setIsSheetOpen(false)} />
             <HeaderRightContent closeSheet={() => setIsSheetOpen(false)} />
           </SheetContent>
         </Sheet>
         
+        {/* Desktop menu items and right content */}
         <div className="hidden lg:block">
           <MenuItems closeSheet={() => setIsSheetOpen(false)} />
         </div>
