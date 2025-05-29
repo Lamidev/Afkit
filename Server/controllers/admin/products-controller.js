@@ -306,10 +306,10 @@ const handleMultipleImageUpload = async (req, res) => {
       });
     }
 
-    if (req.files.length > 4) {
+    if (req.files.length > 8) {
       return res.status(400).json({
         success: false,
-        message: "Maximum of 4 images allowed"
+        message: "Maximum of 8 images allowed"
       });
     }
 

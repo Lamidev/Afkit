@@ -99,9 +99,9 @@ const ProductSchema = new mongoose.Schema(
       type: [String],
       validate: {
         validator: function(array) {
-          return array.length <= 4; // Updated to 4 images
+          return array.length <= 8; // Updated to 4 images
         },
-        message: "Maximum of 4 images allowed" // Updated message
+        message: "Maximum of 8 images allowed" // Updated message
       }
     },
     title: {
