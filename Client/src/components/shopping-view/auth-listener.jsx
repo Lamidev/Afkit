@@ -16,7 +16,7 @@ const AuthListener = () => {
           
           // Only merge if we have a session ID
           if (sessionId) {
-            console.log('Attempting to merge carts with:', { userId: user.id, sessionId });
+            // console.log('Attempting to merge carts with:', { userId: user.id, sessionId });
             const result = await dispatch(mergeCarts({
               userId: user.id,
               sessionId
@@ -24,7 +24,7 @@ const AuthListener = () => {
             
             if (result.success) {
               clearSessionId();
-              console.log('Cart merge successful, session cleared.');
+              // console.log('Cart merge successful, session cleared.');
             } else {
               console.warn('Cart merge reported success: false, keeping session ID for now.');
             }
@@ -34,7 +34,7 @@ const AuthListener = () => {
           await dispatch(fetchCartItems({ userId: user.id }));
           
         } catch (error) {
-          console.error('Error during cart merge:', error);
+          // console.error('Error during cart merge:', error);
           // Fallback: try to fetch user cart anyway
           await dispatch(fetchCartItems({ userId: user.id }));
         }
