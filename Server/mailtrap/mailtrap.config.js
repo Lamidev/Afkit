@@ -22,9 +22,10 @@ const mailtrapClient = new MailtrapClient({
 
 // Define the sender details
 const sender = {
-  email: "hello@demomailtrap.com",
-  name: "Mailtrap Test"
+  email: "hello@afkit.ng",
+  name: "Afkit"
 };
+
 
 // Export the client and sender details
 module.exports = {

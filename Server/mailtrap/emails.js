@@ -52,7 +52,7 @@ exports.sendWelcomeEmail = async (email, userName) => {
         to: recipient,
         template_uuid: templateUUID,
         template_variables: {
-          company_info_name: "Afkit Gadgets", // Matches email template variables
+          company_info_name: "Afkit", // Matches email template variables
           name: userName,
         },
       },
