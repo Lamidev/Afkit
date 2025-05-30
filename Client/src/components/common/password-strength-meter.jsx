@@ -14,7 +14,7 @@ const PasswordCriteria = ({ password }) => {
       {criteria.map((item) => (
         <div key={item.label} className="flex items-center text-xs">
           {item.met ? (
-            <Check className="size-4 text-white mr-2" />
+            <Check className="size-4 text-green-500 mr-2" />
           ) : (
             <X className="size-4 text-black mr-2" />
           )}

@@ -42,7 +42,7 @@ function AuthRegister() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="mx-auto w-full max-w-md space-y-6 bg-gray-400 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden"
+      className="mx-auto w-full max-w-md space-y-6 bg-white bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden"
     >
       <div className="p-8">
         <h2 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-black to-black text-transparent bg-clip-text">
@@ -59,7 +59,7 @@ function AuthRegister() {
 
         <PasswordStrengthMeter password={formData.password} />
       </div>
-      <div className="px-8 py-4 bg-gray-400 bg-opacity-50 flex justify-center">
+      <div className="px-8 py-4 bg-white bg-opacity-50 flex justify-center">
         <p className="text-sm text-black">
           Already have an account?{" "}
           <Link to={"/auth/login"} className="text-black hover:underline">

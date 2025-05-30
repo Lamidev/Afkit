@@ -46,7 +46,7 @@ function ForgotPasswordPage() {
 
   return (
     <motion.div
-      className="max-w-md w-full bg-gray-400 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden"
+      className="max-w-md w-full bg-white bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -73,7 +73,7 @@ function ForgotPasswordPage() {
           </div>
         )}
       </div>
-      <div className="px-8 py-4 bg-gray-400 bg-opacity-50 flex justify-center">
+      <div className="px-8 py-4 bg-white bg-opacity-50 flex justify-center">
         <Link to={"/auth/login"} className="text-black hover:underline flex items-center gap-2">
           <ArrowLeft size={18} /> Back to Login
         </Link>
