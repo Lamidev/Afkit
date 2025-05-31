@@ -1,7 +1,6 @@
 
 
-
-// import { useParams, useNavigate } from "react-router-dom";
+// import { useParams, useNavigate, useLocation } from "react-router-dom";
 // import { useEffect, useState } from "react";
 // import { useDispatch, useSelector } from "react-redux";
 // import { Button } from "@/components/ui/button";
@@ -22,6 +21,7 @@
 //   const { id } = useParams();
 //   const dispatch = useDispatch();
 //   const navigate = useNavigate();
+//   const location = useLocation();
 //   const { user } = useSelector((state) => state.auth);
 //   const { cartItems } = useSelector((state) => state.shopCart);
 //   const { productDetails, relatedProducts } = useSelector(
@@ -29,12 +29,18 @@
 //   );
 
 //   const [quantity, setQuantity] = useState(1);
+//   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
 //   useEffect(() => {
 //     if (id) {
 //       dispatch(fetchProductDetails(id));
 //     }
 //   }, [id, dispatch]);
+
+//   // Scroll to top when product ID changes
+//   useEffect(() => {
+//     window.scrollTo(0, 0);
+//   }, [id]);
 
 //   useEffect(() => {
 //     if (!productDetails) return;
@@ -153,17 +159,52 @@
 //     return <div className="container py-8"><LoadingSpinner/></div>;
 //   }
 
+//   // Get all images - fallback to single image if images array doesn't exist
+//   const productImages = productDetails.images?.length > 0 
+//     ? productDetails.images 
+//     : productDetails.image 
+//       ? [productDetails.image] 
+//       : [];
+
 //   return (
 //     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 //       {/* Top Section */}
 //       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-//         {/* Left - Image */}
-//         <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
-//           <img
-//             src={productDetails.image}
-//             alt={productDetails.title}
-//             className="object-contain w-full max-h-full p-6"
-//           />
+//         {/* Left - Image Gallery */}
+//         <div className="flex flex-col md:flex-row gap-4">
+//           {/* Thumbnails - only show if more than one image */}
+//           {productImages.length > 1 && (
+//             <div className="flex flex-row md:flex-col gap-2 order-2 md:order-1">
+//               {productImages.map((img, index) => (
+//                 <button
+//                   key={index}
+//                   onClick={() => setSelectedImageIndex(index)}
+//                   className={`w-16 h-16 rounded-md overflow-hidden border-2 ${
+//                     selectedImageIndex === index 
+//                       ? 'border-primary' 
+//                       : 'border-transparent'
+//                   }`}
+//                 >
+//                   <img
+//                     src={img}
+//                     alt={`${productDetails.title} thumbnail ${index + 1}`}
+//                     className="w-full h-full object-cover"
+//                   />
+//                 </button>
+//               ))}
+//             </div>
+//           )}
+          
+//           {/* Main Image */}
+//           <div className={`aspect-square bg-gray-100 rounded-lg flex items-center justify-center ${
+//             productImages.length > 1 ? 'order-1 md:order-2 flex-1' : 'w-full'
+//           }`}>
+//             <img
+//               src={productImages[selectedImageIndex]}
+//               alt={productDetails.title}
+//               className="object-contain w-full max-h-full p-6"
+//             />
+//           </div>
 //         </div>
 
 //         {/* Right - Product Details */}
@@ -273,6 +314,7 @@ export default function ShoppingProductDetails() {
   useEffect(() => {
     if (id) {
       dispatch(fetchProductDetails(id));
+      window.scrollTo(0, 0);  // <-- Scroll to top when product id changes
     }
   }, [id, dispatch]);
 
