@@ -405,7 +405,6 @@ import { Checkbox } from "../ui/checkbox";
 import { Separator } from "../ui/separator";
 import { X, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
-// import { Slider } from "../ui/slider"; // Removed Slider import
 import { useState, useEffect, useRef } from "react";
 import { Input } from "../ui/input";
 
