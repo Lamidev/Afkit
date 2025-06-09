@@ -68,7 +68,7 @@ const ShoppingLayout = () => {
         href="https://wa.me/2348164014304?text=Hi,%20I%20would%20love%20to%20place%20an%20order"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 text-green p-3 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2 z-50"
+        className="fixed bottom-6 right-6 text-green-500 p-3 rounded-full shadow-lg transition-all duration-300 flex items-center gap-2 z-50"
       >
         <FaWhatsapp size={35} />
       </a>
