@@ -73,19 +73,19 @@ const Footer = () => {
           <h2 className="text-xl font-semibold mb-4">Contact Us</h2>
           <ul className="space-y-3">
             <li className="flex items-center justify-center md:justify-start">
-              <FaEnvelope className="w-5 h-5 mr-2" />
-              <a href="mailto:afkitng@gmail.com" className="hover:text-gray-700 transition">
+              <FaEnvelope className="w-5 h-5 mr-2 text-blue-800" />
+              <a href="mailto:afkitng@gmail.com" className="hover:text-gray-600 transition">
                 afkitng@gmail.com
               </a>
             </li>
             <li className="flex items-center justify-center md:justify-start">
-              <FaPhone className="w-5 h-5 mr-2" />
-              <a href="tel:+2348164014304" className="hover:text-gray-700 transition">
+              <FaPhone className="w-5 h-5 mr-2  text-blue-800" />
+              <a href="tel:+2348164014304" className="hover:text-gray-600 transition">
                 0816 401 4304
               </a>
             </li>
             <li className="flex items-center justify-center md:justify-start">
-              <FaMapMarkerAlt className="w-5 h-5 mr-2" />
+              <FaMapMarkerAlt className="w-5 h-5 mr-2  text-blue-800" />
               <span>
                 Shop A25, Platinum Plaza, No 7 Adepele Street, Computer Village, Ikeja
               </span>

@@ -1,19 +1,22 @@
-
-
 import { useDispatch } from "react-redux";
 import { Button } from "../ui/button";
 import { AlignJustify, LogOut } from "lucide-react";
 import { logoutUser } from "@/store/auth-slice";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../ui/dialog";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; 
-
+import { useNavigate } from "react-router-dom";
 
 function AdminHeader({ setOpen }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
-  
+
   // Function to handle logout action
   function handleLogout() {
     dispatch(logoutUser()).then(() => {
@@ -24,18 +27,20 @@ function AdminHeader({ setOpen }) {
 
   return (
     <header className="flex items-center justify-between px-4 py-3 bg-background border-b">
-      <Button 
-        onClick={() => setOpen(true)} 
-        className="lg:hidden sm:block rounded">
+      <Button
+        onClick={() => setOpen(true)}
+        className="lg:hidden sm:block rounded"
+      >
         <AlignJustify size={20} />
         <span className="sr-only">Toggle Menu</span>
       </Button>
-      
+
       <div className="flex flex-1 justify-end">
         {/* Logout Button */}
-        <Button 
+        <Button
           onClick={() => setIsLogoutDialogOpen(true)}
-          className="inline-flex gap-2 items-center px-4 py-2 text-sm font-medium shadow rounded">
+          className="inline-flex gap-2 items-center px-4 py-2 text-sm font-medium shadow rounded"
+        >
           <LogOut size={18} />
           Log Out
         </Button>
@@ -49,7 +54,10 @@ function AdminHeader({ setOpen }) {
           </DialogHeader>
           <p>Are you sure you want to log out?</p>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsLogoutDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsLogoutDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleLogout}>

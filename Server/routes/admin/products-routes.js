@@ -1,5 +1,3 @@
-
-
 const express = require("express");
 const {
   handleImageUpload,
@@ -18,7 +16,11 @@ const router = express.Router();
 router.post("/upload-image", upload.single("my_file"), handleImageUpload);
 
 // Multiple image upload (new endpoint)
-router.post("/upload-images", upload.array("my_files", 4), handleMultipleImageUpload);
+router.post(
+  "/upload-images",
+  upload.array("my_files", 4),
+  handleMultipleImageUpload
+);
 
 // Product CRUD operations
 router.post("/add", addProduct);

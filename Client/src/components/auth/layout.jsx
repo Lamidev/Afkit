@@ -1,6 +1,3 @@
-
-
-
 import { motion } from "framer-motion";
 import { Outlet } from "react-router-dom";
 import Afkitlogo from "../../assets/afkit-logo.png";
@@ -34,8 +31,7 @@ function AuthLayout() {
         >
           Welcome to <span className="text-orange-500 font-bold">Afkit</span>
           {""}
-          <span> we sell integrity and value for your money</span>  
-         
+          <span> we sell integrity and value for your money</span>
         </motion.p>
       </div>
 

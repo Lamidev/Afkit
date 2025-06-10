@@ -40,7 +40,7 @@ import { motion } from "framer-motion";
         >
           <Search className="h-5 w-5" />
         </button>
-        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-800 h-5 w-5" />
       </motion.div>
     </form>
   );
