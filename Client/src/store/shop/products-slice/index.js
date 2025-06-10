@@ -1,6 +1,3 @@
-
-
-
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -20,8 +17,8 @@ export const fetchAllFilteredProducts = createAsyncThunk(
     });
 
     if (priceRange) {
-      query.append('minPrice', priceRange.min);
-      query.append('maxPrice', priceRange.max);
+      query.append("minPrice", priceRange.min);
+      query.append("maxPrice", priceRange.max);
     }
 
     const result = await axios.get(
@@ -48,7 +45,9 @@ export const fetchProductsByBrand = createAsyncThunk(
   async (brand, { rejectWithValue }) => {
     try {
       const result = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/shop/products/brand?brand=${encodeURIComponent(brand)}`
+        `${
+          import.meta.env.VITE_API_BASE_URL
+        }/shop/products/brand?brand=${encodeURIComponent(brand)}`
       );
       return result?.data;
     } catch (error) {
@@ -106,5 +105,6 @@ const shoppingProductSlice = createSlice({
   },
 });
 
-export const { setProductDetails, clearRelatedProducts } = shoppingProductSlice.actions;
+export const { setProductDetails, clearRelatedProducts } =
+  shoppingProductSlice.actions;
 export default shoppingProductSlice.reducer;

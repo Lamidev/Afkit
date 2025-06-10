@@ -1,5 +1,3 @@
-
-
 import { motion } from "framer-motion";
 import AfkitLogo from "../../assets/afkit-logo.png"; // update path if needed
 

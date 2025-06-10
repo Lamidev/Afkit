@@ -1,4 +1,3 @@
-
 import { motion } from "framer-motion";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -68,7 +67,10 @@ function ShoppingProductTile({ product, handleAddToCart, handleViewDetails }) {
 
       {/* Product Title & Price Below Image */}
       <div className="mt-3 space-y-1 flex-grow">
-        <h2 className="text-sm font-semibold truncate">{product?.title}</h2>
+        {/* REMOVED 'truncate' class */}
+        <h2 className="text-sm font-semibold leading-tight">
+          {product?.title}
+        </h2>
         <p className="text-sm font-bold text-peach-600">
           {formattedPrice}
         </p>
@@ -76,13 +78,13 @@ function ShoppingProductTile({ product, handleAddToCart, handleViewDetails }) {
 
       {/* Add to Cart Button (not full width, lighter color) */}
       {product?.totalStock > 0 && (
-        <div className="mt-4 flex justify-center"> {/* Added flex justify-center */}
+        <div className="mt-4 flex justify-center">
           <Button
             onClick={(e) => {
               e.stopPropagation();
               handleAddToCart(product?._id, product?.totalStock);
             }}
-            className="text-xs sm:text-sm bg-blue-900 text-white hover:bg-blue-600 px-6 py-2 rounded-md" // Customizing button styles
+            className="text-xs sm:text-sm bg-blue-900 text-white hover:bg-blue-600 px-6 py-2 rounded-md"
           >
             Add to cart
           </Button>
@@ -92,8 +94,8 @@ function ShoppingProductTile({ product, handleAddToCart, handleViewDetails }) {
       {product?.totalStock === 0 && (
           <div className="mt-4 flex justify-center">
               <Button
-                  disabled
-                  className="text-xs sm:text-sm bg-gray-300 text-gray-600 cursor-not-allowed px-6 py-2 rounded-md"
+                disabled
+                className="text-xs sm:text-sm bg-gray-300 text-gray-600 cursor-not-allowed px-6 py-2 rounded-md"
               >
                   Out of Stock
               </Button>

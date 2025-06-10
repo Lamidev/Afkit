@@ -1,5 +1,3 @@
-
-
 import { Routes, Route, Navigate } from "react-router-dom";
 import AuthLayout from "./components/auth/layout";
 import AuthLogin from "./pages/auth/login";
@@ -11,7 +9,6 @@ import ShoppingLayout from "./components/shopping-view/layout";
 import NotFound from "./pages/not-found";
 import ShoppingHome from "./pages/shopping-view/home";
 import ShoppingCheckout from "./pages/shopping-view/checkout";
-import ShoppingAccount from "./pages/shopping-view/account";
 import CheckAuth from "./components/common/check-auth";
 import UnauthPage from "./pages/unauth-page";
 import { useSelector, useDispatch } from "react-redux";
@@ -28,21 +25,22 @@ import { Toaster } from "./components/ui/sonner";
 import ShoppingProductDetails from "./pages/shopping-view/product-details-page";
 import AuthListener from "./components/shopping-view/auth-listener";
 
-
 function App() {
-  const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
+  const { user, isAuthenticated, isLoading } = useSelector(
+    (state) => state.auth
+  );
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  if (isLoading) return <LoadingSpinner/>; // Replace Skeleton with LoadingSpinner
+  if (isLoading) return <LoadingSpinner />; // Replace Skeleton with LoadingSpinner
 
   return (
     <div className="flex flex-col overflow-hidden bg-white">
-        <Toaster/>
-        <AuthListener/>
+      <Toaster />
+      <AuthListener />
       <Routes>
         {/* Redirect root to the shop home */}
         <Route path="/" element={<Navigate to="/shop/home" replace />} />
@@ -67,15 +65,13 @@ function App() {
         >
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
-          
         </Route>
 
         {/* Shopping Routes (Public) */}
         <Route path="/shop" element={<ShoppingLayout />}>
           <Route path="home" element={<ShoppingHome />} />
           <Route path="listing" element={<ShoppingListing />} />
-          <Route path="product/:id" element={<ShoppingProductDetails/> } /> 
-          <Route path="account" element={<ShoppingAccount />} />
+          <Route path="product/:id" element={<ShoppingProductDetails />} />
           <Route path="search" element={<SearchProducts />} />
           <Route path="about" element={<AboutPage />} />
         </Route>

@@ -1,5 +1,3 @@
-
-
 import { FileIcon, UploadCloudIcon, XIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,9 +45,9 @@ function ProductImageUpload({
 
   const handleNewFiles = (files) => {
     setImageFiles(files);
-    const newPreviews = files.map(file => ({
+    const newPreviews = files.map((file) => ({
       file,
-      preview: URL.createObjectURL(file)
+      preview: URL.createObjectURL(file),
     }));
     setPreviews(newPreviews);
   };
@@ -57,13 +55,13 @@ function ProductImageUpload({
   const handleRemoveImage = (index) => {
     const newFiles = [...imageFiles];
     const newPreviews = [...previews];
-    
+
     newFiles.splice(index, 1);
     newPreviews.splice(index, 1);
-    
+
     setImageFiles(newFiles);
     setPreviews(newPreviews);
-    
+
     if (newFiles.length === 0 && inputRef.current) {
       inputRef.current.value = "";
     }
@@ -71,7 +69,7 @@ function ProductImageUpload({
 
   const uploadImages = async () => {
     if (imageFiles.length === 0) return;
-    
+
     setImageLoadingState(true);
     try {
       const result = await dispatch(uploadProductImages(imageFiles)).unwrap();
@@ -94,7 +92,7 @@ function ProductImageUpload({
 
   useEffect(() => {
     return () => {
-      previews.forEach(preview => URL.revokeObjectURL(preview.preview));
+      previews.forEach((preview) => URL.revokeObjectURL(preview.preview));
     };
   }, [previews]);
 
@@ -103,7 +101,7 @@ function ProductImageUpload({
       <Label className="text-lg font-semibold mb-2 block">
         Product Images {!isEditMode && "(Max 8)"}
       </Label>
-      
+
       <div
         onDragOver={handleDragOver}
         onDrop={handleDrop}
@@ -121,7 +119,7 @@ function ProductImageUpload({
           multiple
           accept="image/*"
         />
-        
+
         {previews.length === 0 ? (
           <label
             htmlFor="product-images"
@@ -131,10 +129,14 @@ function ProductImageUpload({
           >
             <UploadCloudIcon className="w-10 h-10 text-muted-foreground mb-2" />
             <span className="text-center">
-              {isEditMode ? "Edit images not available" : "Drag & drop or click to upload"}
+              {isEditMode
+                ? "Edit images not available"
+                : "Drag & drop or click to upload"}
             </span>
             {!isEditMode && (
-              <span className="text-sm text-muted-foreground">Max 8 images (JPEG, PNG)</span>
+              <span className="text-sm text-muted-foreground">
+                Max 8 images (JPEG, PNG)
+              </span>
             )}
           </label>
         ) : (

@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
@@ -52,7 +51,7 @@ export const updateCartQuantity = createAsyncThunk(
           userId,
           productId,
           quantity,
-          sessionId
+          sessionId,
         }
       );
       return response.data;
@@ -78,20 +77,18 @@ export const mergeCarts = createAsyncThunk(
   }
 );
 
-
-
 export const deleteCartItem = createAsyncThunk(
   "cart/deleteCartItem",
   async ({ userId, productId, sessionId }, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
         `${import.meta.env.VITE_API_BASE_URL}/shop/cart/delete`,
-        { 
+        {
           data: {
             userId,
             productId,
-            sessionId
-          }
+            sessionId,
+          },
         }
       );
       return response.data;
@@ -100,8 +97,6 @@ export const deleteCartItem = createAsyncThunk(
     }
   }
 );
-
-
 
 const shoppingCartSlice = createSlice({
   name: "shoppingCart",
@@ -118,7 +113,7 @@ const shoppingCartSlice = createSlice({
       })
       .addCase(addToCart.rejected, (state, action) => {
         state.isLoading = false;
-        console.error('Add to cart failed:', action.payload);
+        console.error("Add to cart failed:", action.payload);
       })
 
       .addCase(fetchCartItems.pending, (state) => {
@@ -130,7 +125,7 @@ const shoppingCartSlice = createSlice({
       })
       .addCase(fetchCartItems.rejected, (state, action) => {
         state.isLoading = false;
-        console.error('Fetch cart failed:', action.payload);
+        console.error("Fetch cart failed:", action.payload);
       })
 
       .addCase(updateCartQuantity.pending, (state) => {
@@ -142,7 +137,7 @@ const shoppingCartSlice = createSlice({
       })
       .addCase(updateCartQuantity.rejected, (state, action) => {
         state.isLoading = false;
-        console.error('Update failed:', action.payload);
+        console.error("Update failed:", action.payload);
       })
 
       .addCase(deleteCartItem.pending, (state) => {
@@ -154,7 +149,7 @@ const shoppingCartSlice = createSlice({
       })
       .addCase(deleteCartItem.rejected, (state, action) => {
         state.isLoading = false;
-        console.error('Delete failed:', action.payload);
+        console.error("Delete failed:", action.payload);
       })
 
       .addCase(mergeCarts.pending, (state) => {
@@ -166,7 +161,7 @@ const shoppingCartSlice = createSlice({
       })
       .addCase(mergeCarts.rejected, (state, action) => {
         state.isLoading = false;
-        console.error('Merge failed:', action.payload);
+        console.error("Merge failed:", action.payload);
       });
   },
 });

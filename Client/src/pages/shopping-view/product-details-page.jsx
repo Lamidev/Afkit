@@ -7,7 +7,6 @@ import { Minus, Plus, CheckCircle, AlertCircle } from "lucide-react";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { toast } from "sonner";
 import {
-  setProductDetails,
   fetchProductsByBrand,
   fetchProductDetails,
 } from "@/store/shop/products-slice";

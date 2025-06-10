@@ -14,5 +14,5 @@ router.post("/add", addToCart);
 router.get("/get", fetchCartItems);
 router.post("/merge", mergeCarts);
 router.put("/update-cart", updateCartItemQty);
-router.delete("/delete", deleteCartItem); 
+router.delete("/delete", deleteCartItem);
 module.exports = router;

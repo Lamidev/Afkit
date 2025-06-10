@@ -15,10 +15,15 @@ export const registerUser = createAsyncThunk(
   "auth/register",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, formData);
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/register`,
+        formData
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Error registering user");
+      return rejectWithValue(
+        error.response?.data?.message || "Error registering user"
+      );
     }
   }
 );
@@ -27,10 +32,15 @@ export const verifyEmail = createAsyncThunk(
   "auth/verify-email",
   async (formData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/verify-email`, formData);
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/verify-email`,
+        formData
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Error verifying email");
+      return rejectWithValue(
+        error.response?.data?.message || "Error verifying email"
+      );
     }
   }
 );
@@ -39,8 +49,11 @@ export const loginUser = createAsyncThunk(
   "auth/login",
   async (formData, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, formData);
-      
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
+        formData
+      );
+
       if (response.data.token) {
         sessionStorage.setItem("token", response.data.token); // Store token
         dispatch(setUser(response.data.user)); // Set user
@@ -48,7 +61,9 @@ export const loginUser = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Error logging in");
+      return rejectWithValue(
+        error.response?.data?.message || "Error logging in"
+      );
     }
   }
 );
@@ -69,26 +84,33 @@ export const forgotPassword = createAsyncThunk(
   "auth/forgot-password",
   async ({ email }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/forgot-password`, { email });
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/forgot-password`,
+        { email }
+      );
       return response.data;
     } catch (error) {
       console.log("Error response:", error.response?.data); // Debug log - error response
-      return rejectWithValue(error.response?.data?.message || "Error sending reset email");
+      return rejectWithValue(
+        error.response?.data?.message || "Error sending reset email"
+      );
     }
   }
 );
-
-
-
 
 export const resetPassword = createAsyncThunk(
   "auth/reset-password",
   async ({ token, formData }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/reset-password/${token}`, formData);
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/reset-password/${token}`,
+        formData
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Error resetting password");
+      return rejectWithValue(
+        error.response?.data?.message || "Error resetting password"
+      );
     }
   }
 );
@@ -114,7 +136,6 @@ export const checkAuth = createAsyncThunk(
     }
   }
 );
-
 
 const authSlice = createSlice({
   name: "auth",
@@ -148,7 +169,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = { ...state.user, isVerified: true }; // Ensure user is marked as verified
       })
-      
+
       .addCase(verifyEmail.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
@@ -163,7 +184,7 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         sessionStorage.setItem("token", action.payload.token);
       })
-      
+
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
@@ -176,8 +197,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.isAuthenticated = false;
         state.user = null;
-        sessionStorage.removeItem("token"); 
-        
+        sessionStorage.removeItem("token");
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -186,19 +206,16 @@ const authSlice = createSlice({
       .addCase(forgotPassword.pending, (state) => {
         state.isLoading = true;
         state.error = null;
-      
       })
       .addCase(forgotPassword.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.message = action.payload.message; 
-        
+        state.message = action.payload.message;
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      
       })
-      
+
       .addCase(resetPassword.pending, (state) => {
         state.isLoading = true;
       })
