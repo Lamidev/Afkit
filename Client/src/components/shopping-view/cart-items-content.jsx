@@ -131,11 +131,11 @@ function UserCartItemsContent({ cartItem }) {
       className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-white rounded-lg shadow-sm"
     >
       {/* Product Image */}
-      <img
-        src={productImage}
-        alt={cartItem?.title}
-        className="w-full sm:w-20 h-32 sm:h-20 object-cover rounded"
-      />
+     <img
+  src={productImage}
+  alt={cartItem?.title}
+  className="w-full sm:w-20 h-32 sm:h-20 object-contain rounded" // Changed object-cover to object-contain
+/>
 
       {/* Product Details */}
       <div className="flex-1">
