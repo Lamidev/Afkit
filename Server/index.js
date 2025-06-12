@@ -10,6 +10,7 @@ const shopProductsRouter = require("./routes/shop/products-routes");
 const shopCartRouter = require("./routes/shop/cart-routes");
 const shopSearchRouter = require("./routes/shop/search-routes")
 const commonFeaturesRouter = require("./routes/common/features-routes")
+const sitemapRouter = require("./routes/common/sitemap-routes")
 
 
 const dbURL = process.env.MONGODB_URL;
@@ -54,6 +55,7 @@ mongoose
     app.use("/api/shop/cart", shopCartRouter);
     app.use("/api/shop/search", shopSearchRouter);
     app.use("/api/common/features", commonFeaturesRouter);
+    app.use("/", sitemapRouter)
  
     // Start the server
     app.listen(PORT, () =>
