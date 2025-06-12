@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset 
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+>
+  <url>
+    <loc>https://afkit.ng/</loc>
+  </url>
+  <url>
+    <loc>https://afkit.ng/shop/home</loc>
+  </url>
+  <url>
+    <loc>https://afkit.ng/shop/listing</loc>
+  </url>
+  <url>
+    <loc>https://afkit.ng/shop/about</loc>
+  </url>
+  <url>
+    <loc>https://afkit.ng/shop/checkout</loc>
+  </url>
+  <url>
+    <loc>https://afkit.ng/shop/search</loc>
+  </url>
+  <url>
+    <loc>https://afkit.ng/auth/login</loc>
+  </url>
+  <url>
+    <loc>https://afkit.ng/auth/register</loc>
+  </url>
+  <url>
+    <loc>https://afkit.ng/auth/verify-email</loc>
+  </url>
+  <url>
+    <loc>https://afkit.ng/auth/forgot-password</loc>
+  </url>
+  <url>
+    <loc>https://afkit.ng/unauth-page</loc>
+  </url>
+</urlset>
