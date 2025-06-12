@@ -15,9 +15,6 @@
     <loc>https://afkit.ng/shop/about</loc>
   </url>
   <url>
-    <loc>https://afkit.ng/shop/checkout</loc>
-  </url>
-  <url>
     <loc>https://afkit.ng/shop/search</loc>
   </url>
   <url>
@@ -25,14 +22,5 @@
   </url>
   <url>
     <loc>https://afkit.ng/auth/register</loc>
-  </url>
-  <url>
-    <loc>https://afkit.ng/auth/verify-email</loc>
-  </url>
-  <url>
-    <loc>https://afkit.ng/auth/forgot-password</loc>
-  </url>
-  <url>
-    <loc>https://afkit.ng/unauth-page</loc>
   </url>
 </urlset>
