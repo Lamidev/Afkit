@@ -1,20 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion"; // Import AnimatePresence
-import { ImageOff, Trash2, Pencil, Check, X } from "lucide-react"; // Import Check and X for confirmation
+import { motion, AnimatePresence } from "framer-motion";
+import { ImageOff, Trash2, Pencil, Check, X } from "lucide-react";
 import { useState } from "react";
-import { useDispatch } from "react-redux"; // Import useDispatch
-import { deleteProduct } from "@/store/admin/products-slice"; // Import deleteProduct action
-import { fetchAllProducts } from "@/store/admin/products-slice"; // Import fetchAllProducts for refresh
-import { toast } from "sonner"; // Import toast
+import { useDispatch } from "react-redux";
+import { deleteProduct } from "@/store/admin/products-slice";
+import { fetchAllProducts } from "@/store/admin/products-slice";
+import { toast } from "sonner";
 
 function AdminProductTile({
   product,
   setFormData,
   setOpenCreateProductsDialog,
   setCurrentEditedId,
-  // Removed setProductToDelete, setShowDeleteModal props as they are no longer needed here
 }) {
-  const dispatch = useDispatch(); // Initialize useDispatch
+  const dispatch = useDispatch();
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-NG", {
@@ -23,21 +22,21 @@ function AdminProductTile({
     }).format(price);
   };
 
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false); // Local state for delete confirmation
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   const handleDeleteLocally = async (productId) => {
     try {
       const result = await dispatch(deleteProduct(productId)).unwrap();
       if (result.success) {
         toast.success("Product deleted successfully!");
-        dispatch(fetchAllProducts()); // Refresh the product list immediately
+        dispatch(fetchAllProducts());
       } else {
         throw new Error(result.message || "Failed to delete product.");
       }
     } catch (error) {
       toast.error(error.message || "An error occurred during deletion.");
     } finally {
-      setShowConfirmDelete(false); // Always close the confirmation overlay
+      setShowConfirmDelete(false);
     }
   };
 
@@ -74,7 +73,8 @@ function AdminProductTile({
           </span>
         </div>
 
-        <div className="flex gap-1 pt-2">
+        <div className="flex gap-2 pt-2">
+          {/* Edit Button */}
           <Button
             variant="outline"
             size="sm"
@@ -92,17 +92,19 @@ function AdminProductTile({
             Edit
           </Button>
 
+          {/* Delete Button - Now visible by default and matches Edit button style */}
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
-            className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
-            onClick={() => setShowConfirmDelete(true)} // Show local confirmation
+            className="flex-1 text-xs h-8 border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600"
+            onClick={() => setShowConfirmDelete(true)}
           >
-            <Trash2 className="h-3 w-3" />
+            <Trash2 className="mr-1 h-3 w-3" />
+            Delete
           </Button>
         </div>
 
-        {/* Local Delete Confirmation Overlay */}
+        {/* Delete Confirmation Overlay */}
         <AnimatePresence>
           {showConfirmDelete && (
             <motion.div
@@ -110,23 +112,26 @@ function AdminProductTile({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 flex flex-col justify-center items-center z-10 bg-white/90 rounded-lg p-2" // Removed backdrop-blur-sm
+              className="absolute inset-0 flex flex-col justify-center items-center z-10 bg-white/90 rounded-lg p-4"
             >
-              <h2 className="text-sm font-semibold mb-2">Confirm Delete?</h2>
-              <div className="flex justify-center gap-2">
+              <h2 className="text-sm font-semibold mb-3 text-center">
+                Are you sure you want to delete this product?
+              </h2>
+              <div className="flex justify-center gap-3 w-full px-2">
                 <Button
-                  onClick={() => handleDeleteLocally(product._id)} // Call local delete function
-                  className="bg-red-500 hover:bg-red-600 text-white text-xs h-8 px-2"
+                  onClick={() => handleDeleteLocally(product._id)}
+                  className="bg-red-500 hover:bg-red-600 text-white flex-1 h-8"
                   size="sm"
                 >
-                  <Check className="mr-1 h-3 w-3" /> Yes
+                  <Check className="mr-1 h-3 w-3" /> Delete
                 </Button>
                 <Button
-                  onClick={() => setShowConfirmDelete(false)} // Cancel local confirmation
-                  className="bg-gray-300 hover:bg-gray-400 text-black text-xs h-8 px-2"
+                  onClick={() => setShowConfirmDelete(false)}
+                  className="flex-1 h-8"
+                  variant="outline"
                   size="sm"
                 >
-                  <X className="mr-1 h-3 w-3" /> No
+                  <X className="mr-1 h-3 w-3" /> Cancel
                 </Button>
               </div>
             </motion.div>
