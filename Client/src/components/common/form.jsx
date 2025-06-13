@@ -1,3 +1,4 @@
+
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import {
@@ -29,6 +30,11 @@ function CommonForm({
     const { field, value } = control.visibleIf;
     const fieldValue = formData[field];
 
+    // Special handling for accessory fields
+    if (control.name === "specificAccessory") {
+      return formData.category === "accessories" && formData.accessoryCategory;
+    }
+
     if (Array.isArray(value)) {
       return value.includes(fieldValue);
     }
@@ -43,7 +49,7 @@ function CommonForm({
       // Clear laptop-specific fields if category is not 'laptops'
       if (value !== "laptops") {
         newFormData.processor = "";
-        newFormData.extraFeatures = ""; // Changed from displayType
+        newFormData.extraFeatures = "";
         newFormData.laptopType = "";
       }
       // Clear smartphone/laptop specific fields if category is not 'smartphones' or 'laptops'
@@ -57,7 +63,7 @@ function CommonForm({
         newFormData.frameStyle = "";
         newFormData.screenResolution = "";
         newFormData.ports = "";
-        newFormData.monitorType = ""; // Clear new monitorType field
+        newFormData.monitorType = "";
       }
       // Clear accessory-specific fields if category is not 'accessories'
       if (value !== "accessories") {
@@ -68,6 +74,11 @@ function CommonForm({
       if (!["smartphones", "laptops", "monitors"].includes(value)) {
         newFormData.brand = "";
       }
+    }
+
+    // Clear specificAccessory when accessoryCategory changes
+    if (name === "accessoryCategory") {
+      newFormData.specificAccessory = "";
     }
 
     setFormData(newFormData);
