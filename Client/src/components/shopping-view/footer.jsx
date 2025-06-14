@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import {
-  FaFacebook,
   FaTwitter,
   FaInstagram,
   FaWhatsapp,
@@ -40,23 +39,42 @@ const Footer = () => {
             className="w-40 md:w-48 font-bold object-contain"
           />
           <div className="flex justify-center md:justify-start space-x-3">
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="icon" className="text-black hover:text-blue-500">
-                <FaFacebook className="w-6 h-6" />
-              </Button>
-            </a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="icon" className="text-black hover:text-blue-500">
+            <a
+              href="https://twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-black hover:text-blue-500"
+              >
                 <FaTwitter className="w-6 h-6" />
               </Button>
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="icon" className="text-black hover:text-pink-500">
+            <a
+              href="https://www.instagram.com/afkit_official?igsh=MXZ2MGZyOGowaDlmYw=="
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-black hover:text-pink-500"
+              >
                 <FaInstagram className="w-6 h-6" />
               </Button>
             </a>
-            <a href="https://wa.me/2349025765871" target="_blank" rel="noopener noreferrer">
-              <Button variant="ghost" size="icon" className="text-black hover:text-green-500">
+            <a
+              href="https://wa.me/2348164014304"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-black hover:text-green-500"
+              >
                 <FaWhatsapp className="w-6 h-6" />
               </Button>
             </a>
@@ -74,20 +92,27 @@ const Footer = () => {
           <ul className="space-y-3">
             <li className="flex items-center justify-center md:justify-start">
               <FaEnvelope className="w-5 h-5 mr-2 text-blue-800" />
-              <a href="mailto:afkitng@gmail.com" className="hover:text-gray-600 transition">
+              <a
+                href="mailto:afkitng@gmail.com"
+                className="hover:text-gray-600 transition"
+              >
                 afkitng@gmail.com
               </a>
             </li>
             <li className="flex items-center justify-center md:justify-start">
-              <FaPhone className="w-5 h-5 mr-2  text-blue-800" />
-              <a href="tel:+2348164014304" className="hover:text-gray-600 transition">
+              <FaPhone className="w-5 h-5 mr-2 text-blue-800" />
+              <a
+                href="tel:+2348164014304"
+                className="hover:text-gray-600 transition"
+              >
                 0816 401 4304
               </a>
             </li>
             <li className="flex items-center justify-center md:justify-start">
-              <FaMapMarkerAlt className="w-5 h-5 mr-2  text-blue-800" />
+              <FaMapMarkerAlt className="w-5 h-5 mr-2 text-blue-800" />
               <span>
-                Shop A25, Platinum Plaza, No 7 Adepele Street, Computer Village, Ikeja
+                Shop A25, Platinum Plaza, No 7 Adepele Street, Computer Village,
+                Ikeja
               </span>
             </li>
           </ul>
@@ -107,7 +132,8 @@ const Footer = () => {
                 Return Policy
               </AccordionTrigger>
               <AccordionContent className="text-gray-700">
-                We offer a 7-day return policy. Return in original condition for exchange.
+                We offer a 7-day return policy. Return in original condition for
+                exchange.
               </AccordionContent>
             </AccordionItem>
 
@@ -116,7 +142,8 @@ const Footer = () => {
                 Delivery Information
               </AccordionTrigger>
               <AccordionContent className="text-gray-700">
-                Delivery takes 2–3 business days with tracking info after shipping.
+                Delivery takes 2–3 business days with tracking info after
+                shipping.
               </AccordionContent>
             </AccordionItem>
 
@@ -125,7 +152,8 @@ const Footer = () => {
                 Terms and Conditions
               </AccordionTrigger>
               <AccordionContent className="text-gray-700">
-                By using our site, you agree to our terms. All items are subject to availability.
+                By using our site, you agree to our terms. All items are subject
+                to availability.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
