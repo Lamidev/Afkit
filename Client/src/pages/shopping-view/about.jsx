@@ -66,11 +66,12 @@ const AboutPage = () => {
       title: "Affordable Prices",
       desc: "Top-notch gadgets without breaking the bank.",
     },
-    {
-      Icon: FaTruck,
-      title: "Fast Delivery",
-      desc: "Quick and secure delivery to your doorstep.",
-    },
+     {
+    Icon: FaTruck,
+    title: "Payment on delivery",
+    desc:
+      "You pay only after you receive and check your item. No Risk, no Worries. You're in control.",
+  },
     
   ].map((item, index) => (
     <div
