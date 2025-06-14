@@ -356,11 +356,12 @@ export default function ShoppingProductDetails() {
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [showInstagramModal, setShowInstagramModal] = useState(false);
 
   useEffect(() => {
     if (id) {
       dispatch(fetchProductDetails(id));
-      window.scrollTo(0, 0); // <-- Scroll to top when product id changes
+      window.scrollTo(0, 0);
     }
   }, [id, dispatch]);
 
@@ -378,7 +379,6 @@ export default function ShoppingProductDetails() {
     }
   }, [productDetails, dispatch]);
 
-  // Load cart items when component mounts or user changes
   useEffect(() => {
     const fetchCart = async () => {
       try {
@@ -413,7 +413,6 @@ export default function ShoppingProductDetails() {
         return;
       }
 
-      // Check stock for existing items
       const currentCartItems = cartItems?.items || [];
       const existingItem = currentCartItems.find(
         (item) => item.productId === productDetails._id
@@ -475,59 +474,31 @@ export default function ShoppingProductDetails() {
     window.scrollTo(0, 0);
   };
 
-  // Function to handle WhatsApp order
   const handleOrderOnWhatsApp = () => {
-    const phoneNumber = "2347056501913"; // Replace with your WhatsApp number
-    // Ensure productLink is an absolute URL
+    const phoneNumber = "2348164014304";
     const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
-    const message = `Hello AFKiT, I'm interested in "${
-      productDetails.title
-    }" for ₦${Number(productDetails.price).toLocaleString(
-      "en-NG"
-    )}. Quantity: ${quantity}.\nIs it still available?\nProduct Link: ${productLink}`;
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-      message
-    )}`;
+    const message = `Hello AFKiT,\n\nI'm interested in *"${productDetails.title}"* for *₦${Number(
+      productDetails.price
+    ).toLocaleString("en-NG")}*.\n\n*Quantity:* ${quantity}\n\nIs it still available?\n\n🔗 Product Link:\n${productLink}`;
+    
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   };
 
-  // Function to handle Instagram order
   const handleOrderOnInstagram = () => {
-    const instagramUsername = "afkit_official"; // Your Instagram handle
-    // Ensure productLink is an absolute URL
+    setShowInstagramModal(true);
+  };
+
+  const copyInstagramMessage = () => {
     const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
-    const message = `Hello AFKiT, I'm interested in "${
-      productDetails.title
-    }" for ₦${Number(productDetails.price).toLocaleString(
-      "en-NG"
-    )}. Quantity: ${quantity}.\nIs it still available?\nProduct Link: ${productLink}`;
-
-    // For Instagram, direct message pre-filling is not directly supported via URL like WhatsApp.
-    // The best approach is to direct them to the profile and suggest they message.
-    // We will open the profile and copy the message to the clipboard.
-    const instagramUrl = `https://www.instagram.com/${instagramUsername}/`;
-    window.open(instagramUrl, "_blank");
-
-    // Copy message to clipboard and show a toast
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(message)
-        .then(() => {
-          toast.info("Please send us a direct message on Instagram with your inquiry. The product details have been copied for your convenience. You can paste them into the chat.", {
-            description: "Go to @afkit_official profile and click 'Message'.",
-            duration: 8000,
-          });
-        })
-        .catch(err => {
-          console.error('Failed to copy text: ', err);
-          toast.error("Failed to copy product details to clipboard. Please copy manually and send a DM to @afkit_official on Instagram.");
-        });
-    } else {
-      // Fallback for older browsers
-      toast.info("Please send us a direct message on Instagram (@afkit_official) with your inquiry. Here are the details to copy manually:", {
-        description: message,
-        duration: 10000,
-      });
-    }
+    const message = `Hello AFKiT,\n\nI'm interested in "${productDetails.title}" for ₦${Number(
+      productDetails.price
+    ).toLocaleString("en-NG")}.\n\nQuantity: ${quantity}\n\nIs it still available?\n\nProduct Link: ${productLink}`;
+    
+    navigator.clipboard.writeText(message);
+    toast.success("Message copied to clipboard");
+    window.open("https://www.instagram.com/afkit_official?igsh=MXZ2MGZyOGowaDlmYw==", "_blank");
+    setShowInstagramModal(false);
   };
 
   const filteredRelatedProducts =
@@ -543,7 +514,6 @@ export default function ShoppingProductDetails() {
     );
   }
 
-  // Get all images - fallback to single image if images array doesn't exist
   const productImages =
     productDetails.images?.length > 0
       ? productDetails.images
@@ -553,11 +523,8 @@ export default function ShoppingProductDetails() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Top Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Left - Image Gallery */}
         <div className="flex flex-col md:flex-row gap-4">
-          {/* Thumbnails - only show if more than one image */}
           {productImages.length > 1 && (
             <div className="flex flex-row md:flex-col gap-2 order-2 md:order-1">
               {productImages.map((img, index) => (
@@ -580,7 +547,6 @@ export default function ShoppingProductDetails() {
             </div>
           )}
 
-          {/* Main Image */}
           <div
             className={`aspect-square bg-gray-100 rounded-lg flex items-center justify-center ${
               productImages.length > 1 ? "order-1 md:order-2 flex-1" : "w-full"
@@ -594,7 +560,6 @@ export default function ShoppingProductDetails() {
           </div>
         </div>
 
-        {/* Right - Product Details */}
         <div className="space-y-6">
           <div>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
@@ -634,28 +599,22 @@ export default function ShoppingProductDetails() {
           </div>
 
           <Button
-            // className="w-full h-12 text-lg font-semibold tracking-wide"
-            className="h-12 w-full bg-blue-100 hover:bg-blue-200 text-blue-800 hover:text-blue-900"
+            className="h-12 w-full bg-blue-800 hover:bg-blue-600 text-white font-bold"
             onClick={handleAddToCart}
             disabled={productDetails.totalStock === 0}
           >
             {productDetails.totalStock === 0 ? "Out of Stock" : "Add to Cart"}
           </Button>
 
-          {/* New Buttons for WhatsApp and Instagram */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <Button
-              variant="outline" // You can adjust variants for styling
-              // className="w-full h-12 text-md font-semibold tracking-wide border-green-500 text-green-600 hover:bg-green-50"
-              className="h-12 bg-green-100 hover:bg-green-200 text-green-800 hover:text-green-900"
+              className="h-12 bg-green-700 hover:bg-green-600 text-white font-bold"
               onClick={handleOrderOnWhatsApp}
             >
               Order on WhatsApp
             </Button>
             <Button
-              variant="outline" // You can adjust variants for styling
-              // className="w-full h-12 text-md font-semibold tracking-wide border-purple-500 text-purple-600 hover:bg-purple-50"
-              className="h-12 bg-pink-100 hover:bg-pink-200 text-pink-800 hover:text-pink-900"
+              className="h-12 bg-pink-700 hover:bg-pink-600 text-white font-bold"
               onClick={handleOrderOnInstagram}
             >
               Order on Instagram
@@ -666,7 +625,6 @@ export default function ShoppingProductDetails() {
         </div>
       </div>
 
-      {/* Related Products Section */}
       {filteredRelatedProducts.length > 0 && (
         <div className="mt-16">
           <h2 className="text-xl font-bold text-center mb-8">
@@ -682,6 +640,36 @@ export default function ShoppingProductDetails() {
                 <ShoppingProductTile product={product} />
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {showInstagramModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-lg font-bold mb-4">Order on Instagram</h3>
+            <p className="mb-4">
+              Copy this message and paste it when you DM us on Instagram:
+            </p>
+            <div className="bg-gray-100 p-4 rounded mb-4">
+              <p className="whitespace-pre-wrap">
+                Hello AFKiT,\n\nI'm interested in "{productDetails.title}" for ₦
+                {Number(productDetails.price).toLocaleString("en-NG")}.\n\nQuantity: {quantity}.
+                {"\n\n"}Is it still available?
+                {"\n\n"}Product Link: {window.location.origin}/shop/product/{productDetails._id}
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowInstagramModal(false)}>
+                Cancel
+              </Button>
+              <Button 
+                className="bg-pink-600 hover:bg-pink-700 text-white font-bold"
+                onClick={copyInstagramMessage}
+              >
+                Copy & Open Instagram
+              </Button>
+            </div>
           </div>
         </div>
       )}
