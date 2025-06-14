@@ -43,26 +43,28 @@ const brandsWithIcon = [
   { id: "all-products", label: "All Products", icon: ShoppingBag },
 ];
 
+// --- UPDATED SUPPORT FEATURES ---
 const supportFeatures = [
   {
     icon: FaShieldAlt,
-    title: "Six Month Warranty",
+    title: "6-MONTH WARRANTY",
     description:
-      "At Afkit we ensure all our products come with a 6-month warranty for your peace of mind.",
+      "At Afkit, all UK-used gadgets come with a 6-month warranty, Your Peace of mind is guaranteed.",
   },
   {
     icon: FaTruck,
-    title: "Payment on Delivery",
+    title: "PAYMENT ON DELIVERY",
     description:
-      "Pay only when you receive and inspect your items. No upfront payments required.",
+      "You pay only after you receive and check your item. No Risk, no Worries. You're in control.",
   },
   {
     icon: FaHeadset,
-    title: "Free Online Tech Support",
+    title: "FREE ONLINE TECH SUPPORT",
     description:
-      "We are available 24/7 to assist you with any question, or issues you may have.",
+      "We’re always here to help with any questions or issues you have with your gadget.",
   },
 ];
+// --- END OF UPDATED SUPPORT FEATURES ---
 
 function ShoppingHome() {
   const { productList } = useSelector((state) => state.shopProducts);
@@ -163,20 +165,14 @@ function ShoppingHome() {
 
       if (!existingItem && 1 > getTotalStock) {
         toast.error(
-          `Only ${getTotalStock} quantity available for this product.`,
-          {
-            icon: <AlertCircle className="text-red-500" />,
-          }
+          `Only ${getTotalStock} quantity available for this product.`
         );
         return;
       }
 
       if (existingItem && existingItem.quantity + 1 > getTotalStock) {
         toast.error(
-          `Adding one more would exceed available stock of ${getTotalStock}.`,
-          {
-            icon: <AlertCircle className="text-red-500" />,
-          }
+          `Adding one more would exceed available stock of ${getTotalStock}.`
         );
         return;
       }
