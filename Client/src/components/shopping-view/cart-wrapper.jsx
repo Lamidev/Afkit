@@ -229,29 +229,19 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
     show: { y: 0, opacity: 1 },
   };
 
-  const handleCheckout = () => {
-    // Removed the login check. Users can now checkout via WhatsApp without being logged in.
-    // if (!user) {
-    //   navigate("/auth/login");
-    //   setOpenCartSheet(false);
-    //   toast.warning("Please login to checkout.", {
-    //     icon: <AlertTriangle className="text-orange-500" />,
-    //   });
-    //   return;
-    // }
+const handleCheckout = () => {
+  if (cartItems.length === 0) return;
 
-    if (cartItems.length === 0) return;
+const message = `Hello AFKiT! I'd like to place an order:\n\n${cartItems.map(item => 
+  `📦 *${item.title || 'Product'}*\n├ Quantity: ${item.quantity}\n├ Price: ${formatNaira(item.price)}\n└ Product Link: ${window.location.origin}/shop/product/${item.productId}`
+).join('\n\n')}\n\n*Total Amount:* ${formatNaira(totalCartAmount)}\n\nPlease confirm availability and provide payment details. Thank you!`;
 
-    const message = `Hello! I'd like to place an order:\n\n${cartItems.map(item =>
-      `- ${item.title || 'Product'} (${item.quantity} x ${formatNaira(item.price)})`
-    ).join('\n')}\n\nTotal: ${formatNaira(totalCartAmount)}\n\nPlease let me know how to proceed with payment and delivery.`;
+  const whatsappNumber = "+2348164014304";
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-    const whatsappNumber = "+2348164014304";
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-
-    window.open(whatsappUrl, '_blank');
-    setOpenCartSheet(false);
-  };
+  window.open(whatsappUrl, '_blank');
+  setOpenCartSheet(false);
+};
 
   return (
     <SheetContent className="sm:max-w-md flex flex-col h-full">

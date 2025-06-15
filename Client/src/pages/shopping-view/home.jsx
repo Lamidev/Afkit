@@ -12,7 +12,7 @@ import {
   Tv,
   CheckCircle,
   AlertCircle,
-  ShieldCheck,
+  ShieldCheck, // Keep ShieldCheck for the hero section if used
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
@@ -21,11 +21,20 @@ import { fetchAllFilteredProducts } from "@/store/shop/products-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useNavigate } from "react-router-dom";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
-import { getFeatureImages } from "@/store/common-slice";
+import { getFeatureImages } from "@/store/common-slice"; // Ensure this is still needed, otherwise remove
 import { FaTruck, FaCreditCard, FaHeadset, FaShieldAlt } from "react-icons/fa";
 import CustomerReviews from "@/components/shopping-view/customer-reviews";
 import { toast } from "sonner";
 import { getOrCreateSessionId } from "@/components/utils/session";
+
+// --- NEW IMPORT FOR ACCORDION ---
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+// --- END NEW IMPORT ---
 
 const categoriesWithIcon = [
   { id: "smartphones", label: "Smartphones", icon: Smartphone },
@@ -43,22 +52,22 @@ const brandsWithIcon = [
   { id: "all-products", label: "All Products", icon: ShoppingBag },
 ];
 
-// --- UPDATED SUPPORT FEATURES ---
+// --- UPDATED SUPPORT FEATURES (as you provided) ---
 const supportFeatures = [
   {
-    icon: FaShieldAlt,
+    icon: FaShieldAlt, // FaShieldAlt from react-icons/fa
     title: "6-MONTH WARRANTY",
     description:
       "At Afkit, all UK-used gadgets come with a 6-month warranty, Your Peace of mind is guaranteed.",
   },
   {
-    icon: FaTruck,
+    icon: FaTruck, // FaTruck from react-icons/fa
     title: "PAYMENT ON DELIVERY",
     description:
       "You pay only after you receive and check your item. No Risk, no Worries. You're in control.",
   },
   {
-    icon: FaHeadset,
+    icon: FaHeadset, // FaHeadset from react-icons/fa
     title: "FREE ONLINE TECH SUPPORT",
     description:
       "We’re always here to help with any questions or issues you have with your gadget.",
@@ -73,7 +82,7 @@ function ShoppingHome() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isSmallScreen, setIsSmallScreen] = useState(false);
-  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [featuredProducts, setFeaturedProducts] = useState([]); // This state is declared but not explicitly used in the returned JSX, maybe for future use?
 
   useEffect(() => {
     const checkScreen = () => setIsSmallScreen(window.innerWidth < 640);
@@ -87,7 +96,7 @@ function ShoppingHome() {
     : categoriesWithIcon;
   const brandsToShow = isSmallScreen
     ? brandsWithIcon.slice(0, 4)
-    : brandsWithIcon;
+    : brandsWithIcon; // This is declared but not explicitly used in the returned JSX
 
   const shuffleArray = (array) => {
     const newArray = [...array];
@@ -101,17 +110,17 @@ function ShoppingHome() {
   useEffect(() => {
     const updateFeaturedProducts = () => {
       const shuffled = shuffleArray([...productList]);
-      setFeaturedProducts(shuffled.slice(0, 8));
+      setFeaturedProducts(shuffled.slice(0, 8)); // Populating the state
     };
 
     updateFeaturedProducts();
 
     const interval = setInterval(() => {
       updateFeaturedProducts();
-    }, 60 * 60 * 1000);
+    }, 60 * 60 * 1000); // Shuffles every hour, but `featuredProducts` isn't rendered directly.
 
     return () => clearInterval(interval);
-  }, [productList]);
+  }, [productList]); // `productList` dependency is crucial here
 
   const handleNavigateToListingPage = (item, section) => {
     sessionStorage.removeItem("filters");
@@ -233,7 +242,9 @@ function ShoppingHome() {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          onClick={() => handleNavigateToListingPage({ id: "all-products" }, null)}
+          onClick={() =>
+            handleNavigateToListingPage({ id: "all-products" }, null)
+          }
           className="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center h-full w-full max-w-4xl cursor-pointer hover:shadow-lg transition-shadow duration-300"
         >
           <motion.div
@@ -248,7 +259,7 @@ function ShoppingHome() {
                 Your No.1 store that offers
               </span>
             </div>
-            
+
             <motion.h1
               className="text-orange-500 font-extrabold text-2xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight"
               initial={{ scale: 1 }}
@@ -259,9 +270,10 @@ function ShoppingHome() {
                 repeatType: "loop",
               }}
             >
-              6 months warranty and<br className="hidden sm:block" /> payment on delivery
+              6 months warranty and
+              <br className="hidden sm:block" /> payment on delivery
             </motion.h1>
-            
+
             <p className="text-gray-800 text-sm sm:text-base md:text-lg">
               on all UK-used gadgets
             </p>
@@ -279,7 +291,7 @@ function ShoppingHome() {
               <Button
                 className="bg-blue-900 hover:bg-blue-700 text-white font-bold px-6 py-3 uppercase text-sm sm:text-base mx-auto"
                 onClick={(e) => {
-                  e.stopPropagation();
+                  e.stopPropagation(); // Prevents the parent div's onClick from firing
                   handleNavigateToListingPage({ id: "all-products" }, null);
                 }}
               >
@@ -360,13 +372,11 @@ function ShoppingHome() {
       </section>
 
       {/* Support Features */}
-      <section className="max-w-7xl mx-auto">
+      <section className="max-w-7xl mx-auto py-12 sm:py-16">
         <div className="text-center mb-6 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold">
-            Why Choose Afkit Gadgets?
-          </h2>
+          <h2 className="text-xl sm:text-2xl font-bold">Why Choose Afkit?</h2>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">
-            We're committed to providing the best shopping experience
+            We're committed to providing the best shopping experience with
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -397,13 +407,87 @@ function ShoppingHome() {
         </div>
       </section>
 
+      {/* Customer Reviews */}
       <CustomerReviews />
+
+      {/* FAQ Section - BEST PLACEMENT */}
+      <section className="py-12 sm:py-16 bg-gray-50">
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+        >
+          <h2 className="text-3xl font-bold text-center mb-6 text-primary">
+            {" "}
+            {/* Reduced mb to 6 */}
+            Frequently Asked Questions
+          </h2>
+          {/* Optional: Add a brief introductory paragraph */}
+          <p className="text-gray-600 text-center mb-10 text-base max-w-2xl mx-auto">
+            Find answers to the most common questions about our products,
+            services, and policies.
+          </p>
+
+          <Accordion
+            type="single"
+            collapsible
+            className="max-w-3xl mx-auto border-t border-b border-gray-200"
+          >
+            {" "}
+            {/* Added subtle borders for definition */}
+            <AccordionItem
+              value="warranty"
+              className="border-b border-gray-200 last:border-b-0"
+            >
+              {" "}
+              {/* Ensure each item has a border, remove last one */}
+              <AccordionTrigger className="text-lg font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
+                {" "}
+                {/* Added active state color, background, and padding */}
+                What does the 6-month warranty cover?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground text-base p-4 bg-white">
+                {" "}
+                {/* Adjusted text size, added padding and white background for content */}
+                Our warranty covers any manufacturing defects or hardware
+                failures that occur during normal use. We'll repair or replace
+                your device at no additional cost.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem
+              value="delivery"
+              className="border-b border-gray-200 last:border-b-0"
+            >
+              <AccordionTrigger className="text-lg font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
+                How does payment on delivery work?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground text-base p-4 bg-white">
+                You only pay after inspecting your item upon delivery. Our
+                delivery agents will wait while you test the product to ensure
+                you're completely satisfied.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="quality" className="last:border-b-0">
+              {" "}
+              {/* Last item should not have a bottom border if parent has one */}
+              <AccordionTrigger className="text-lg font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
+                How do you ensure product quality?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground text-base p-4 bg-white">
+                Every device undergoes a rigorous 10-point inspection process by
+                our technicians. We only stock items that meet our strict
+                quality standards.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </motion.div>
+      </section>
     </div>
   );
 }
 
 export default ShoppingHome;
-
 
 // import { motion } from "framer-motion";
 // import { Button } from "@/components/ui/button";
@@ -486,18 +570,18 @@ export default ShoppingHome;
 //   const slideTimerRef = useRef(null);
 
 //   // Responsive categories and brands
-//   const categoriesToShow = useMemo(() => 
+//   const categoriesToShow = useMemo(() =>
 //     isSmallScreen ? CATEGORIES.slice(0, 4) : CATEGORIES,
 //     [isSmallScreen]
 //   );
 
-//   const brandsToShow = useMemo(() => 
+//   const brandsToShow = useMemo(() =>
 //     isSmallScreen ? BRANDS.slice(0, 4) : BRANDS,
 //     [isSmallScreen]
 //   );
 
 //   // Memoize featured products
-//   const displayedProducts = useMemo(() => 
+//   const displayedProducts = useMemo(() =>
 //     productList.slice(0, 8),
 //     [productList]
 //   );
