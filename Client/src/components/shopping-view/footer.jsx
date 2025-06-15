@@ -36,49 +36,34 @@ const Footer = () => {
           <img
             src={Afkitlogo}
             alt="Afkit Logo"
-            className="w-40 md:w-48 font-bold object-contain"
+            className="w-35 md:w-38 font-bold object-contain"
           />
-          <div className="flex justify-center md:justify-start space-x-3">
-            <a
-              href="https://twitter.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-black hover:text-blue-500"
-              >
-                <FaTwitter className="w-6 h-6" />
-              </Button>
-            </a>
-            <a
-              href="https://www.instagram.com/afkit_official?igsh=MXZ2MGZyOGowaDlmYw=="
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-black hover:text-pink-500"
-              >
-                <FaInstagram className="w-6 h-6" />
-              </Button>
-            </a>
-            <a
-              href="https://wa.me/2348164014304"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-black hover:text-green-500"
-              >
-                <FaWhatsapp className="w-6 h-6" />
-              </Button>
-            </a>
-          </div>
+         <div className="flex justify-center md:justify-start space-x-4">
+  <a
+    href="https://twitter.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-black hover:text-blue-500"
+  >
+    <FaTwitter className="w-7 h-7" />
+  </a>
+  <a
+    href="https://www.instagram.com/afkit_official?igsh=MXZ2MGZyOGowaDlmYw=="
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-black hover:text-pink-500"
+  >
+    <FaInstagram className="w-7 h-7" />
+  </a>
+  <a
+    href="https://wa.me/2348164014304"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-black hover:text-green-500"
+  >
+    <FaWhatsapp className="w-7 h-7" />
+  </a>
+</div>
         </motion.div>
 
         {/* Contact */}

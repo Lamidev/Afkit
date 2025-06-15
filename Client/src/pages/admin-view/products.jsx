@@ -163,90 +163,6 @@ function AdminProducts() {
     return basicValid && categorySpecificValid && imagesValid;
   };
 
-  // const getDynamicFormControls = () => {
-  //   const dynamicControls = addProductFormElements
-  //     .map((control) => {
-  //       let newControl = { ...control };
-
-  //       if (newControl.componentType === "select") {
-  //         if (
-  //           (formData.category === "smartphones" ||
-  //             formData.category === "laptops") &&
-  //           (newControl.name === "brand" ||
-  //             newControl.name === "storage" ||
-  //             newControl.name === "ram")
-  //         ) {
-  //           newControl.options =
-  //             filterOptions[formData.category]?.[newControl.name] || [];
-  //         } else if (
-  //           formData.category === "laptops" &&
-  //           (newControl.name === "processor" ||
-  //             newControl.name === "extraFeatures" ||
-  //             newControl.name === "laptopType")
-  //         ) {
-  //           newControl.options = filterOptions.laptops?.[newControl.name] || [];
-  //         } else if (
-  //           formData.category === "monitors" &&
-  //           (newControl.name === "brand" ||
-  //             newControl.name === "screenSize" ||
-  //             newControl.name === "frameStyle" ||
-  //             newControl.name === "screenResolution" ||
-  //             newControl.name === "ports" ||
-  //             newControl.name === "monitorType")
-  //         ) {
-  //           newControl.options =
-  //             filterOptions.monitors?.[newControl.name] || [];
-  //         } else if (newControl.name === "accessoryCategory") {
-  //           newControl.options = filterOptions.accessories?.category || [];
-  //         } else if (
-  //           newControl.name === "specificAccessory" &&
-  //           formData.accessoryCategory
-  //         ) {
-  //           switch (formData.accessoryCategory) {
-  //             case "smartphone-accessories":
-  //               newControl.options =
-  //                 filterOptions.accessories?.smartphoneAccessories || [];
-  //               break;
-  //             case "laptop-accessories":
-  //               newControl.options =
-  //                 filterOptions.accessories?.laptopAccessories || [];
-  //               break;
-  //             case "monitor-accessories":
-  //               newControl.options =
-  //                 filterOptions.accessories?.monitorAccessories || [];
-  //               break;
-  //             case "other-accessories":
-  //               newControl.options =
-  //                 filterOptions.accessories?.otherAccessories || [];
-  //               break;
-  //             default:
-  //               newControl.options = [];
-  //               break;
-  //           }
-  //         } else if (newControl.name === "condition") {
-  //           newControl.options = filterOptions.condition || [];
-  //         } else if (newControl.name === "category") {
-  //           newControl.options = [
-  //             { id: "smartphones", label: "Smartphones" },
-  //             { id: "laptops", label: "Laptops" },
-  //             { id: "monitors", label: "Monitors" },
-  //             { id: "accessories", label: "Accessories" },
-  //           ];
-  //         }
-  //       }
-  //       return newControl;
-  //     })
-  //     .filter((control) => {
-  //       if (!control.visibleIf) return true;
-  //       const fieldToCheck = formData[control.visibleIf.field];
-  //       if (Array.isArray(control.visibleIf.value)) {
-  //         return control.visibleIf.value.includes(fieldToCheck);
-  //       }
-  //       return fieldToCheck === control.visibleIf.value;
-  //     });
-  //   return dynamicControls;
-  // };
-
   const getDynamicFormControls = () => {
   const dynamicControls = addProductFormElements
     .map((control) => {
@@ -456,8 +372,6 @@ function AdminProducts() {
           </div>
         </SheetContent>
       </Sheet>
-
-      {/* Removed Global Delete Confirmation Modal entirely */}
     </Fragment>
   );
 }

@@ -1,5 +1,7 @@
+
+
 // import { useParams, useNavigate } from "react-router-dom";
-// import { useEffect, useState } from "react";
+// import { useEffect, useState, useCallback } from "react"; // Added useCallback
 // import { useDispatch, useSelector } from "react-redux";
 // import { Button } from "@/components/ui/button";
 // import { Separator } from "@/components/ui/separator";
@@ -26,11 +28,12 @@
 
 //   const [quantity, setQuantity] = useState(1);
 //   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+//   const [showInstagramModal, setShowInstagramModal] = useState(false);
 
 //   useEffect(() => {
 //     if (id) {
 //       dispatch(fetchProductDetails(id));
-//       window.scrollTo(0, 0); // <-- Scroll to top when product id changes
+//       window.scrollTo(0, 0);
 //     }
 //   }, [id, dispatch]);
 
@@ -39,6 +42,8 @@
 //     const cartItem = cartItems.items?.find(
 //       (item) => item.productId === productDetails._id
 //     );
+//     // Only update quantity if it's the main product being viewed,
+//     // otherwise it might interfere with related product add to cart logic.
 //     setQuantity(cartItem ? cartItem.quantity : 1);
 //   }, [productDetails, cartItems.items]);
 
@@ -48,7 +53,6 @@
 //     }
 //   }, [productDetails, dispatch]);
 
-//   // Load cart items when component mounts or user changes
 //   useEffect(() => {
 //     const fetchCart = async () => {
 //       try {
@@ -72,7 +76,8 @@
 //     fetchCart();
 //   }, [dispatch, user]);
 
-//   const handleAddToCart = async () => {
+//   // Modified handleAddToCart to accept productId and desiredQuantity
+//   const handleAddToCart = useCallback(async (productIdToAdd, stockAvailable) => {
 //     try {
 //       const userId = user?.id;
 //       const sessionId = userId ? null : getOrCreateSessionId();
@@ -83,15 +88,16 @@
 //         return;
 //       }
 
-//       // Check stock for existing items
 //       const currentCartItems = cartItems?.items || [];
 //       const existingItem = currentCartItems.find(
-//         (item) => item.productId === productDetails._id
+//         (item) => item.productId === productIdToAdd
 //       );
 
-//       if (existingItem && existingItem.quantity >= productDetails.totalStock) {
+//       const quantityToAdd = productIdToAdd === productDetails._id ? quantity : 1; // If it's the main product, use its quantity state, otherwise add 1 for related products
+
+//       if (existingItem && existingItem.quantity >= stockAvailable) {
 //         toast.error(
-//           `Maximum available quantity (${productDetails.totalStock}) reached`,
+//           `Maximum available quantity (${stockAvailable}) reached`,
 //           {
 //             icon: <AlertCircle className="text-red-500" />,
 //           }
@@ -99,8 +105,8 @@
 //         return;
 //       }
 
-//       if (quantity > productDetails.totalStock) {
-//         toast.error(`Only ${productDetails.totalStock} quantity can be added`, {
+//       if (quantityToAdd > stockAvailable) {
+//         toast.error(`Only ${stockAvailable} quantity can be added`, {
 //           icon: <AlertCircle className="text-red-500" />,
 //         });
 //         return;
@@ -109,8 +115,8 @@
 //       const response = await dispatch(
 //         addToCart({
 //           userId,
-//           productId: productDetails._id,
-//           quantity,
+//           productId: productIdToAdd,
+//           quantity: quantityToAdd,
 //           sessionId,
 //         })
 //       ).unwrap();
@@ -125,7 +131,7 @@
 //       console.error("Add to cart error:", error);
 //       toast.error("Failed to add product to cart");
 //     }
-//   };
+//   }, [user, dispatch, navigate, cartItems, productDetails, quantity]); // Include 'quantity' in dependencies
 
 //   const handleUpdateQuantity = (type) => {
 //     if (type === "plus") {
@@ -145,27 +151,31 @@
 //     window.scrollTo(0, 0);
 //   };
 
-//   // Function to handle WhatsApp order
 //   const handleOrderOnWhatsApp = () => {
-//     const phoneNumber = "2348164014304"; // Replace with your WhatsApp number (e.g., +2348012345678)
-//     const message = `Hello, I'm interested in "${
-//       productDetails.title
-//     }" for ₦${Number(productDetails.price).toLocaleString(
-//       "en-NG"
-//     )}. Quantity: ${quantity}. Please send me more details.`;
-//     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
-//       message
-//     )}`;
+//     const phoneNumber = "2348164014304";
+//     const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+//     const message = `Hello AFKiT,\n\nI'm interested in *"${productDetails.title}"* for *₦${Number(
+//       productDetails.price
+//     ).toLocaleString("en-NG")}*.\n\n*Quantity:* ${quantity}\n\nIs it still available?\n\n🔗 Product Link:\n${productLink}`;
+    
+//     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 //     window.open(whatsappUrl, "_blank");
 //   };
 
-//   // Function to handle Instagram order
 //   const handleOrderOnInstagram = () => {
-//     const instagramUsername = "your_instagram_handle"; // Replace with your Instagram handle
-//     const instagramUrl = `https://www.instagram.com/${instagramUsername}/direct/inbox/`;
-//     // You might consider directing to a specific post or just their profile for DM.
-//     // For a direct message, it's harder to pre-fill content like WhatsApp.
-//     window.open(instagramUrl, "_blank");
+//     setShowInstagramModal(true);
+//   };
+
+//   const copyInstagramMessage = () => {
+//     const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+//     const message = `Hello AFKiT,\n\nI'm interested in "${productDetails.title}" for ₦${Number(
+//       productDetails.price
+//     ).toLocaleString("en-NG")}.\n\nQuantity: ${quantity}\n\nIs it still available?\n\nProduct Link: ${productLink}`;
+    
+//     navigator.clipboard.writeText(message);
+//     toast.success("Message copied to clipboard");
+//     window.open("https://www.instagram.com/afkit_official?igsh=MXZ2MGZyOGowaDlmYw==", "_blank");
+//     setShowInstagramModal(false);
 //   };
 
 //   const filteredRelatedProducts =
@@ -181,7 +191,6 @@
 //     );
 //   }
 
-//   // Get all images - fallback to single image if images array doesn't exist
 //   const productImages =
 //     productDetails.images?.length > 0
 //       ? productDetails.images
@@ -191,11 +200,8 @@
 
 //   return (
 //     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-//       {/* Top Section */}
 //       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-//         {/* Left - Image Gallery */}
 //         <div className="flex flex-col md:flex-row gap-4">
-//           {/* Thumbnails - only show if more than one image */}
 //           {productImages.length > 1 && (
 //             <div className="flex flex-row md:flex-col gap-2 order-2 md:order-1">
 //               {productImages.map((img, index) => (
@@ -218,7 +224,6 @@
 //             </div>
 //           )}
 
-//           {/* Main Image */}
 //           <div
 //             className={`aspect-square bg-gray-100 rounded-lg flex items-center justify-center ${
 //               productImages.length > 1 ? "order-1 md:order-2 flex-1" : "w-full"
@@ -232,7 +237,6 @@
 //           </div>
 //         </div>
 
-//         {/* Right - Product Details */}
 //         <div className="space-y-6">
 //           <div>
 //             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
@@ -272,28 +276,22 @@
 //           </div>
 
 //           <Button
-//             // className="w-full h-12 text-lg font-semibold tracking-wide"
-//             className="h-12 w-full bg-blue-100 hover:bg-blue-200 text-blue-800 hover:text-blue-900"
-//             onClick={handleAddToCart}
+//             className="h-12 w-full bg-blue-800 hover:bg-blue-600 text-white font-bold"
+//             onClick={() => handleAddToCart(productDetails._id, productDetails.totalStock)} // Pass ID and stock
 //             disabled={productDetails.totalStock === 0}
 //           >
 //             {productDetails.totalStock === 0 ? "Out of Stock" : "Add to Cart"}
 //           </Button>
 
-//           {/* New Buttons for WhatsApp and Instagram */}
 //           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
 //             <Button
-//               variant="outline" // You can adjust variants for styling
-//               // className="w-full h-12 text-md font-semibold tracking-wide border-green-500 text-green-600 hover:bg-green-50"
-//               className="h-12 bg-green-100 hover:bg-green-200 text-green-800 hover:text-green-900"
+//               className="h-12 bg-green-700 hover:bg-green-600 text-white font-bold"
 //               onClick={handleOrderOnWhatsApp}
 //             >
 //               Order on WhatsApp
 //             </Button>
 //             <Button
-//               variant="outline" // You can adjust variants for styling
-//               // className="w-full h-12 text-md font-semibold tracking-wide border-purple-500 text-purple-600 hover:bg-purple-50"
-//               className="h-12 bg-pink-100 hover:bg-pink-200 text-pink-800 hover:text-pink-900"
+//               className="h-12 bg-pink-700 hover:bg-pink-600 text-white font-bold"
 //               onClick={handleOrderOnInstagram}
 //             >
 //               Order on Instagram
@@ -304,7 +302,6 @@
 //         </div>
 //       </div>
 
-//       {/* Related Products Section */}
 //       {filteredRelatedProducts.length > 0 && (
 //         <div className="mt-16">
 //           <h2 className="text-xl font-bold text-center mb-8">
@@ -314,12 +311,48 @@
 //             {filteredRelatedProducts.map((product) => (
 //               <div
 //                 key={product._id}
+//                 // The handleViewDetails is still on the parent div to navigate to product details
 //                 onClick={() => handleRelatedProductClick(product._id)}
 //                 className="cursor-pointer"
 //               >
-//                 <ShoppingProductTile product={product} />
+//                 {/* Pass handleAddToCart to the ShoppingProductTile */}
+//                 <ShoppingProductTile
+//                   product={product}
+//                   handleAddToCart={handleAddToCart} // Pass the function here
+//                   handleViewDetails={handleRelatedProductClick} // Pass the navigation function
+//                 />
 //               </div>
 //             ))}
+//           </div>
+//         </div>
+//       )}
+
+//       {showInstagramModal && (
+//         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+//           <div className="bg-white rounded-lg p-6 max-w-md w-full">
+//             <h3 className="text-lg font-bold mb-4">Order on Instagram</h3>
+//             <p className="mb-4">
+//               Copy this message and paste it when you DM us on Instagram:
+//             </p>
+//             <div className="bg-gray-100 p-4 rounded mb-4">
+//               <p className="whitespace-pre-wrap">
+//                 Hello AFKiT,\n\nI'm interested in "{productDetails.title}" for ₦
+//                 {Number(productDetails.price).toLocaleString("en-NG")}.\n\nQuantity: {quantity}.
+//                 {"\n\n"}Is it still available?
+//                 {"\n\n"}Product Link: {window.location.origin}/shop/product/{productDetails._id}
+//               </p>
+//             </div>
+//             <div className="flex justify-end gap-2">
+//               <Button variant="outline" onClick={() => setShowInstagramModal(false)}>
+//                 Cancel
+//               </Button>
+//               <Button 
+//                 className="bg-pink-600 hover:bg-pink-700 text-white font-bold"
+//                 onClick={copyInstagramMessage}
+//               >
+//                 Copy & Open Instagram
+//               </Button>
+//             </div>
 //           </div>
 //         </div>
 //       )}
@@ -327,15 +360,14 @@
 //   );
 // }
 
-
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Minus, Plus, CheckCircle, AlertCircle } from "lucide-react";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
-import { toast } from "sonner";
+import { toast } from "sonner"; // Corrected import
 import {
   fetchProductsByBrand,
   fetchProductDetails,
@@ -343,6 +375,10 @@ import {
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import LoadingSpinner from "@/components/shopping-view/loading-spinner";
 import { getOrCreateSessionId } from "@/components/utils/session";
+
+// Import react-markdown and remark-gfm
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm'; // Optional, but recommended for full markdown support
 
 export default function ShoppingProductDetails() {
   const { id } = useParams();
@@ -370,6 +406,8 @@ export default function ShoppingProductDetails() {
     const cartItem = cartItems.items?.find(
       (item) => item.productId === productDetails._id
     );
+    // Only update quantity if it's the main product being viewed,
+    // otherwise it might interfere with related product add to cart logic.
     setQuantity(cartItem ? cartItem.quantity : 1);
   }, [productDetails, cartItems.items]);
 
@@ -402,7 +440,8 @@ export default function ShoppingProductDetails() {
     fetchCart();
   }, [dispatch, user]);
 
-  const handleAddToCart = async () => {
+  // Modified handleAddToCart to accept productId and desiredQuantity
+  const handleAddToCart = useCallback(async (productIdToAdd, stockAvailable) => {
     try {
       const userId = user?.id;
       const sessionId = userId ? null : getOrCreateSessionId();
@@ -415,12 +454,14 @@ export default function ShoppingProductDetails() {
 
       const currentCartItems = cartItems?.items || [];
       const existingItem = currentCartItems.find(
-        (item) => item.productId === productDetails._id
+        (item) => item.productId === productIdToAdd
       );
 
-      if (existingItem && existingItem.quantity >= productDetails.totalStock) {
+      const quantityToAdd = productIdToAdd === productDetails._id ? quantity : 1; // If it's the main product, use its quantity state, otherwise add 1 for related products
+
+      if (existingItem && existingItem.quantity >= stockAvailable) {
         toast.error(
-          `Maximum available quantity (${productDetails.totalStock}) reached`,
+          `Maximum available quantity (${stockAvailable}) reached`,
           {
             icon: <AlertCircle className="text-red-500" />,
           }
@@ -428,8 +469,8 @@ export default function ShoppingProductDetails() {
         return;
       }
 
-      if (quantity > productDetails.totalStock) {
-        toast.error(`Only ${productDetails.totalStock} quantity can be added`, {
+      if (quantityToAdd > stockAvailable) {
+        toast.error(`Only ${stockAvailable} quantity can be added`, {
           icon: <AlertCircle className="text-red-500" />,
         });
         return;
@@ -438,8 +479,8 @@ export default function ShoppingProductDetails() {
       const response = await dispatch(
         addToCart({
           userId,
-          productId: productDetails._id,
-          quantity,
+          productId: productIdToAdd,
+          quantity: quantityToAdd,
           sessionId,
         })
       ).unwrap();
@@ -454,7 +495,7 @@ export default function ShoppingProductDetails() {
       console.error("Add to cart error:", error);
       toast.error("Failed to add product to cart");
     }
-  };
+  }, [user, dispatch, navigate, cartItems, productDetails, quantity]); // Include 'quantity' in dependencies
 
   const handleUpdateQuantity = (type) => {
     if (type === "plus") {
@@ -480,7 +521,7 @@ export default function ShoppingProductDetails() {
     const message = `Hello AFKiT,\n\nI'm interested in *"${productDetails.title}"* for *₦${Number(
       productDetails.price
     ).toLocaleString("en-NG")}*.\n\n*Quantity:* ${quantity}\n\nIs it still available?\n\n🔗 Product Link:\n${productLink}`;
-    
+
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   };
@@ -493,8 +534,8 @@ export default function ShoppingProductDetails() {
     const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
     const message = `Hello AFKiT,\n\nI'm interested in "${productDetails.title}" for ₦${Number(
       productDetails.price
-    ).toLocaleString("en-NG")}.\n\nQuantity: ${quantity}\n\nIs it still available?\n\nProduct Link: ${productLink}`;
-    
+    ).toLocaleString("en-NG")}.\n\nQuantity: ${quantity}.\n\nIs it still available?\n\nProduct Link: ${productLink}`;
+
     navigator.clipboard.writeText(message);
     toast.success("Message copied to clipboard");
     window.open("https://www.instagram.com/afkit_official?igsh=MXZ2MGZyOGowaDlmYw==", "_blank");
@@ -520,6 +561,21 @@ export default function ShoppingProductDetails() {
       : productDetails.image
       ? [productDetails.image]
       : [];
+
+  // --- NEW: Function to clean and normalize the description string ---
+  const cleanDescription = (text) => {
+    if (typeof text !== 'string') {
+      return ''; // Ensure it's always a string
+    }
+    // Replace common problematic characters and normalize list items
+    return text
+      .replace(/\u00A0/g, ' ') // Replace non-breaking spaces with standard spaces
+      .replace(/[\u2018\u2019]/g, "'") // Replace curly single quotes with straight single quote
+      .replace(/[\u201C\u201D]/g, '"') // Replace curly double quotes with straight double quote
+      .replace(/[\u2013\u2014]/g, '-') // Replace en-dash/em-dash with hyphen
+      .replace(/\u2022/g, '- ') // Replace common unicode bullet point with markdown hyphen
+      .trim(); // Trim leading/trailing whitespace
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -565,9 +621,12 @@ export default function ShoppingProductDetails() {
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
               {productDetails.title}
             </h1>
-            <p className="text-muted-foreground mt-3 text-base md:text-lg leading-relaxed">
-              {productDetails.description}
-            </p>
+            {/* --- NEW: Use ReactMarkdown with cleanDescription --- */}
+            <div className="text-muted-foreground mt-3 text-base md:text-lg leading-relaxed prose prose-lg max-w-none">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {cleanDescription(productDetails.description)}
+              </ReactMarkdown>
+            </div>
           </div>
 
           <div className="flex items-center gap-6 flex-wrap">
@@ -600,7 +659,7 @@ export default function ShoppingProductDetails() {
 
           <Button
             className="h-12 w-full bg-blue-800 hover:bg-blue-600 text-white font-bold"
-            onClick={handleAddToCart}
+            onClick={() => handleAddToCart(productDetails._id, productDetails.totalStock)}
             disabled={productDetails.totalStock === 0}
           >
             {productDetails.totalStock === 0 ? "Out of Stock" : "Add to Cart"}
@@ -637,7 +696,11 @@ export default function ShoppingProductDetails() {
                 onClick={() => handleRelatedProductClick(product._id)}
                 className="cursor-pointer"
               >
-                <ShoppingProductTile product={product} />
+                <ShoppingProductTile
+                  product={product}
+                  handleAddToCart={handleAddToCart}
+                  handleViewDetails={handleRelatedProductClick}
+                />
               </div>
             ))}
           </div>
@@ -663,7 +726,7 @@ export default function ShoppingProductDetails() {
               <Button variant="outline" onClick={() => setShowInstagramModal(false)}>
                 Cancel
               </Button>
-              <Button 
+              <Button
                 className="bg-pink-600 hover:bg-pink-700 text-white font-bold"
                 onClick={copyInstagramMessage}
               >
