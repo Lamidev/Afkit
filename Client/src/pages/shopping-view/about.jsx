@@ -173,6 +173,7 @@ import {
   FaNairaSign,
 } from "react-icons/fa6";
 import { Button } from "@/components/ui/button";
+import HappyCustomersSection from "@/components/shopping-view/happy-customer";
 
 // Note: socialIcons is currently unused in this component, but kept for completeness
 const socialIcons = {
@@ -276,6 +277,8 @@ const AboutPage = () => {
           This is why our tagline, "Delivering HAPPINESS," is not just words, it’s our mission. With <span className="text-orange-300 font-bold">Afkit</span>, you’re part of a family that’s got your back.
         </p>
       </motion.div>
+
+      <HappyCustomersSection/>
 
 
       {/* CTA Section */}
