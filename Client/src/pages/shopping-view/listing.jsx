@@ -50,7 +50,7 @@ function ShoppingListing() {
   const [minimumLoaderTime, setMinimumLoaderTime] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [productsPerPage] = useState(8);
+  const [productsPerPage] = useState(16);
 
   const [priceRange, setPriceRange] = useState({
     min: 0,
