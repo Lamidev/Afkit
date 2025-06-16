@@ -237,49 +237,97 @@
 
 // export default AdminDashboard;
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchVerifiedUserCount } from "@/store/admin/verified-users-slice";
+import { fetchUserStats } from "@/store/admin/user-stats-slice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Loader2 } from "lucide-react";
+import { Users, UserCheck, UserX, Activity, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 function AdminDashboard() {
   const dispatch = useDispatch();
-  const { verifiedUserCount, isLoading } = useSelector((state) => state.verifiedUsers);
+  const { stats, isLoading, error } = useSelector((state) => state.userStats);
 
   useEffect(() => {
-    dispatch(fetchVerifiedUserCount());
+    dispatch(fetchUserStats());
+    
+    // Refresh every 5 minutes
+    const interval = setInterval(() => {
+      dispatch(fetchUserStats());
+    }, 300000);
+    
+    return () => clearInterval(interval);
   }, [dispatch]);
 
+  if (error) {
+    return (
+      <div className="p-6 text-red-500">
+        Error loading dashboard: {error}
+      </div>
+    );
+  }
+
+  const statCards = [
+    {
+      title: "Verified Users",
+      value: stats?.verifiedUsers || 0,
+      icon: UserCheck,
+      color: "text-green-500",
+      delay: 0.2
+    },
+    {
+      title: "Unverified Users",
+      value: stats?.unverifiedUsers || 0,
+      icon: UserX,
+      color: "text-yellow-500",
+      delay: 0.3
+    },
+    {
+      title: "Active Today",
+      value: stats?.activeUsers || 0,
+      icon: Activity,
+      color: "text-blue-500",
+      delay: 0.4
+    },
+    {
+      title: "Total Users",
+      value: (stats?.verifiedUsers || 0) + (stats?.unverifiedUsers || 0),
+      icon: Users,
+      color: "text-purple-500",
+      delay: 0.5
+    }
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex flex-col md:flex-row gap-6 justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full md:w-1/2"
-        >
-          <Card className="shadow-xl border border-gray-200 bg-white p-4 rounded-lg">
-            <CardHeader className="flex items-center gap-3">
-              <Users className="text-blue-500 w-8 h-8" />
-              <CardTitle>Verified Users</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Loading...</span>
-                </div>
-              ) : (
-                <p className="text-2xl font-bold text-gray-800">
-                  {verifiedUserCount}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
+    <div className="p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {statCards.map((card, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: card.delay }}
+          >
+            <Card className="shadow-xl border border-gray-200 bg-white p-4 rounded-lg h-full">
+              <CardHeader className="flex items-center gap-3">
+                <card.icon className={`${card.color} w-8 h-8`} />
+                <CardTitle>{card.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Loading...</span>
+                  </div>
+                ) : (
+                  <p className="text-2xl font-bold text-gray-800">
+                    {card.value.toLocaleString()}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
       </div>
     </div>
   );
