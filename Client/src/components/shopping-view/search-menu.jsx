@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { motion } from "framer-motion";
 
- function SearchMenu({ className = "" }) {
+function SearchMenu({ className = "" }) {
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
@@ -26,21 +26,24 @@ import { motion } from "framer-motion";
         whileFocus={{ scale: 1.02 }}
         transition={{ type: "spring", stiffness: 400, damping: 15 }}
       >
-       <Input
-  type="text"
-  placeholder="Search for uk-used gadgets..."
-  value={searchTerm}
-  onChange={(e) => setSearchTerm(e.target.value)}
-  className="pl-12 pr-6 py-6 text-base sm:text-lg placeholder:italic placeholder:text-sm sm:placeholder:text-base border-2 border-gray-200 rounded-full shadow-sm focus-visible:ring-2 focus-visible:ring-primary"
-/>
+        <Input
+          type="text"
+          placeholder="Search for uk-used gadgets..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-12 pr-6 py-6 text-base sm:text-lg placeholder:italic placeholder:text-sm sm:placeholder:text-base border-2 border-gray-200 rounded-full shadow-sm focus-visible:ring-2 focus-visible:ring-primary"
+        />
 
+        {/* Search icon on the left (deep blue) */}
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-900 h-5 w-5" />
+        
+        {/* Search button on the right (deep blue background) */}
         <button
           type="submit"
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-primary text-white p-2 rounded-full hover:bg-primary-dark transition-colors"
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-900 text-white p-2 rounded-full hover:bg-blue-700 transition-colors"
         >
           <Search className="h-5 w-5" />
         </button>
-        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-blue-800 h-5 w-5" />
       </motion.div>
     </form>
   );

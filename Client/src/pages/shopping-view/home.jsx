@@ -327,7 +327,7 @@ function ShoppingHome() {
                   className="cursor-pointer hover:shadow-md h-full"
                 >
                   <CardContent className="flex flex-col items-center justify-center p-2 sm:p-3">
-                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 mb-1 text-blue-800" />
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 mb-1 text-blue-900" />
                     <span className="text-[10px] xs:text-xs sm:text-sm font-medium text-center leading-tight">
                       {label}
                     </span>

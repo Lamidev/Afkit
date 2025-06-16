@@ -359,7 +359,6 @@
 //     </div>
 //   );
 // }
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -367,7 +366,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Minus, Plus, CheckCircle, AlertCircle } from "lucide-react";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
-import { toast } from "sonner"; // Corrected import
+import { toast } from "sonner";
 import {
   fetchProductsByBrand,
   fetchProductDetails,
@@ -375,10 +374,8 @@ import {
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import LoadingSpinner from "@/components/shopping-view/loading-spinner";
 import { getOrCreateSessionId } from "@/components/utils/session";
-
-// Import react-markdown and remark-gfm
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm'; // Optional, but recommended for full markdown support
+import remarkGfm from 'remark-gfm';
 
 export default function ShoppingProductDetails() {
   const { id } = useParams();
@@ -406,8 +403,6 @@ export default function ShoppingProductDetails() {
     const cartItem = cartItems.items?.find(
       (item) => item.productId === productDetails._id
     );
-    // Only update quantity if it's the main product being viewed,
-    // otherwise it might interfere with related product add to cart logic.
     setQuantity(cartItem ? cartItem.quantity : 1);
   }, [productDetails, cartItems.items]);
 
@@ -440,7 +435,6 @@ export default function ShoppingProductDetails() {
     fetchCart();
   }, [dispatch, user]);
 
-  // Modified handleAddToCart to accept productId and desiredQuantity
   const handleAddToCart = useCallback(async (productIdToAdd, stockAvailable) => {
     try {
       const userId = user?.id;
@@ -457,9 +451,10 @@ export default function ShoppingProductDetails() {
         (item) => item.productId === productIdToAdd
       );
 
-      const quantityToAdd = productIdToAdd === productDetails._id ? quantity : 1; // If it's the main product, use its quantity state, otherwise add 1 for related products
+      // Always add just 1 for existing items, use quantity picker for new items
+      const quantityToAdd = existingItem ? 1 : quantity;
 
-      if (existingItem && existingItem.quantity >= stockAvailable) {
+      if (existingItem && existingItem.quantity + quantityToAdd > stockAvailable) {
         toast.error(
           `Maximum available quantity (${stockAvailable}) reached`,
           {
@@ -495,7 +490,7 @@ export default function ShoppingProductDetails() {
       console.error("Add to cart error:", error);
       toast.error("Failed to add product to cart");
     }
-  }, [user, dispatch, navigate, cartItems, productDetails, quantity]); // Include 'quantity' in dependencies
+  }, [user, dispatch, navigate, cartItems, quantity]);
 
   const handleUpdateQuantity = (type) => {
     if (type === "plus") {
@@ -562,19 +557,17 @@ export default function ShoppingProductDetails() {
       ? [productDetails.image]
       : [];
 
-  // --- NEW: Function to clean and normalize the description string ---
   const cleanDescription = (text) => {
     if (typeof text !== 'string') {
-      return ''; // Ensure it's always a string
+      return '';
     }
-    // Replace common problematic characters and normalize list items
     return text
-      .replace(/\u00A0/g, ' ') // Replace non-breaking spaces with standard spaces
-      .replace(/[\u2018\u2019]/g, "'") // Replace curly single quotes with straight single quote
-      .replace(/[\u201C\u201D]/g, '"') // Replace curly double quotes with straight double quote
-      .replace(/[\u2013\u2014]/g, '-') // Replace en-dash/em-dash with hyphen
-      .replace(/\u2022/g, '- ') // Replace common unicode bullet point with markdown hyphen
-      .trim(); // Trim leading/trailing whitespace
+      .replace(/\u00A0/g, ' ')
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/[\u2013\u2014]/g, '-')
+      .replace(/\u2022/g, '- ')
+      .trim();
   };
 
   return (
@@ -621,7 +614,6 @@ export default function ShoppingProductDetails() {
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
               {productDetails.title}
             </h1>
-            {/* --- NEW: Use ReactMarkdown with cleanDescription --- */}
             <div className="text-muted-foreground mt-3 text-base md:text-lg leading-relaxed prose prose-lg max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {cleanDescription(productDetails.description)}

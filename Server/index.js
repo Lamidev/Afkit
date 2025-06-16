@@ -5,7 +5,7 @@ const cors = require("cors");
 require("dotenv").config();
 const authRouter = require("./routes/auth/auth-routes")
 const adminProductsRouter = require("./routes/admin/products-routes");
-const adminVerifiedUsersRouter = require("./routes/admin/verified-user-routes");
+const adminUserStatsRouter = require("./routes/admin/user-stats-routes");
 const shopProductsRouter = require("./routes/shop/products-routes");
 const shopCartRouter = require("./routes/shop/cart-routes");
 const shopSearchRouter = require("./routes/shop/search-routes")
@@ -50,7 +50,7 @@ mongoose
     app.use(cookieParser());
     app.use("/api/auth", authRouter);
     app.use("/api/admin/products", adminProductsRouter);
-    app.use("/api/admin/verified-users",adminVerifiedUsersRouter);
+    app.use("/api/admin/user-stats",adminUserStatsRouter);
     app.use("/api/shop/products", shopProductsRouter);
     app.use("/api/shop/cart", shopCartRouter);
     app.use("/api/shop/search", shopSearchRouter);
