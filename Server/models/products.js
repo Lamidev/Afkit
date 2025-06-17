@@ -18,6 +18,8 @@ const ProductSchema = new mongoose.Schema(
     description: {
       type: String,
       required: true,
+        trim: false,
+  set: (v) => v.replace(/\r\n/g, '\n') // Normalize line endings
     },
     category: {
       type: String,

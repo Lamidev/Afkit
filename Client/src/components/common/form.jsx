@@ -159,18 +159,19 @@ function CommonForm({
         break;
 
       case "textarea":
-        element = (
-          <Textarea
-            name={getControlItem.name}
-            placeholder={getControlItem.placeholder}
-            id={getControlItem.id}
-            value={value}
-            onChange={(event) =>
-              handleFieldChange(getControlItem.name, event.target.value)
-            }
-          />
-        );
-        break;
+  element = (
+    <Textarea
+      name={getControlItem.name}
+      placeholder={getControlItem.placeholder}
+      id={getControlItem.id}
+      value={value}
+      onChange={(event) =>
+        handleFieldChange(getControlItem.name, event.target.value)
+      }
+      className="whitespace-pre-wrap min-h-[120px]" // Add this
+    />
+  );
+  break;
 
       default:
         element = (
