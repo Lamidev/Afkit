@@ -53,7 +53,7 @@ export const fetchUserStats = createAsyncThunk(
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats`,
-        { withCredentials: true } // This is crucial for sending cookies
+        { withCredentials: true }
       );
       return response.data;
     } catch (error) {
@@ -71,7 +71,7 @@ const userStatsSlice = createSlice({
       verifiedUsers: 0,
       unverifiedUsers: 0,
       activeUsers: 0,
-      totalUsers: 0,
+      totalUsers: 0
     },
     isLoading: false,
     error: null,
