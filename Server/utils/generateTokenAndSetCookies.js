@@ -23,23 +23,23 @@ const jwt = require("jsonwebtoken");
 
 const generateTokenAndSetCookie = (res, userId) => {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: "6h", // Or "1d" for 1 day, adjust as needed
+    expiresIn: "6h",
   });
 
-  res.cookie("token", token, {
-    httpOnly: true, // Prevents client-side JS access to the cookie
-    // IMPORTANT: secure should be true in production (when NODE_ENV is 'production')
-    secure: process.env.NODE_ENV === "production",
-    // Use 'Lax' for better compatibility in production, 'strict' locally.
-    // If your frontend and backend are on completely different domains (e.g., app.example.com and api.example.com),
-    // and you need to send cookies for cross-site requests, you might need "None" with secure: true.
-    sameSite: process.env.NODE_ENV === "production" ? "Lax" : "strict",
-    // Set the domain explicitly for production to .afkik.ng (with leading dot for subdomains like www)
-    // On localhost, it should automatically work for localhost.
-    domain: process.env.NODE_ENV === "production" ? ".afkit.ng" : undefined, // 'undefined' lets it default for localhost
-    maxAge: 6 * 60 * 60 * 1000, // 6 hours (match expiresIn)
-  });
+  const isProduction = process.env.NODE_ENV === "production";
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    maxAge: 6 * 60 * 60 * 1000,
+    path: '/',
+  };
 
+  if (isProduction) {
+    cookieOptions.domain = '.afkit.ng';
+  }
+
+  res.cookie("token", token, cookieOptions);
   return token;
 };
 
