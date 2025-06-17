@@ -1,7 +1,6 @@
 
-
 // import { useParams, useNavigate } from "react-router-dom";
-// import { useEffect, useState, useCallback } from "react"; // Added useCallback
+// import { useEffect, useState, useCallback } from "react";
 // import { useDispatch, useSelector } from "react-redux";
 // import { Button } from "@/components/ui/button";
 // import { Separator } from "@/components/ui/separator";
@@ -15,6 +14,8 @@
 // import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 // import LoadingSpinner from "@/components/shopping-view/loading-spinner";
 // import { getOrCreateSessionId } from "@/components/utils/session";
+// import ReactMarkdown from 'react-markdown';
+// import remarkGfm from 'remark-gfm';
 
 // export default function ShoppingProductDetails() {
 //   const { id } = useParams();
@@ -42,8 +43,6 @@
 //     const cartItem = cartItems.items?.find(
 //       (item) => item.productId === productDetails._id
 //     );
-//     // Only update quantity if it's the main product being viewed,
-//     // otherwise it might interfere with related product add to cart logic.
 //     setQuantity(cartItem ? cartItem.quantity : 1);
 //   }, [productDetails, cartItems.items]);
 
@@ -76,7 +75,6 @@
 //     fetchCart();
 //   }, [dispatch, user]);
 
-//   // Modified handleAddToCart to accept productId and desiredQuantity
 //   const handleAddToCart = useCallback(async (productIdToAdd, stockAvailable) => {
 //     try {
 //       const userId = user?.id;
@@ -93,9 +91,10 @@
 //         (item) => item.productId === productIdToAdd
 //       );
 
-//       const quantityToAdd = productIdToAdd === productDetails._id ? quantity : 1; // If it's the main product, use its quantity state, otherwise add 1 for related products
+//       // Always add just 1 for existing items, use quantity picker for new items
+//       const quantityToAdd = existingItem ? 1 : quantity;
 
-//       if (existingItem && existingItem.quantity >= stockAvailable) {
+//       if (existingItem && existingItem.quantity + quantityToAdd > stockAvailable) {
 //         toast.error(
 //           `Maximum available quantity (${stockAvailable}) reached`,
 //           {
@@ -131,7 +130,7 @@
 //       console.error("Add to cart error:", error);
 //       toast.error("Failed to add product to cart");
 //     }
-//   }, [user, dispatch, navigate, cartItems, productDetails, quantity]); // Include 'quantity' in dependencies
+//   }, [user, dispatch, navigate, cartItems, quantity]);
 
 //   const handleUpdateQuantity = (type) => {
 //     if (type === "plus") {
@@ -157,7 +156,7 @@
 //     const message = `Hello AFKiT,\n\nI'm interested in *"${productDetails.title}"* for *₦${Number(
 //       productDetails.price
 //     ).toLocaleString("en-NG")}*.\n\n*Quantity:* ${quantity}\n\nIs it still available?\n\n🔗 Product Link:\n${productLink}`;
-    
+
 //     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
 //     window.open(whatsappUrl, "_blank");
 //   };
@@ -170,8 +169,8 @@
 //     const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
 //     const message = `Hello AFKiT,\n\nI'm interested in "${productDetails.title}" for ₦${Number(
 //       productDetails.price
-//     ).toLocaleString("en-NG")}.\n\nQuantity: ${quantity}\n\nIs it still available?\n\nProduct Link: ${productLink}`;
-    
+//     ).toLocaleString("en-NG")}.\n\nQuantity: ${quantity}.\n\nIs it still available?\n\nProduct Link: ${productLink}`;
+
 //     navigator.clipboard.writeText(message);
 //     toast.success("Message copied to clipboard");
 //     window.open("https://www.instagram.com/afkit_official?igsh=MXZ2MGZyOGowaDlmYw==", "_blank");
@@ -197,6 +196,19 @@
 //       : productDetails.image
 //       ? [productDetails.image]
 //       : [];
+
+//   const cleanDescription = (text) => {
+//     if (typeof text !== 'string') {
+//       return '';
+//     }
+//     return text
+//       .replace(/\u00A0/g, ' ')
+//       .replace(/[\u2018\u2019]/g, "'")
+//       .replace(/[\u201C\u201D]/g, '"')
+//       .replace(/[\u2013\u2014]/g, '-')
+//       .replace(/\u2022/g, '- ')
+//       .trim();
+//   };
 
 //   return (
 //     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -242,9 +254,11 @@
 //             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
 //               {productDetails.title}
 //             </h1>
-//             <p className="text-muted-foreground mt-3 text-base md:text-lg leading-relaxed">
-//               {productDetails.description}
-//             </p>
+//             <div className="text-muted-foreground mt-3 text-base md:text-lg leading-relaxed prose prose-lg max-w-none">
+//               <ReactMarkdown remarkPlugins={[remarkGfm]}>
+//                 {cleanDescription(productDetails.description)}
+//               </ReactMarkdown>
+//             </div>
 //           </div>
 
 //           <div className="flex items-center gap-6 flex-wrap">
@@ -277,7 +291,7 @@
 
 //           <Button
 //             className="h-12 w-full bg-blue-800 hover:bg-blue-600 text-white font-bold"
-//             onClick={() => handleAddToCart(productDetails._id, productDetails.totalStock)} // Pass ID and stock
+//             onClick={() => handleAddToCart(productDetails._id, productDetails.totalStock)}
 //             disabled={productDetails.totalStock === 0}
 //           >
 //             {productDetails.totalStock === 0 ? "Out of Stock" : "Add to Cart"}
@@ -311,15 +325,13 @@
 //             {filteredRelatedProducts.map((product) => (
 //               <div
 //                 key={product._id}
-//                 // The handleViewDetails is still on the parent div to navigate to product details
 //                 onClick={() => handleRelatedProductClick(product._id)}
 //                 className="cursor-pointer"
 //               >
-//                 {/* Pass handleAddToCart to the ShoppingProductTile */}
 //                 <ShoppingProductTile
 //                   product={product}
-//                   handleAddToCart={handleAddToCart} // Pass the function here
-//                   handleViewDetails={handleRelatedProductClick} // Pass the navigation function
+//                   handleAddToCart={handleAddToCart}
+//                   handleViewDetails={handleRelatedProductClick}
 //                 />
 //               </div>
 //             ))}
@@ -346,7 +358,7 @@
 //               <Button variant="outline" onClick={() => setShowInstagramModal(false)}>
 //                 Cancel
 //               </Button>
-//               <Button 
+//               <Button
 //                 className="bg-pink-600 hover:bg-pink-700 text-white font-bold"
 //                 onClick={copyInstagramMessage}
 //               >
@@ -359,6 +371,7 @@
 //     </div>
 //   );
 // }
+
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -557,17 +570,28 @@ export default function ShoppingProductDetails() {
       ? [productDetails.image]
       : [];
 
-  const cleanDescription = (text) => {
-    if (typeof text !== 'string') {
-      return '';
-    }
-    return text
-      .replace(/\u00A0/g, ' ')
-      .replace(/[\u2018\u2019]/g, "'")
-      .replace(/[\u201C\u201D]/g, '"')
-      .replace(/[\u2013\u2014]/g, '-')
-      .replace(/\u2022/g, '- ')
-      .trim();
+  const renderDescription = (description) => {
+    if (!description) return null;
+    
+    const desc = typeof description === 'string' ? description : String(description);
+    
+    return (
+      <div className="whitespace-pre-wrap font-normal text-base text-gray-700">
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]}
+          components={{
+            p: ({node, ...props}) => <p className="mb-4" {...props} />,
+            ul: ({node, ...props}) => <ul className="list-disc pl-5 mb-4" {...props} />,
+            ol: ({node, ...props}) => <ol className="list-decimal pl-5 mb-4" {...props} />,
+            li: ({node, ...props}) => <li className="mb-2" {...props} />,
+            strong: ({node, ...props}) => <strong className="font-semibold" {...props} />,
+            em: ({node, ...props}) => <em className="italic" {...props} />,
+          }}
+        >
+          {desc}
+        </ReactMarkdown>
+      </div>
+    );
   };
 
   return (
@@ -614,11 +638,6 @@ export default function ShoppingProductDetails() {
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
               {productDetails.title}
             </h1>
-            <div className="text-muted-foreground mt-3 text-base md:text-lg leading-relaxed prose prose-lg max-w-none">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {cleanDescription(productDetails.description)}
-              </ReactMarkdown>
-            </div>
           </div>
 
           <div className="flex items-center gap-6 flex-wrap">
@@ -675,6 +694,15 @@ export default function ShoppingProductDetails() {
           <Separator />
         </div>
       </div>
+
+      {productDetails.description && (
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold mb-4">Product Description</h2>
+          <div className="bg-white p-6 rounded-lg border">
+            {renderDescription(productDetails.description)}
+          </div>
+        </div>
+      )}
 
       {filteredRelatedProducts.length > 0 && (
         <div className="mt-16">
