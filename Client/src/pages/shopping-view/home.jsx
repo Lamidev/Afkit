@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion"; // Import AnimatePresence
 import { Button } from "@/components/ui/button";
 import {
   Airplay,
@@ -12,7 +12,7 @@ import {
   Tv,
   CheckCircle,
   AlertCircle,
-  ShieldCheck, // Keep ShieldCheck for the hero section if used
+  ShieldCheck,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
@@ -21,20 +21,17 @@ import { fetchAllFilteredProducts } from "@/store/shop/products-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useNavigate } from "react-router-dom";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
-import { getFeatureImages } from "@/store/common-slice"; // Ensure this is still needed, otherwise remove
+import { getFeatureImages } from "@/store/common-slice"; // This import is not used in the provided code
 import { FaTruck, FaCreditCard, FaHeadset, FaShieldAlt } from "react-icons/fa";
 import CustomerReviews from "@/components/shopping-view/customer-reviews";
 import { toast } from "sonner";
 import { getOrCreateSessionId } from "@/components/utils/session";
-
-// --- NEW IMPORT FOR ACCORDION ---
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-// --- END NEW IMPORT ---
 
 const categoriesWithIcon = [
   { id: "smartphones", label: "Smartphones", icon: Smartphone },
@@ -52,28 +49,32 @@ const brandsWithIcon = [
   { id: "all-products", label: "All Products", icon: ShoppingBag },
 ];
 
-// --- UPDATED SUPPORT FEATURES (as you provided) ---
 const supportFeatures = [
   {
-    icon: FaShieldAlt, // FaShieldAlt from react-icons/fa
+    icon: FaShieldAlt,
     title: "6-MONTH WARRANTY",
     description:
       "At Afkit, all UK-used gadgets come with a 6-month warranty, Your Peace of mind is guaranteed.",
   },
   {
-    icon: FaTruck, // FaTruck from react-icons/fa
+    icon: FaTruck,
     title: "PAYMENT ON DELIVERY",
     description:
       "You pay only after you receive and check your item. No Risk, no Worries. You're in control.",
   },
   {
-    icon: FaHeadset, // FaHeadset from react-icons/fa
+    icon: FaHeadset,
     title: "FREE ONLINE TECH SUPPORT",
     description:
-      "We’re always here to help with any questions or issues you have with your gadget.",
+      "We're always here to help with any questions or issues you have with your gadget.",
   },
 ];
-// --- END OF UPDATED SUPPORT FEATURES ---
+
+// Define animation variants for sliding in
+const itemVariants = {
+  hidden: { opacity: 0, y: 50 }, // Starts invisible and slightly below
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }, // Slides up and fades in
+};
 
 function ShoppingHome() {
   const { productList } = useSelector((state) => state.shopProducts);
@@ -82,8 +83,36 @@ function ShoppingHome() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isSmallScreen, setIsSmallScreen] = useState(false);
-  const [featuredProducts, setFeaturedProducts] = useState([]); // This state is declared but not explicitly used in the returned JSX, maybe for future use?
+  const [currentProducts, setCurrentProducts] = useState([]);
 
+  // Shuffle function
+  const shuffleArray = (array) => {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+  };
+
+  // Product shuffling effect
+  useEffect(() => {
+    if (productList.length > 0) {
+      // Initialize with products
+      const initialProducts = shuffleArray([...productList]).slice(0, 8);
+      setCurrentProducts(initialProducts);
+
+      const interval = setInterval(() => {
+        // Generate new products on interval
+        const newProducts = shuffleArray([...productList]).slice(0, 8);
+        setCurrentProducts(newProducts);
+      }, 20000); // Changed to 20 seconds as per your code's setInterval
+
+      return () => clearInterval(interval);
+    }
+  }, [productList]);
+
+  // Screen size detection
   useEffect(() => {
     const checkScreen = () => setIsSmallScreen(window.innerWidth < 640);
     checkScreen();
@@ -94,33 +123,6 @@ function ShoppingHome() {
   const categoriesToShow = isSmallScreen
     ? categoriesWithIcon.slice(0, 4)
     : categoriesWithIcon;
-  const brandsToShow = isSmallScreen
-    ? brandsWithIcon.slice(0, 4)
-    : brandsWithIcon; // This is declared but not explicitly used in the returned JSX
-
-  const shuffleArray = (array) => {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
-  };
-
-  useEffect(() => {
-    const updateFeaturedProducts = () => {
-      const shuffled = shuffleArray([...productList]);
-      setFeaturedProducts(shuffled.slice(0, 8)); // Populating the state
-    };
-
-    updateFeaturedProducts();
-
-    const interval = setInterval(() => {
-      updateFeaturedProducts();
-    }, 60 * 60 * 1000); // Shuffles every hour, but `featuredProducts` isn't rendered directly.
-
-    return () => clearInterval(interval);
-  }, [productList]); // `productList` dependency is crucial here
 
   const handleNavigateToListingPage = (item, section) => {
     sessionStorage.removeItem("filters");
@@ -236,7 +238,7 @@ function ShoppingHome() {
 
   return (
     <div className="flex flex-col space-y-8 sm:space-y-12 px-4 sm:px-6">
-      {/* Hero Section - Fully clickable */}
+      {/* Hero Section */}
       <section className="w-full flex items-center justify-center py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -255,7 +257,7 @@ function ShoppingHome() {
           >
             <div className="flex items-center justify-center gap-2 mb-2">
               <ShieldCheck className="text-orange-500 w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0" />
-              <span className="text-sm sm:text-base md:text-lg font-medium text-gray-800">
+              <span className="text-sm sm:text-base font-medium text-gray-800">
                 Your No.1 store that offers
               </span>
             </div>
@@ -291,7 +293,7 @@ function ShoppingHome() {
               <Button
                 className="bg-blue-900 hover:bg-blue-700 text-white font-bold px-6 py-3 uppercase text-sm sm:text-base mx-auto"
                 onClick={(e) => {
-                  e.stopPropagation(); // Prevents the parent div's onClick from firing
+                  e.stopPropagation();
                   handleNavigateToListingPage({ id: "all-products" }, null);
                 }}
               >
@@ -339,36 +341,55 @@ function ShoppingHome() {
         </div>
       </section>
 
-      {/* Top Products */}
+      {/* Top Products - ANIMATION APPLIED HERE */}
       <section className="max-w-7xl mx-auto">
         <div className="flex justify-center mb-6">
           <h2 className="text-xl sm:text-2xl font-bold text-center">
             Top Products
           </h2>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {productList.length > 0 ? (
-            productList.slice(0, 8).map((productItem, index) => (
-              <motion.div
-                key={productItem._id}
-                initial={{ opacity: 0, x: -50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ scale: 1.03 }}
-              >
-                <ShoppingProductTile
-                  product={productItem}
-                  handleAddToCart={handleAddToCart}
-                  handleViewDetails={handleViewProductDetails}
-                />
-              </motion.div>
-            ))
+        {/* Use AnimatePresence to animate components when they are added/removed */}
+        <AnimatePresence mode="wait">
+          {currentProducts.length > 0 ? (
+            <motion.div
+              key={JSON.stringify(currentProducts.map(p => p._id))} // Key AnimatePresence with a stable identifier for the product set
+              initial="hidden"
+              animate="visible"
+              exit="hidden" // Animates out existing products
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: { staggerChildren: 0.1, delayChildren: 0.2 }, // Stagger children for a cascade effect
+                },
+              }}
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+            >
+              {currentProducts.map((productItem, index) => (
+                <motion.div
+                  key={productItem._id} // Key each item with its unique ID for AnimatePresence
+                  variants={itemVariants} // Apply the individual item animation variants
+                >
+                  <ShoppingProductTile
+                    product={productItem}
+                    handleAddToCart={handleAddToCart}
+                    handleViewDetails={handleViewProductDetails}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
           ) : (
-            <div className="col-span-full text-center text-gray-500">
+            <motion.div
+              key="loading" // Unique key for the loading state
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="col-span-full text-center text-gray-500"
+            >
               Loading products...
-            </div>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
       </section>
 
       {/* Support Features */}
@@ -410,7 +431,7 @@ function ShoppingHome() {
       {/* Customer Reviews */}
       <CustomerReviews />
 
-      {/* FAQ Section - BEST PLACEMENT */}
+      {/* FAQ Section */}
       <section className="py-12 sm:py-16 bg-gray-50">
         <motion.div
           initial={{ opacity: 0 }}
@@ -419,11 +440,8 @@ function ShoppingHome() {
           className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         >
           <h2 className="text-3xl font-bold text-center mb-6 text-primary">
-            {" "}
-            {/* Reduced mb to 6 */}
             Frequently Asked Questions
           </h2>
-          {/* Optional: Add a brief introductory paragraph */}
           <p className="text-gray-600 text-center mb-10 text-base max-w-2xl mx-auto">
             Find answers to the most common questions about our products,
             services, and policies.
@@ -434,22 +452,14 @@ function ShoppingHome() {
             collapsible
             className="max-w-3xl mx-auto border-t border-b border-gray-200"
           >
-            {" "}
-            {/* Added subtle borders for definition */}
             <AccordionItem
               value="warranty"
               className="border-b border-gray-200 last:border-b-0"
             >
-              {" "}
-              {/* Ensure each item has a border, remove last one */}
               <AccordionTrigger className="text-lg font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
-                {" "}
-                {/* Added active state color, background, and padding */}
                 What does the 6-month warranty cover?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground text-base p-4 bg-white">
-                {" "}
-                {/* Adjusted text size, added padding and white background for content */}
                 Our warranty covers any manufacturing defects or hardware
                 failures that occur during normal use. We'll repair or replace
                 your device at no additional cost.
@@ -469,8 +479,6 @@ function ShoppingHome() {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="quality" className="last:border-b-0">
-              {" "}
-              {/* Last item should not have a bottom border if parent has one */}
               <AccordionTrigger className="text-lg font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
                 How do you ensure product quality?
               </AccordionTrigger>
