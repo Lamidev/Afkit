@@ -64,7 +64,7 @@ const AboutPage = () => {
           {
             Icon: FaCheckCircle,
             title: "6-Month Warranty",
-            desc: "We repair or replace at no cost if your gadget develops a fault within 6 months, even after months of use.",
+            desc: "We repair or replace at no cost if your uk-used gadget develops a fault within 6 months, even after months of use.",
           },
           {
             Icon: FaNairaSign, // Reusing Naira icon for 'Pay on Delivery' as it implies transaction
