@@ -1,7 +1,7 @@
 # Afkit | Quality Electronics & Gadgets Online Store
 
 <p align="center">
-  <img src="./client/public/apple-touch-icon.png" alt="Afkit Logo" width="150"/>
+  <img src="../Client/public/apple-touch-icon.png" alt="Afkit Logo" width="150"/>
 </p>
 
 Afkit is your trusted online store for quality UK-used electronics & gadgets in Nigeria. We are committed to providing a seamless shopping experience with a focus on reliability, customer satisfaction, and peace of mind. Every product comes with a six-month warranty, swift nationwide delivery, secure payment options, and free online tech support.
