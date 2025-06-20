@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { verifyEmail, checkAuth } from "../../store/auth-slice";
+import { verifyEmail, checkAuth, resendVerificationCode } from "../../store/auth-slice";
 import { toast } from "sonner";
 import { CheckCircle, AlertCircle, Loader } from "lucide-react";
 
 const EmailVerificationPage = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [isResending, setIsResending] = useState(false);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -62,6 +63,30 @@ const EmailVerificationPage = () => {
     }
   };
 
+  const handleResendCode = async () => {
+    setIsResending(true);
+    try {
+      const email = localStorage.getItem("emailForVerification");
+      if (!email) {
+        toast.error("No email found for verification", {
+          icon: <AlertCircle className="text-red-500" />,
+        });
+        return;
+      }
+
+      await dispatch(resendVerificationCode({ email })).unwrap();
+      toast.success("Verification code resent successfully", {
+        icon: <CheckCircle className="text-green-500" />,
+      });
+    } catch (error) {
+      toast.error(error || "Failed to resend verification code", {
+        icon: <AlertCircle className="text-red-500" />,
+      });
+    } finally {
+      setIsResending(false);
+    }
+  };
+
   useEffect(() => {
     if (code.every((digit) => digit !== "") && !isLoading) {
       handleSubmit(new Event("submit"));
@@ -105,32 +130,33 @@ const EmailVerificationPage = () => {
             </p>
           )}
 
-<motion.button
-  whileHover={{ scale: 1.02 }}
-  whileTap={{ scale: 0.98 }}
-  type="submit"
-  disabled={isLoading || code.some((digit) => !digit)}
-  className="w-full bg-blue-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors duration-200"
->
-  {isLoading ? (
-    <Loader className="w-6 h-6 animate-spin mx-auto" />
-  ) : (
-    "Verify Email"
-  )}
-</motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            disabled={isLoading || code.some((digit) => !digit)}
+            className="w-full bg-blue-900 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors duration-200"
+          >
+            {isLoading ? (
+              <Loader className="w-6 h-6 animate-spin mx-auto" />
+            ) : (
+              "Verify Email"
+            )}
+          </motion.button>
         </form>
 
         <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 text-sm">
           <button
             type="button"
-            onClick={() => toast.info("Resend code functionality coming soon!")}
+            onClick={handleResendCode}
+            disabled={isLoading || isResending}
             className="text-blue-700 font-semibold relative inline-block
             after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px]
             after:bg-blue-700 after:scale-x-0 after:origin-bottom-right
             hover:after:origin-bottom-left hover:after:scale-x-100
             after:transition-transform after:duration-300"
           >
-            Resend Code
+            {isResending ? "Sending..." : "Resend Code"}
           </button>
 
           <p className="text-gray-700">

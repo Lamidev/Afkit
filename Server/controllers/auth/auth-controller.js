@@ -293,8 +293,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-const User = require("../../models/users"); // Ensure this path is correct
-const express = require("express"); // Not directly used in controller, but fine to keep
+const User = require("../../models/users");
+const express = require("express");
 
 const {
   generateTokenAndSetCookie,
@@ -307,7 +307,7 @@ const {
   sendWelcomeEmail,
 } = require("../../mailtrap/emails");
 
-// Register
+// Register User
 const registerUser = async (req, res) => {
   const { userName, email, password } = req.body;
   try {
@@ -354,6 +354,53 @@ const registerUser = async (req, res) => {
   }
 };
 
+// Resend Verification Code
+const resendVerificationCode = async (req, res) => {
+  const { email } = req.body;
+  
+  try {
+    if (!email) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Email is required" 
+      });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "User not found" 
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Email is already verified" 
+      });
+    }
+
+    const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+    user.verificationToken = verificationToken;
+    user.verificationTokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
+    
+    await user.save();
+    await sendVerificationEmail(user.email, verificationToken);
+
+    res.status(200).json({ 
+      success: true, 
+      message: "Verification code resent successfully" 
+    });
+  } catch (error) {
+    console.error("Error in resendVerificationCode:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "An error occurred while resending verification code" 
+    });
+  }
+};
+
 // Verify Email
 const verifyEmail = async (req, res) => {
   const { code } = req.body;
@@ -375,7 +422,6 @@ const verifyEmail = async (req, res) => {
 
     await sendWelcomeEmail(user.email, user.userName);
 
-    // Clear any existing tokens before redirecting to login
     res.clearCookie("token");
 
     res
@@ -387,7 +433,7 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-// Login
+// Login User
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -420,7 +466,7 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Logout
+// Logout User
 const logoutUser = (req, res) => {
   res
     .cookie("token", "", {
@@ -503,14 +549,11 @@ const resetPassword = async (req, res) => {
   }
 };
 
-// auth-controller.js - EXISTING strict authMiddleware
+// Auth Middleware
 const authMiddleware = async (req, res, next) => {
   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
-  // console.log('Auth check (Strict) - Token:', token); // Debug logging
-
   if (!token) {
-    // console.log('No token found in strict authMiddleware');
     return res.status(401).json({
       success: false,
       message: "Unauthorized! No token.",
@@ -520,7 +563,6 @@ const authMiddleware = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = decoded.userId;
-    // For convenience in other middleware/controllers, attach the user object
     req.user = await User.findById(decoded.userId).select("-password");
 
     if (!req.user) {
@@ -547,41 +589,30 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-// NEW: Optional Auth Middleware
+// Optional Auth Middleware
 const optionalAuthMiddleware = async (req, res, next) => {
   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
-
-  // console.log('Auth check (Optional) - Token:', token); // Debug logging
 
   if (token) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.userId = decoded.userId;
-      req.user = await User.findById(decoded.userId).select("-password"); // Set req.user if token is valid
-      // console.log('User found and attached by optionalAuthMiddleware:', req.user?.email);
+      req.user = await User.findById(decoded.userId).select("-password");
     } catch (error) {
-      // If token is invalid or expired, just log it but continue
-      // console.warn("Invalid or expired token in optionalAuthMiddleware:", error.message);
-      req.userId = null; // Ensure no stale userId if token was bad
-      req.user = null; // Ensure no stale user if token was bad
+      req.userId = null;
+      req.user = null;
     }
   } else {
-    // console.log('No token found in optionalAuthMiddleware, proceeding as guest.');
-    req.userId = null; // Explicitly null if no token
-    req.user = null; // Explicitly null if no token
+    req.userId = null;
+    req.user = null;
   }
-  next(); // Always call next(), regardless of token presence/validity
+  next();
 };
 
-
+// Check Auth
 const checkAuth = async (req, res) => {
   try {
-    // This checkAuth typically relies on authMiddleware having run previously
-    // to set req.userId.
-    // If you intend for this to work without strict authMiddleware, you might
-    // need to adjust the route to use optionalAuthMiddleware or ensure req.userId
-    // is set by some other means.
-    if (!req.userId) { // req.userId should be set by authMiddleware for this endpoint
+    if (!req.userId) {
       return res.status(401).json({ success: false, message: "Not authenticated" });
     }
 
@@ -612,11 +643,12 @@ const checkAuth = async (req, res) => {
 module.exports = {
   registerUser,
   verifyEmail,
+  resendVerificationCode,
   loginUser,
   logoutUser,
   forgotPassword,
   resetPassword,
   authMiddleware,
-  optionalAuthMiddleware, // <-- EXPORT THE NEW MIDDLEWARE
+  optionalAuthMiddleware,
   checkAuth,
 };
