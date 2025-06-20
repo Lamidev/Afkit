@@ -19,6 +19,7 @@ export const registerUser = createAsyncThunk(
         `${import.meta.env.VITE_API_BASE_URL}/auth/register`,
         formData
       );
+      localStorage.setItem("emailForVerification", formData.email);
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -36,10 +37,28 @@ export const verifyEmail = createAsyncThunk(
         `${import.meta.env.VITE_API_BASE_URL}/auth/verify-email`,
         formData
       );
+      localStorage.removeItem("emailForVerification");
       return response.data;
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message || "Error verifying email"
+      );
+    }
+  }
+);
+
+export const resendVerificationCode = createAsyncThunk(
+  "auth/resend-verification",
+  async ({ email }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/resend-verification`,
+        { email }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Error resending verification code"
       );
     }
   }
@@ -55,8 +74,8 @@ export const loginUser = createAsyncThunk(
       );
 
       if (response.data.token) {
-        sessionStorage.setItem("token", response.data.token); // Store token
-        dispatch(setUser(response.data.user)); // Set user
+        sessionStorage.setItem("token", response.data.token);
+        dispatch(setUser(response.data.user));
       }
 
       return response.data;
@@ -90,7 +109,7 @@ export const forgotPassword = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      console.log("Error response:", error.response?.data); // Debug log - error response
+      console.log("Error response:", error.response?.data);
       return rejectWithValue(
         error.response?.data?.message || "Error sending reset email"
       );
@@ -167,10 +186,21 @@ const authSlice = createSlice({
       })
       .addCase(verifyEmail.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = { ...state.user, isVerified: true }; // Ensure user is marked as verified
+        state.user = { ...state.user, isVerified: true };
       })
-
       .addCase(verifyEmail.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(resendVerificationCode.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(resendVerificationCode.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.message = action.payload.message;
+      })
+      .addCase(resendVerificationCode.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
       })
@@ -184,7 +214,6 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         sessionStorage.setItem("token", action.payload.token);
       })
-
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
@@ -215,7 +244,6 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
-
       .addCase(resetPassword.pending, (state) => {
         state.isLoading = true;
       })
