@@ -100,8 +100,7 @@ Before you begin, ensure you have the following installed on your system:
         PORT=9050 # Recommended: Explicitly define the port
         NODE_ENV=development
         CLIENT_URL=[https://afkit.ng](https://afkit.ng)
-        JWT_SECRET=mysecret # ✨ IMPORTANT: Use a strong, randomly generated secret in production!
-        MONGODB_URL=mongodb+srv://akinyemioluwaseunjunior:Mikkyreel18@cluster0.zyejkwv.mongodb.net/afkit-gadgets?retryWrites=true&w=majority&appName=Cluster0
+        JWT_SECRET=mysecret
         COOKIE_DOMAIN=.afkit.ng
         COOKIE_SECURE=true
         COOKIE_SAMESITE=none
