@@ -1,3 +1,6 @@
+
+
+
 // const mongoose = require("mongoose");
 
 // const ProductSchema = new mongoose.Schema(
@@ -18,8 +21,8 @@
 //     description: {
 //       type: String,
 //       required: true,
-//         trim: false,
-//   set: (v) => v.replace(/\r\n/g, '\n') // Normalize line endings
+//       trim: false,
+//       set: (v) => v.replace(/\r\n/g, "\n"), // Normalize line endings
 //     },
 //     category: {
 //       type: String,
@@ -175,7 +178,8 @@
 //         "external-ssd",
 //         "chargers",
 //         "gaming-mouse",
-//         "gaming-laptop", // Other accessories
+//         "gaming-keyboard",
+//         "others", // ADD THIS LINE
 //       ],
 //       required: function () {
 //         return this.category === "accessories";
@@ -200,6 +204,7 @@
 // );
 
 // module.exports = mongoose.model("Product", ProductSchema);
+
 
 
 const mongoose = require("mongoose");
@@ -241,7 +246,7 @@ const ProductSchema = new mongoose.Schema(
         "google-pixel",
         "asus",
         "lg",
-      ], // Updated: changed 'google' to 'google-pixel'
+      ],
       required: function () {
         return ["smartphones", "laptops", "monitors"].includes(this.category);
       },
@@ -299,7 +304,6 @@ const ProductSchema = new mongoose.Schema(
       },
     },
     extraFeatures: {
-      // Renamed from displayType
       type: String,
       enum: ["non-touchscreen", "touchscreen", "x360-convertible"],
       required: function () {
@@ -313,10 +317,9 @@ const ProductSchema = new mongoose.Schema(
         return this.category === "laptops";
       },
     },
-    // NEW: Monitor-specific fields
     screenSize: {
       type: String,
-      enum: ["24", "27", "28", "32", "34"], // Assuming these are in inches
+      enum: ["24", "27", "28", "32", "34"],
       required: function () {
         return this.category === "monitors";
       },
@@ -336,21 +339,19 @@ const ProductSchema = new mongoose.Schema(
       },
     },
     ports: {
-      type: String, // Assuming single port for now, can be array if multiple
+      type: String,
       enum: ["hdmi", "type-c", "display-port", "vga", "usb"],
       required: function () {
         return this.category === "monitors";
       },
     },
     monitorType: {
-      // NEW: Monitor sub-category field
       type: String,
       enum: ["office-monitors", "gaming-monitors", "curved-monitors"],
       required: function () {
         return this.category === "monitors";
       },
     },
-    // NEW: Accessory-specific fields
     accessoryCategory: {
       type: String,
       enum: [
@@ -368,19 +369,19 @@ const ProductSchema = new mongoose.Schema(
       enum: [
         "charger",
         "screen-protector",
-        "pouch", // Smartphone accessories
+        "pouch",
         "laptop-bag",
         "flash-drive",
         "laptop-charger",
-        "laptop-stand", // Laptop accessories
+        "laptop-stand",
         "hdmi-cable",
-        "ports-converter", // Monitor accessories
+        "ports-converter",
         "external-hdd",
         "external-ssd",
         "chargers",
         "gaming-mouse",
         "gaming-keyboard",
-        "others", // ADD THIS LINE
+        "others",
       ],
       required: function () {
         return this.category === "accessories";
@@ -399,6 +400,10 @@ const ProductSchema = new mongoose.Schema(
     specifications: {
       type: Map,
       of: String,
+    },
+    isHidden: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
