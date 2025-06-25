@@ -170,17 +170,39 @@ const getUserStats = async (req, res) => {
 };
 
 // NEW FUNCTION: Fetch a list of verified users
+// const getVerifiedUsersList = async (req, res) => {
+//   try {
+//     const verifiedUsers = await User.find(
+//       {
+//         isVerified: true,
+//         role: { $ne: "admin" }, // NEW: Exclude users where role is 'admin'
+//       },
+//       "userName email createdAt lastActive" // Select specific fields
+//     )
+//       .sort({ createdAt: -1 }) // Sort by most recent
+//       .limit(10); // Limit to a reasonable number for the dashboard
+
+//     res.status(200).json({
+//       success: true,
+//       verifiedUsers,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching verified users list:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to fetch verified users list",
+//     });
+//   }
+// };
 const getVerifiedUsersList = async (req, res) => {
   try {
     const verifiedUsers = await User.find(
-      {
-        isVerified: true,
-        role: { $ne: "admin" }, // NEW: Exclude users where role is 'admin'
-      },
-      "userName email createdAt lastActive" // Select specific fields
+      { isVerified: true, role: { $ne: "admin" } },
+      "userName email createdAt lastActive lastLogin"
     )
-      .sort({ createdAt: -1 }) // Sort by most recent
-      .limit(10); // Limit to a reasonable number for the dashboard
+    .sort({ createdAt: -1 })
+    .limit(10)
+    .lean();
 
     res.status(200).json({
       success: true,

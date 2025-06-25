@@ -434,22 +434,53 @@ const verifyEmail = async (req, res) => {
 };
 
 // Login User
+// const loginUser = async (req, res) => {
+//   const { email, password } = req.body;
+//   try {
+//     const user = await User.findOne({ email });
+//     if (!user)
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "User doesn't exist!" });
+
+//     const isPasswordValid = await bcrypt.compare(password, user.password);
+//     if (!isPasswordValid)
+//       return res.json({ success: false, message: "Incorrect password!" });
+
+//     generateTokenAndSetCookie(res, user._id);
+//     user.lastLogin = new Date();
+//     await user.save();
+
+//     const userData = user.toObject();
+//     userData.id = userData._id;
+//     delete userData._id;
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Logged in successfully",
+//       user: userData,
+//     });
+//   } catch (e) {
+//     console.log(e);
+//     res.status(500).json({ success: false, message: "An error occurred" });
+//   }
+// };
+
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user)
-      return res
-        .status(400)
-        .json({ success: false, message: "User doesn't exist!" });
+    if (!user) return res.status(400).json({ success: false, message: "User doesn't exist!" });
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid)
-      return res.json({ success: false, message: "Incorrect password!" });
+    if (!isPasswordValid) return res.json({ success: false, message: "Incorrect password!" });
+
+    const now = new Date();
+    user.lastLogin = now;
+    user.lastActive = now; // Update both fields
+    await user.save();
 
     generateTokenAndSetCookie(res, user._id);
-    user.lastLogin = new Date();
-    await user.save();
 
     const userData = user.toObject();
     userData.id = userData._id;
@@ -550,6 +581,44 @@ const resetPassword = async (req, res) => {
 };
 
 // Auth Middleware
+// const authMiddleware = async (req, res, next) => {
+//   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+
+//   if (!token) {
+//     return res.status(401).json({
+//       success: false,
+//       message: "Unauthorized! No token.",
+//     });
+//   }
+
+//   try {
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     req.userId = decoded.userId;
+//     req.user = await User.findById(decoded.userId).select("-password");
+
+//     if (!req.user) {
+//       return res.status(401).json({ success: false, message: "User not found for token." });
+//     }
+
+//     await User.findByIdAndUpdate(decoded.userId, {
+//       lastActive: new Date(),
+//     });
+
+//     next();
+//   } catch (error) {
+//     console.error("JWT Verification Error in strict authMiddleware:", error);
+//     if (error.name === "TokenExpiredError") {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Session expired. Please log in again.",
+//       });
+//     }
+//     return res.status(401).json({
+//       success: false,
+//       message: "Invalid token.",
+//     });
+//   }
+// };
 const authMiddleware = async (req, res, next) => {
   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
@@ -566,28 +635,39 @@ const authMiddleware = async (req, res, next) => {
     req.user = await User.findById(decoded.userId).select("-password");
 
     if (!req.user) {
-      return res.status(401).json({ success: false, message: "User not found for token." });
+      return res.status(401).json({
+        success: false,
+        message: "User not found for token.",
+      });
     }
 
-    await User.findByIdAndUpdate(decoded.userId, {
-      lastActive: new Date(),
-    });
+    const now = new Date();
+    const lastActiveTime = req.user.lastActive
+      ? new Date(req.user.lastActive)
+      : null;
+
+    if (!lastActiveTime || now - lastActiveTime > 60000) {
+      await User.findByIdAndUpdate(decoded.userId, {
+        $set: { lastActive: now },
+      });
+    }
 
     next();
   } catch (error) {
-    console.error("JWT Verification Error in strict authMiddleware:", error);
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({
         success: false,
         message: "Session expired. Please log in again.",
       });
     }
+
     return res.status(401).json({
       success: false,
       message: "Invalid token.",
     });
   }
 };
+
 
 // Optional Auth Middleware
 const optionalAuthMiddleware = async (req, res, next) => {
