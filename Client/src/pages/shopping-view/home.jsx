@@ -21,7 +21,6 @@ import { fetchAllFilteredProducts } from "@/store/shop/products-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useNavigate } from "react-router-dom";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
-import { getFeatureImages } from "@/store/common-slice"; // This import is not used in the provided code
 import { FaTruck, FaCreditCard, FaHeadset, FaShieldAlt } from "react-icons/fa";
 import CustomerReviews from "@/components/shopping-view/customer-reviews";
 import { toast } from "sonner";
@@ -47,6 +46,12 @@ const supportFeatures = [
     title: "FREE NATIONWIDE DELIVERY",
     description:
       "No matter where you are in Nigeria, we deliver to your city for FREE.",
+  },
+  {
+    icon: FaCreditCard, // Using FaCreditCard for Payment on Delivery
+    title: "PAYMENT ON DELIVERY",
+    description:
+      "You pay only after you receive and check your item. No Risk, no Worries. You're in control.",
   },
   {
     icon: FaHeadset,
@@ -258,8 +263,8 @@ function ShoppingHome() {
                 repeatType: "loop",
               }}
             >
-              6 months warranty and
-              <br className="hidden sm:block" /> payment on delivery
+              6 MONTHS WARRANTY AND
+              <br className="hidden sm:block" /> FREE DELIVERY
             </motion.h1>
 
             <p className="text-lg sm:text-xl md:text-2xl">
@@ -388,7 +393,7 @@ function ShoppingHome() {
             We're committed to providing the best shopping experience with
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"> {/* Changed to lg:grid-cols-4 */}
           {supportFeatures.map((feature, index) => {
             const Icon = feature.icon;
             return (
@@ -429,7 +434,6 @@ function ShoppingHome() {
 }
 
 export default ShoppingHome;
-
 // import { motion, AnimatePresence } from "framer-motion";
 // import { Button } from "@/components/ui/button";
 // import {

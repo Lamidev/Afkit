@@ -1,7 +1,7 @@
 
 
 import { motion } from "framer-motion";
-import { FaShieldAlt, FaTruck, FaHeadset } from "react-icons/fa"; // Added FaHeadset for consistency
+import { FaShieldAlt, FaTruck, FaHeadset,FaCreditCard } from "react-icons/fa"; // Added FaHeadset for consistency
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card"; // Added Card and CardContent imports
 
@@ -20,26 +20,32 @@ const AboutPage = () => {
   };
 
   // The supportFeatures array you want to use
-  const supportFeatures = [
-    {
-      icon: FaShieldAlt,
-      title: "6-MONTH WARRANTY",
-      description:
-        "We repair or replace at no cost if your uk-used gadget develops a fault within 6 months, even after months of use.",
-    },
-    {
-      icon: FaTruck,
-      title: "FREE NATIONWIDE DELIVERY",
-      description:
-        "No matter where you are in Nigeria, we deliver to your city for FREE.",
-    },
-    {
-      icon: FaHeadset, // Using FaHeadset as per your provided array
-      title: "FREE ONLINE TECH SUPPORT",
-      description:
-        "We're always here to help with any questions or issues you have with your gadget.",
-    },
-  ];
+ const supportFeatures = [
+  {
+    icon: FaShieldAlt,
+    title: "6-MONTH WARRANTY",
+    description:
+      "We repair or replace at no cost if your uk-used gadget develops a fault within 6 months, even after months of use.",
+  },
+  {
+    icon: FaTruck,
+    title: "FREE NATIONWIDE DELIVERY",
+    description:
+      "No matter where you are in Nigeria, we deliver to your city for FREE.",
+  },
+  {
+    icon: FaCreditCard, // Using FaCreditCard for Payment on Delivery
+    title: "PAYMENT ON DELIVERY",
+    description:
+      "You pay only after you receive and check your item. No Risk, no Worries. You're in control.",
+  },
+  {
+    icon: FaHeadset,
+    title: "FREE ONLINE TECH SUPPORT",
+    description:
+      "We're always here to help with any questions or issues you have with your gadget.",
+  },
+];
 
   return (
     <div className="container mx-auto py-16 px-6 md:px-12 lg:px-20">
@@ -67,14 +73,14 @@ const AboutPage = () => {
       </motion.p>
 
       {/* Why Choose Us? Section (Updated to be consistent with homepage) */}
-      <section className="max-w-7xl mx-auto py-12 sm:py-16">
+   <section className="max-w-7xl mx-auto py-12 sm:py-16">
         <div className="text-center mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl font-bold">Why Choose Afkit?</h2>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">
             We're committed to providing the best shopping experience with
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"> {/* Changed to lg:grid-cols-4 */}
           {supportFeatures.map((feature, index) => {
             const Icon = feature.icon;
             return (
