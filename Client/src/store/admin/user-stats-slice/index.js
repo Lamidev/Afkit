@@ -1,48 +1,103 @@
+// // import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+// // import axios from "axios";
+
+// // export const fetchVerifiedUserCount = createAsyncThunk(
+// //   "admin/fetchVerifiedUserCount",
+// //   async (_, { rejectWithValue }) => {
+// //     try {
+// //       const response = await axios.get(
+// //         `${import.meta.env.VITE_API_BASE_URL}/admin/verified-users`
+// //       );
+// //       return response.data;
+// //     } catch (error) {
+// //       return rejectWithValue(
+// //         error.response?.data?.message || "Failed to fetch verified users count"
+// //       );
+// //     }
+// //   }
+// // );
+
+// // const adminSlice = createSlice({
+// //   name: "admin",
+// //   initialState: {
+// //     verifiedUserCount: 0,
+// //     isLoading: false,
+// //     error: null,
+// //   },
+// //   reducers: {},
+// //   extraReducers: (builder) => {
+// //     builder
+// //       .addCase(fetchVerifiedUserCount.pending, (state) => {
+// //         state.isLoading = true;
+// //         state.error = null;
+// //       })
+// //       .addCase(fetchVerifiedUserCount.fulfilled, (state, action) => {
+// //         state.isLoading = false;
+// //         state.verifiedUserCount = action.payload.verifiedUserCount;
+// //       })
+// //       .addCase(fetchVerifiedUserCount.rejected, (state, action) => {
+// //         state.isLoading = false;
+// //         state.error = action.payload;
+// //       });
+// //   },
+// // });
+
+// // export default adminSlice.reducer;
+
 // import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 // import axios from "axios";
 
-// export const fetchVerifiedUserCount = createAsyncThunk(
-//   "admin/fetchVerifiedUserCount",
+// export const fetchUserStats = createAsyncThunk(
+//   "userStats/fetchUserStats",
 //   async (_, { rejectWithValue }) => {
 //     try {
 //       const response = await axios.get(
-//         `${import.meta.env.VITE_API_BASE_URL}/admin/verified-users`
+//         `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats`,
+//         { withCredentials: true }
 //       );
 //       return response.data;
 //     } catch (error) {
 //       return rejectWithValue(
-//         error.response?.data?.message || "Failed to fetch verified users count"
+//         error.response?.data?.message || "Failed to fetch user statistics"
 //       );
 //     }
 //   }
 // );
 
-// const adminSlice = createSlice({
-//   name: "admin",
+// const userStatsSlice = createSlice({
+//   name: "userStats",
 //   initialState: {
-//     verifiedUserCount: 0,
+//     stats: {
+//       verifiedUsers: 0,
+//       unverifiedUsers: 0,
+//       activeUsers: 0,
+//       totalUsers: 0
+//     },
 //     isLoading: false,
 //     error: null,
 //   },
 //   reducers: {},
 //   extraReducers: (builder) => {
 //     builder
-//       .addCase(fetchVerifiedUserCount.pending, (state) => {
+//       .addCase(fetchUserStats.pending, (state) => {
 //         state.isLoading = true;
 //         state.error = null;
 //       })
-//       .addCase(fetchVerifiedUserCount.fulfilled, (state, action) => {
+//       .addCase(fetchUserStats.fulfilled, (state, action) => {
 //         state.isLoading = false;
-//         state.verifiedUserCount = action.payload.verifiedUserCount;
+//         state.stats = action.payload.stats;
 //       })
-//       .addCase(fetchVerifiedUserCount.rejected, (state, action) => {
+//       .addCase(fetchUserStats.rejected, (state, action) => {
 //         state.isLoading = false;
 //         state.error = action.payload;
 //       });
 //   },
 // });
 
-// export default adminSlice.reducer;
+// export default userStatsSlice.reducer;
+
+
+// store/admin/user-stats-slice/index.js
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
@@ -64,6 +119,24 @@ export const fetchUserStats = createAsyncThunk(
   }
 );
 
+// NEW THUNK: Fetch a list of verified users
+export const fetchVerifiedUsersList = createAsyncThunk(
+  "userStats/fetchVerifiedUsersList",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats/verified-list`,
+        { withCredentials: true }
+      );
+      return response.data.verifiedUsers; // Return the array of users
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch verified users list"
+      );
+    }
+  }
+);
+
 const userStatsSlice = createSlice({
   name: "userStats",
   initialState: {
@@ -71,10 +144,23 @@ const userStatsSlice = createSlice({
       verifiedUsers: 0,
       unverifiedUsers: 0,
       activeUsers: 0,
-      totalUsers: 0
+      totalUsers: 0,
+      linkShares: {
+        dailyWhatsAppShares: 0,
+        dailyInstagramShares: 0,
+        dailyCheckoutShares: 0,
+        totalLinksShared: 0,
+        dailyAuthenticatedShares: 0,
+        dailyGuestShares: 0,
+        totalAuthenticatedShares: 0,
+        totalGuestShares: 0,
+      },
     },
+    verifiedUsersList: [], // NEW: State for verified user list
     isLoading: false,
+    isUsersListLoading: false, // NEW: Loading state for user list
     error: null,
+    usersListError: null, // NEW: Error state for user list
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -90,6 +176,19 @@ const userStatsSlice = createSlice({
       .addCase(fetchUserStats.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
+      })
+      // NEW: Handlers for fetchVerifiedUsersList
+      .addCase(fetchVerifiedUsersList.pending, (state) => {
+        state.isUsersListLoading = true;
+        state.usersListError = null;
+      })
+      .addCase(fetchVerifiedUsersList.fulfilled, (state, action) => {
+        state.isUsersListLoading = false;
+        state.verifiedUsersList = action.payload;
+      })
+      .addCase(fetchVerifiedUsersList.rejected, (state, action) => {
+        state.isUsersListLoading = false;
+        state.usersListError = action.payload;
       });
   },
 });
