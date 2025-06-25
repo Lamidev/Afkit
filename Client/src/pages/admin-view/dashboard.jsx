@@ -166,21 +166,15 @@
 
 // export default AdminDashboard;
 
-
 // AdminDashboard.jsx
 
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchUserStats,
-  fetchVerifiedUsersList, // Import the new thunk
+  fetchVerifiedUsersList,
 } from "@/store/admin/user-stats-slice/index";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Users,
   UserCheck,
@@ -191,6 +185,7 @@ import {
 } from "lucide-react";
 import { FaWhatsapp, FaInstagram } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { formatDistanceToNow } from "date-fns";
 
 function AdminDashboard() {
   const dispatch = useDispatch();
@@ -198,32 +193,36 @@ function AdminDashboard() {
     stats,
     isLoading,
     error,
-    verifiedUsersList, // Get the new state
-    isUsersListLoading, // Get the new loading state
-    usersListError, // Get the new error state
+    verifiedUsersList,
+    isUsersListLoading,
+    usersListError,
   } = useSelector((state) => state.userStats);
 
   useEffect(() => {
+    // Fetch initial stats and user list
     dispatch(fetchUserStats());
-    dispatch(fetchVerifiedUsersList()); // Dispatch the new thunk
+    dispatch(fetchVerifiedUsersList());
 
-    // Refresh every 5 minutes
+    // Set up interval to refresh data every 5 minutes (300,000 milliseconds)
     const interval = setInterval(() => {
       dispatch(fetchUserStats());
       dispatch(fetchVerifiedUsersList());
     }, 300000);
 
+    // Clear the interval when the component unmounts
     return () => clearInterval(interval);
-  }, [dispatch]);
+  }, [dispatch]); // Dependency array ensures effect runs only on dispatch changes
 
+  // Display error message if either stats or user list fetching failed
   if (error || usersListError) {
     return (
-      <div className="p-6 text-red-500">
+      <div className="p-6 text-red-500 font-medium">
         Error loading dashboard: {error || usersListError}
       </div>
     );
   }
 
+  // Configuration for individual statistic cards
   const statCards = [
     {
       title: "Verified Users",
@@ -253,6 +252,7 @@ function AdminDashboard() {
       color: "text-purple-500",
       delay: 0.5,
     },
+    // Share Stats
     {
       title: "WhatsApp Shares (24h)",
       value: stats?.linkShares?.dailyWhatsAppShares || 0,
@@ -274,6 +274,7 @@ function AdminDashboard() {
       color: "text-cyan-500",
       delay: 0.8,
     },
+    // Daily Authenticated and Guest Shares
     {
       title: "Verified Shares (Daily)",
       value: stats?.linkShares?.dailyAuthenticatedShares || 0,
@@ -288,6 +289,7 @@ function AdminDashboard() {
       color: "text-orange-500",
       delay: 1.0,
     },
+    // Total Shares
     {
       title: "Total Links Shared (All Time)",
       value: stats?.linkShares?.totalLinksShared || 0,
@@ -295,6 +297,7 @@ function AdminDashboard() {
       color: "text-indigo-500",
       delay: 1.1,
     },
+    // Total Authenticated and Guest Shares (All Time)
     {
       title: "Total Verified Shares",
       value: stats?.linkShares?.totalAuthenticatedShares || 0,
@@ -312,28 +315,32 @@ function AdminDashboard() {
   ];
 
   return (
-    <div className="p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div className="p-3 sm:p-4 md:p-6 bg-gray-50 min-h-screen">
+      {/* Statistic Cards Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
         {statCards.map((card, index) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: card.delay }}
+            className="h-full"
           >
-            <Card className="shadow-xl border border-gray-200 bg-white p-4 rounded-lg h-full">
-              <CardHeader className="flex items-center gap-3">
-                <card.icon className={`${card.color} w-8 h-8`} />
-                <CardTitle>{card.title}</CardTitle>
+            <Card className="shadow-sm sm:shadow-md border border-gray-200 bg-white p-3 sm:p-4 rounded-lg">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1 sm:pb-2">
+                <CardTitle className="text-xs sm:text-sm font-semibold text-gray-700">
+                  {card.title}
+                </CardTitle>
+                <card.icon className={`${card.color} w-5 h-5 sm:w-6 sm:h-6`} />
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-1 sm:pt-2">
                 {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    <span>Loading...</span>
+                  <div className="flex items-center gap-2 text-gray-500">
+                    <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
+                    <span className="text-xs sm:text-sm">Loading...</span>
                   </div>
                 ) : (
-                  <p className="text-2xl font-bold text-gray-800">
+                  <p className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-gray-900">
                     {card.value.toLocaleString()}
                   </p>
                 )}
@@ -343,82 +350,104 @@ function AdminDashboard() {
         ))}
       </div>
 
-      {/* NEW SECTION: Verified Users List */}
+      {/* Recent Verified Users List Section */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 1.4 }} // Adjust delay as needed
+        transition={{ duration: 0.5, delay: 1.4 }}
       >
-        <Card className="shadow-xl border border-gray-200 bg-white p-4 rounded-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <UserCheck className="text-green-500 w-6 h-6" />
-              Recent Verified Users
+        <Card className="shadow-sm sm:shadow-md border border-gray-200 bg-white p-3 sm:p-4 rounded-lg">
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-xl font-semibold text-gray-800">
+              <UserCheck className="text-green-500 w-5 h-5 sm:w-6 sm:h-6" />
+              <span className="text-sm sm:text-base md:text-lg">
+                Recent Verified Users
+              </span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             {isUsersListLoading ? (
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <span>Loading verified users...</span>
+              <div className="flex items-center gap-2 text-gray-500 p-3 sm:p-4">
+                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                <span className="text-sm sm:text-base">Loading users...</span>
               </div>
             ) : usersListError ? (
-              <div className="text-red-500">
-                Error loading verified users: {usersListError}
+              <div className="text-red-500 p-3 sm:p-4 text-sm sm:text-base">
+                Error: {usersListError}
               </div>
             ) : verifiedUsersList.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Email
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Date Joined
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                      >
-                        Last Active
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {verifiedUsersList.map((user) => (
-                      <tr key={user._id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+              <>
+                {/* Mobile view (cards) */}
+                <div className="sm:hidden space-y-3">
+                  {verifiedUsersList.map((user) => (
+                    <Card key={user._id} className="p-3">
+                      <div className="flex justify-between">
+                        <div className="font-medium text-sm">
                           {user.userName}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {user.email}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        </div>
+                        <div className="text-xs text-gray-500">
                           {new Date(user.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(user.lastActive).toLocaleString()}
-                        </td>
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-600 mt-1 truncate">
+                        {user.email}
+                      </div>
+                      {/* Add last active with smaller text and simplified format */}
+                      <div className="text-xs text-gray-500 mt-1">
+                        Active:{" "}
+                        {formatDistanceToNow(new Date(user.lastActive), {
+                          addSuffix: true,
+                        })}
+                        {/* Example: "Active: 2 hours ago" */}
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+
+                {/* Desktop view (table) */}
+                <div className="hidden sm:block overflow-x-auto rounded-lg border border-gray-200">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-3 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th className="px-3 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Email
+                        </th>
+                        <th className="px-3 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Joined
+                        </th>
+                        <th className="px-3 py-2 sm:px-4 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Last Active
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {verifiedUsersList.map((user) => (
+                        <tr key={user._id} className="hover:bg-gray-50">
+                          <td className="px-3 py-2 sm:px-4 sm:py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {user.userName}
+                          </td>
+                          <td className="px-3 py-2 sm:px-4 sm:py-3 whitespace-nowrap text-sm text-gray-500">
+                            {user.email}
+                          </td>
+                          <td className="px-3 py-2 sm:px-4 sm:py-3 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(user.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-3 py-2 sm:px-4 sm:py-3 whitespace-nowrap text-sm text-gray-500">
+                            {new Date(user.lastActive).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             ) : (
-              <p className="text-gray-600">No verified users found.</p>
+              <p className="text-gray-600 p-3 sm:p-4 text-sm sm:text-base">
+                No verified users found.
+              </p>
             )}
           </CardContent>
         </Card>
