@@ -185,7 +185,7 @@ import {
 } from "lucide-react";
 import { FaWhatsapp, FaInstagram } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, isValid } from "date-fns"; // Import isValid for robust date checking
 
 function AdminDashboard() {
   const dispatch = useDispatch();
@@ -221,6 +221,19 @@ function AdminDashboard() {
       </div>
     );
   }
+
+  // Helper function to safely format dates
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return isValid(date) ? date.toLocaleDateString() : "N/A";
+  };
+
+  const formatRelativeTime = (dateString) => {
+    const date = new Date(dateString);
+    return isValid(date)
+      ? formatDistanceToNow(date, { addSuffix: true })
+      : "Never";
+  };
 
   // Configuration for individual statistic cards
   const statCards = [
@@ -381,12 +394,12 @@ function AdminDashboard() {
                 <div className="sm:hidden space-y-3">
                   {verifiedUsersList.map((user) => (
                     <Card key={user._id} className="p-3">
-                      <div className="flex justify-between">
+                      <div className="flex justify-between items-center">
                         <div className="font-medium text-sm">
                           {user.userName}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {new Date(user.createdAt).toLocaleDateString()}
+                          Joined: {formatDate(user.createdAt)}
                         </div>
                       </div>
                       <div className="text-xs text-gray-600 mt-1 truncate">
@@ -394,11 +407,7 @@ function AdminDashboard() {
                       </div>
                       {/* Add last active with smaller text and simplified format */}
                       <div className="text-xs text-gray-500 mt-1">
-                        Active:{" "}
-                        {formatDistanceToNow(new Date(user.lastActive), {
-                          addSuffix: true,
-                        })}
-                        {/* Example: "Active: 2 hours ago" */}
+                        Active: {formatRelativeTime(user.lastActive)}
                       </div>
                     </Card>
                   ))}
@@ -433,10 +442,10 @@ function AdminDashboard() {
                             {user.email}
                           </td>
                           <td className="px-3 py-2 sm:px-4 sm:py-3 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(user.createdAt).toLocaleDateString()}
+                            {formatDate(user.createdAt)}
                           </td>
                           <td className="px-3 py-2 sm:px-4 sm:py-3 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(user.lastActive).toLocaleString()}
+                            {formatRelativeTime(user.lastActive)}
                           </td>
                         </tr>
                       ))}
