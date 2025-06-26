@@ -36,7 +36,7 @@ const Footer = () => {
           <img
             src={Afkitlogo}
             alt="Afkit Logo"
-            className="w-35 md:w-38 font-bold object-contain"
+            className="w-33 md:w-36 font-bold object-contain"
           />
 
           {/* Social Media Icons */}

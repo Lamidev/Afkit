@@ -18,7 +18,7 @@ const router = express.Router();
 router.post("/upload-image", upload.single("my_file"), handleImageUpload);
 router.post(
   "/upload-images",
-  upload.array("my_files", 4),
+  upload.array("my_files", 8),
   handleMultipleImageUpload
 );
 
