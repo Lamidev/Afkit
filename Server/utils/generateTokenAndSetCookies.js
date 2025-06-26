@@ -30,21 +30,19 @@ const jwt = require("jsonwebtoken");
 
 const generateTokenAndSetCookie = (res, userId) => {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: "6h",
+    expiresIn: "2h", // Token expires in 2 hours
   });
 
   const isProduction = process.env.NODE_ENV === "production";
   const cookieOptions = {
     httpOnly: true,
-    secure: isProduction, // true in production, false in development
-    // 'none' for cross-site in production (requires secure: true)
-    // 'lax' for same-site in development (default, allows some cross-site with initial navigation)
+    secure: isProduction,
     sameSite: isProduction ? 'none' : 'lax',
-    maxAge: 6 * 60 * 60 * 1000, // 6 hours
+    maxAge: 2 * 60 * 60 * 1000, // 2 hours (matches token expiration)
     path: '/',
   };
 
-  if (isProduction && process.env.COOKIE_DOMAIN) { // Only set domain if in production AND domain is provided
+  if (isProduction && process.env.COOKIE_DOMAIN) {
     cookieOptions.domain = process.env.COOKIE_DOMAIN;
   }
 

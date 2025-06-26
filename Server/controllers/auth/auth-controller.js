@@ -1,3 +1,5 @@
+
+
 // const bcrypt = require("bcryptjs");
 // const jwt = require("jsonwebtoken");
 // const crypto = require("crypto");
@@ -16,7 +18,7 @@
 //   sendWelcomeEmail,
 // } = require("../../mailtrap/emails");
 
-// // Register
+// // Register User
 // const registerUser = async (req, res) => {
 //   const { userName, email, password } = req.body;
 //   try {
@@ -63,6 +65,53 @@
 //   }
 // };
 
+// // Resend Verification Code
+// const resendVerificationCode = async (req, res) => {
+//   const { email } = req.body;
+  
+//   try {
+//     if (!email) {
+//       return res.status(400).json({ 
+//         success: false, 
+//         message: "Email is required" 
+//       });
+//     }
+
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(400).json({ 
+//         success: false, 
+//         message: "User not found" 
+//       });
+//     }
+
+//     if (user.isVerified) {
+//       return res.status(400).json({ 
+//         success: false, 
+//         message: "Email is already verified" 
+//       });
+//     }
+
+//     const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+//     user.verificationToken = verificationToken;
+//     user.verificationTokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
+    
+//     await user.save();
+//     await sendVerificationEmail(user.email, verificationToken);
+
+//     res.status(200).json({ 
+//       success: true, 
+//       message: "Verification code resent successfully" 
+//     });
+//   } catch (error) {
+//     console.error("Error in resendVerificationCode:", error);
+//     res.status(500).json({ 
+//       success: false, 
+//       message: "An error occurred while resending verification code" 
+//     });
+//   }
+// };
+
 // // Verify Email
 // const verifyEmail = async (req, res) => {
 //   const { code } = req.body;
@@ -84,7 +133,6 @@
 
 //     await sendWelcomeEmail(user.email, user.userName);
 
-//     // Clear any existing tokens before redirecting to login
 //     res.clearCookie("token");
 
 //     res
@@ -96,23 +144,54 @@
 //   }
 // };
 
-// // Login
+// // Login User
+// // const loginUser = async (req, res) => {
+// //   const { email, password } = req.body;
+// //   try {
+// //     const user = await User.findOne({ email });
+// //     if (!user)
+// //       return res
+// //         .status(400)
+// //         .json({ success: false, message: "User doesn't exist!" });
+
+// //     const isPasswordValid = await bcrypt.compare(password, user.password);
+// //     if (!isPasswordValid)
+// //       return res.json({ success: false, message: "Incorrect password!" });
+
+// //     generateTokenAndSetCookie(res, user._id);
+// //     user.lastLogin = new Date();
+// //     await user.save();
+
+// //     const userData = user.toObject();
+// //     userData.id = userData._id;
+// //     delete userData._id;
+
+// //     res.status(200).json({
+// //       success: true,
+// //       message: "Logged in successfully",
+// //       user: userData,
+// //     });
+// //   } catch (e) {
+// //     console.log(e);
+// //     res.status(500).json({ success: false, message: "An error occurred" });
+// //   }
+// // };
+
 // const loginUser = async (req, res) => {
 //   const { email, password } = req.body;
 //   try {
 //     const user = await User.findOne({ email });
-//     if (!user)
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "User doesn't exist!" });
+//     if (!user) return res.status(400).json({ success: false, message: "User doesn't exist!" });
 
 //     const isPasswordValid = await bcrypt.compare(password, user.password);
-//     if (!isPasswordValid)
-//       return res.json({ success: false, message: "Incorrect password!" });
+//     if (!isPasswordValid) return res.json({ success: false, message: "Incorrect password!" });
+
+//     const now = new Date();
+//     user.lastLogin = now;
+//     user.lastActive = now; // Update both fields
+//     await user.save();
 
 //     generateTokenAndSetCookie(res, user._id);
-//     user.lastLogin = new Date();
-//     await user.save();
 
 //     const userData = user.toObject();
 //     userData.id = userData._id;
@@ -129,7 +208,7 @@
 //   }
 // };
 
-// // Logout
+// // Logout User
 // const logoutUser = (req, res) => {
 //   res
 //     .cookie("token", "", {
@@ -212,48 +291,122 @@
 //   }
 // };
 
-// // auth-controller.js
+// // Auth Middleware
+// // const authMiddleware = async (req, res, next) => {
+// //   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+
+// //   if (!token) {
+// //     return res.status(401).json({
+// //       success: false,
+// //       message: "Unauthorized! No token.",
+// //     });
+// //   }
+
+// //   try {
+// //     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+// //     req.userId = decoded.userId;
+// //     req.user = await User.findById(decoded.userId).select("-password");
+
+// //     if (!req.user) {
+// //       return res.status(401).json({ success: false, message: "User not found for token." });
+// //     }
+
+// //     await User.findByIdAndUpdate(decoded.userId, {
+// //       lastActive: new Date(),
+// //     });
+
+// //     next();
+// //   } catch (error) {
+// //     console.error("JWT Verification Error in strict authMiddleware:", error);
+// //     if (error.name === "TokenExpiredError") {
+// //       return res.status(401).json({
+// //         success: false,
+// //         message: "Session expired. Please log in again.",
+// //       });
+// //     }
+// //     return res.status(401).json({
+// //       success: false,
+// //       message: "Invalid token.",
+// //     });
+// //   }
+// // };
 // const authMiddleware = async (req, res, next) => {
-//   // Check both cookies and Authorization header
 //   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
-  
-//   console.log('Auth check - Token:', token); // Debug logging
-//   console.log('Cookies:', req.cookies); // Debug logging
 
 //   if (!token) {
-//     console.log('No token found in request');
-//     return res.status(401).json({ 
-//       success: false, 
-//       message: "Unauthorized! No token." 
+//     return res.status(401).json({
+//       success: false,
+//       message: "Unauthorized! No token.",
 //     });
 //   }
 
 //   try {
 //     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 //     req.userId = decoded.userId;
-    
-//     await User.findByIdAndUpdate(decoded.userId, { 
-//       lastActive: new Date() 
-//     });
-    
-//     next();
-//   } catch (error) {
-//     console.error("JWT Verification Error:", error);
-//     if (error.name === "TokenExpiredError") {
-//       return res.status(401).json({ 
-//         success: false, 
-//         message: "Session expired. Please log in again." 
+//     req.user = await User.findById(decoded.userId).select("-password");
+
+//     if (!req.user) {
+//       return res.status(401).json({
+//         success: false,
+//         message: "User not found for token.",
 //       });
 //     }
-//     return res.status(401).json({ 
-//       success: false, 
-//       message: "Invalid token" 
+
+//     const now = new Date();
+//     const lastActiveTime = req.user.lastActive
+//       ? new Date(req.user.lastActive)
+//       : null;
+
+//     if (!lastActiveTime || now - lastActiveTime > 60000) {
+//       await User.findByIdAndUpdate(decoded.userId, {
+//         $set: { lastActive: now },
+//       });
+//     }
+
+//     next();
+//   } catch (error) {
+//     if (error.name === "TokenExpiredError") {
+//       return res.status(401).json({
+//         success: false,
+//         message: "Session expired. Please log in again.",
+//       });
+//     }
+
+//     return res.status(401).json({
+//       success: false,
+//       message: "Invalid token.",
 //     });
 //   }
 // };
 
+
+// // Optional Auth Middleware
+// const optionalAuthMiddleware = async (req, res, next) => {
+//   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+
+//   if (token) {
+//     try {
+//       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//       req.userId = decoded.userId;
+//       req.user = await User.findById(decoded.userId).select("-password");
+//     } catch (error) {
+//       req.userId = null;
+//       req.user = null;
+//     }
+//   } else {
+//     req.userId = null;
+//     req.user = null;
+//   }
+//   next();
+// };
+
+// // Check Auth
 // const checkAuth = async (req, res) => {
 //   try {
+//     if (!req.userId) {
+//       return res.status(401).json({ success: false, message: "Not authenticated" });
+//     }
+
 //     const user = await User.findById(req.userId).select("-password");
 //     if (!user) {
 //       return res
@@ -267,7 +420,7 @@
 
 //     res.status(200).json({ success: true, user: userData });
 //   } catch (error) {
-//     console.error("Error in checkAuth:", error); // Log the error
+//     console.error("Error in checkAuth:", error);
 //     res
 //       .status(500)
 //       .json({
@@ -281,25 +434,24 @@
 // module.exports = {
 //   registerUser,
 //   verifyEmail,
+//   resendVerificationCode,
 //   loginUser,
 //   logoutUser,
 //   forgotPassword,
 //   resetPassword,
 //   authMiddleware,
+//   optionalAuthMiddleware,
 //   checkAuth,
 // };
+
 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-
 const User = require("../../models/users");
-const express = require("express");
-
 const {
   generateTokenAndSetCookie,
 } = require("../../utils/generateTokenAndSetCookies");
-
 const {
   sendPasswordResetEmail,
   sendResetSuccessEmail,
@@ -324,13 +476,12 @@ const registerUser = async (req, res) => {
         .json({ success: false, message: "User already exists!" });
 
     const hashPassword = await bcrypt.hash(password, 12);
-    const verificationToken = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
+    const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
     const newUser = new User({
       userName,
       email,
       password: hashPassword,
+      role: "user",
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
     });
@@ -424,9 +575,7 @@ const verifyEmail = async (req, res) => {
 
     res.clearCookie("token");
 
-    res
-      .status(200)
-      .json({ success: true, message: "Email verified successfully" });
+    res.status(200).json({ success: true, message: "Email verified successfully" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -434,38 +583,6 @@ const verifyEmail = async (req, res) => {
 };
 
 // Login User
-// const loginUser = async (req, res) => {
-//   const { email, password } = req.body;
-//   try {
-//     const user = await User.findOne({ email });
-//     if (!user)
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "User doesn't exist!" });
-
-//     const isPasswordValid = await bcrypt.compare(password, user.password);
-//     if (!isPasswordValid)
-//       return res.json({ success: false, message: "Incorrect password!" });
-
-//     generateTokenAndSetCookie(res, user._id);
-//     user.lastLogin = new Date();
-//     await user.save();
-
-//     const userData = user.toObject();
-//     userData.id = userData._id;
-//     delete userData._id;
-
-//     res.status(200).json({
-//       success: true,
-//       message: "Logged in successfully",
-//       user: userData,
-//     });
-//   } catch (e) {
-//     console.log(e);
-//     res.status(500).json({ success: false, message: "An error occurred" });
-//   }
-// };
-
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -477,10 +594,10 @@ const loginUser = async (req, res) => {
 
     const now = new Date();
     user.lastLogin = now;
-    user.lastActive = now; // Update both fields
+    user.lastActive = now;
     await user.save();
 
-    generateTokenAndSetCookie(res, user._id);
+    const token = generateTokenAndSetCookie(res, user._id);
 
     const userData = user.toObject();
     userData.id = userData._id;
@@ -490,6 +607,7 @@ const loginUser = async (req, res) => {
       success: true,
       message: "Logged in successfully",
       user: userData,
+      token // Optional: Only if you need it in response
     });
   } catch (e) {
     console.log(e);
@@ -499,8 +617,7 @@ const loginUser = async (req, res) => {
 
 // Logout User
 const logoutUser = (req, res) => {
-  res
-    .cookie("token", "", {
+  res.cookie("token", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
@@ -514,26 +631,18 @@ const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    console.log("Email is missing in request body");
-    return res
-      .status(400)
-      .json({ success: false, message: "Email is required" });
+    return res.status(400).json({ success: false, message: "Email is required" });
   }
 
   try {
     const user = await User.findOne({ email });
-
     if (!user) {
-      console.log("User not found with email:", email);
-      return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
+      return res.status(400).json({ success: false, message: "User not found" });
     }
 
     const resetToken = crypto.randomBytes(20).toString("hex");
-
     user.resetPasswordToken = resetToken;
-    user.resetPasswordExpiresAt = Date.now() + 3600000; // 1 hour
+    user.resetPasswordExpiresAt = Date.now() + 3600000;
     await user.save();
 
     await sendPasswordResetEmail(
@@ -546,7 +655,7 @@ const forgotPassword = async (req, res) => {
       message: "Password reset link sent to your email",
     });
   } catch (error) {
-    console.log("Error in forgotPassword function:", error);
+    console.log("Error in forgotPassword:", error);
     res.status(500).json({ success: false, message: "An error occurred" });
   }
 };
@@ -561,9 +670,7 @@ const resetPassword = async (req, res) => {
       resetPasswordExpiresAt: { $gt: Date.now() },
     });
     if (!user)
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid or expired reset token" });
+      return res.status(400).json({ success: false, message: "Invalid or expired reset token" });
 
     user.password = await bcrypt.hash(password, 12);
     user.resetPasswordToken = undefined;
@@ -571,9 +678,7 @@ const resetPassword = async (req, res) => {
     await user.save();
 
     await sendResetSuccessEmail(user.email);
-    res
-      .status(200)
-      .json({ success: true, message: "Password reset successful" });
+    res.status(200).json({ success: true, message: "Password reset successful" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "An error occurred" });
@@ -581,44 +686,6 @@ const resetPassword = async (req, res) => {
 };
 
 // Auth Middleware
-// const authMiddleware = async (req, res, next) => {
-//   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
-
-//   if (!token) {
-//     return res.status(401).json({
-//       success: false,
-//       message: "Unauthorized! No token.",
-//     });
-//   }
-
-//   try {
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//     req.userId = decoded.userId;
-//     req.user = await User.findById(decoded.userId).select("-password");
-
-//     if (!req.user) {
-//       return res.status(401).json({ success: false, message: "User not found for token." });
-//     }
-
-//     await User.findByIdAndUpdate(decoded.userId, {
-//       lastActive: new Date(),
-//     });
-
-//     next();
-//   } catch (error) {
-//     console.error("JWT Verification Error in strict authMiddleware:", error);
-//     if (error.name === "TokenExpiredError") {
-//       return res.status(401).json({
-//         success: false,
-//         message: "Session expired. Please log in again.",
-//       });
-//     }
-//     return res.status(401).json({
-//       success: false,
-//       message: "Invalid token.",
-//     });
-//   }
-// };
 const authMiddleware = async (req, res, next) => {
   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
@@ -642,10 +709,9 @@ const authMiddleware = async (req, res, next) => {
     }
 
     const now = new Date();
-    const lastActiveTime = req.user.lastActive
-      ? new Date(req.user.lastActive)
-      : null;
+    const lastActiveTime = req.user.lastActive ? new Date(req.user.lastActive) : null;
 
+    // Update lastActive if more than 1 minute passed
     if (!lastActiveTime || now - lastActiveTime > 60000) {
       await User.findByIdAndUpdate(decoded.userId, {
         $set: { lastActive: now },
@@ -667,7 +733,6 @@ const authMiddleware = async (req, res, next) => {
     });
   }
 };
-
 
 // Optional Auth Middleware
 const optionalAuthMiddleware = async (req, res, next) => {
@@ -698,9 +763,7 @@ const checkAuth = async (req, res) => {
 
     const user = await User.findById(req.userId).select("-password");
     if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
+      return res.status(400).json({ success: false, message: "User not found" });
     }
 
     const userData = user.toObject();
@@ -710,13 +773,11 @@ const checkAuth = async (req, res) => {
     res.status(200).json({ success: true, user: userData });
   } catch (error) {
     console.error("Error in checkAuth:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "An error occurred",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "An error occurred",
+      error: error.message,
+    });
   }
 };
 
