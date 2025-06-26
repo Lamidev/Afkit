@@ -1,7 +1,7 @@
+
 const { imageUploadUtil } = require("../../helpers/cloudinary");
 const Product = require("../../models/products");
 
-// Single image upload handler (UNCHANGED)
 const handleImageUpload = async (req, res) => {
   try {
     if (!req.file) {
@@ -27,7 +27,6 @@ const handleImageUpload = async (req, res) => {
   }
 };
 
-// Multiple image upload handler (UNCHANGED)
 const handleMultipleImageUpload = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -79,20 +78,19 @@ const addProduct = async (req, res) => {
       storage,
       ram,
       processor,
-      extraFeatures, // Changed from displayType
+      extraFeatures,
       laptopType,
       screenSize,
       frameStyle,
       screenResolution,
       ports,
-      monitorType, // NEW: added monitorType
+      monitorType,
       accessoryCategory,
       specificAccessory,
       totalStock,
       condition,
     } = req.body;
 
-    // Basic validation for common required fields
     if (
       !title ||
       !description ||
@@ -118,7 +116,7 @@ const addProduct = async (req, res) => {
       price,
       totalStock,
       condition,
-      // Conditionally add fields based on category
+      isHidden: false,
       ...(category === "smartphones" ||
       category === "laptops" ||
       category === "monitors"
@@ -128,17 +126,16 @@ const addProduct = async (req, res) => {
         ? { storage, ram }
         : {}),
       ...(category === "laptops"
-        ? { processor, extraFeatures, laptopType } // Changed displayType to extraFeatures
+        ? { processor, extraFeatures, laptopType }
         : {}),
       ...(category === "monitors"
-        ? { screenSize, frameStyle, screenResolution, ports, monitorType } // Added monitorType
+        ? { screenSize, frameStyle, screenResolution, ports, monitorType }
         : {}),
       ...(category === "accessories"
         ? { accessoryCategory, specificAccessory }
         : {}),
     };
 
-    // Specific conditional validations based on category
     if (["smartphones", "laptops", "monitors"].includes(category) && !brand) {
       return res.status(400).json({
         success: false,
@@ -155,7 +152,6 @@ const addProduct = async (req, res) => {
       category === "laptops" &&
       (!processor || !extraFeatures || !laptopType)
     ) {
-      // Changed displayType to extraFeatures
       return res.status(400).json({
         success: false,
         message:
@@ -170,7 +166,6 @@ const addProduct = async (req, res) => {
         !ports ||
         !monitorType)
     ) {
-      // Added monitorType validation
       return res.status(400).json({
         success: false,
         message:
@@ -218,13 +213,13 @@ const editProduct = async (req, res) => {
       storage,
       ram,
       processor,
-      extraFeatures, // Changed from displayType
+      extraFeatures,
       laptopType,
       screenSize,
       frameStyle,
       screenResolution,
       ports,
-      monitorType, // NEW: added monitorType
+      monitorType,
       accessoryCategory,
       specificAccessory,
       totalStock,
@@ -239,33 +234,29 @@ const editProduct = async (req, res) => {
       });
     }
 
-    // Update common fields
     findProduct.images = images || findProduct.images;
     findProduct.title = title || findProduct.title;
     findProduct.description = description || findProduct.description;
-    findProduct.category = category || findProduct.category; // Important to update category first
+    findProduct.category = category || findProduct.category;
     findProduct.price = price === 0 || price ? price : findProduct.price;
     findProduct.totalStock =
       totalStock === 0 || totalStock ? totalStock : findProduct.totalStock;
     findProduct.condition = condition || findProduct.condition;
 
-    // Reset category-specific fields if category changes or is not applicable
-    // This ensures that old data from a different category doesn't persist.
     findProduct.brand = undefined;
     findProduct.storage = undefined;
     findProduct.ram = undefined;
     findProduct.processor = undefined;
-    findProduct.extraFeatures = undefined; // Changed from displayType
+    findProduct.extraFeatures = undefined;
     findProduct.laptopType = undefined;
     findProduct.screenSize = undefined;
     findProduct.frameStyle = undefined;
     findProduct.screenResolution = undefined;
     findProduct.ports = undefined;
-    findProduct.monitorType = undefined; // NEW: Reset monitorType
+    findProduct.monitorType = undefined;
     findProduct.accessoryCategory = undefined;
     findProduct.specificAccessory = undefined;
 
-    // Conditionally set fields based on the NEW category
     if (["smartphones", "laptops", "monitors"].includes(findProduct.category)) {
       findProduct.brand = brand;
     }
@@ -275,7 +266,7 @@ const editProduct = async (req, res) => {
     }
     if (findProduct.category === "laptops") {
       findProduct.processor = processor;
-      findProduct.extraFeatures = extraFeatures; // Changed from displayType
+      findProduct.extraFeatures = extraFeatures;
       findProduct.laptopType = laptopType;
     }
     if (findProduct.category === "monitors") {
@@ -283,7 +274,7 @@ const editProduct = async (req, res) => {
       findProduct.frameStyle = frameStyle;
       findProduct.screenResolution = screenResolution;
       findProduct.ports = ports;
-      findProduct.monitorType = monitorType; // NEW: Set monitorType
+      findProduct.monitorType = monitorType;
     }
     if (findProduct.category === "accessories") {
       findProduct.accessoryCategory = accessoryCategory;
@@ -305,7 +296,6 @@ const editProduct = async (req, res) => {
   }
 };
 
-// UNCHANGED functions below
 const fetchAllProducts = async (req, res) => {
   try {
     const listOfProducts = await Product.find({});
@@ -349,6 +339,68 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const hideProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findByIdAndUpdate(
+      id,
+      { isHidden: true },
+      { new: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Product hidden successfully",
+      data: product,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      success: false,
+      message: "Error occurred while hiding the product.",
+      error: e.message,
+    });
+  }
+};
+
+const unhideProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findByIdAndUpdate(
+      id,
+      { isHidden: false },
+      { new: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Product unhidden successfully",
+      data: product,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({
+      success: false,
+      message: "Error occurred while unhiding the product.",
+      error: e.message,
+    });
+  }
+};
+
 module.exports = {
   handleImageUpload,
   handleMultipleImageUpload,
@@ -356,4 +408,6 @@ module.exports = {
   fetchAllProducts,
   editProduct,
   deleteProduct,
+  hideProduct,
+  unhideProduct,
 };
