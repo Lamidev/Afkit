@@ -1,3 +1,5 @@
+
+
 const Product = require("../../models/products");
 
 const getFilteredProducts = async (req, res) => {
@@ -7,23 +9,23 @@ const getFilteredProducts = async (req, res) => {
       brand = [],
       condition = [],
       storage = [],
-      ram = [], // NEW: Add RAM filter
-      processor = [], // NEW: Add Processor filter
-      extraFeatures = [], // NEW: Add Extra Features filter (formerly displayType)
-      laptopType = [], // NEW: Add Laptop Type filter
-      screenSize = [], // NEW: Add Screen Size filter
-      frameStyle = [], // NEW: Add Frame Style filter
-      screenResolution = [], // NEW: Add Screen Resolution filter
-      ports = [], // NEW: Add Ports filter
-      monitorType = [], // NEW: Add Monitor Type filter
-      accessoryCategory = [], // NEW: Add Accessory Category filter
-      specificAccessory = [], // NEW: Add Specific Accessory filter
+      ram = [],
+      processor = [],
+      extraFeatures = [],
+      laptopType = [],
+      screenSize = [],
+      frameStyle = [],
+      screenResolution = [],
+      ports = [],
+      monitorType = [],
+      accessoryCategory = [],
+      specificAccessory = [],
       minPrice,
       maxPrice,
       sortBy = "price-lowtohigh",
     } = req.query;
 
-    let filters = {};
+    let filters = { isHidden: { $ne: true } };
 
     if (category.length) {
       filters.category = { $in: category.split(",") };
@@ -41,7 +43,6 @@ const getFilteredProducts = async (req, res) => {
       filters.storage = { $in: storage.split(",") };
     }
 
-    // NEW: Add filters for other product specifications
     if (ram.length) {
       filters.ram = { $in: ram.split(",") };
     }
@@ -76,7 +77,6 @@ const getFilteredProducts = async (req, res) => {
       filters.specificAccessory = { $in: specificAccessory.split(",") };
     }
 
-    // Add price range filter
     if (minPrice && maxPrice) {
       filters.price = { $gte: Number(minPrice), $lte: Number(maxPrice) };
     } else if (minPrice) {
@@ -88,8 +88,8 @@ const getFilteredProducts = async (req, res) => {
     let sort = {};
 
     switch (sortBy) {
-      case "latest-arrival": // NEW: Sort by createdAt for latest arrival
-        sort.createdAt = -1; // -1 for descending (latest first)
+      case "latest-arrival":
+        sort.createdAt = -1;
         break;
       case "price-lowtohigh":
         sort.price = 1;
@@ -97,9 +97,8 @@ const getFilteredProducts = async (req, res) => {
       case "price-hightolow":
         sort.price = -1;
         break;
-
       default:
-        sort.createdAt = -1; // Default to latest arrival
+        sort.createdAt = -1;
         break;
     }
 
@@ -121,7 +120,7 @@ const getFilteredProducts = async (req, res) => {
 const getProductDetails = async (req, res) => {
   try {
     const { id } = req.params;
-    const product = await Product.findById(id);
+    const product = await Product.findOne({ _id: id, isHidden: { $ne: true } });
 
     if (!product)
       return res.status(404).json({
@@ -153,7 +152,7 @@ const getProductsByBrand = async (req, res) => {
       });
     }
 
-    const products = await Product.find({ brand });
+    const products = await Product.find({ brand, isHidden: { $ne: true } });
 
     res.status(200).json({
       success: true,
