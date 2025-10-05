@@ -298,7 +298,126 @@ const editProduct = async (req, res) => {
 
 const fetchAllProducts = async (req, res) => {
   try {
-    const listOfProducts = await Product.find({});
+    const {
+      category,
+      brand,
+      condition,
+      storage,
+      ram,
+      processor,
+      extraFeatures,
+      laptopType,
+      screenSize,
+      frameStyle,
+      screenResolution,
+      ports,
+      monitorType,
+      accessoryCategory,
+      specificAccessory,
+      minPrice,
+      maxPrice,
+      sortBy = "latest-arrival",
+      isHidden,
+    } = req.query;
+
+    let filters = {};
+
+    if (category) {
+      filters.category = { $in: category.split(",") };
+    }
+
+    if (brand) {
+      filters.brand = { $in: brand.split(",") };
+    }
+
+    if (condition) {
+      filters.condition = { $in: condition.split(",") };
+    }
+
+    if (storage) {
+      filters.storage = { $in: storage.split(",") };
+    }
+
+    if (ram) {
+      filters.ram = { $in: ram.split(",") };
+    }
+    if (processor) {
+      filters.processor = { $in: processor.split(",") };
+    }
+    if (extraFeatures) {
+      filters.extraFeatures = { $in: extraFeatures.split(",") };
+    }
+    if (laptopType) {
+      filters.laptopType = { $in: laptopType.split(",") };
+    }
+    if (screenSize) {
+      filters.screenSize = { $in: screenSize.split(",") };
+    }
+    if (frameStyle) {
+      filters.frameStyle = { $in: frameStyle.split(",") };
+    }
+    if (screenResolution) {
+      filters.screenResolution = { $in: screenResolution.split(",") };
+    }
+    if (ports) {
+      filters.ports = { $in: ports.split(",") };
+    }
+    if (monitorType) {
+      filters.monitorType = { $in: monitorType.split(",") };
+    }
+    if (accessoryCategory) {
+      filters.accessoryCategory = { $in: accessoryCategory.split(",") };
+    }
+    if (specificAccessory) {
+      filters.specificAccessory = { $in: specificAccessory.split(",") };
+    }
+
+    if (minPrice && maxPrice) {
+      filters.price = { $gte: Number(minPrice), $lte: Number(maxPrice) };
+    } else if (minPrice) {
+      filters.price = { $gte: Number(minPrice) };
+    } else if (maxPrice) {
+      filters.price = { $lte: Number(maxPrice) };
+    }
+
+    if (isHidden !== undefined) {
+      filters.isHidden = isHidden === 'true';
+    }
+
+    let sort = {};
+
+    switch (sortBy) {
+      case "latest-arrival":
+        sort.createdAt = -1;
+        break;
+      case "oldest-arrival":
+        sort.createdAt = 1;
+        break;
+      case "price-lowtohigh":
+        sort.price = 1;
+        break;
+      case "price-hightolow":
+        sort.price = -1;
+        break;
+      case "title-asc":
+        sort.title = 1;
+        break;
+      case "title-desc":
+        sort.title = -1;
+        break;
+      case "stock-lowtohigh":
+        sort.totalStock = 1;
+        break;
+      case "stock-hightolow":
+        sort.totalStock = -1;
+        break;
+      default:
+        sort.createdAt = -1;
+        break;
+    }
+
+    const listOfProducts = await Product.find(filters).sort(sort);
+
     res.status(200).json({
       success: true,
       data: listOfProducts,

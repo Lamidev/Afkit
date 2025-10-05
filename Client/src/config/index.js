@@ -420,6 +420,17 @@ export const sortOptions = [
   { id: "price-hightolow", label: "Price: High to Low" },
 ];
 
+export const adminSortOptions = [
+  { id: "latest-arrival", label: "Latest Arrival" },
+  { id: "oldest-arrival", label: "Oldest Arrival" },
+  { id: "price-lowtohigh", label: "Price: Low to High" },
+  { id: "price-hightolow", label: "Price: High to Low" },
+  { id: "title-asc", label: "Title: A to Z" },
+  { id: "title-desc", label: "Title: Z to A" },
+  { id: "stock-lowtohigh", label: "Stock: Low to High" },
+  { id: "stock-hightolow", label: "Stock: High to Low" },
+];
+
 export const categorySpecificFilters = {
   "all-products": ["category", "condition", "priceRange"],
   smartphones: ["brand", "storage", "ram", "condition", "priceRange"],
@@ -482,10 +493,14 @@ export const getFilterOptionsForCategory = (category) => {
     else if (filterOptions[category]?.[key]) {
       categorySpecificOptions[key] = filterOptions[category][key];
     }
+    else if (category === "accessories" && filterOptions.accessories?.[key]) {
+      categorySpecificOptions[key] = filterOptions.accessories[key];
+    }
   });
 
   return {
     ...commonOptions,
     ...categorySpecificOptions,
+    accessories: filterOptions.accessories,
   };
 };

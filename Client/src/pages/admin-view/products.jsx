@@ -1,5 +1,5 @@
 
-import { Fragment, useState, useEffect, useRef } from "react";
+import { Fragment, useState, useEffect, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -7,6 +7,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
+  SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -15,12 +16,21 @@ import ProductImageUpload from "@/components/admin-view/image-upload";
 import CommonForm from "@/components/common/form";
 import AdminProductTile from "@/components/admin-view/product-tile";
 import AdminProductSearch from "@/components/admin-view/search";
-import { addProductFormElements, filterOptions } from "@/config";
+import { addProductFormElements, filterOptions, adminSortOptions, getFilterOptionsForCategory } from "@/config";
 import {
   addNewProduct,
   editProduct,
   fetchAllProducts,
 } from "@/store/admin/products-slice";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ArrowUpDown, Filter, X } from "lucide-react";
+import AdminProductFilter from "@/components/admin-view/admin-product-filter";
 
 const initialFormData = {
   images: [],
@@ -60,12 +70,39 @@ function AdminProducts() {
   const [activeTab, setActiveTab] = useState("active");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("latest-arrival");
+  const [filters, setFilters] = useState({});
+  const [priceRange, setPriceRange] = useState({
+    min: 0,
+    max: 5000000,
+  });
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const productsPerPage = 16;
   const topRef = useRef(null);
 
+  const currentFilterOptions = useMemo(() => {
+    const selectedCategory = filters.category?.[0];
+    return getFilterOptionsForCategory(selectedCategory || "all-products");
+  }, [filters.category]);
+
   useEffect(() => {
-    dispatch(fetchAllProducts());
-  }, [dispatch]);
+    loadProducts();
+  }, [filters, sortBy, priceRange, activeTab]);
+
+  const loadProducts = () => {
+    const filterParams = {
+      ...filters,
+      ...(activeTab === "hidden" && { isHidden: true }),
+      ...(activeTab === "active" && { isHidden: false }),
+    };
+
+    dispatch(fetchAllProducts({
+      filterParams,
+      sortParams: sortBy,
+      priceRange: { min: priceRange.min, max: priceRange.max }
+    }));
+  };
 
   useEffect(() => {
     if (topRef.current) {
@@ -123,7 +160,7 @@ function AdminProducts() {
 
       if (result?.payload?.success) {
         toast.success(currentEditedId ? "Product updated" : "Product added");
-        dispatch(fetchAllProducts());
+        loadProducts();
         setOpenCreateProductsDialog(false);
         resetForm();
       } else {
@@ -270,6 +307,50 @@ function AdminProducts() {
     setCurrentPage(newPage);
   };
 
+  const handleSortChange = (value) => {
+    setSortBy(value);
+    setCurrentPage(1);
+  };
+
+  const handleApplyFilters = (newFilters, newPriceRange) => {
+    setFilters(newFilters);
+    setPriceRange(newPriceRange);
+    setCurrentPage(1);
+    setIsFilterOpen(false);
+    setIsMobileFilterOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    setFilters({});
+    setPriceRange({
+      min: 0,
+      max: 5000000,
+    });
+    setCurrentPage(1);
+    setIsFilterOpen(false);
+    setIsMobileFilterOpen(false);
+  };
+
+  const handleCloseFilter = () => {
+    setIsFilterOpen(false);
+    setIsMobileFilterOpen(false);
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+    setSearchQuery("");
+    setFilters({});
+    setPriceRange({
+      min: 0,
+      max: 5000000,
+    });
+  };
+
+  const hasActiveFilters = Object.keys(filters).length > 0 || 
+    priceRange.min !== 0 || 
+    priceRange.max !== 5000000;
+
   return (
     <Fragment>
       <div ref={topRef} className="space-y-6">
@@ -279,12 +360,136 @@ function AdminProducts() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <h1 className="text-2xl font-bold">Manage Products</h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold">Manage Products</h1>
+            <div className="flex gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <ArrowUpDown className="h-4 w-4" />
+                    <span>Sort</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-48">
+                  <DropdownMenuRadioGroup value={sortBy} onValueChange={handleSortChange}>
+                    {adminSortOptions.map((option) => (
+                      <DropdownMenuRadioItem key={option.id} value={option.id}>
+                        {option.label}
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <div className="hidden sm:block">
+                <DropdownMenu open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="flex items-center space-x-2 relative"
+                    >
+                      <Filter className="h-4 w-4" />
+                      <span>Filter</span>
+                      {hasActiveFilters && (
+                        <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-600 rounded-full"></span>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-80 p-0">
+                    <div className="p-4 border-b flex items-center justify-between">
+                      <h3 className="font-semibold">Filters</h3>
+                      <div className="flex items-center gap-2">
+                        {hasActiveFilters && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleResetFilters}
+                            className="h-auto p-0 text-xs text-blue-600 hover:text-blue-800"
+                          >
+                            Clear All
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleCloseFilter}
+                          className="h-8 w-8 p-0 hover:bg-gray-100"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      <AdminProductFilter
+                        filters={filters}
+                        onApplyFilters={handleApplyFilters}
+                        onResetFilters={handleResetFilters}
+                        onCloseFilter={handleCloseFilter}
+                        filterOptions={currentFilterOptions}
+                        priceRange={priceRange}
+                        setPriceRange={setPriceRange}
+                        isDropdown={true}
+                      />
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="flex items-center space-x-2 sm:hidden relative"
+                  >
+                    <Filter className="h-4 w-4" />
+                    <span>Filter</span>
+                    {hasActiveFilters && (
+                      <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-600 rounded-full"></span>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="right"
+                  className="w-[85vw] sm:max-w-md overflow-y-auto p-0"
+                >
+                  <div className="flex flex-col h-full">
+                    <div className="p-4 border-b flex items-center justify-between">
+                      <h2 className="text-lg font-bold">Filters</h2>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleCloseFilter}
+                        className="h-8 w-8"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto">
+                      <AdminProductFilter
+                        filters={filters}
+                        onApplyFilters={handleApplyFilters}
+                        onResetFilters={handleResetFilters}
+                        onCloseFilter={handleCloseFilter}
+                        filterOptions={currentFilterOptions}
+                        priceRange={priceRange}
+                        setPriceRange={setPriceRange}
+                        isDropdown={false}
+                      />
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <AdminProductSearch 
               onSearch={setSearchQuery}
-              placeholder="Search products by title, description, or category..."
-              className="w-full sm:w-96"
+              placeholder="Search products..."
+              className="w-full sm:w-64"
             />
             <Button onClick={() => setOpenCreateProductsDialog(true)}>
               Add New Product
@@ -292,26 +497,74 @@ function AdminProducts() {
           </div>
         </motion.div>
 
-        <Tabs defaultValue="active" className="w-full">
+        {hasActiveFilters && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap"
+          >
+            <span>Active filters:</span>
+            {filters.category && (
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
+                Category: {filters.category.join(", ")}
+              </span>
+            )}
+            {filters.brand && (
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
+                Brand: {filters.brand.join(", ")}
+              </span>
+            )}
+            {filters.condition && (
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
+                Condition: {filters.condition.join(", ")}
+              </span>
+            )}
+            {filters.storage && (
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
+                Storage: {filters.storage.join(", ")}
+              </span>
+            )}
+            {filters.ram && (
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
+                RAM: {filters.ram.join(", ")}
+              </span>
+            )}
+            {filters.processor && (
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
+                Processor: {filters.processor.join(", ")}
+              </span>
+            )}
+            {filters.accessoryCategory && (
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
+                Accessory Type: {filters.accessoryCategory.join(", ")}
+              </span>
+            )}
+            {filters.specificAccessory && (
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
+                Specific Accessory: {filters.specificAccessory.join(", ")}
+              </span>
+            )}
+            {(priceRange.min !== 0 || priceRange.max !== 5000000) && (
+              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
+                Price: ₦{priceRange.min.toLocaleString()} - ₦{priceRange.max.toLocaleString()}
+              </span>
+            )}
+          </motion.div>
+        )}
+
+        <div className="flex justify-between items-center">
+          <div className="text-sm text-muted-foreground">
+            Showing {filterProducts(activeTab === "active" ? activeProducts : hiddenProducts).length} products
+            {sortBy !== "latest-arrival" && ` • Sorted by ${adminSortOptions.find(opt => opt.id === sortBy)?.label}`}
+          </div>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger 
-              value="active" 
-              onClick={() => {
-                setActiveTab("active");
-                setCurrentPage(1);
-                setSearchQuery("");
-              }}
-            >
+            <TabsTrigger value="active">
               Active Products
             </TabsTrigger>
-            <TabsTrigger 
-              value="hidden" 
-              onClick={() => {
-                setActiveTab("hidden");
-                setCurrentPage(1);
-                setSearchQuery("");
-              }}
-            >
+            <TabsTrigger value="hidden">
               Hidden Products {hiddenProducts.length > 0 && (
                 <span className="ml-1 bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded-full">
                   {hiddenProducts.length}
@@ -320,10 +573,10 @@ function AdminProducts() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="active">
+          <TabsContent value="active" className="mt-6">
             {isLoading ? (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {Array.from({ length: 4 }).map((_, i) => (
+                {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="h-64 bg-muted rounded-lg animate-pulse" />
                 ))}
               </div>
@@ -424,7 +677,7 @@ function AdminProducts() {
             )}
           </TabsContent>
 
-          <TabsContent value="hidden">
+          <TabsContent value="hidden" className="mt-6">
             {filterProducts(hiddenProducts).length > 0 ? (
               <>
                 <motion.div

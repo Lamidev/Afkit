@@ -1,21 +1,20 @@
-import { Fragment } from "react";
-import { Label } from "../ui/label";
-import { Checkbox } from "../ui/checkbox";
-import { Separator } from "../ui/separator";
-import { X, Loader2 } from "lucide-react";
-import { Button } from "../ui/button";
-import { useState, useEffect, useRef, useMemo } from "react";
-import { Input } from "../ui/input";
 
-function ProductFilter({
+import { Fragment, useState, useEffect, useRef, useMemo } from "react";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+function AdminProductFilter({
   filters,
   onApplyFilters,
+  onResetFilters,
+  onCloseFilter,
   filterOptions,
-  isMobileFilterOpen,
-  setIsMobileFilterOpen,
-  isFilterLoading,
   priceRange,
   setPriceRange,
+  isDropdown = false,
 }) {
   const [localFilters, setLocalFilters] = useState(filters);
   const [localPriceRange, setLocalPriceRange] = useState(priceRange);
@@ -70,15 +69,18 @@ function ProductFilter({
     }
   }, [localFilters.accessoryCategory, filterOptions.accessories]);
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
-
   const handleLocalFilter = (getSectionId, getCurrentOption, checked) => {
     let cpyFilters = { ...localFilters };
+
+    if (getSectionId === "category" && checked) {
+      const previousCategory = cpyFilters.category?.[0];
+      if (previousCategory && previousCategory !== getCurrentOption) {
+        const filtersToRemove = ['brand', 'storage', 'ram', 'processor', 'laptopType', 'extraFeatures', 'screenSize', 'frameStyle', 'screenResolution', 'ports', 'monitorType', 'accessoryCategory', 'specificAccessory'];
+        filtersToRemove.forEach(filter => {
+          delete cpyFilters[filter];
+        });
+      }
+    }
 
     if (getSectionId === "category" || 
         getSectionId === "condition" || 
@@ -125,8 +127,6 @@ function ProductFilter({
     setMaxPriceInput(finalMax === MAX_PRICE_LIMIT ? "" : finalMax.toString());
 
     onApplyFilters(localFilters, { min: finalMin, max: finalMax });
-    setIsMobileFilterOpen(false);
-    scrollToTop();
   };
 
   const handleReset = () => {
@@ -136,9 +136,11 @@ function ProductFilter({
     setMaxPriceInput("");
     setDynamicSpecificAccessoryOptions([]);
 
-    onApplyFilters({}, { min: MIN_PRICE_LIMIT, max: MAX_PRICE_LIMIT });
-    setIsMobileFilterOpen(false);
-    scrollToTop();
+    onResetFilters();
+  };
+
+  const handleCancel = () => {
+    onCloseFilter();
   };
 
   const handlePriceInputChange = (type, value) => {
@@ -206,34 +208,15 @@ function ProductFilter({
 
   const filterKeysToRender = useMemo(() => {
     return Object.keys(filterOptions).filter(
-      (key) => key !== "priceRange" && key !== "condition" && key !== "specificAccessory"
+      (key) => key !== "priceRange" && key !== "condition" && key !== "specificAccessory" && key !== "accessories"
     );
   }, [filterOptions]);
 
   return (
-    <div className={`bg-background rounded-lg shadow-sm h-full ${isMobileFilterOpen ? "" : "block w-full"}`}>
-      <div className="p-4 border-b flex items-center justify-between">
-        <h2 className="text-lg font-extrabold">Filters</h2>
-        {isMobileFilterOpen && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMobileFilterOpen(false)}
-            className="md:hidden"
-            disabled={isFilterLoading}
-          >
-            {isFilterLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <X className="h-5 w-5" />
-            )}
-          </Button>
-        )}
-      </div>
-
-      <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(100vh-160px)]">
+    <div className={isDropdown ? "p-4" : "bg-background rounded-lg shadow-sm h-full flex flex-col"}>
+      <div className={isDropdown ? "space-y-4" : "p-4 space-y-4 flex-1 overflow-y-auto"}>
         <div>
-          <div className="mt-2 space-y-4">
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-semibold">The highest price is ₦{MAX_PRICE_LIMIT.toLocaleString()}</h3>
             </div>
@@ -261,7 +244,6 @@ function ProductFilter({
                     onFocus={handleMinInputFocus}
                     onBlur={handleMinInputBlur}
                     className="flex-1 h-full bg-transparent border-none focus:outline-none pl-3 pr-3 pt-4 pb-2 text-foreground"
-                    disabled={isFilterLoading}
                   />
                 </div>
               </div>
@@ -287,7 +269,6 @@ function ProductFilter({
                     onFocus={handleMaxInputFocus}
                     onBlur={handleMaxInputBlur}
                     className="flex-1 h-full bg-transparent border-none focus:outline-none pl-3 pr-3 pt-4 pb-2 text-foreground"
-                    disabled={isFilterLoading}
                   />
                 </div>
               </div>
@@ -310,7 +291,6 @@ function ProductFilter({
                       onCheckedChange={(checked) =>
                         handleLocalFilter("condition", optionItem.id, checked)
                       }
-                      disabled={isFilterLoading}
                       className="data-[state=checked]:bg-blue-900 data-[state=checked]:border-blue-900"
                     />
                     <Label htmlFor={`condition-${optionItem.id}`}>{optionItem.label}</Label>
@@ -341,7 +321,6 @@ function ProductFilter({
                         onCheckedChange={(checked) =>
                           handleLocalFilter(keyItem, optionItem.id, checked)
                         }
-                        disabled={isFilterLoading}
                         className="data-[state=checked]:bg-blue-900 data-[state=checked]:border-blue-900"
                       />
                       <Label htmlFor={`${keyItem}-${optionItem.id}`}>{optionItem.label}</Label>
@@ -371,7 +350,6 @@ function ProductFilter({
                       onCheckedChange={(checked) =>
                         handleLocalFilter("specificAccessory", optionItem.id, checked)
                       }
-                      disabled={isFilterLoading}
                       className="data-[state=checked]:bg-blue-900 data-[state=checked]:border-blue-900"
                     />
                     <Label htmlFor={`specificAccessory-${optionItem.id}`}>{optionItem.label}</Label>
@@ -384,31 +362,26 @@ function ProductFilter({
         )}
       </div>
 
-      <div className="p-4 border-t sticky bottom-0 bg-background grid grid-cols-2 gap-2">
-        <Button
-          variant="outline"
-          onClick={handleReset}
-          disabled={isFilterLoading}
-        >
-          Reset
-        </Button>
-        <Button
-          onClick={handleApply}
-          disabled={isFilterLoading}
-          className="bg-blue-900 hover:bg-blue-800"
-        >
-          {isFilterLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Applying...
-            </>
-          ) : (
-            "Apply Filters"
-          )}
-        </Button>
+      <div className={isDropdown ? "p-4 border-t bg-muted/50" : "p-4 border-t"}>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            variant="outline"
+            onClick={handleCancel}
+            size="sm"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleApply}
+            size="sm"
+            className="bg-blue-900 hover:bg-blue-800"
+          >
+            Apply
+          </Button>
+        </div>
       </div>
     </div>
   );
 }
 
-export default ProductFilter;
+export default AdminProductFilter;
