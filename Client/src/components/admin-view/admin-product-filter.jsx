@@ -1,10 +1,12 @@
 
+
 import { Fragment, useState, useEffect, useRef, useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { X, Loader2 } from "lucide-react";
 
 function AdminProductFilter({
   filters,
@@ -15,6 +17,9 @@ function AdminProductFilter({
   priceRange,
   setPriceRange,
   isDropdown = false,
+  isMobileFilterOpen,
+  setIsMobileFilterOpen,
+  isFilterLoading,
 }) {
   const [localFilters, setLocalFilters] = useState(filters);
   const [localPriceRange, setLocalPriceRange] = useState(priceRange);
@@ -69,6 +74,13 @@ function AdminProductFilter({
     }
   }, [localFilters.accessoryCategory, filterOptions.accessories]);
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
   const handleLocalFilter = (getSectionId, getCurrentOption, checked) => {
     let cpyFilters = { ...localFilters };
 
@@ -82,9 +94,7 @@ function AdminProductFilter({
       }
     }
 
-    if (getSectionId === "category" || 
-        getSectionId === "condition" || 
-        getSectionId === "accessoryCategory") {
+    if (getSectionId === "condition" || getSectionId === "accessoryCategory") {
       cpyFilters[getSectionId] = checked ? [getCurrentOption] : [];
     } else {
       if (!cpyFilters[getSectionId]) {
@@ -127,6 +137,10 @@ function AdminProductFilter({
     setMaxPriceInput(finalMax === MAX_PRICE_LIMIT ? "" : finalMax.toString());
 
     onApplyFilters(localFilters, { min: finalMin, max: finalMax });
+    if (setIsMobileFilterOpen) {
+      setIsMobileFilterOpen(false);
+    }
+    scrollToTop();
   };
 
   const handleReset = () => {
@@ -137,10 +151,10 @@ function AdminProductFilter({
     setDynamicSpecificAccessoryOptions([]);
 
     onResetFilters();
-  };
-
-  const handleCancel = () => {
-    onCloseFilter();
+    if (setIsMobileFilterOpen) {
+      setIsMobileFilterOpen(false);
+    }
+    scrollToTop();
   };
 
   const handlePriceInputChange = (type, value) => {
@@ -214,6 +228,12 @@ function AdminProductFilter({
 
   return (
     <div className={isDropdown ? "p-4" : "bg-background rounded-lg shadow-sm h-full flex flex-col"}>
+      {!isDropdown && (
+        <div className="p-4 border-b flex items-center justify-between">
+          <h2 className="text-lg font-extrabold">Filters</h2>
+        </div>
+      )}
+
       <div className={isDropdown ? "space-y-4" : "p-4 space-y-4 flex-1 overflow-y-auto"}>
         <div>
           <div className="space-y-4">
@@ -244,6 +264,7 @@ function AdminProductFilter({
                     onFocus={handleMinInputFocus}
                     onBlur={handleMinInputBlur}
                     className="flex-1 h-full bg-transparent border-none focus:outline-none pl-3 pr-3 pt-4 pb-2 text-foreground"
+                    disabled={isFilterLoading}
                   />
                 </div>
               </div>
@@ -269,6 +290,7 @@ function AdminProductFilter({
                     onFocus={handleMaxInputFocus}
                     onBlur={handleMaxInputBlur}
                     className="flex-1 h-full bg-transparent border-none focus:outline-none pl-3 pr-3 pt-4 pb-2 text-foreground"
+                    disabled={isFilterLoading}
                   />
                 </div>
               </div>
@@ -291,6 +313,7 @@ function AdminProductFilter({
                       onCheckedChange={(checked) =>
                         handleLocalFilter("condition", optionItem.id, checked)
                       }
+                      disabled={isFilterLoading}
                       className="data-[state=checked]:bg-blue-900 data-[state=checked]:border-blue-900"
                     />
                     <Label htmlFor={`condition-${optionItem.id}`}>{optionItem.label}</Label>
@@ -321,6 +344,7 @@ function AdminProductFilter({
                         onCheckedChange={(checked) =>
                           handleLocalFilter(keyItem, optionItem.id, checked)
                         }
+                        disabled={isFilterLoading}
                         className="data-[state=checked]:bg-blue-900 data-[state=checked]:border-blue-900"
                       />
                       <Label htmlFor={`${keyItem}-${optionItem.id}`}>{optionItem.label}</Label>
@@ -350,6 +374,7 @@ function AdminProductFilter({
                       onCheckedChange={(checked) =>
                         handleLocalFilter("specificAccessory", optionItem.id, checked)
                       }
+                      disabled={isFilterLoading}
                       className="data-[state=checked]:bg-blue-900 data-[state=checked]:border-blue-900"
                     />
                     <Label htmlFor={`specificAccessory-${optionItem.id}`}>{optionItem.label}</Label>
@@ -362,23 +387,30 @@ function AdminProductFilter({
         )}
       </div>
 
-      <div className={isDropdown ? "p-4 border-t bg-muted/50" : "p-4 border-t"}>
-        <div className="grid grid-cols-2 gap-2">
-          <Button
-            variant="outline"
-            onClick={handleCancel}
-            size="sm"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleApply}
-            size="sm"
-            className="bg-blue-900 hover:bg-blue-800"
-          >
-            Apply
-          </Button>
-        </div>
+      <div className={isDropdown ? "p-4 border-t bg-muted/50" : "p-4 border-t sticky bottom-0 bg-background grid grid-cols-2 gap-2"}>
+        <Button
+          variant="outline"
+          onClick={handleReset}
+          disabled={isFilterLoading}
+          size={isDropdown ? "sm" : "default"}
+        >
+          Reset
+        </Button>
+        <Button
+          onClick={handleApply}
+          disabled={isFilterLoading}
+          size={isDropdown ? "sm" : "default"}
+          className="bg-blue-900 hover:bg-blue-800"
+        >
+          {isFilterLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Applying...
+            </>
+          ) : (
+            "Apply Filters"
+          )}
+        </Button>
       </div>
     </div>
   );

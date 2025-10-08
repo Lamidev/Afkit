@@ -22,7 +22,7 @@ const getFilteredProducts = async (req, res) => {
       specificAccessory = [],
       minPrice,
       maxPrice,
-      sortBy = "price-lowtohigh",
+      sortBy = "price-hightolow fi",
     } = req.query;
 
     let filters = { isHidden: { $ne: true } };
