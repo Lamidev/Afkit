@@ -64,15 +64,18 @@ export const resendVerificationCode = createAsyncThunk(
   }
 );
 
+
 export const loginUser = createAsyncThunk(
   "auth/login",
   async (formData, { rejectWithValue, dispatch }) => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
-        formData
+        formData,
+        { withCredentials: true }
       );
 
+      // Store token in sessionStorage for API calls
       if (response.data.token) {
         sessionStorage.setItem("token", response.data.token);
         dispatch(setUser(response.data.user));
@@ -86,6 +89,29 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
+
+// export const loginUser = createAsyncThunk(
+//   "auth/login",
+//   async (formData, { rejectWithValue, dispatch }) => {
+//     try {
+//       const response = await axios.post(
+//         `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
+//         formData
+//       );
+
+//       if (response.data.token) {
+//         sessionStorage.setItem("token", response.data.token);
+//         dispatch(setUser(response.data.user));
+//       }
+
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(
+//         error.response?.data?.message || "Error logging in"
+//       );
+//     }
+//   }
+// );
 
 export const logoutUser = createAsyncThunk(
   "auth/logout",

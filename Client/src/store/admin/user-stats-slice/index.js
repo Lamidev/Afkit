@@ -100,13 +100,57 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
+// export const fetchUserStats = createAsyncThunk(
+//   "userStats/fetchUserStats",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const response = await axios.get(
+//         `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats`,
+//         { withCredentials: true }
+//       );
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(
+//         error.response?.data?.message || "Failed to fetch user statistics"
+//       );
+//     }
+//   }
+// );
+
+// export const fetchVerifiedUsersList = createAsyncThunk(
+//   "userStats/fetchVerifiedUsersList",
+//   async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
+//     try {
+//       const response = await axios.get(
+//         `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats/verified-list`,
+//         { 
+//           params: { page, limit },
+//           withCredentials: true 
+//         }
+//       );
+//       return response.data;
+//     } catch (error) {
+//       return rejectWithValue(
+//         error.response?.data?.message || "Failed to fetch verified users list"
+//       );
+//     }
+//   }
+// );
+
+// Update all admin API calls to include the token
 export const fetchUserStats = createAsyncThunk(
   "userStats/fetchUserStats",
   async (_, { rejectWithValue }) => {
     try {
+      const token = sessionStorage.getItem("token");
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats`,
-        { withCredentials: true }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          withCredentials: true
+        }
       );
       return response.data;
     } catch (error) {
@@ -121,10 +165,14 @@ export const fetchVerifiedUsersList = createAsyncThunk(
   "userStats/fetchVerifiedUsersList",
   async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
+      const token = sessionStorage.getItem("token");
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats/verified-list`,
         { 
           params: { page, limit },
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
           withCredentials: true 
         }
       );
@@ -136,6 +184,7 @@ export const fetchVerifiedUsersList = createAsyncThunk(
     }
   }
 );
+
 
 const userStatsSlice = createSlice({
   name: "userStats",
