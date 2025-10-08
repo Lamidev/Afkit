@@ -1,4 +1,6 @@
 
+
+
 // import { Fragment, useState, useEffect, useRef, useMemo } from "react";
 // import { useDispatch, useSelector } from "react-redux";
 // import { motion, AnimatePresence } from "framer-motion";
@@ -29,8 +31,9 @@
 //   DropdownMenuRadioItem,
 //   DropdownMenuTrigger,
 // } from "@/components/ui/dropdown-menu";
-// import { ArrowUpDown, Filter, X } from "lucide-react";
+// import { ArrowUpDown, Filter, X, Plus } from "lucide-react";
 // import AdminProductFilter from "@/components/admin-view/admin-product-filter";
+// import { useLocation , Link} from "react-router-dom";
 
 // const initialFormData = {
 //   images: [],
@@ -55,11 +58,24 @@
 //   condition: "Brand New",
 // };
 
+// const adminMenuItems = [
+//   { id: "all-products", label: "All Products", path: "/admin/products" },
+//   { id: "smartphones", label: "Smartphones", path: "/admin/products?category=smartphones" },
+//   { id: "laptops", label: "Laptops", path: "/admin/products?category=laptops" },
+//   { id: "monitors", label: "Monitors", path: "/admin/products?category=monitors" },
+//   { id: "accessories", label: "Accessories", path: "/admin/products?category=accessories" },
+// ];
+
 // function AdminProducts() {
 //   const dispatch = useDispatch();
+//   const location = useLocation();
 //   const { productList, isLoading } = useSelector(
 //     (state) => state.adminProducts
 //   );
+  
+//   const urlParams = new URLSearchParams(location.search);
+//   const urlCategory = urlParams.get('category');
+  
 //   const [openCreateProductsDialog, setOpenCreateProductsDialog] =
 //     useState(false);
 //   const [formData, setFormData] = useState(initialFormData);
@@ -71,7 +87,15 @@
 //   const [currentPage, setCurrentPage] = useState(1);
 //   const [searchQuery, setSearchQuery] = useState("");
 //   const [sortBy, setSortBy] = useState("latest-arrival");
-//   const [filters, setFilters] = useState({});
+  
+//   const [filters, setFilters] = useState(() => {
+//     const initialFilters = {};
+//     if (urlCategory && urlCategory !== 'all-products') {
+//       initialFilters.category = [urlCategory];
+//     }
+//     return initialFilters;
+//   });
+  
 //   const [priceRange, setPriceRange] = useState({
 //     min: 0,
 //     max: 5000000,
@@ -82,9 +106,33 @@
 //   const topRef = useRef(null);
 
 //   const currentFilterOptions = useMemo(() => {
-//     const selectedCategory = filters.category?.[0];
+//     const selectedCategory = filters.category?.[0] || urlCategory;
 //     return getFilterOptionsForCategory(selectedCategory || "all-products");
-//   }, [filters.category]);
+//   }, [filters.category, urlCategory]);
+
+//   useEffect(() => {
+//     if (urlCategory === 'all-products') {
+//       setFilters(prev => {
+//         const newFilters = { ...prev };
+//         delete newFilters.category;
+//         return newFilters;
+//       });
+//       setCurrentPage(1);
+//     } else if (urlCategory) {
+//       setFilters(prev => ({
+//         ...prev,
+//         category: [urlCategory]
+//       }));
+//       setCurrentPage(1);
+//     } else {
+//       setFilters(prev => {
+//         const newFilters = { ...prev };
+//         delete newFilters.category;
+//         return newFilters;
+//       });
+//       setCurrentPage(1);
+//     }
+//   }, [urlCategory]);
 
 //   useEffect(() => {
 //     loadProducts();
@@ -110,29 +158,36 @@
 //     }
 //   }, [currentPage, activeTab]);
 
-//   const activeProducts = productList.filter(product => !product.isHidden);
-//   const hiddenProducts = productList.filter(product => product.isHidden);
-
-//   const filterProducts = (products) => {
-//     if (!searchQuery) return products;
+//   const getFilteredProducts = (products) => {
+//     let filtered = products;
     
-//     return products.filter(product => 
-//       product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-//       product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-//       product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-//       (product.brand && product.brand.toLowerCase().includes(searchQuery.toLowerCase()))
-//     );
+//     if (urlCategory && urlCategory !== 'all-products') {
+//       filtered = filtered.filter(product => product.category === urlCategory);
+//     }
+    
+//     if (searchQuery) {
+//       filtered = filtered.filter(product => 
+//         product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//         product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//         product.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//         (product.brand && product.brand.toLowerCase().includes(searchQuery.toLowerCase()))
+//       );
+//     }
+    
+//     return filtered;
 //   };
+
+//   const activeProducts = getFilteredProducts(productList.filter(product => !product.isHidden));
+//   const hiddenProducts = getFilteredProducts(productList.filter(product => product.isHidden));
 
 //   const getPaginatedProducts = (products) => {
-//     const filteredProducts = filterProducts(products);
 //     const startIndex = (currentPage - 1) * productsPerPage;
 //     const endIndex = startIndex + productsPerPage;
-//     return filteredProducts.slice(startIndex, endIndex);
+//     return products.slice(startIndex, endIndex);
 //   };
 
-//   const totalActivePages = Math.ceil(filterProducts(activeProducts).length / productsPerPage);
-//   const totalHiddenPages = Math.ceil(filterProducts(hiddenProducts).length / productsPerPage);
+//   const totalActivePages = Math.ceil(activeProducts.length / productsPerPage);
+//   const totalHiddenPages = Math.ceil(hiddenProducts.length / productsPerPage);
 
 //   const resetForm = () => {
 //     setFormData(initialFormData);
@@ -351,6 +406,11 @@
 //     priceRange.min !== 0 || 
 //     priceRange.max !== 5000000;
 
+//   const getCurrentCategoryName = () => {
+//     if (!urlCategory || urlCategory === 'all-products') return 'All Products';
+//     return adminMenuItems.find(item => item.id === urlCategory)?.label || urlCategory;
+//   };
+
 //   return (
 //     <Fragment>
 //       <div ref={topRef} className="space-y-6">
@@ -361,7 +421,14 @@
 //           transition={{ duration: 0.3 }}
 //         >
 //           <div className="flex items-center gap-4">
-//             <h1 className="text-2xl font-bold">Manage Products</h1>
+//             <div>
+//               <h1 className="text-2xl font-bold">Manage Products</h1>
+//               {urlCategory && (
+//                 <p className="text-sm text-muted-foreground mt-1">
+//                   Category: <span className="font-medium">{getCurrentCategoryName()}</span>
+//                 </p>
+//               )}
+//             </div>
 //             <div className="flex gap-2">
 //               <DropdownMenu>
 //                 <DropdownMenuTrigger asChild>
@@ -401,26 +468,14 @@
 //                   <DropdownMenuContent align="start" className="w-80 p-0">
 //                     <div className="p-4 border-b flex items-center justify-between">
 //                       <h3 className="font-semibold">Filters</h3>
-//                       <div className="flex items-center gap-2">
-//                         {hasActiveFilters && (
-//                           <Button
-//                             variant="ghost"
-//                             size="sm"
-//                             onClick={handleResetFilters}
-//                             className="h-auto p-0 text-xs text-blue-600 hover:text-blue-800"
-//                           >
-//                             Clear All
-//                           </Button>
-//                         )}
-//                         <Button
-//                           variant="ghost"
-//                           size="sm"
-//                           onClick={handleCloseFilter}
-//                           className="h-8 w-8 p-0 hover:bg-gray-100"
-//                         >
-//                           <X className="h-4 w-4" />
-//                         </Button>
-//                       </div>
+//                       <Button
+//                         variant="ghost"
+//                         size="sm"
+//                         onClick={handleCloseFilter}
+//                         className="h-8 w-8 p-0 hover:bg-gray-100"
+//                       >
+//                         <X className="h-4 w-4" />
+//                       </Button>
 //                     </div>
 //                     <div className="max-h-96 overflow-y-auto">
 //                       <AdminProductFilter
@@ -455,30 +510,19 @@
 //                   side="right"
 //                   className="w-[85vw] sm:max-w-md overflow-y-auto p-0"
 //                 >
-//                   <div className="flex flex-col h-full">
-//                     <div className="p-4 border-b flex items-center justify-between">
-//                       <h2 className="text-lg font-bold">Filters</h2>
-//                       <Button
-//                         variant="ghost"
-//                         size="icon"
-//                         onClick={handleCloseFilter}
-//                         className="h-8 w-8"
-//                       >
-//                         <X className="h-4 w-4" />
-//                       </Button>
-//                     </div>
-//                     <div className="flex-1 overflow-y-auto">
-//                       <AdminProductFilter
-//                         filters={filters}
-//                         onApplyFilters={handleApplyFilters}
-//                         onResetFilters={handleResetFilters}
-//                         onCloseFilter={handleCloseFilter}
-//                         filterOptions={currentFilterOptions}
-//                         priceRange={priceRange}
-//                         setPriceRange={setPriceRange}
-//                         isDropdown={false}
-//                       />
-//                     </div>
+//                   <div className="flex-1 overflow-y-auto">
+//                     <AdminProductFilter
+//                       filters={filters}
+//                       onApplyFilters={handleApplyFilters}
+//                       onResetFilters={handleResetFilters}
+//                       onCloseFilter={handleCloseFilter}
+//                       filterOptions={currentFilterOptions}
+//                       priceRange={priceRange}
+//                       setPriceRange={setPriceRange}
+//                       isDropdown={false}
+//                       isMobileFilterOpen={isMobileFilterOpen}
+//                       setIsMobileFilterOpen={setIsMobileFilterOpen}
+//                     />
 //                   </div>
 //                 </SheetContent>
 //               </Sheet>
@@ -491,11 +535,43 @@
 //               placeholder="Search products..."
 //               className="w-full sm:w-64"
 //             />
-//             <Button onClick={() => setOpenCreateProductsDialog(true)}>
+//             <Button 
+//               onClick={() => setOpenCreateProductsDialog(true)}
+//               className="hidden sm:flex bg-blue-900 hover:bg-blue-600"
+//             >
 //               Add New Product
 //             </Button>
 //           </div>
 //         </motion.div>
+
+//         {urlCategory && urlCategory !== 'all-products' && (
+//           <motion.div
+//             initial={{ opacity: 0, y: -10 }}
+//             animate={{ opacity: 1, y: 0 }}
+//             className="bg-blue-50 border border-blue-200 rounded-lg p-4"
+//           >
+//             <div className="flex items-center justify-between">
+//               <div>
+//                 <h3 className="font-semibold text-blue-900">
+//                   Viewing {getCurrentCategoryName()}
+//                 </h3>
+//                 <p className="text-sm text-blue-700 mt-1">
+//                   Showing {activeProducts.length} active products in this category
+//                   {hiddenProducts.length > 0 && `, ${hiddenProducts.length} hidden`}
+//                 </p>
+//               </div>
+//               <Button
+//                 asChild
+//                 variant="outline"
+//                 size="sm"
+//               >
+//                 <Link to="/admin/products">
+//                   View All Products
+//                 </Link>
+//               </Button>
+//             </div>
+//           </motion.div>
+//         )}
 
 //         {hasActiveFilters && (
 //           <motion.div
@@ -554,7 +630,7 @@
 
 //         <div className="flex justify-between items-center">
 //           <div className="text-sm text-muted-foreground">
-//             Showing {filterProducts(activeTab === "active" ? activeProducts : hiddenProducts).length} products
+//             Showing {activeTab === "active" ? activeProducts.length : hiddenProducts.length} products
 //             {sortBy !== "latest-arrival" && ` • Sorted by ${adminSortOptions.find(opt => opt.id === sortBy)?.label}`}
 //           </div>
 //         </div>
@@ -580,7 +656,7 @@
 //                   <div key={i} className="h-64 bg-muted rounded-lg animate-pulse" />
 //                 ))}
 //               </div>
-//             ) : filterProducts(activeProducts).length > 0 ? (
+//             ) : activeProducts.length > 0 ? (
 //               <>
 //                 <motion.div
 //                   className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-4"
@@ -666,9 +742,14 @@
 //               </>
 //             ) : (
 //               <div className="flex flex-col items-center justify-center py-12">
-//                 <p className="text-muted-foreground">No active products found</p>
+//                 <p className="text-muted-foreground">
+//                   {urlCategory && urlCategory !== 'all-products' 
+//                     ? `No active ${getCurrentCategoryName().toLowerCase()} found`
+//                     : "No active products found"
+//                   }
+//                 </p>
 //                 <Button
-//                   className="mt-4"
+//                   className="mt-4 bg-blue-900 hover:bg-blue-600"
 //                   onClick={() => setOpenCreateProductsDialog(true)}
 //                 >
 //                   Add Your First Product
@@ -678,7 +759,7 @@
 //           </TabsContent>
 
 //           <TabsContent value="hidden" className="mt-6">
-//             {filterProducts(hiddenProducts).length > 0 ? (
+//             {hiddenProducts.length > 0 ? (
 //               <>
 //                 <motion.div
 //                   className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-4"
@@ -764,11 +845,33 @@
 //               </>
 //             ) : (
 //               <div className="flex flex-col items-center justify-center py-12">
-//                 <p className="text-muted-foreground">No hidden products found</p>
+//                 <p className="text-muted-foreground">
+//                   {urlCategory && urlCategory !== 'all-products'
+//                     ? `No hidden ${getCurrentCategoryName().toLowerCase()} found`
+//                     : "No hidden products found"
+//                   }
+//                 </p>
 //               </div>
 //             )}
 //           </TabsContent>
 //         </Tabs>
+
+//         {/* Floating Add Product Button */}
+//         <motion.div
+//           className="fixed bottom-6 right-6 z-50"
+//           initial={{ opacity: 0, scale: 0.8 }}
+//           animate={{ opacity: 1, scale: 1 }}
+//           transition={{ duration: 0.3 }}
+//         >
+//           <Button
+//             onClick={() => setOpenCreateProductsDialog(true)}
+//             size="lg"
+//             className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200 bg-blue-900 hover:bg-blue-600"
+//           >
+//             <Plus className="h-6 w-6" />
+//             <span className="sr-only">Add New Product</span>
+//           </Button>
+//         </motion.div>
 
 //         <Sheet
 //           open={openCreateProductsDialog}
@@ -818,7 +921,6 @@
 
 // export default AdminProducts;
 
-
 import { Fragment, useState, useEffect, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -842,14 +944,7 @@ import {
   editProduct,
   fetchAllProducts,
 } from "@/store/admin/products-slice";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ArrowUpDown, Filter, X, Plus } from "lucide-react";
+import { ArrowUpDown, Filter, X, Plus, ChevronDown } from "lucide-react";
 import AdminProductFilter from "@/components/admin-view/admin-product-filter";
 import { useLocation , Link} from "react-router-dom";
 
@@ -920,8 +1015,31 @@ function AdminProducts() {
   });
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+
+  // Custom dropdown states
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+
   const productsPerPage = 16;
   const topRef = useRef(null);
+  const sortDropdownRef = useRef(null);
+  const filterDropdownRef = useRef(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target)) {
+        setIsSortDropdownOpen(false);
+      }
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target)) {
+        setIsFilterOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const currentFilterOptions = useMemo(() => {
     const selectedCategory = filters.category?.[0] || urlCategory;
@@ -1183,6 +1301,7 @@ function AdminProducts() {
   const handleSortChange = (value) => {
     setSortBy(value);
     setCurrentPage(1);
+    setIsSortDropdownOpen(false);
   };
 
   const handleApplyFilters = (newFilters, newPriceRange) => {
@@ -1229,6 +1348,11 @@ function AdminProducts() {
     return adminMenuItems.find(item => item.id === urlCategory)?.label || urlCategory;
   };
 
+  const getCurrentSortLabel = () => {
+    const currentOption = adminSortOptions.find(option => option.id === sortBy);
+    return currentOption ? currentOption.label : "Sort By";
+  };
+
   return (
     <Fragment>
       <div ref={topRef} className="space-y-6">
@@ -1248,48 +1372,62 @@ function AdminProducts() {
               )}
             </div>
             <div className="flex gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="flex items-center space-x-2"
-                  >
-                    <ArrowUpDown className="h-4 w-4" />
-                    <span>Sort</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
-                  <DropdownMenuRadioGroup value={sortBy} onValueChange={handleSortChange}>
-                    {adminSortOptions.map((option) => (
-                      <DropdownMenuRadioItem key={option.id} value={option.id}>
-                        {option.label}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {/* Custom Sort Dropdown */}
+              <div className="relative" ref={sortDropdownRef}>
+                <Button
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                  onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                >
+                  <ArrowUpDown className="h-4 w-4" />
+                  <span>{getCurrentSortLabel()}</span>
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+                
+                {isSortDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-xl z-50 min-w-[200px]">
+                    <div className="p-2">
+                      {adminSortOptions.map((option) => (
+                        <button
+                          key={option.id}
+                          className={`w-full flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-100 cursor-pointer transition-colors ${
+                            sortBy === option.id ? 'bg-blue-50 text-blue-700' : ''
+                          }`}
+                          onClick={() => handleSortChange(option.id)}
+                        >
+                          <div className={`w-2 h-2 rounded-full mr-2 ${
+                            sortBy === option.id ? 'bg-blue-600' : 'bg-gray-300'
+                          }`} />
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
-              <div className="hidden sm:block">
-                <DropdownMenu open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="flex items-center space-x-2 relative"
-                    >
-                      <Filter className="h-4 w-4" />
-                      <span>Filter</span>
-                      {hasActiveFilters && (
-                        <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-600 rounded-full"></span>
-                      )}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-80 p-0">
+              {/* Custom Filter Dropdown for Desktop */}
+              <div className="hidden sm:block relative" ref={filterDropdownRef}>
+                <Button
+                  variant="outline"
+                  className="flex items-center space-x-2 relative"
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                >
+                  <Filter className="h-4 w-4" />
+                  <span>Filter</span>
+                  {hasActiveFilters && (
+                    <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-600 rounded-full"></span>
+                  )}
+                </Button>
+                
+                {isFilterOpen && (
+                  <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-xl z-50 w-80">
                     <div className="p-4 border-b flex items-center justify-between">
                       <h3 className="font-semibold">Filters</h3>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={handleCloseFilter}
+                        onClick={() => setIsFilterOpen(false)}
                         className="h-8 w-8 p-0 hover:bg-gray-100"
                       >
                         <X className="h-4 w-4" />
@@ -1307,10 +1445,11 @@ function AdminProducts() {
                         isDropdown={true}
                       />
                     </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                  </div>
+                )}
               </div>
 
+              {/* Mobile Filter Sheet */}
               <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
                 <SheetTrigger asChild>
                   <Button
