@@ -84,14 +84,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "../ui/dialog";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 const adminMenuItems = [
   { id: "all-products", label: "All Products", path: "/admin/products" },
@@ -107,6 +101,22 @@ function AdminHeader({ setOpen }) {
   const location = useLocation();
   const { user } = useSelector((state) => state.auth);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsCategoryDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   function handleLogout() {
     dispatch(logoutUser()).then(() => {
@@ -116,14 +126,29 @@ function AdminHeader({ setOpen }) {
   }
 
   const isActive = (path) => {
-    return location.pathname + location.search === path;
+    if (path === "/admin/products") {
+      return location.pathname === "/admin/products" && !location.search.includes('category=');
+    }
+    
+    const currentPath = location.pathname + location.search;
+    return currentPath === path;
   };
 
   const getCurrentCategoryLabel = () => {
-    const currentItem = adminMenuItems.find(item => 
-      location.pathname + location.search === item.path
-    );
-    return currentItem?.label || "Products";
+    const urlParams = new URLSearchParams(location.search);
+    const urlCategory = urlParams.get('category');
+    
+    if (urlCategory) {
+      const categoryItem = adminMenuItems.find(item => item.id === urlCategory);
+      if (categoryItem) return categoryItem.label;
+    }
+    
+    return "All Products";
+  };
+
+  const handleCategoryChange = (path) => {
+    navigate(path);
+    setIsCategoryDropdownOpen(false);
   };
 
   return (
@@ -139,35 +164,37 @@ function AdminHeader({ setOpen }) {
           <span className="sr-only">Toggle Menu</span>
         </Button>
 
-        {/* Mobile Dropdown Menu */}
-        <div className="lg:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="flex items-center gap-2 px-3 py-2"
-              >
-                <span className="font-medium">{getCurrentCategoryLabel()}</span>
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
-              {adminMenuItems.map((menuItem) => (
-                <DropdownMenuItem key={menuItem.id} asChild>
-                  <Link
-                    to={menuItem.path}
-                    className={`w-full cursor-pointer ${
-                      isActive(menuItem.path)
-                        ? "bg-blue-50 text-blue-700 font-medium"
-                        : ""
+        {/* Mobile Custom Dropdown Menu */}
+        <div className="lg:hidden relative" ref={dropdownRef}>
+          <Button
+            variant="outline"
+            className="flex items-center space-x-2 min-w-[140px] justify-between"
+            onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+          >
+            <span className="truncate">{getCurrentCategoryLabel()}</span>
+            <ChevronDown className="h-4 w-4 flex-shrink-0" />
+          </Button>
+          
+          {isCategoryDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-xl z-50 min-w-[200px]">
+              <div className="p-2">
+                {adminMenuItems.map((menuItem) => (
+                  <button
+                    key={menuItem.id}
+                    className={`w-full flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-100 cursor-pointer transition-colors ${
+                      isActive(menuItem.path) ? 'bg-blue-50 text-blue-700' : ''
                     }`}
+                    onClick={() => handleCategoryChange(menuItem.path)}
                   >
+                    <div className={`w-2 h-2 rounded-full mr-2 ${
+                      isActive(menuItem.path) ? 'bg-blue-600' : 'bg-gray-300'
+                    }`} />
                     {menuItem.label}
-                  </Link>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

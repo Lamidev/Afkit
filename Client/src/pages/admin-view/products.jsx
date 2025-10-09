@@ -1016,7 +1016,6 @@ function AdminProducts() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-  // Custom dropdown states
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
 
   const productsPerPage = 16;
@@ -1024,7 +1023,6 @@ function AdminProducts() {
   const sortDropdownRef = useRef(null);
   const filterDropdownRef = useRef(null);
 
-  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (sortDropdownRef.current && !sortDropdownRef.current.contains(event.target)) {
@@ -1126,18 +1124,39 @@ function AdminProducts() {
   const totalHiddenPages = Math.ceil(hiddenProducts.length / productsPerPage);
 
   const resetForm = () => {
-    setFormData(initialFormData);
+    setFormData({
+      images: [],
+      title: "",
+      description: "",
+      category: "",
+      brand: "",
+      price: "",
+      storage: "",
+      ram: "",
+      processor: "",
+      extraFeatures: "",
+      laptopType: "",
+      screenSize: "",
+      frameStyle: "",
+      screenResolution: "",
+      ports: "",
+      monitorType: "",
+      accessoryCategory: "",
+      specificAccessory: "",
+      totalStock: "",
+      condition: "Brand New",
+    });
     setImageFiles([]);
     setUploadedImageUrls([]);
     setCurrentEditedId(null);
+    setImageLoadingState(false);
   };
 
   const onSubmit = async (event) => {
     event.preventDefault();
     const productData = {
       ...formData,
-      images:
-        uploadedImageUrls.length > 0 ? uploadedImageUrls : formData.images,
+      images: uploadedImageUrls.length > 0 ? uploadedImageUrls : formData.images,
       price: Number(formData.price),
       totalStock: Number(formData.totalStock),
     };
@@ -1372,7 +1391,6 @@ function AdminProducts() {
               )}
             </div>
             <div className="flex gap-2">
-              {/* Custom Sort Dropdown */}
               <div className="relative" ref={sortDropdownRef}>
                 <Button
                   variant="outline"
@@ -1406,7 +1424,6 @@ function AdminProducts() {
                 )}
               </div>
 
-              {/* Custom Filter Dropdown for Desktop */}
               <div className="hidden sm:block relative" ref={filterDropdownRef}>
                 <Button
                   variant="outline"
@@ -1449,7 +1466,6 @@ function AdminProducts() {
                 )}
               </div>
 
-              {/* Mobile Filter Sheet */}
               <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
                 <SheetTrigger asChild>
                   <Button
@@ -1813,7 +1829,6 @@ function AdminProducts() {
           </TabsContent>
         </Tabs>
 
-        {/* Floating Add Product Button */}
         <motion.div
           className="fixed bottom-6 right-6 z-50"
           initial={{ opacity: 0, scale: 0.8 }}
@@ -1833,41 +1848,56 @@ function AdminProducts() {
         <Sheet
           open={openCreateProductsDialog}
           onOpenChange={(open) => {
+            setOpenCreateProductsDialog(open);
             if (!open) {
-              setOpenCreateProductsDialog(false);
               resetForm();
             }
           }}
         >
           <SheetContent
             side="right"
-            className="overflow-y-auto w-full sm:max-w-lg"
+            className="w-full sm:max-w-2xl p-0 flex flex-col"
           >
-            <SheetHeader>
-              <SheetTitle>
-                {currentEditedId ? "Edit Product" : "Add New Product"}
-              </SheetTitle>
-            </SheetHeader>
+            <div className="flex flex-col h-full">
+              <SheetHeader className="px-6 py-4 border-b bg-muted/50 shrink-0">
+                <SheetTitle className="text-xl">
+                  {currentEditedId ? "Edit Product" : "Add New Product"}
+                </SheetTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {currentEditedId ? "Update your product details" : "Add a new product to your store"}
+                </p>
+              </SheetHeader>
 
-            <div className="py-4 space-y-6">
-              <ProductImageUpload
-                imageFiles={imageFiles}
-                setImageFiles={setImageFiles}
-                uploadedImageUrls={uploadedImageUrls}
-                setUploadedImageUrls={setUploadedImageUrls}
-                setImageLoadingState={setImageLoadingState}
-                imageLoadingState={imageLoadingState}
-                isEditMode={!!currentEditedId}
-              />
+              <div className="flex-1 overflow-y-auto">
+                <div className="px-6 py-4 space-y-6">
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3">Product Images</h3>
+                      <ProductImageUpload
+                        imageFiles={imageFiles}
+                        setImageFiles={setImageFiles}
+                        uploadedImageUrls={uploadedImageUrls}
+                        setUploadedImageUrls={setUploadedImageUrls}
+                        setImageLoadingState={setImageLoadingState}
+                        imageLoadingState={imageLoadingState}
+                        isEditMode={!!currentEditedId}
+                      />
+                    </div>
 
-              <CommonForm
-                onSubmit={onSubmit}
-                formData={formData}
-                setFormData={setFormData}
-                buttonText={currentEditedId ? "Update Product" : "Add Product"}
-                formControls={getDynamicFormControls()}
-                isBtnDisabled={!isFormValid()}
-              />
+                    <div className="border-t pt-6">
+                      <h3 className="text-lg font-semibold mb-3">Product Details</h3>
+                      <CommonForm
+                        onSubmit={onSubmit}
+                        formData={formData}
+                        setFormData={setFormData}
+                        buttonText={currentEditedId ? "Update Product" : "Add Product"}
+                        formControls={getDynamicFormControls()}
+                        isBtnDisabled={!isFormValid()}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
