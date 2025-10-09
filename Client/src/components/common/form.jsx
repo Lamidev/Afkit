@@ -226,10 +226,9 @@ import {
 } from "../ui/select";
 import { Button } from "../ui/button";
 import { Lock, Mail, User, Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import ReactQuill from 'react-quill-new';
 import "react-quill-new/dist/quill.snow.css";
-
 
 function CommonForm({
   formControls,
@@ -241,6 +240,75 @@ function CommonForm({
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const quillRefs = useRef({});
+
+  // Check if mobile on mount and resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+    };
+  }, []);
+
+  // Enhanced toolbar configurations for both desktop and mobile
+  const getToolbarOptions = () => {
+    if (isMobile) {
+      return [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['link', 'image', 'clean']
+      ];
+    }
+    
+    // Full toolbar for desktop
+    return [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'font': [] }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'script': 'sub'}, { 'script': 'super' }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      [{ 'direction': 'rtl' }],
+      [{ 'align': [] }],
+      ['blockquote', 'code-block'],
+      ['link', 'image', 'video'],
+      ['clean']
+    ];
+  };
+
+  const modules = {
+    toolbar: getToolbarOptions(),
+    clipboard: {
+      matchVisual: false,
+    },
+    history: {
+      delay: 1000,
+      maxStack: 100,
+      userOnly: true
+    }
+  };
+
+  const formats = [
+    'header', 'font', 'size',
+    'bold', 'italic', 'underline', 'strike',
+    'color', 'background',
+    'script',
+    'list', 'bullet', 'indent',
+    'direction', 'align',
+    'link', 'image', 'video',
+    'blockquote', 'code-block',
+    'clean'
+  ];
 
   const shouldShowControl = (control) => {
     if (!control.visibleIf) return true;
@@ -309,7 +377,7 @@ function CommonForm({
       case "input":
         element = (
           <div className="flex items-center gap-2 relative">
-            {Icon && <Icon className="text-black" />}
+            {Icon && <Icon className="text-muted-foreground size-4" />}
             <Input
               name={control.name}
               placeholder={control.placeholder}
@@ -328,9 +396,9 @@ function CommonForm({
                   if (isPasswordField) setShowPassword((p) => !p);
                   if (isConfirmPasswordField) setShowConfirmPassword((p) => !p);
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-black"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
-                {showField ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showField ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             )}
           </div>
@@ -359,30 +427,19 @@ function CommonForm({
 
       case "textarea":
         element = (
-          <div className="bg-white rounded-md border">
+          <div className="bg-background rounded-lg border overflow-hidden rich-text-container">
             <ReactQuill
+              ref={(el) => {
+                if (el) quillRefs.current[control.name] = el;
+              }}
               theme="snow"
               value={value}
               onChange={(content) => handleFieldChange(control.name, content)}
-              className="min-h-[280px] mb-16"
-              modules={{
-                toolbar: [
-                  [{ 'header': [1, 2, 3, false] }],
-                  ['bold', 'italic', 'underline', 'strike'],
-                  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                  [{ 'indent': '-1'}, { 'indent': '+1' }],
-                  [{ 'align': [] }],
-                  ['link', 'blockquote', 'code-block'],
-                  ['clean']
-                ],
-              }}
-              formats={[
-                'header', 
-                'bold', 'italic', 'underline', 'strike', 
-                'list', 'bullet', 'indent',
-                'link', 'blockquote', 'code-block',
-                'align'
-              ]}
+              className="rich-text-editor"
+              modules={modules}
+              formats={formats}
+              placeholder={control.placeholder || "Enter detailed description..."}
+              bounds=".rich-text-container"
             />
           </div>
         );
@@ -406,19 +463,32 @@ function CommonForm({
   };
 
   return (
-    <form onSubmit={onSubmit}>
-      <div className="flex flex-col gap-3">
+    <form onSubmit={onSubmit} className="space-y-6">
+      <div className="flex flex-col gap-4">
         {formControls.map((control) => {
           if (!shouldShowControl(control)) return null;
           return (
-            <div className="grid w-full gap-1.5" key={control.name}>
-              <Label className="mb-1">{control.label}</Label>
+            <div className="grid w-full gap-2" key={control.name}>
+              <Label htmlFor={control.name} className="text-sm font-medium">
+                {control.label}
+                {control.required && <span className="text-destructive ml-1">*</span>}
+              </Label>
               {renderInputsByComponentType(control)}
+              {control.helperText && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {control.helperText}
+                </p>
+              )}
             </div>
           );
         })}
       </div>
-      <Button disabled={isBtnDisabled} type="submit" className="mt-2 w-full">
+      <Button 
+        disabled={isBtnDisabled} 
+        type="submit" 
+        className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+        size="lg"
+      >
         {buttonText || "Submit"}
       </Button>
     </form>
