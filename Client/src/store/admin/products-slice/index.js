@@ -1,5 +1,4 @@
 
-
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -13,18 +12,52 @@ export const uploadProductImages = createAsyncThunk(
   "products/uploadImages",
   async (imageFiles, { rejectWithValue }) => {
     try {
+      console.log("Starting upload of", imageFiles.length, "images");
+      
       const formData = new FormData();
-      imageFiles.forEach(file => {
+      imageFiles.forEach((file, index) => {
         formData.append('my_files', file);
+        console.log(`Appending file ${index + 1}:`, file.name, file.type, file.size);
       });
 
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/admin/products/upload-images`,
-        formData
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          timeout: 30000, // 30 second timeout
+          onUploadProgress: (progressEvent) => {
+            const progress = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            console.log(`Upload Progress: ${progress}%`);
+          },
+        }
       );
+      
+      console.log("Upload response:", response.data);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      console.error("Upload error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        config: error.config
+      });
+      
+      if (error.code === 'ECONNABORTED') {
+        return rejectWithValue({ message: "Upload timeout. Please try again." });
+      }
+      
+      if (error.response?.status === 413) {
+        return rejectWithValue({ message: "File too large. Maximum size is 5MB per image." });
+      }
+      
+      return rejectWithValue(
+        error.response?.data || { message: error.message || "Network error occurred" }
+      );
     }
   }
 );
@@ -36,11 +69,14 @@ export const addNewProduct = createAsyncThunk(
       const response = await axios.post(
         `${import.meta.env.VITE_API_BASE_URL}/admin/products/add`,
         productData,
-        { headers: { "Content-Type": "application/json" } }
+        { 
+          headers: { "Content-Type": "application/json" },
+          timeout: 30000
+        }
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || { message: error.message });
     }
   }
 );
@@ -69,11 +105,12 @@ export const fetchAllProducts = createAsyncThunk(
       }
 
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/products/get?${queryParams}`
+        `${import.meta.env.VITE_API_BASE_URL}/admin/products/get?${queryParams}`,
+        { timeout: 30000 }
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || { message: error.message });
     }
   }
 );
@@ -85,11 +122,14 @@ export const editProduct = createAsyncThunk(
       const response = await axios.put(
         `${import.meta.env.VITE_API_BASE_URL}/admin/products/edit/${id}`,
         productData,
-        { headers: { "Content-Type": "application/json" } }
+        { 
+          headers: { "Content-Type": "application/json" },
+          timeout: 30000
+        }
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || { message: error.message });
     }
   }
 );
@@ -99,11 +139,12 @@ export const deleteProduct = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/products/delete/${id}`
+        `${import.meta.env.VITE_API_BASE_URL}/admin/products/delete/${id}`,
+        { timeout: 30000 }
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || { message: error.message });
     }
   }
 );
@@ -113,11 +154,12 @@ export const hideProduct = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/products/hide/${id}`
+        `${import.meta.env.VITE_API_BASE_URL}/admin/products/hide/${id}`,
+        { timeout: 30000 }
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || { message: error.message });
     }
   }
 );
@@ -127,11 +169,12 @@ export const unhideProduct = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/products/unhide/${id}`
+        `${import.meta.env.VITE_API_BASE_URL}/admin/products/unhide/${id}`,
+        { timeout: 30000 }
       );
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || { message: error.message });
     }
   }
 );
@@ -141,6 +184,9 @@ const AdminProductsSlice = createSlice({
   initialState,
   reducers: {
     resetProductState: () => initialState,
+    clearImageUploadError: (state) => {
+      state.imageUploadLoading = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -194,13 +240,13 @@ const AdminProductsSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(hideProduct.fulfilled, (state, action) => {
-      state.isLoading = false;
-      if (action.payload.success) {
-        state.productList = state.productList.map(product => 
-          product._id === action.payload.data._id ? action.payload.data : product
-        );
-      }
-    })
+        state.isLoading = false;
+        if (action.payload.success) {
+          state.productList = state.productList.map(product => 
+            product._id === action.payload.data._id ? action.payload.data : product
+          );
+        }
+      })
       .addCase(hideProduct.rejected, (state) => {
         state.isLoading = false;
       })
@@ -208,18 +254,18 @@ const AdminProductsSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(unhideProduct.fulfilled, (state, action) => {
-      state.isLoading = false;
-      if (action.payload.success) {
-        state.productList = state.productList.map(product => 
-          product._id === action.payload.data._id ? action.payload.data : product
-        );
-      }
-    })
+        state.isLoading = false;
+        if (action.payload.success) {
+          state.productList = state.productList.map(product => 
+            product._id === action.payload.data._id ? action.payload.data : product
+          );
+        }
+      })
       .addCase(unhideProduct.rejected, (state) => {
         state.isLoading = false;
       });
   },
 });
 
-export const { resetProductState } = AdminProductsSlice.actions;
+export const { resetProductState, clearImageUploadError } = AdminProductsSlice.actions;
 export default AdminProductsSlice.reducer;

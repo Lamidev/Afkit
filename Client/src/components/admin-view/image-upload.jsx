@@ -1,183 +1,3 @@
-// import { FileIcon, UploadCloudIcon, XIcon } from "lucide-react";
-// import { Input } from "@/components/ui/input";
-// import { Label } from "@/components/ui/label";
-// import { Button } from "@/components/ui/button";
-// import { Skeleton } from "@/components/ui/skeleton";
-// import { useRef, useEffect, useState } from "react";
-// import { useDispatch } from "react-redux";
-// import { uploadProductImages } from "@/store/admin/products-slice";
-// import { toast } from "sonner";
-
-// function ProductImageUpload({
-//   imageFiles = [],
-//   setImageFiles,
-//   uploadedImageUrls = [],
-//   setUploadedImageUrls,
-//   setImageLoadingState,
-//   imageLoadingState,
-//   isEditMode,
-//   isCustomStyling = false,
-// }) {
-//   const dispatch = useDispatch();
-//   const inputRef = useRef(null);
-//   const [previews, setPreviews] = useState([]);
-
-//   const handleImageFileChange = (e) => {
-//     const files = Array.from(e.target.files).slice(0, 8);
-//     if (files.length > 0) {
-//       handleNewFiles(files);
-//     }
-//   };
-
-//   const handleDragOver = (e) => {
-//     e.preventDefault();
-//     e.stopPropagation();
-//   };
-
-//   const handleDrop = (e) => {
-//     e.preventDefault();
-//     e.stopPropagation();
-//     const files = Array.from(e.dataTransfer.files).slice(0, 8);
-//     if (files.length > 0) {
-//       handleNewFiles(files);
-//     }
-//   };
-
-//   const handleNewFiles = (files) => {
-//     setImageFiles(files);
-//     const newPreviews = files.map((file) => ({
-//       file,
-//       preview: URL.createObjectURL(file),
-//     }));
-//     setPreviews(newPreviews);
-//   };
-
-//   const handleRemoveImage = (index) => {
-//     const newFiles = [...imageFiles];
-//     const newPreviews = [...previews];
-
-//     newFiles.splice(index, 1);
-//     newPreviews.splice(index, 1);
-
-//     setImageFiles(newFiles);
-//     setPreviews(newPreviews);
-
-//     if (newFiles.length === 0 && inputRef.current) {
-//       inputRef.current.value = "";
-//     }
-//   };
-
-//   const uploadImages = async () => {
-//     if (imageFiles.length === 0) return;
-
-//     setImageLoadingState(true);
-//     try {
-//       const result = await dispatch(uploadProductImages(imageFiles)).unwrap();
-//       if (result?.images) {
-//         setUploadedImageUrls(result.images);
-//         toast.success("Images uploaded successfully");
-//       }
-//     } catch (error) {
-//       toast.error(error.payload?.message || "Failed to upload images");
-//     } finally {
-//       setImageLoadingState(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (imageFiles.length > 0 && uploadedImageUrls.length === 0) {
-//       uploadImages();
-//     }
-//   }, [imageFiles]);
-
-//   useEffect(() => {
-//     return () => {
-//       previews.forEach((preview) => URL.revokeObjectURL(preview.preview));
-//     };
-//   }, [previews]);
-
-//   return (
-//     <div className={`w-full mt-4 ${isCustomStyling ? "" : "max-w-md mx-auto"}`}>
-//       <Label className="text-lg font-semibold mb-2 block">
-//         Product Images {!isEditMode && "(Max 8)"}
-//       </Label>
-
-//       <div
-//         onDragOver={handleDragOver}
-//         onDrop={handleDrop}
-//         className={`${
-//           isEditMode ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
-//         } border-2 border-dashed rounded-lg p-4`}
-//       >
-//         <Input
-//           id="product-images"
-//           type="file"
-//           className="hidden"
-//           ref={inputRef}
-//           onChange={handleImageFileChange}
-//           disabled={isEditMode}
-//           multiple
-//           accept="image/*"
-//         />
-
-//         {previews.length === 0 ? (
-//           <label
-//             htmlFor="product-images"
-//             className={`flex flex-col items-center justify-center h-32 ${
-//               isEditMode ? "cursor-not-allowed" : "cursor-pointer"
-//             }`}
-//           >
-//             <UploadCloudIcon className="w-10 h-10 text-muted-foreground mb-2" />
-//             <span className="text-center">
-//               {isEditMode
-//                 ? "Edit images not available"
-//                 : "Drag & drop or click to upload"}
-//             </span>
-//             {!isEditMode && (
-//               <span className="text-sm text-muted-foreground">
-//                 Max 8 images (JPEG, PNG)
-//               </span>
-//             )}
-//           </label>
-//         ) : (
-//           <div className="space-y-2">
-//             {imageLoadingState ? (
-//               <div className="grid grid-cols-2 gap-2">
-//                 {Array.from({ length: previews.length }).map((_, i) => (
-//                   <Skeleton key={i} className="h-24 w-full rounded-md" />
-//                 ))}
-//               </div>
-//             ) : (
-//               <div className="grid grid-cols-2 gap-2">
-//                 {previews.map((preview, index) => (
-//                   <div key={index} className="relative group">
-//                     <img
-//                       src={preview.preview}
-//                       alt={`Preview ${index}`}
-//                       className="w-full h-24 object-cover rounded-md border"
-//                     />
-//                     {!isEditMode && (
-//                       <Button
-//                         variant="ghost"
-//                         size="icon"
-//                         className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity"
-//                         onClick={() => handleRemoveImage(index)}
-//                       >
-//                         <XIcon className="h-3 w-3" />
-//                       </Button>
-//                     )}
-//                   </div>
-//                 ))}
-//               </div>
-//             )}
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default ProductImageUpload;
 
 
 import { FileIcon, UploadCloudIcon, XIcon } from "lucide-react";
@@ -203,14 +23,40 @@ function ProductImageUpload({
   const dispatch = useDispatch();
   const inputRef = useRef(null);
   const [previews, setPreviews] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState({});
+
+  const validateFile = (file) => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const maxSize = 2 * 1024 * 1024;
+
+    if (!validTypes.includes(file.type)) {
+      toast.error(`Invalid file type: ${file.name}. Please upload JPEG, PNG, or WebP images.`);
+      return false;
+    }
+
+    if (file.size > maxSize) {
+      toast.error(`File too large: ${file.name}. Maximum size is 5MB.`);
+      return false;
+    }
+
+    return true;
+  };
 
   const handleImageFileChange = (e) => {
     const files = Array.from(e.target.files);
     const availableSlots = 8 - imageFiles.length;
+    
     if (availableSlots > 0) {
-      handleNewFiles(files.slice(0, availableSlots));
+      const validFiles = files.slice(0, availableSlots).filter(validateFile);
+      if (validFiles.length > 0) {
+        handleNewFiles(validFiles);
+      }
     } else {
       toast.info("Maximum of 8 images reached");
+    }
+    
+    if (inputRef.current) {
+      inputRef.current.value = "";
     }
   };
 
@@ -224,8 +70,12 @@ function ProductImageUpload({
     e.stopPropagation();
     const files = Array.from(e.dataTransfer.files);
     const availableSlots = 8 - imageFiles.length;
+    
     if (availableSlots > 0) {
-      handleNewFiles(files.slice(0, availableSlots));
+      const validFiles = files.slice(0, availableSlots).filter(validateFile);
+      if (validFiles.length > 0) {
+        handleNewFiles(validFiles);
+      }
     } else {
       toast.info("Maximum of 8 images reached");
     }
@@ -235,9 +85,10 @@ function ProductImageUpload({
     const combinedFiles = [...imageFiles, ...files].slice(0, 8);
     setImageFiles(combinedFiles);
     
-    const newPreviews = combinedFiles.map((file) => ({
+    const newPreviews = combinedFiles.map((file, index) => ({
       file,
-      preview: file.preview || URL.createObjectURL(file)
+      preview: file.preview || URL.createObjectURL(file),
+      id: `${file.name}-${file.lastModified}-${index}`
     }));
     setPreviews(newPreviews);
   };
@@ -246,11 +97,21 @@ function ProductImageUpload({
     const newFiles = [...imageFiles];
     const newPreviews = [...previews];
 
+    if (newPreviews[index]?.preview && newPreviews[index].preview.startsWith('blob:')) {
+      URL.revokeObjectURL(newPreviews[index].preview);
+    }
+
     newFiles.splice(index, 1);
     newPreviews.splice(index, 1);
 
     setImageFiles(newFiles);
     setPreviews(newPreviews);
+
+    setUploadProgress(prev => {
+      const newProgress = { ...prev };
+      delete newProgress[index];
+      return newProgress;
+    });
 
     if (newFiles.length === 0 && inputRef.current) {
       inputRef.current.value = "";
@@ -258,24 +119,38 @@ function ProductImageUpload({
   };
 
   const uploadImages = async () => {
-    if (imageFiles.length === 0) return;
+    if (imageFiles.length === 0) {
+      return;
+    }
 
     setImageLoadingState(true);
+    setUploadProgress({});
+    
     try {
       const result = await dispatch(uploadProductImages(imageFiles)).unwrap();
       if (result?.images) {
         setUploadedImageUrls(result.images);
-        toast.success("Images uploaded successfully");
+        toast.success(`Successfully uploaded ${result.images.length} image(s)`);
+      } else {
+        throw new Error("No images returned from server");
       }
     } catch (error) {
-      toast.error(error.payload?.message || "Failed to upload images");
+      console.error("Upload error:", error);
+      const errorMessage = error.payload?.message || error.message || "Failed to upload images";
+      toast.error(errorMessage);
+      
+      const shouldRetry = confirm(`${errorMessage}. Would you like to try again?`);
+      if (shouldRetry) {
+        setTimeout(uploadImages, 2000);
+      }
     } finally {
       setImageLoadingState(false);
+      setUploadProgress({});
     }
   };
 
   useEffect(() => {
-    if (imageFiles.length > 0 && uploadedImageUrls.length === 0) {
+    if (imageFiles.length > 0 && uploadedImageUrls.length === 0 && !imageLoadingState) {
       uploadImages();
     }
   }, [imageFiles]);
@@ -290,6 +165,13 @@ function ProductImageUpload({
     };
   }, [previews]);
 
+  const getUploadStatus = (index) => {
+    if (imageLoadingState) {
+      return uploadProgress[index] !== undefined ? `Uploading...` : 'Pending...';
+    }
+    return 'Ready';
+  };
+
   return (
     <div className={`w-full mt-4 ${isCustomStyling ? "" : "max-w-md mx-auto"}`}>
       <Label className="text-lg font-semibold mb-2 block">
@@ -301,7 +183,7 @@ function ProductImageUpload({
         onDrop={handleDrop}
         className={`${
           isEditMode ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
-        } border-2 border-dashed rounded-lg p-4`}
+        } border-2 border-dashed rounded-lg p-4 transition-colors hover:border-primary/50`}
       >
         <Input
           id="product-images"
@@ -311,63 +193,158 @@ function ProductImageUpload({
           onChange={handleImageFileChange}
           disabled={isEditMode || imageFiles.length >= 8}
           multiple
-          accept="image/*"
+          accept="image/jpeg,image/jpg,image/png,image/webp"
         />
 
         {previews.length === 0 ? (
           <label
             htmlFor="product-images"
             className={`flex flex-col items-center justify-center h-32 ${
-              isEditMode ? "cursor-not-allowed" : "cursor-pointer"
-            }`}
+              isEditMode ? "cursor-not-allowed" : "cursor-pointer hover:bg-muted/50"
+            } rounded-lg transition-colors`}
           >
             <UploadCloudIcon className="w-10 h-10 text-muted-foreground mb-2" />
-            <span className="text-center">
+            <span className="text-center font-medium">
               {isEditMode
                 ? "Edit images not available"
                 : "Drag & drop or click to upload"}
             </span>
             {!isEditMode && (
-              <span className="text-sm text-muted-foreground">
-                Max 8 images (JPEG, PNG)
+              <span className="text-sm text-muted-foreground mt-1">
+                Max 8 images • JPEG, PNG, WebP • 5MB each
               </span>
             )}
           </label>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {imageLoadingState && (
+              <div className="text-sm text-muted-foreground text-center">
+                Uploading {imageFiles.length} image(s)... 
+                {Object.keys(uploadProgress).length > 0 && 
+                  ` (${Object.keys(uploadProgress).length}/${imageFiles.length})`
+                }
+              </div>
+            )}
+            
             {imageLoadingState ? (
-              <div className="grid grid-cols-2 gap-2">
-                {Array.from({ length: previews.length }).map((_, i) => (
-                  <Skeleton key={i} className="h-24 w-full rounded-md" />
+              <div className="grid grid-cols-2 gap-3">
+                {previews.map((preview, index) => (
+                  <div key={preview.id} className="relative">
+                    <Skeleton className="h-24 w-full rounded-md" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="text-xs bg-black/70 text-white px-2 py-1 rounded">
+                        {getUploadStatus(index)}
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 {previews.map((preview, index) => (
-                  <div key={index} className="relative group">
+                  <div key={preview.id} className="relative group">
                     <img
                       src={preview.preview}
-                      alt={`Preview ${index}`}
+                      alt={`Preview ${index + 1}`}
                       className="w-full h-24 object-cover rounded-md border"
+                      onError={(e) => {
+                        console.error("Failed to load image:", preview.file.name);
+                        e.target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzljYTNkMSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIEVycm9yPC90ZXh0Pjwvc3ZnPg==";
+                      }}
                     />
                     {!isEditMode && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => handleRemoveImage(index)}
-                      >
-                        <XIcon className="h-3 w-3" />
-                      </Button>
+                      <>
+                        {/* Mobile: Always visible red X button */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="sm:hidden absolute top-1 right-1 h-7 w-7 rounded-full bg-red-500 text-white border-2 border-white shadow-lg"
+                          onClick={() => handleRemoveImage(index)}
+                          type="button"
+                        >
+                          <XIcon className="h-4 w-4" />
+                        </Button>
+                        
+                        {/* Desktop: Show on hover */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="hidden sm:flex absolute top-1 right-1 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 border-2 border-white shadow-lg"
+                          onClick={() => handleRemoveImage(index)}
+                          type="button"
+                        >
+                          <XIcon className="h-3 w-3" />
+                        </Button>
+                      </>
                     )}
+                    <div className="absolute bottom-1 left-1 right-1">
+                      <div className="text-xs bg-black/70 text-white px-1 py-0.5 rounded text-center truncate">
+                        {preview.file.name}
+                      </div>
+                    </div>
+                    
+                    {/* Mobile touch hint */}
+                    <div className="sm:hidden absolute inset-0 bg-black/0 hover:bg-black/5 active:bg-black/10 transition-colors rounded-md" />
                   </div>
                 ))}
+                
+                {!isEditMode && imageFiles.length < 8 && (
+                  <label
+                    htmlFor="product-images"
+                    className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-muted-foreground/25 rounded-md cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors"
+                  >
+                    <PlusIcon className="w-6 h-6 text-muted-foreground mb-1" />
+                    <span className="text-xs text-muted-foreground text-center">
+                      Add More
+                    </span>
+                  </label>
+                )}
               </div>
             )}
           </div>
         )}
       </div>
+      
+      {/* Mobile removal instructions */}
+      {previews.length > 0 && !imageLoadingState && !isEditMode && (
+        <div className="mt-2 sm:hidden">
+          <div className="text-xs text-muted-foreground text-center bg-blue-50 border border-blue-200 rounded-md p-2">
+            <span className="flex items-center justify-center gap-1">
+              <XIcon className="h-3 w-3 text-red-500" />
+              Tap the red X to remove images
+            </span>
+          </div>
+        </div>
+      )}
+      
+      {uploadedImageUrls.length > 0 && !imageLoadingState && (
+        <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
+          <div className="text-sm text-green-800">
+            ✓ Successfully uploaded {uploadedImageUrls.length} image(s)
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+function PlusIcon(props) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+    </svg>
   );
 }
 

@@ -1,5 +1,3 @@
-
-
 export const registerFormControls = [
   {
     name: "userName",
@@ -339,6 +337,7 @@ export const filterOptions = {
       { id: "non-touchscreen", label: "Non-Touchscreen" },
       { id: "touchscreen", label: "Touchscreen" },
       { id: "x360-convertible", label: "x360 Convertible" },
+      { id: "dedicated-graphics", label: "Dedicated Graphics" },
     ],
   },
 
