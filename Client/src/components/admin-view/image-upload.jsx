@@ -26,15 +26,9 @@ function ProductImageUpload({
 
   const validateFile = (file) => {
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    const maxSize = 2 * 1024 * 1024;
 
     if (!validTypes.includes(file.type)) {
       toast.error(`Invalid file type: ${file.name}. Please upload JPEG, PNG, or WebP images.`);
-      return false;
-    }
-
-    if (file.size > maxSize) {
-      toast.error(`File too large: ${file.name}. Maximum size is 5MB.`);
       return false;
     }
 
@@ -221,7 +215,7 @@ function ProductImageUpload({
             </span>
             {!isEditMode && (
               <span className="text-sm text-muted-foreground mt-1">
-                Max 8 images • JPEG, PNG, WebP • 5MB each
+                Max 8 images • JPEG, PNG, WebP
               </span>
             )}
           </label>
