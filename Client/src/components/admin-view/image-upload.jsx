@@ -1,5 +1,3 @@
-
-
 import { FileIcon, UploadCloudIcon, XIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +22,7 @@ function ProductImageUpload({
   const inputRef = useRef(null);
   const [previews, setPreviews] = useState([]);
   const [uploadProgress, setUploadProgress] = useState({});
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const validateFile = (file) => {
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -85,15 +84,19 @@ function ProductImageUpload({
     const combinedFiles = [...imageFiles, ...files].slice(0, 8);
     setImageFiles(combinedFiles);
     
+    // Create previews immediately for fast loading
     const newPreviews = combinedFiles.map((file, index) => ({
       file,
       preview: file.preview || URL.createObjectURL(file),
-      id: `${file.name}-${file.lastModified}-${index}`
+      id: `${file.name}-${file.lastModified}-${index}-${Date.now()}`
     }));
     setPreviews(newPreviews);
   };
 
-  const handleRemoveImage = (index) => {
+  const handleRemoveImage = (index, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     const newFiles = [...imageFiles];
     const newPreviews = [...previews];
 
@@ -125,12 +128,19 @@ function ProductImageUpload({
 
     setImageLoadingState(true);
     setUploadProgress({});
+    setShowSuccessMessage(false);
     
     try {
       const result = await dispatch(uploadProductImages(imageFiles)).unwrap();
       if (result?.images) {
         setUploadedImageUrls(result.images);
+        setShowSuccessMessage(true);
         toast.success(`Successfully uploaded ${result.images.length} image(s)`);
+        
+        // Hide success message after 3 seconds
+        setTimeout(() => {
+          setShowSuccessMessage(false);
+        }, 3000);
       } else {
         throw new Error("No images returned from server");
       }
@@ -247,6 +257,7 @@ function ProductImageUpload({
                       src={preview.preview}
                       alt={`Preview ${index + 1}`}
                       className="w-full h-24 object-cover rounded-md border"
+                      loading="eager" // Faster loading for new images
                       onError={(e) => {
                         console.error("Failed to load image:", preview.file.name);
                         e.target.src = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzljYTNkMSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIEVycm9yPC90ZXh0Pjwvc3ZnPg==";
@@ -255,26 +266,22 @@ function ProductImageUpload({
                     {!isEditMode && (
                       <>
                         {/* Mobile: Always visible red X button */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="sm:hidden absolute top-1 right-1 h-7 w-7 rounded-full bg-red-500 text-white border-2 border-white shadow-lg"
-                          onClick={() => handleRemoveImage(index)}
+                        <button
                           type="button"
+                          className="sm:hidden absolute top-1 right-1 h-7 w-7 rounded-full bg-red-500 text-white border-2 border-white shadow-lg flex items-center justify-center z-10"
+                          onClick={(e) => handleRemoveImage(index, e)}
                         >
                           <XIcon className="h-4 w-4" />
-                        </Button>
+                        </button>
                         
                         {/* Desktop: Show on hover */}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="hidden sm:flex absolute top-1 right-1 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 border-2 border-white shadow-lg"
-                          onClick={() => handleRemoveImage(index)}
+                        <button
                           type="button"
+                          className="hidden sm:flex absolute top-1 right-1 h-6 w-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 border-2 border-white shadow-lg items-center justify-center z-10"
+                          onClick={(e) => handleRemoveImage(index, e)}
                         >
                           <XIcon className="h-3 w-3" />
-                        </Button>
+                        </button>
                       </>
                     )}
                     <div className="absolute bottom-1 left-1 right-1">
@@ -317,7 +324,7 @@ function ProductImageUpload({
         </div>
       )}
       
-      {uploadedImageUrls.length > 0 && !imageLoadingState && (
+      {showSuccessMessage && uploadedImageUrls.length > 0 && !imageLoadingState && (
         <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
           <div className="text-sm text-green-800">
             ✓ Successfully uploaded {uploadedImageUrls.length} image(s)
