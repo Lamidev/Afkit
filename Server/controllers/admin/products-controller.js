@@ -1,4 +1,3 @@
-
 const { imageUploadUtil } = require("../../helpers/cloudinary");
 const Product = require("../../models/products");
 
