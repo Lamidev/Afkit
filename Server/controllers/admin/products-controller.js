@@ -26,6 +26,45 @@ const handleImageUpload = async (req, res) => {
   }
 };
 
+// const handleMultipleImageUpload = async (req, res) => {
+//   try {
+//     if (!req.files || req.files.length === 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "No image files provided.",
+//       });
+//     }
+
+//     if (req.files.length > 8) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Maximum of 8 images allowed",
+//       });
+//     }
+
+//     const uploadPromises = req.files.map(async (file) => {
+//       const b64 = Buffer.from(file.buffer).toString("base64");
+//       const url = "data:" + file.mimetype + ";base64," + b64;
+//       const result = await imageUploadUtil(url);
+//       return result.secure_url;
+//     });
+
+//     const uploadedImages = await Promise.all(uploadPromises);
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Images uploaded successfully",
+//       images: uploadedImages,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       success: false,
+//       message: "An error occurred while uploading images",
+//     });
+//   }
+// };
+
 const handleMultipleImageUpload = async (req, res) => {
   try {
     if (!req.files || req.files.length === 0) {
@@ -39,6 +78,17 @@ const handleMultipleImageUpload = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Maximum of 8 images allowed",
+      });
+    }
+
+    // Validate file types on server side
+    const validMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const invalidFiles = req.files.filter(file => !validMimeTypes.includes(file.mimetype));
+    
+    if (invalidFiles.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid file types: ${invalidFiles.map(f => f.originalname).join(', ')}. Only JPEG, PNG, and WebP are allowed.`,
       });
     }
 
