@@ -1,13 +1,11 @@
-
-
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { getSearchResults, resetSearchResults, setSearchKeyword } from "@/store/shop/search-slice";
-import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle, AlertCircle, Search, MessageCircle, Sparkles, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { CheckCircle, AlertCircle, Search, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { getOrCreateSessionId } from "@/components/utils/session";
 import { Button } from "@/components/ui/button";
@@ -21,9 +19,6 @@ function SearchProducts() {
   const WHATSAPP_NUMBER = "2348164014304";
   const COMPANY_NAME = "Afkit";
 
-  const [showWhatsAppHint, setShowWhatsAppHint] = useState(false);
-  const [dismissedHint, setDismissedHint] = useState(false);
-
   const { 
     isLoading, 
     searchResults, 
@@ -31,21 +26,6 @@ function SearchProducts() {
   } = useSelector((state) => state.shopSearch);
   const { user } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.shopCart);
-
-  useEffect(() => {
-    if (!isLoading && currentKeyword && searchResults.length === 0 && !dismissedHint) {
-      const timer = setTimeout(() => {
-        setShowWhatsAppHint(true);
-      }, 2000);
-      return () => clearTimeout(timer);
-    } else {
-      setShowWhatsAppHint(false);
-    }
-  }, [isLoading, currentKeyword, searchResults.length, dismissedHint]);
-
-  useEffect(() => {
-    setDismissedHint(false);
-  }, [currentKeyword]);
 
   useEffect(() => {
     const searchQuery = searchParams.get("keyword") || "";
@@ -91,11 +71,6 @@ function SearchProducts() {
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
     
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-  };
-
-  const handleDismissHint = () => {
-    setShowWhatsAppHint(false);
-    setDismissedHint(true);
   };
 
   const handleAddToCart = async (getCurrentProductId, getTotalStock) => {
@@ -147,6 +122,31 @@ function SearchProducts() {
     navigate(`/shop/product/${productId}`);
   };
 
+  const WhatsAppHelpSection = () => (
+    <section className="max-w-7xl mx-auto w-full">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg"
+      >
+        <div className="text-center">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
+            Can't find the product you are looking for?
+          </h3>
+          <Button
+            onClick={handleWhatsAppRedirect}
+            className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
+            size="lg"
+          >
+            <MessageCircle className="w-5 h-5 mr-2" />
+            ASK US ON WHATSAPP
+          </Button>
+        </div>
+      </motion.div>
+    </section>
+  );
+
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -181,23 +181,7 @@ function SearchProducts() {
               </div>
             </div>
 
-            <motion.div
-              className="mt-8 text-center border-t pt-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <p className="text-gray-800 font-semibold text-lg mb-4">
-                Couldn't find what you're looking for?
-              </p>
-              <Button
-                onClick={handleWhatsAppRedirect}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
-              >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                Ask us on WhatsApp
-              </Button>
-            </motion.div>
+            <WhatsAppHelpSection />
           </motion.div>
         )}
 
@@ -233,23 +217,9 @@ function SearchProducts() {
               ))}
             </motion.div>
 
-            <motion.div
-              className="mt-12 text-center border-t pt-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-            >
-              <p className="text-gray-800 font-semibold text-lg mb-4">
-                Couldn't find what you're looking for?
-              </p>
-              <Button
-                onClick={handleWhatsAppRedirect}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
-              >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                Ask us on WhatsApp
-              </Button>
-            </motion.div>
+            <div className="mt-12">
+              <WhatsAppHelpSection />
+            </div>
           </>
         )}
 
@@ -272,63 +242,7 @@ function SearchProducts() {
               </div>
             </div>
 
-            <motion.div
-              className="mt-8 text-center border-t pt-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <p className="text-gray-800 font-semibold text-lg mb-4">
-                Couldn't find what you're looking for?
-              </p>
-              <Button
-                onClick={handleWhatsAppRedirect}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
-              >
-                <MessageCircle className="w-5 h-5 mr-2" />
-                Ask us on WhatsApp
-              </Button>
-            </motion.div>
-
-            <AnimatePresence>
-              {showWhatsAppHint && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto mt-8 relative"
-                >
-                  <button
-                    onClick={handleDismissHint}
-                    className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors"
-                    aria-label="Close hint"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                  
-                  <div className="flex items-start gap-3 pr-6">
-                    <Sparkles className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                    <div className="text-left">
-                      <h3 className="font-semibold text-blue-900 mb-1">
-                        Need something specific?
-                      </h3>
-                      <p className="text-blue-700 text-sm mb-3">
-                        We might have exactly what you're looking for! Message us on WhatsApp and we'll help you find the perfect product.
-                      </p>
-                      <Button
-                        onClick={handleWhatsAppRedirect}
-                        size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        Contact us on WhatsApp
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <WhatsAppHelpSection />
           </div>
         )}
       </div>

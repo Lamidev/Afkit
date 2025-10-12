@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion"; // Import AnimatePresence
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   CloudLightning,
@@ -10,7 +10,6 @@ import {
   AlertCircle,
   ShieldCheck,
   MessageCircle,
-  Sparkles,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
@@ -46,7 +45,7 @@ const supportFeatures = [
       "No matter where you are in Nigeria, we deliver to your city for FREE.",
   },
   {
-    icon: FaCreditCard, // Using FaCreditCard for Payment on Delivery
+    icon: FaCreditCard,
     title: "PAYMENT ON DELIVERY",
     description:
       "You pay only after you receive and check your item. No Risk, no Worries. You're in control.",
@@ -59,10 +58,9 @@ const supportFeatures = [
   },
 ];
 
-// Define animation variants for sliding in
 const itemVariants = {
-  hidden: { opacity: 0, y: 50 }, // Starts invisible and slightly below
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }, // Slides up and fades in
+  hidden: { opacity: 0, y: 50 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
 function ShoppingHome() {
@@ -74,7 +72,6 @@ function ShoppingHome() {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
   const [currentProducts, setCurrentProducts] = useState([]);
 
-  // WhatsApp configuration
   const WHATSAPP_NUMBER = "2348164014304";
   const COMPANY_NAME = "Afkit";
 
@@ -87,7 +84,6 @@ function ShoppingHome() {
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
-  // Shuffle function
   const shuffleArray = (array) => {
     const newArray = [...array];
     for (let i = newArray.length - 1; i > 0; i--) {
@@ -97,24 +93,20 @@ function ShoppingHome() {
     return newArray;
   };
 
-  // Product shuffling effect
   useEffect(() => {
     if (productList.length > 0) {
-      // Initialize with products
       const initialProducts = shuffleArray([...productList]).slice(0, 8);
       setCurrentProducts(initialProducts);
 
       const interval = setInterval(() => {
-        // Generate new products on interval
         const newProducts = shuffleArray([...productList]).slice(0, 8);
         setCurrentProducts(newProducts);
-      }, 20000); // Changed to 20 seconds as per your code's setInterval
+      }, 20000);
 
       return () => clearInterval(interval);
     }
   }, [productList]);
 
-  // Screen size detection
   useEffect(() => {
     const checkScreen = () => setIsSmallScreen(window.innerWidth < 640);
     checkScreen();
@@ -240,7 +232,6 @@ function ShoppingHome() {
 
   return (
     <div className="flex flex-col space-y-8 sm:space-y-12 px-4 sm:px-6">
-      {/* Hero Section */}
       <section className="w-full flex items-center justify-center py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -306,7 +297,6 @@ function ShoppingHome() {
         </motion.div>
       </section>
 
-      {/* Shop by category */}
       <section className="py-6 sm:py-8 bg-gray-50 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-center mb-6 sm:mb-8">
@@ -333,8 +323,6 @@ function ShoppingHome() {
                   <CardContent className="flex flex-col items-center justify-center p-2 sm:p-3">
                     <Icon className="w-5 h-5 sm:w-6 sm:h-6 mb-1 text-blue-900" />
                     <span className="text-xs sm:text-sm font-medium text-center leading-tight">
-                      {" "}
-                      {/* Changed text-[10px] to text-xs */}
                       {label}
                     </span>
                   </CardContent>
@@ -345,7 +333,6 @@ function ShoppingHome() {
         </div>
       </section>
 
-      {/* Can't Find Product Section - Position 1 (Below Shop by Category) */}
       <section className="max-w-7xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -354,58 +341,47 @@ function ShoppingHome() {
           className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg"
         >
           <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="bg-white rounded-full p-3 shadow-md">
-                <Sparkles className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
-              Can't Find What You're Looking For?
+              Can't find the product you are looking for?
             </h3>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              We have access to a wide range of UK-used gadgets beyond what's shown here. 
-              If you don't see the specific product you need, just ask us on WhatsApp!
-            </p>
             <Button
               onClick={handleWhatsAppRedirect}
               className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
               size="lg"
             >
               <MessageCircle className="w-5 h-5 mr-2" />
-              Ask Us on WhatsApp
+              ASK US ON WHATSAPP
             </Button>
           </div>
         </motion.div>
       </section>
 
-      {/* Top Products - ANIMATION APPLIED HERE */}
       <section className="max-w-7xl mx-auto">
         <div className="flex justify-center mb-6">
           <h2 className="text-xl sm:text-2xl font-bold text-center">
             Top Products
           </h2>
         </div>
-        {/* Use AnimatePresence to animate components when they are added/removed */}
         <AnimatePresence mode="wait">
           {currentProducts.length > 0 ? (
             <motion.div
-              key={JSON.stringify(currentProducts.map((p) => p._id))} // Key AnimatePresence with a stable identifier for the product set
+              key={JSON.stringify(currentProducts.map((p) => p._id))}
               initial="hidden"
               animate="visible"
-              exit="hidden" // Animates out existing products
+              exit="hidden"
               variants={{
                 hidden: { opacity: 0 },
                 visible: {
                   opacity: 1,
-                  transition: { staggerChildren: 0.1, delayChildren: 0.2 }, // Stagger children for a cascade effect
+                  transition: { staggerChildren: 0.1, delayChildren: 0.2 },
                 },
               }}
               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
             >
               {currentProducts.map((productItem, index) => (
                 <motion.div
-                  key={productItem._id} // Key each item with its unique ID for AnimatePresence
-                  variants={itemVariants} // Apply the individual item animation variants
+                  key={productItem._id}
+                  variants={itemVariants}
                 >
                   <ShoppingProductTile
                     product={productItem}
@@ -417,7 +393,7 @@ function ShoppingHome() {
             </motion.div>
           ) : (
             <motion.div
-              key="loading" // Unique key for the loading state
+              key="loading"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -429,7 +405,6 @@ function ShoppingHome() {
         </AnimatePresence>
       </section>
 
-      {/* Support Features */}
       <section className="max-w-7xl mx-auto py-12 sm:py-16">
         <div className="text-center mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl font-bold">Why Choose Afkit?</h2>
@@ -437,7 +412,7 @@ function ShoppingHome() {
             We're committed to providing the best shopping experience with
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"> {/* Changed to lg:grid-cols-4 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {supportFeatures.map((feature, index) => {
             const Icon = feature.icon;
             return (
@@ -448,13 +423,13 @@ function ShoppingHome() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
               >
-                <Card className="h-full"> {/* Add h-full here to make card take full height of grid item */}
-                  <CardContent className="flex flex-col items-center p-4 min-h-[150px]"> {/* Added min-h-[150px] for consistent height */}
+                <Card className="h-full">
+                  <CardContent className="flex flex-col items-center p-4 min-h-[150px]">
                     <Icon className="w-8 h-8 mb-3 text-blue-900" />
                     <h3 className="font-bold text-base mb-2 text-center">
                       {feature.title}
                     </h3>
-                    <p className="text-sm text-center text-gray-600"> {/* Changed text-xs to text-sm */}
+                    <p className="text-sm text-center text-gray-600">
                       {feature.description}
                     </p>
                   </CardContent>
@@ -465,10 +440,8 @@ function ShoppingHome() {
         </div>
       </section>
 
-      {/* Customer Reviews */}
       <CustomerReviews />
 
-      {/* Can't Find Product Section - Position 2 (Below Customer Reviews) */}
       <section className="max-w-7xl mx-auto w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -477,25 +450,16 @@ function ShoppingHome() {
           className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg"
         >
           <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <div className="bg-white rounded-full p-3 shadow-md">
-                <Sparkles className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
-              Still Haven't Found Your Perfect Gadget?
+              Can't find the product you are looking for?
             </h3>
-            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Don't worry! We specialize in sourcing hard-to-find UK-used gadgets. 
-              Our WhatsApp team is ready to help you find exactly what you need.
-            </p>
             <Button
               onClick={handleWhatsAppRedirect}
               className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
               size="lg"
             >
               <MessageCircle className="w-5 h-5 mr-2" />
-              Contact Us on WhatsApp
+              ASK US ON WHATSAPP
             </Button>
           </div>
         </motion.div>

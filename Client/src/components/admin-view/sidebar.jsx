@@ -56,7 +56,7 @@ function AdminSideBar({ open, setOpen }) {
             <SheetHeader className="border-b">
               <SheetTitle className="flex gap-2 mt-5 mb-5">
                 <ChartNoAxesCombined size={28} />
-                <h1 className="text-2xl font-extrabold">Admin Panel</h1>
+                <h1 className="text-2xl font-extrabold">Afkit Panel</h1>
               </SheetTitle>
             </SheetHeader>
             <MenuItems setOpen={setOpen} />
@@ -69,7 +69,7 @@ function AdminSideBar({ open, setOpen }) {
           className="flex cursor-pointer items-center gap-2"
         >
           <ChartNoAxesCombined size={30} />
-          <h1 className="text-2xl font-extrabold">Admin Panel</h1>
+          <h1 className="text-2xl font-extrabold">Afkik Panel</h1>
         </div>
         <MenuItems />
       </aside>
