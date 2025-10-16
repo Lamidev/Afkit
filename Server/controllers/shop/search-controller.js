@@ -6,7 +6,7 @@ const searchProducts = async (req, res) => {
     
     if (!keyword || typeof keyword !== "string") {
       return res.status(400).json({
-        succes: false,
+        success: false, // Fixed typo: 'succes' to 'success'
         message: "Keyword is required and must be in string format",
       });
     }
@@ -14,12 +14,17 @@ const searchProducts = async (req, res) => {
     const regEx = new RegExp(keyword, "i");
 
     const createSearchQuery = {
-      $or: [
-        { title: regEx },
-        { description: regEx },
-        { category: regEx },
-        { brand: regEx },
-      ],
+      $and: [
+        {
+          $or: [
+            { title: regEx },
+            { description: regEx },
+            { category: regEx },
+            { brand: regEx },
+          ]
+        },
+        { isHidden: { $ne: true } } // ← ADD THIS FILTER
+      ]
     };
 
     const searchResults = await Product.find(createSearchQuery);
@@ -32,7 +37,7 @@ const searchProducts = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "Error",
+      message: "Error searching products",
     });
   }
 };

@@ -77,6 +77,47 @@ function ShoppingListing() {
     };
   }, []);
 
+  // Enhanced scroll to top function for better mobile compatibility
+  const scrollToTop = () => {
+    // Try multiple methods for maximum compatibility
+    try {
+      // Method 1: Direct scroll to top
+      window.scrollTo(0, 0);
+      
+      // Method 2: Smooth scroll with fallback
+      if ('scrollBehavior' in document.documentElement.style) {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      } else {
+        // Method 3: For older browsers
+        const scrollDuration = 300;
+        const scrollStep = -window.scrollY / (scrollDuration / 15);
+        
+        const scrollInterval = setInterval(() => {
+          if (window.scrollY !== 0) {
+            window.scrollBy(0, scrollStep);
+          } else {
+            clearInterval(scrollInterval);
+          }
+        }, 15);
+      }
+      
+      // Method 4: Scroll body element as well (for mobile browsers)
+      if (document.body.scrollTop > 0) {
+        document.body.scrollTo(0, 0);
+      }
+      if (document.documentElement.scrollTop > 0) {
+        document.documentElement.scrollTo(0, 0);
+      }
+    } catch (error) {
+      console.log("Scroll to top error:", error);
+      // Final fallback - just try basic scroll
+      window.scrollTo(0, 0);
+    }
+  };
+
   const handleWhatsAppRedirect = () => {
     const category = searchParams.get("category");
     const message = category 
@@ -177,7 +218,10 @@ function ShoppingListing() {
       }
     });
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // Use the enhanced scroll function
+    setTimeout(() => {
+      scrollToTop();
+    }, 100);
 
     return () => {
       abortController.abort();
@@ -241,7 +285,11 @@ function ShoppingListing() {
 
     setSearchParams(newSearchParams);
     setIsMobileFilterOpen(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    // Use the enhanced scroll function
+    setTimeout(() => {
+      scrollToTop();
+    }, 100);
   };
 
   const handleViewProductDetails = (productId) => {
@@ -309,7 +357,11 @@ function ShoppingListing() {
     }
 
     setSearchParams(newSearchParams);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    // Use the enhanced scroll function
+    setTimeout(() => {
+      scrollToTop();
+    }, 100);
   };
 
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -320,7 +372,13 @@ function ShoppingListing() {
   );
   const totalPages = Math.ceil(productList.length / productsPerPage);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    // Scroll to top when paginating
+    setTimeout(() => {
+      scrollToTop();
+    }, 100);
+  };
 
   const isPrevDisabled = currentPage === 1;
   const isNextDisabled = currentPage === totalPages;

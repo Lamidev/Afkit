@@ -421,7 +421,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Loader2 } from "lucide-react";
 
-function AdminProductFilter({
+function ProductFilter({
   filters,
   onApplyFilters,
   onResetFilters,
@@ -829,4 +829,4 @@ function AdminProductFilter({
   );
 }
 
-export default AdminProductFilter;
+export default ProductFilter;
