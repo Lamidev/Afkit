@@ -877,7 +877,7 @@ export default function ShoppingProductDetails() {
 
   const handleProductInfoWhatsApp = () => {
     const timestamp = new Date().getTime();
-    const productLink = `${window.location.origin}/shop/product/${productDetails._id}?v=${timestamp}`;
+    const productLink = `${window.location.origin}/og/product/${productDetails._id}?v=${timestamp}`;
     const message = `Hi ${COMPANY_NAME}, I need more information about this product:\n\nProduct: ${productDetails.title}\nPrice: ₦${Number(productDetails.price).toLocaleString("en-NG")}\nProduct Link: ${productLink}\n\nCould you provide more details about this product?`;
 
 
@@ -1049,7 +1049,7 @@ export default function ShoppingProductDetails() {
   const handleOrderOnWhatsApp = () => {
     const phoneNumber = "2348164014304";
     const timestamp = new Date().getTime();
-    const productLink = `${window.location.origin}/shop/product/${productDetails._id}?v=${timestamp}`;
+    const productLink = `${window.location.origin}/og/product/${productDetails._id}?v=${timestamp}`;
     const message = `🛍️ *AFKiT Product Inquiry*\n\n*Product:* ${
       productDetails.title
     }\n*Price:* ₦${Number(productDetails.price).toLocaleString(
@@ -1082,7 +1082,7 @@ export default function ShoppingProductDetails() {
 
   const copyInstagramMessage = () => {
     const timestamp = new Date().getTime();
-    const productLink = `${window.location.origin}/shop/product/${productDetails._id}?v=${timestamp}`;
+    const productLink = `${window.location.origin}/og/product/${productDetails._id}?v=${timestamp}`;
     const message = `Hello AFKiT,\n\nI'm interested in "${
       productDetails.title
     }" for ₦${Number(productDetails.price).toLocaleString(
@@ -1113,7 +1113,7 @@ export default function ShoppingProductDetails() {
 
   const handleCopyLink = () => {
     const timestamp = new Date().getTime();
-    const productLink = `${window.location.origin}/shop/product/${productDetails._id}?v=${timestamp}`;
+    const productLink = `${window.location.origin}/og/product/${productDetails._id}?v=${timestamp}`;
     navigator.clipboard.writeText(productLink);
     toast.success("Product link copied to clipboard!");
 
