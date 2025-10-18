@@ -12,7 +12,7 @@ const shopSearchRouter = require("./routes/shop/search-routes")
 const commonFeaturesRouter = require("./routes/common/features-routes")
 const sitemapRouter = require("./routes/common/sitemap-routes")
 const shareRouter = require("./routes/common/share-routes");
-// const shareOGRouter = require("./routes/common/share-og-routes");
+const shareOGRouter = require("./routes/common/share-og-routes");
 
 const dbURL = process.env.MONGODB_URL;
 
@@ -62,7 +62,7 @@ app.use(
     app.use("/api/common/features", commonFeaturesRouter);
     app.use("/", sitemapRouter)
     app.use("/api/shares", shareRouter);
-    // app.use("/og", shareOGRouter);
+    app.use("/og", shareOGRouter);
  
     // Start the server
     app.listen(PORT, () =>
