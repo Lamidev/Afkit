@@ -24,8 +24,8 @@ import { toast } from "sonner";
 import { getOrCreateSessionId } from "@/components/utils/session";
 
 const categoriesWithIcon = [
-  { id: "smartphones", label: "Smartphones", icon: Smartphone },
   { id: "laptops", label: "Laptops", icon: Laptop },
+  { id: "smartphones", label: "Smartphones", icon: Smartphone },
   { id: "monitors", label: "Monitors", icon: Tv },
   { id: "accessories", label: "Accessories", icon: CloudLightning },
   { id: "all-products", label: "All Products", icon: ShoppingBag },
@@ -77,11 +77,11 @@ function ShoppingHome() {
 
   const handleWhatsAppRedirect = () => {
     const message = `Hi ${COMPANY_NAME}, I'm browsing your products but couldn't find what I'm looking for. Can you help me?`;
-    
+
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
-    
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   };
 
   const shuffleArray = (array) => {
@@ -379,10 +379,7 @@ function ShoppingHome() {
               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
             >
               {currentProducts.map((productItem, index) => (
-                <motion.div
-                  key={productItem._id}
-                  variants={itemVariants}
-                >
+                <motion.div key={productItem._id} variants={itemVariants}>
                   <ShoppingProductTile
                     product={productItem}
                     handleAddToCart={handleAddToCart}
