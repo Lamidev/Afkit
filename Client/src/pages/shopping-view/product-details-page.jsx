@@ -858,11 +858,9 @@ export default function ShoppingProductDetails() {
   const COMPANY_NAME = "Afkit";
 
   // UPDATED: Simple share link using main product page
- // UPDATED: Use the new server-side share URL
 const getShareLink = () => {
   if (!productDetails) return '';
-  // This points to your server-side share route
-  return `${window.location.origin}/share/product/${productDetails._id}`;
+  return `${window.location.origin}/api/shares/product/${productDetails._id}`;
 };
 
 // Make sure this function creates absolute URLs for images
