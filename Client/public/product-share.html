@@ -5,135 +5,73 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!-- Open Graph Meta Tags -->
-  <meta property="og:title" content="Premium Product - AFKiT" />
-  <meta property="og:description" content="Buy high-quality products from AFKiT. Best prices with 6-month warranty." />
+  <!-- These will be dynamically replaced -->
+  <meta property="og:title" content="Quality Products - AFKiT" />
+  <meta property="og:description" content="Your trusted online store for quality electronics" />
   <meta property="og:image" content="https://afkit.ng/apple-touch-icon.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:url" content="https://afkit.ng" />
-  <meta property="og:type" content="product" />
+  <meta property="og:type" content="website" />
   <meta property="og:site_name" content="AFKiT" />
   
-  <!-- Twitter Meta Tags -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Premium Product - AFKiT" />
-  <meta name="twitter:description" content="Buy high-quality products from AFKiT. Best prices with 6-month warranty." />
+  <meta name="twitter:title" content="Quality Products - AFKiT" />
+  <meta name="twitter:description" content="Your trusted online store for quality electronics" />
   <meta name="twitter:image" content="https://afkit.ng/apple-touch-icon.png" />
   
-  <meta name="description" content="Buy high-quality products from AFKiT. Best prices with 6-month warranty." />
-  
   <script>
-    // Function to update meta tags with product data
-    function updateMetaTags(productData) {
-      if (!productData) return;
-      
-      const title = `${productData.title} - AFKiT`;
-      const description = `Buy ${productData.title} for ₦${Number(productData.price).toLocaleString('en-NG')}`;
-      const imageUrl = getAbsoluteImageUrl(productData.images?.[0] || productData.image);
-      const currentUrl = window.location.href;
-      
-      // Update meta tags
-      const metaTags = [
-        { property: 'og:title', content: title },
-        { property: 'og:description', content: description },
-        { property: 'og:image', content: imageUrl },
-        { property: 'og:url', content: currentUrl },
-        { name: 'twitter:title', content: title },
-        { name: 'twitter:description', content: description },
-        { name: 'twitter:image', content: imageUrl },
-        { name: 'description', content: description }
-      ];
-      
-      metaTags.forEach(tag => {
-        let element;
-        if (tag.property) {
-          element = document.querySelector(`meta[property="${tag.property}"]`);
-        } else {
-          element = document.querySelector(`meta[name="${tag.name}"]`);
-        }
-        if (element) {
-          element.content = tag.content;
-        }
-      });
-      
-      // Update title
-      document.title = title;
-      
-      // Update page content
-      if (document.getElementById('productTitle')) {
-        document.getElementById('productTitle').textContent = productData.title;
-        document.getElementById('productPrice').textContent = `₦${Number(productData.price).toLocaleString('en-NG')}`;
-        document.getElementById('productImage').src = imageUrl;
-        document.getElementById('productImage').alt = productData.title;
-        document.getElementById('productDescription').textContent = productData.description || `Buy ${productData.title} from AFKiT`;
-      }
-    }
-    
-    function getAbsoluteImageUrl(imagePath) {
-      if (!imagePath) return "https://afkit.ng/apple-touch-icon.png";
-      if (imagePath.startsWith("http")) return imagePath;
-      if (imagePath.startsWith("/")) return `https://afkit.ng${imagePath}`;
-      return `https://afkit.ng/${imagePath}`;
-    }
-    
-    // Get product ID from URL and fetch data
     async function loadProductData() {
       const urlParams = new URLSearchParams(window.location.search);
       const productId = urlParams.get('id');
       
       if (!productId) {
-        redirectToHome();
+        window.location.href = 'https://afkit.ng';
         return;
       }
       
       try {
-        // Try to fetch product data from your API
-        const response = await fetch(`https://afkit.ng/api/shop/products/get/${productId}`);
-        if (response.ok) {
-          const result = await response.json();
-          const productData = result.data || result;
-          
-          if (productData && productData.title) {
-            updateMetaTags(productData);
-            
-            // Set up redirect to actual product page
-            setTimeout(() => {
-              window.location.href = `https://afkit.ng/shop/product/${productId}`;
-            }, 2000);
-            
-            return;
-          }
-        }
+        // Fetch product data from your API
+        const response = await fetch(`https://afkit.ng/api/products/${productId}`);
+        const product = await response.json();
+        
+        // Update meta tags
+        const price = new Intl.NumberFormat('en-NG').format(product.price);
+        const description = `Buy ${product.title} for ₦${price}`;
+        const imageUrl = product.images?.[0] ? 
+          `https://afkit.ng${product.images[0]}` : 
+          'https://afkit.ng/apple-touch-icon.png';
+        
+        // Update all meta tags
+        updateMetaTag('og:title', product.title);
+        updateMetaTag('og:description', description);
+        updateMetaTag('og:image', imageUrl);
+        updateMetaTag('og:url', window.location.href);
+        
+        updateMetaTag('twitter:title', product.title);
+        updateMetaTag('twitter:description', description);
+        updateMetaTag('twitter:image', imageUrl);
+        
+        updateMetaTag('description', description);
+        document.title = `${product.title} - AFKiT`;
+        
       } catch (error) {
-        console.log('API fetch failed, using URL parameters');
+        console.error('Error loading product:', error);
       }
       
-      // Fallback: Use data from URL parameters
-      const title = urlParams.get('title') || 'AFKiT Product';
-      const price = urlParams.get('price') || '0';
-      const image = urlParams.get('image') || '';
-      const description = urlParams.get('description') || 'Quality product from AFKiT';
-      
-      const productData = {
-        title: decodeURIComponent(title),
-        price: parseInt(price),
-        image: image ? decodeURIComponent(image) : '',
-        description: decodeURIComponent(description)
-      };
-      
-      updateMetaTags(productData);
-      
-      // Redirect to product page
+      // Redirect after 1.5 seconds
       setTimeout(() => {
         window.location.href = `https://afkit.ng/shop/product/${productId}`;
-      }, 2000);
+      }, 1500);
     }
     
-    function redirectToHome() {
-      setTimeout(() => {
-        window.location.href = 'https://afkit.ng';
-      }, 1000);
+    function updateMetaTag(property, content) {
+      let metaTag = document.querySelector(`meta[property="${property}"]`) || 
+                    document.querySelector(`meta[name="${property}"]`);
+      
+      if (metaTag) {
+        metaTag.setAttribute('content', content);
+      }
     }
     
     // Load product data when page loads
@@ -141,22 +79,9 @@
   </script>
 </head>
 <body>
-  <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-    <img id="productImage" src="https://afkit.ng/apple-touch-icon.png" alt="AFKiT Product" style="max-width: 400px; height: auto; border-radius: 10px;">
-    <h1 id="productTitle" style="color: #1f2937; margin: 20px 0;">Loading Product...</h1>
-    <p id="productPrice" style="font-size: 28px; color: #059669; font-weight: bold; margin: 15px 0;">₦0</p>
-    <p id="productDescription" style="color: #6b7280; line-height: 1.6; margin: 20px 0;">
-      Please wait while we load the product details...
-    </p>
-    <div style="margin: 30px 0;">
-      <button onclick="window.location.href = 'https://afkit.ng'" 
-              style="background: #2563eb; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; margin: 5px;">
-        Visit AFKiT Store
-      </button>
-    </div>
-    <p style="color: #9ca3af; font-size: 14px; margin-top: 30px;">
-      Redirecting to product page...
-    </p>
+  <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+    <h1>AFKiT Product Share</h1>
+    <p>Loading product information...</p>
   </div>
 </body>
 </html>
