@@ -72,11 +72,13 @@
 //   .catch((error) => console.error("Failed to connect to MongoDB", error));
 
   
-  const express = require("express");
+const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
+
+// Import routes
 const authRouter = require("./routes/auth/auth-routes")
 const adminProductsRouter = require("./routes/admin/products-routes");
 const adminUserStatsRouter = require("./routes/admin/user-stats-routes");
@@ -86,7 +88,9 @@ const shopSearchRouter = require("./routes/shop/search-routes")
 const commonFeaturesRouter = require("./routes/common/features-routes")
 const sitemapRouter = require("./routes/common/sitemap-routes")
 const shareRouter = require("./routes/common/share-routes");
-const productShareRouter = require("./routes/common/product-share-routes"); // ADD THIS LINE
+
+// ✅ IMPORTANT: Add this line to import the product share routes
+const productShareRouter = require("./routes/common/product-share-routes");
 
 const dbURL = process.env.MONGODB_URL;
 
@@ -134,8 +138,8 @@ mongoose.connect(dbURL)
     app.use("/", sitemapRouter)
     app.use("/api/shares", shareRouter);
     
-    // NEW: Add product share routes (this serves the HTML with meta tags)
-    app.use("/share", productShareRouter); // ADD THIS LINE
+    // ✅ IMPORTANT: Add product share routes
+    app.use("/share", productShareRouter);
    
     // Start the server
     app.listen(PORT, () =>
