@@ -87,10 +87,7 @@ const shopCartRouter = require("./routes/shop/cart-routes");
 const shopSearchRouter = require("./routes/shop/search-routes")
 const commonFeaturesRouter = require("./routes/common/features-routes")
 const sitemapRouter = require("./routes/common/sitemap-routes")
-const shareRouter = require("./routes/common/share-routes");
-
-// ✅ IMPORTANT: Add this line to import the product share routes
-const productShareRouter = require("./routes/common/product-share-routes");
+const shareRouter = require("./routes/common/share-routes"); // This has both routes
 
 const dbURL = process.env.MONGODB_URL;
 
@@ -136,10 +133,9 @@ mongoose.connect(dbURL)
     app.use("/api/shop/search", shopSearchRouter);
     app.use("/api/common/features", commonFeaturesRouter);
     app.use("/", sitemapRouter)
-    app.use("/api/shares", shareRouter);
     
-    // ✅ IMPORTANT: Add product share routes
-    app.use("/share", productShareRouter);
+    // ✅ ONLY THIS ONE - shareRouter handles both record and product share
+    app.use("/api/shares", shareRouter);
    
     // Start the server
     app.listen(PORT, () =>
