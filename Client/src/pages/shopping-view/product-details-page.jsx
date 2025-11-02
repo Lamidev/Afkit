@@ -804,7 +804,6 @@
 // }
 
 
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -858,9 +857,29 @@ export default function ShoppingProductDetails() {
   const WHATSAPP_NUMBER = "2348164014304";
   const COMPANY_NAME = "Afkit";
 
-  // UPDATED: Get share link function
   const getShareLink = () => {
-    return `${window.location.origin}/share/product/${productDetails._id}`;
+    if (!productDetails) return '';
+    
+    const encodedTitle = encodeURIComponent(productDetails.title);
+    const encodedImage = encodeURIComponent(
+      getAbsoluteImageUrl(productDetails.images?.[0] || productDetails.image)
+    );
+    const encodedDescription = encodeURIComponent(
+      productDetails.description || `Buy ${productDetails.title} from AFKiT`
+    );
+    
+    return `${window.location.origin}/product-share.html?id=${
+      productDetails._id
+    }&title=${encodedTitle}&price=${
+      productDetails.price
+    }&image=${encodedImage}&description=${encodedDescription}`;
+  };
+
+  const getAbsoluteImageUrl = (imagePath) => {
+    if (!imagePath) return "";
+    if (imagePath.startsWith("http")) return imagePath;
+    if (imagePath.startsWith("/")) return `${window.location.origin}${imagePath}`;
+    return `${window.location.origin}/${imagePath}`;
   };
 
   const handleWhatsAppRedirect = () => {
@@ -871,11 +890,10 @@ export default function ShoppingProductDetails() {
   };
 
   const handleProductInfoWhatsApp = () => {
-    // UPDATED: Use share link instead of product link
     const productLink = getShareLink();
     const message = `Hi ${COMPANY_NAME}, I need more information about this product:\n\nProduct: ${productDetails.title}\nPrice: ₦${Number(productDetails.price).toLocaleString("en-NG")}\nProduct Link: ${productLink}\n\nCould you provide more details about this product?`;
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NASEUMBER}?text=${encodedMessage}`;
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   };
 
@@ -928,14 +946,6 @@ export default function ShoppingProductDetails() {
 
     fetchCart();
   }, [dispatch, user]);
-
-  const getAbsoluteImageUrl = (imagePath) => {
-    if (!imagePath) return "";
-    if (imagePath.startsWith("http")) return imagePath;
-    if (imagePath.startsWith("/"))
-      return `${window.location.origin}${imagePath}`;
-    return `${window.location.origin}/${imagePath}`;
-  };
 
   const handleAddToCart = useCallback(
     async (productIdToAdd, stockAvailable) => {
@@ -1017,7 +1027,6 @@ export default function ShoppingProductDetails() {
     window.scrollTo(0, 0);
   };
 
-  // UPDATED: Use share link for WhatsApp
   const handleOrderOnWhatsApp = () => {
     const phoneNumber = "2348164014304";
     const shareLink = getShareLink();
@@ -1047,7 +1056,6 @@ export default function ShoppingProductDetails() {
     setShowInstagramModal(true);
   };
 
-  // UPDATED: Use share link for Instagram
   const copyInstagramMessage = () => {
     const shareLink = getShareLink();
     const message = `Hello AFKiT,\n\nI'm interested in "${
@@ -1075,7 +1083,6 @@ export default function ShoppingProductDetails() {
     );
   };
 
-  // UPDATED: Copy share link instead of product link
   const handleCopyLink = () => {
     const shareLink = getShareLink();
     navigator.clipboard.writeText(shareLink);
@@ -1240,7 +1247,6 @@ export default function ShoppingProductDetails() {
       </Helmet>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-12">
-        {/* Product Image and Thumbnails */}
         <div className="lg:space-y-6">
           <div className="relative w-full mx-auto lg:aspect-square rounded-xl overflow-hidden group">
             <div 
@@ -1382,7 +1388,6 @@ export default function ShoppingProductDetails() {
           )}
         </div>
 
-        {/* Product Details */}
         <div className="space-y-6 lg:mt-0">
           <div>
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight">
