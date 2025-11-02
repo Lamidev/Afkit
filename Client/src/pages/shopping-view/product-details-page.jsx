@@ -857,22 +857,11 @@ export default function ShoppingProductDetails() {
   const WHATSAPP_NUMBER = "2348164014304";
   const COMPANY_NAME = "Afkit";
 
+  // UPDATED: Simple share link using main product page
   const getShareLink = () => {
     if (!productDetails) return '';
-    
-    const encodedTitle = encodeURIComponent(productDetails.title);
-    const encodedImage = encodeURIComponent(
-      getAbsoluteImageUrl(productDetails.images?.[0] || productDetails.image)
-    );
-    const encodedDescription = encodeURIComponent(
-      productDetails.description || `Buy ${productDetails.title} from AFKiT`
-    );
-    
-    return `${window.location.origin}/product-share.html?id=${
-      productDetails._id
-    }&title=${encodedTitle}&price=${
-      productDetails.price
-    }&image=${encodedImage}&description=${encodedDescription}`;
+    // Use the main product page for sharing
+    return `${window.location.origin}/shop/product/${productDetails._id}`;
   };
 
   const getAbsoluteImageUrl = (imagePath) => {
@@ -893,7 +882,7 @@ export default function ShoppingProductDetails() {
     const productLink = getShareLink();
     const message = `Hi ${COMPANY_NAME}, I need more information about this product:\n\nProduct: ${productDetails.title}\nPrice: ₦${Number(productDetails.price).toLocaleString("en-NG")}\nProduct Link: ${productLink}\n\nCould you provide more details about this product?`;
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NASEUMBER}?text=${encodedMessage}`;
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   };
 
