@@ -858,18 +858,21 @@ export default function ShoppingProductDetails() {
   const COMPANY_NAME = "Afkit";
 
   // UPDATED: Simple share link using main product page
-  const getShareLink = () => {
-    if (!productDetails) return '';
-    // Use the main product page for sharing
-    return `${window.location.origin}/shop/product/${productDetails._id}`;
-  };
+ // UPDATED: Use the new server-side share URL
+const getShareLink = () => {
+  if (!productDetails) return '';
+  // This points to your server-side share route
+  return `${window.location.origin}/share/product/${productDetails._id}`;
+};
 
-  const getAbsoluteImageUrl = (imagePath) => {
-    if (!imagePath) return "";
-    if (imagePath.startsWith("http")) return imagePath;
-    if (imagePath.startsWith("/")) return `${window.location.origin}${imagePath}`;
-    return `${window.location.origin}/${imagePath}`;
-  };
+// Make sure this function creates absolute URLs for images
+const getAbsoluteImageUrl = (imagePath) => {
+  if (!imagePath) return `${window.location.origin}/apple-touch-icon.png`;
+  
+  if (imagePath.startsWith("http")) return imagePath;
+  if (imagePath.startsWith("/")) return `${window.location.origin}${imagePath}`;
+  return `${window.location.origin}/${imagePath}`;
+};
 
   const handleWhatsAppRedirect = () => {
     const message = `Hi ${COMPANY_NAME}, I'm browsing your products but couldn't find what I'm looking for. Can you help me?`;
