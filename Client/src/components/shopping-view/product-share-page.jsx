@@ -13,6 +13,36 @@ export default function ProductSharePage() {
   const [loading, setLoading] = useState(true);
   const [metaTagsUpdated, setMetaTagsUpdated] = useState(false);
 
+  // Add this at the beginning of your ProductSharePage component
+useEffect(() => {
+  // Set basic meta tags immediately while product loads
+  const basicMetaTags = [
+    { property: 'og:type', content: 'product' },
+    { property: 'og:site_name', content: 'AFKiT' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+  ];
+
+  basicMetaTags.forEach(tag => {
+    let element = document.querySelector(
+      tag.property 
+        ? `meta[property="${tag.property}"]` 
+        : `meta[name="${tag.name}"]`
+    );
+    
+    if (!element) {
+      element = document.createElement('meta');
+      if (tag.property) {
+        element.setAttribute('property', tag.property);
+      } else {
+        element.setAttribute('name', tag.name);
+      }
+      document.head.appendChild(element);
+    }
+    
+    element.setAttribute('content', tag.content);
+  });
+}, []);
+
   useEffect(() => {
     const loadProduct = async () => {
       try {
@@ -22,14 +52,7 @@ export default function ProductSharePage() {
         // Dispatch the action and wait for it to complete
         const result = await dispatch(fetchProductDetails(id)).unwrap();
         console.log('✅ Product fetch successful:', result);
-        
-        // if (result && result.title) {
-        //   setProduct(result);
-        //   updateMetaTags(result);
-        //   setMetaTagsUpdated(true);
-        // } else {
-        //   console.error('❌ Invalid product data:', result);
-        // }
+
         
 // In the loadProduct function, replace this part:
 if (result && result.title) {
