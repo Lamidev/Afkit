@@ -73,6 +73,10 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
+
+// Add prerender-node
+const prerender = require('prerender-node');
+
 const authRouter = require("./routes/auth/auth-routes")
 const adminProductsRouter = require("./routes/admin/products-routes");
 const adminUserStatsRouter = require("./routes/admin/user-stats-routes");
@@ -85,7 +89,6 @@ const shareRouter = require("./routes/common/share-routes");
 
 const dbURL = process.env.MONGODB_URL;
 
-// Connect to MongoDB
 mongoose
   .connect(dbURL)
   .then(() => {
@@ -94,12 +97,15 @@ mongoose
     const app = express();
     const PORT = process.env.PORT || 9050;
 
-    // Middleware setup
+    // 🟦 ADD PRERENDER MIDDLEWARE WITH ENV VARIABLE
+    app.use(prerender.set('prerenderToken', process.env.PRERENDER_TOKEN));
+
+    // ... rest of your middleware and routes
     app.use(
       cors({
         origin: [
           "https://afkit.ng",
-          "https://www.afkit.ng",
+          "https://www.afkit.ng", 
           "http://localhost:5173"
         ],
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH","OPTIONS"],
