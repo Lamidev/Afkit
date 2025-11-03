@@ -1,4 +1,4 @@
-const express = require("express");
+ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
@@ -13,10 +13,7 @@ const commonFeaturesRouter = require("./routes/common/features-routes")
 const sitemapRouter = require("./routes/common/sitemap-routes")
 const shareRouter = require("./routes/common/share-routes");
 
-
 const dbURL = process.env.MONGODB_URL;
-
- // Fetch the database URL from the environment variables
 
 // Connect to MongoDB
 mongoose
@@ -28,7 +25,6 @@ mongoose
     const PORT = process.env.PORT || 9050;
 
     // Middleware setup
-   // Middleware setup
 app.use(
   cors({
     origin: [
