@@ -1,5 +1,4 @@
 import {
-  BadgeCheck,
   ChartNoAxesCombined,
   LayoutDashboard,
   ShoppingBasket,

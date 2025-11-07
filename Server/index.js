@@ -12,13 +12,14 @@ const shopSearchRouter = require("./routes/shop/search-routes")
 const commonFeaturesRouter = require("./routes/common/features-routes")
 const sitemapRouter = require("./routes/common/sitemap-routes")
 const shareRouter = require("./routes/common/share-routes");
+const shareProductRouter = require("./routes/common/share-product-route");
 
 
 const dbURL = process.env.MONGODB_URL;
 
 // Connect to MongoDB
 mongoose
-  .connect(dbURL) // Ensure options are passed
+  .connect(dbURL) 
   .then(() => {
     console.log("Connected to MongoDB");
 
@@ -59,6 +60,8 @@ app.use(
     app.use("/api/common/features", commonFeaturesRouter);
     app.use("/", sitemapRouter)
     app.use("/api/shares", shareRouter);
+    app.use("/share", shareProductRouter);
+
    
  
     // Start the server

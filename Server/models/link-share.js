@@ -4,7 +4,7 @@ const LinkShareSchema = new mongoose.Schema(
   {
     productId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Product", // Assuming you have a Product model
+      ref: "Product", 
       required: true,
     },
     productTitle: {
@@ -21,11 +21,11 @@ const LinkShareSchema = new mongoose.Schema(
       default: false,
     },
     shareDestination: {
-      type: String, // e.g., "WhatsApp", "Instagram", "CopyLink"
+      type: String, 
       required: true,
     },
     sourcePage: {
-      type: String, // e.g., "ProductDetails", "Checkout"
+      type: String, 
       required: true,
     },
   },

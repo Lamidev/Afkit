@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSelector } from "react-redux";
-import { toast } from "sonner";  // changed to sonner toast
+import { toast } from "sonner";  
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
 
 function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Calculate total cart amount using only price * quantity
+  
   const totalCartAmount =
     cartItems && cartItems.items && cartItems.items.length > 0
       ? cartItems.items.reduce(
@@ -25,11 +25,10 @@ function ShoppingCheckout() {
 
     setIsProcessing(true);
 
-    // Simulate a checkout process
     setTimeout(() => {
       setIsProcessing(false);
       toast.success("Checkout successful! Thank you for your purchase.");
-      // You can add further logic here, e.g. clear cart, navigate, etc.
+      
     }, 1500);
   }
 

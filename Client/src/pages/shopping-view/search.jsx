@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
