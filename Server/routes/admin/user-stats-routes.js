@@ -4,10 +4,10 @@ const router = express.Router();
 const { authMiddleware } = require("../../controllers/auth/auth-controller");
 const {
   getUserStats,
-  getVerifiedUsersList, // Import the new function
+  getVerifiedUsersList, 
 } = require("../../controllers/admin/user-stats-controller");
 
 router.get("/", authMiddleware, getUserStats);
-router.get("/verified-list", authMiddleware, getVerifiedUsersList); // New route
+router.get("/verified-list", authMiddleware, getVerifiedUsersList); 
 
 module.exports = router;

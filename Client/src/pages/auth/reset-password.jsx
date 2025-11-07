@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from "lucide-react"; // Added CheckCircle and AlertCircle
+import { Lock, Eye, EyeOff, CheckCircle, AlertCircle } from "lucide-react"; 
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";

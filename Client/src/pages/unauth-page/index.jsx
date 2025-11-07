@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Lock } from 'lucide-react'; // Assuming you have lucide-react for icons
+import { Lock } from 'lucide-react'; 
 
 const UnauthPage = () => {
   return (
@@ -17,8 +17,8 @@ const UnauthPage = () => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button
            
-            onClick={() => window.location.href = '/auth/login'} // Corrected path to be absolute from root
-            className="px-6 py-3 hover:bg-gray-100 hover:text-blue-900 transition-colors duration-200" // Added hover effects
+            onClick={() => window.location.href = '/auth/login'} 
+            className="px-6 py-3 hover:bg-gray-100 hover:text-blue-900 transition-colors duration-200" 
           >
             Login
           </Button>

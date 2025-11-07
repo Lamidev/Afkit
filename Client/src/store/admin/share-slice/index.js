@@ -1,14 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-// Assume your base API URL is defined somewhere, e.g., in a config file or .env
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 export const recordLinkShare = createAsyncThunk(
-  "shareTracking/recordLinkShare", // Unique action type for this slice
+  "shareTracking/recordLinkShare", 
   async ({ productId, productTitle, shareDestination, sourcePage, sessionId }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token"); // Assuming JWT token for authenticated users
+      const token = localStorage.getItem("token"); 
       const config = {
         headers: {
           "Content-Type": "application/json",
@@ -18,7 +17,7 @@ export const recordLinkShare = createAsyncThunk(
         config.headers.Authorization = `Bearer ${token}`;
       }
 
-      const response = await axios.post(`${API_BASE_URL}/shares/record`, { // Matches your backend route
+      const response = await axios.post(`${API_BASE_URL}/shares/record`, {
         productId,
         productTitle,
         shareDestination,
@@ -39,7 +38,7 @@ const shareTrackingSlice = createSlice({
   initialState: {
     isRecording: false,
     error: null,
-    lastRecordedShare: null, // Optional: store the last successful share info
+    lastRecordedShare: null,
   },
   reducers: {},
   extraReducers: (builder) => {
