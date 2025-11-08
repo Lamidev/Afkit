@@ -7,7 +7,7 @@ import { Separator } from "../ui/separator";
 import { motion } from "framer-motion";
 import { ShoppingBag } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { recordLinkShare } from "@/store/admin/share-slice/index";
+import { recordLinkShare } from "@/store/common-slice/share-slice/index";
 import { getOrCreateSessionId } from "@/components/utils/session";
 
 // Helper function to format Naira with commas
