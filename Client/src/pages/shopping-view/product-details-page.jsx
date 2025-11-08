@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,7 +22,7 @@ import {
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import LoadingSpinner from "@/components/shopping-view/loading-spinner";
 import { getOrCreateSessionId } from "@/components/utils/session";
-import { recordLinkShare } from "@/store/admin/share-slice/index";
+import { recordLinkShare } from "@/store/common-slice/share-slice/index";
 import DOMPurify from "dompurify";
 import { Helmet } from "react-helmet-async";
 
@@ -31,7 +30,6 @@ export default function ShoppingProductDetails() {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { user } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.shopCart);
   const { productDetails, relatedProducts } = useSelector(
@@ -48,12 +46,31 @@ export default function ShoppingProductDetails() {
   const mainImageRef = useRef(null);
   const imageScrollRef = useRef(null);
   const mobileThumbnailRef = useRef(null);
+  // Adjusted for desktop view
   const THUMBNAILS_TO_SHOW = 4;
 
   const WHATSAPP_NUMBER = "2348164014304";
   const COMPANY_NAME = "Afkit";
 
-  // Fetch product details on mount
+  const handleWhatsAppRedirect = () => {
+    const message = `Hi ${COMPANY_NAME}, I'm browsing your products but couldn't find what I'm looking for. Can you help me?`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleProductInfoWhatsApp = () => {
+    const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    const message = `Hi ${COMPANY_NAME}, I need more information about this product:\n\nProduct: ${productDetails.title}\nPrice: ₦${Number(productDetails.price).toLocaleString("en-NG")}\nProduct Link: ${productLink}\n\nCould you provide more details about this product?`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  };
+
   useEffect(() => {
     if (id) {
       dispatch(fetchProductDetails(id));
@@ -61,12 +78,12 @@ export default function ShoppingProductDetails() {
     }
   }, [id, dispatch]);
 
-  // Update loading state
   useEffect(() => {
-    if (productDetails?.description) setIsContentLoading(false);
+    if (productDetails?.description) {
+      setIsContentLoading(false);
+    }
   }, [productDetails]);
 
-  // Update quantity if already in cart
   useEffect(() => {
     if (!productDetails) return;
     const cartItem = cartItems.items?.find(
@@ -75,30 +92,35 @@ export default function ShoppingProductDetails() {
     setQuantity(cartItem ? cartItem.quantity : 1);
   }, [productDetails, cartItems.items]);
 
-  // Fetch related products
   useEffect(() => {
     if (productDetails?.brand) {
       dispatch(fetchProductsByBrand(productDetails.brand));
     }
   }, [productDetails, dispatch]);
 
-  // Fetch cart items for guest or logged-in users
   useEffect(() => {
     const fetchCart = async () => {
       try {
         const userId = user?.id;
         const sessionId = userId ? null : getOrCreateSessionId();
-        if (!userId && !sessionId) return;
+
+        if (!userId && !sessionId) {
+          console.warn("No user or session info available");
+          return;
+        }
+
         await dispatch(fetchCartItems({ userId, sessionId })).unwrap();
       } catch (error) {
         console.error("Failed to fetch cart:", error);
-        if (!user) localStorage.removeItem("guestSessionId");
+        if (!user) {
+          localStorage.removeItem("guestSessionId");
+        }
       }
     };
+
     fetchCart();
   }, [dispatch, user]);
 
-  // Utility to get full image URL
   const getAbsoluteImageUrl = (imagePath) => {
     if (!imagePath) return "";
     if (imagePath.startsWith("http")) return imagePath;
@@ -107,12 +129,12 @@ export default function ShoppingProductDetails() {
     return `${window.location.origin}/${imagePath}`;
   };
 
-  // Add to cart logic
   const handleAddToCart = useCallback(
     async (productIdToAdd, stockAvailable) => {
       try {
         const userId = user?.id;
         const sessionId = userId ? null : getOrCreateSessionId();
+
         if (!userId && !sessionId) {
           navigate("/auth/login");
           toast.error("Please login to add items to the cart");
@@ -123,6 +145,7 @@ export default function ShoppingProductDetails() {
         const existingItem = currentCartItems.find(
           (item) => item.productId === productIdToAdd
         );
+
         const quantityToAdd = existingItem ? 1 : quantity;
 
         if (
@@ -131,7 +154,9 @@ export default function ShoppingProductDetails() {
         ) {
           toast.error(
             `Maximum available quantity (${stockAvailable}) reached`,
-            { icon: <AlertCircle className="text-red-500" /> }
+            {
+              icon: <AlertCircle className="text-red-500" />,
+            }
           );
           return;
         }
@@ -166,7 +191,6 @@ export default function ShoppingProductDetails() {
     [user, dispatch, navigate, cartItems, quantity]
   );
 
-  // Quantity change handlers
   const handleUpdateQuantity = (type) => {
     if (type === "plus") {
       if (quantity + 1 > productDetails.totalStock) {
@@ -180,32 +204,21 @@ export default function ShoppingProductDetails() {
     }
   };
 
-  // Share handlers
-  const handleCopyLink = () => {
-    const shareLink = `${window.location.origin}/share/${productDetails._id}`;
-    navigator.clipboard.writeText(shareLink);
-    toast.success("Product link copied!");
-
-    dispatch(
-      recordLinkShare({
-        productId: productDetails._id,
-        productTitle: productDetails.title,
-        shareDestination: "CopyLink",
-        sourcePage: "ProductDetails",
-        sessionId: user?.id ? null : getOrCreateSessionId(),
-      })
-    );
+  const handleRelatedProductClick = (productId) => {
+    navigate(`/shop/product/${productId}`);
+    window.scrollTo(0, 0);
   };
 
   const handleOrderOnWhatsApp = () => {
-    const productLink = `${window.location.origin}/share/${productDetails._id}`;
+    const phoneNumber = "2348164014304";
+    const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
     const message = `🛍️ *AFKiT Product Inquiry*\n\n*Product:* ${
       productDetails.title
     }\n*Price:* ₦${Number(productDetails.price).toLocaleString(
       "en-NG"
-    )}\n*Quantity:* ${quantity}\n\nHello AFKiT, I'm interested in this product.\n\n🔗 *Product Link:* ${productLink}`;
+    )}\n*Quantity:* ${quantity}\n\nHello AFKiT, I'm interested in this product. Is it available?\n\n🔗 *Product Link:* ${productLink}`;
 
-    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
       message
     )}`;
     window.open(whatsappUrl, "_blank");
@@ -221,10 +234,12 @@ export default function ShoppingProductDetails() {
     );
   };
 
-  const handleOrderOnInstagram = () => setShowInstagramModal(true);
+  const handleOrderOnInstagram = () => {
+    setShowInstagramModal(true);
+  };
 
   const copyInstagramMessage = () => {
-    const productLink = `${window.location.origin}/share/${productDetails._id}`;
+    const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
     const message = `Hello AFKiT,\n\nI'm interested in "${
       productDetails.title
     }" for ₦${Number(productDetails.price).toLocaleString(
@@ -250,7 +265,145 @@ export default function ShoppingProductDetails() {
     );
   };
 
-  if (!productDetails) return <LoadingSpinner />;
+  const handleCopyLink = () => {
+    const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    navigator.clipboard.writeText(productLink);
+    toast.success("Product link copied to clipboard!");
+
+    dispatch(
+      recordLinkShare({
+        productId: productDetails._id,
+        productTitle: productDetails.title,
+        shareDestination: "CopyLink",
+        sourcePage: "ProductDetails",
+        sessionId: user?.id ? null : getOrCreateSessionId(),
+      })
+    );
+  };
+
+  const navigateImage = (direction) => {
+    if (direction === "next") {
+      setSelectedImageIndex((prev) =>
+        prev === productImages.length - 1 ? 0 : prev + 1
+      );
+    } else {
+      setSelectedImageIndex((prev) =>
+        prev === 0 ? productImages.length - 1 : prev - 1
+      );
+    }
+  };
+
+  const navigateThumbnails = (direction) => {
+    if (
+      direction === "next" &&
+      thumbnailStartIndex + THUMBNAILS_TO_SHOW < productImages.length
+    ) {
+      setThumbnailStartIndex((prev) => prev + 1);
+    } else if (direction === "prev" && thumbnailStartIndex > 0) {
+      setThumbnailStartIndex((prev) => prev - 1);
+    }
+  };
+
+  const handleThumbnailClick = (index) => {
+    setSelectedImageIndex(index);
+    if (imageScrollRef.current) {
+      const scrollPosition = index * imageScrollRef.current.clientWidth;
+      imageScrollRef.current.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleScroll = (event) => {
+    if (!productImages.length) return;
+    
+    const scrollLeft = event.target.scrollLeft;
+    const clientWidth = event.target.clientWidth;
+    const newIndex = Math.round(scrollLeft / clientWidth);
+    
+    if (newIndex !== selectedImageIndex && newIndex >= 0 && newIndex < productImages.length) {
+      setSelectedImageIndex(newIndex);
+      scrollMobileThumbnailIntoView(newIndex);
+    }
+  };
+
+  // Improved scroll function to fully reveal the last thumbnail on mobile
+  const scrollMobileThumbnailIntoView = (index) => {
+    if (mobileThumbnailRef.current) {
+      const container = mobileThumbnailRef.current;
+      const thumbnails = container.children;
+
+      if (thumbnails[index]) {
+        const thumbnail = thumbnails[index];
+        const containerWidth = container.clientWidth;
+        const thumbnailWidth = thumbnail.offsetWidth;
+        const thumbnailLeft = thumbnail.offsetLeft;
+        const thumbnailRight = thumbnailLeft + thumbnailWidth;
+
+        const maxScrollLeft = container.scrollWidth - containerWidth;
+        const currentScrollLeft = container.scrollLeft;
+
+        // Scroll left if thumbnail is out of view on left
+        if (thumbnailLeft < currentScrollLeft) {
+          container.scrollTo({
+            left: thumbnailLeft,
+            behavior: 'smooth',
+          });
+        }
+        // Scroll right if thumbnail's right edge is out of view on right
+        else if (thumbnailRight > currentScrollLeft + containerWidth) {
+          let targetScrollLeft = thumbnailRight - containerWidth;
+          if (targetScrollLeft > maxScrollLeft) {
+            targetScrollLeft = maxScrollLeft;
+          }
+          container.scrollTo({
+            left: targetScrollLeft,
+            behavior: 'smooth',
+          });
+        }
+      }
+    }
+  };
+
+  const filteredRelatedProducts =
+    productDetails?.brand && relatedProducts
+      ? relatedProducts
+          ?.filter((p) => p._id !== productDetails?._id)
+          ?.slice(0, 4)
+      : [];
+
+  const renderDescription = (description) => {
+    if (!description) return null;
+    return (
+      <div
+        className="rich-text-content prose prose-gray max-w-none 
+                   prose-headings:font-bold
+                   prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
+                   prose-p:leading-relaxed prose-p:my-4
+                   prose-ul:my-4 prose-ol:my-4
+                   prose-li:my-2
+                   prose-strong:font-bold prose-strong:text-gray-900
+                   prose-em:italic
+                   prose-blockquote:border-l-4 prose-blockquote:border-blue-500 
+                   prose-blockquote:pl-4 prose-blockquote:italic
+                   prose-blockquote:text-gray-600
+                   prose-a:text-blue-600 prose-a:underline
+                   [&_u]:underline [&_s]:line-through"
+        dangerouslySetInnerHTML={{
+          __html: DOMPurify.sanitize(description),
+        }}
+      />
+    );
+  };
+
+  if (!productDetails) {
+    return (
+      <div className="container py-8">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   const productImages =
     productDetails.images?.length > 0
@@ -259,27 +412,20 @@ export default function ShoppingProductDetails() {
       ? [productDetails.image]
       : [];
 
-  const mainImage = getAbsoluteImageUrl(productImages[0] || productDetails.image);
+  const visibleThumbnails = productImages.slice(
+    thumbnailStartIndex,
+    thumbnailStartIndex + THUMBNAILS_TO_SHOW
+  );
+
+  const mainImage = getAbsoluteImageUrl(
+    productImages[0] || productDetails.image
+  );
   const descriptionText = `Buy ${productDetails.title} for ₦${Number(
     productDetails.price
   ).toLocaleString("en-NG")}`;
 
-  const filteredRelatedProducts =
-    productDetails?.brand && relatedProducts
-      ? relatedProducts
-          ?.filter((p) => p._id !== productDetails?._id)
-          ?.slice(0, 4)
-      : [];
-      // Track image scroll on mobile
-const handleScroll = (event) => {
-  const scrollLeft = event.target.scrollLeft;
-  const width = event.target.clientWidth;
-  const index = Math.round(scrollLeft / width);
-  setSelectedImageIndex(index);
-};
-
-
   return (
+    // ADJUSTED: Reduced top padding on mobile (pt-2) to bring content up.
     <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pt-2 pb-8 lg:py-8">
       <Helmet>
         <title>{productDetails.title} - AFKiT</title>
@@ -378,7 +524,7 @@ const handleScroll = (event) => {
                   <button
                     key={index}
                     onClick={() => handleThumbnailClick(index)}
-                  
+                    // ADJUSTED: Used w-[18.8%] to ensure 5 fit comfortably with gap-2
                     className={`flex-shrink-0 w-[18.8%] h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 ease-in-out ${
                       selectedImageIndex === index
                         ? "border-blue-600 shadow-lg scale-105"
@@ -457,6 +603,8 @@ const handleScroll = (event) => {
           )}
         </div>
 
+        {/* Product Details (Right Column on Large Screens) */}
+        {/* ADJUSTED: Removed mobile margin-top (mt-4) to pull it right up to the image/thumbnail section */}
         <div className="space-y-6 lg:mt-0">
           <div>
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight">

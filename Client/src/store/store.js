@@ -10,7 +10,7 @@ import shopSearchSlice from "./shop/search-slice";
 
 
 import commonFeatureSlice from "./common-slice/index";
-import shareTrackingSlice from './admin/share-slice/index';
+import shareTrackingSlice from './common-slice/share-slice/index';
 
 const store = configureStore({
   reducer: {
