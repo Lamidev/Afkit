@@ -80,10 +80,10 @@ function ShoppingHome() {
 
   const handleWhatsAppRedirect = () => {
     const message = `Hi ${COMPANY_NAME}, I'm browsing your products but couldn't find what I'm looking for. Can you help me?`;
-    
+
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
-    
+
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
 
@@ -239,9 +239,9 @@ function ShoppingHome() {
   }, [dispatch]);
 
   return (
-    <div className="flex flex-col space-y-8 sm:space-y-12 px-4 sm:px-6">
+    <div className="flex flex-col space-y-4 sm:space-y-8 px-4 sm:px-6">
       {/* Hero Section */}
-      <section className="w-full flex items-center justify-center py-8 sm:py-12">
+      <section className="w-full flex items-center justify-center py-4 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -307,7 +307,7 @@ function ShoppingHome() {
       </section>
 
       {/* Shop by category */}
-      <section className="py-6 sm:py-8 bg-gray-50 px-4 sm:px-6">
+      <section className="py-2 sm:py-6 bg-gray-50 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-center mb-6 sm:mb-8">
             <h2 className="text-xl sm:text-2xl font-bold text-center">
@@ -363,7 +363,7 @@ function ShoppingHome() {
               Can't Find What You're Looking For?
             </h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              We have access to a wide range of UK-used gadgets beyond what's shown here. 
+              We have access to a wide range of UK-used gadgets beyond what's shown here.
               If you don't see the specific product you need, just ask us on WhatsApp!
             </p>
             <Button
@@ -430,7 +430,7 @@ function ShoppingHome() {
       </section>
 
       {/* Support Features */}
-      <section className="max-w-7xl mx-auto py-12 sm:py-16">
+      <section className="max-w-7xl mx-auto py-8 sm:py-12">
         <div className="text-center mb-6 sm:mb-8">
           <h2 className="text-xl sm:text-2xl font-bold">Why Choose Afkit?</h2>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">
@@ -486,7 +486,7 @@ function ShoppingHome() {
               Still Haven't Found Your Perfect Gadget?
             </h3>
             <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-              Don't worry! We specialize in sourcing hard-to-find UK-used gadgets. 
+              Don't worry! We specialize in sourcing hard-to-find UK-used gadgets.
               Our WhatsApp team is ready to help you find exactly what you need.
             </p>
             <Button

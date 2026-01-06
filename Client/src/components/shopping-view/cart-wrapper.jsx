@@ -29,9 +29,9 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const totalCartAmount =
     cartItems && cartItems.length > 0
       ? cartItems.reduce(
-          (sum, currentItem) => sum + currentItem.price * currentItem.quantity,
-          0
-        )
+        (sum, currentItem) => sum + currentItem.price * currentItem.quantity,
+        0
+      )
       : 0;
 
   // Animation variants
@@ -56,17 +56,15 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
     const message = `Hello AFKiT! I'd like to place an order:\n\n${cartItems
       .map(
         (item) =>
-          `📦 *${item.title || "Product"}*\n├ Quantity: ${
-            item.quantity
+          `📦 *${item.title || "Product"}*\n├ Quantity: ${item.quantity
           }\n├ Price: ${formatNaira(
             item.price
-          )}\n└ Product Link: ${window.location.origin}/shop/product/${
-            item.productId
+          )}\n└ Product Link: ${window.location.origin}/api/og/product/${item.productId
           }`
       )
       .join("\n\n")}\n\n*Total Amount:* ${formatNaira(
-      totalCartAmount
-    )}\n\nPlease confirm availability and provide payment details. Thank you!`;
+        totalCartAmount
+      )}\n\nPlease confirm availability and provide payment details. Thank you!`;
 
     const whatsappNumber = "+2348164014304";
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(

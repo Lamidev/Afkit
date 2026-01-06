@@ -6,6 +6,7 @@ import {
   FaEnvelope,
   FaPhone,
   FaMapMarkerAlt,
+  FaLinkedin,
 } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -82,7 +83,7 @@ const Footer = () => {
           {/* Changed text-sm to text-base */}
           <div className="text-base font-bold text-gray-900">
             <p className="mb-2 leading-relaxed">
-             <span className="text-orange-500 font-bold">Afkit</span>{" "} is your trusted tech partner in Nigeria offering premium
+              <span className="text-orange-500 font-bold">Afkit</span>{" "} is your trusted tech partner in Nigeria offering premium
               Uk-used devices with{" "}
               <span className="font-semibold text-orange-500">
                 6-month warranty
@@ -162,6 +163,45 @@ const Footer = () => {
       <p className="text-center text-sm text-gray-600 px-4">
         &copy; {new Date().getFullYear()} AFKiT. All rights reserved.
       </p>
+
+      {/* Developer Credits - Moved slightly below rights reserved */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="mt-4 pt-4 text-center border-t border-gray-200 w-full max-w-xs mx-auto text-xs text-gray-500"
+      >
+        <p className="mb-2 font-medium">Built with ❤️ by <span className="text-blue-600 font-bold">Lamidev</span></p>
+        <div className="flex justify-center space-x-4 items-center">
+          <a
+            href="https://www.linkedin.com/in/akinyemi-oluwatosin-95519130b"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-blue-700 transition"
+            title="LinkedIn"
+          >
+            <FaLinkedin className="w-4 h-4" />
+          </a>
+          <a
+            href="https://www.instagram.com/thisslami?igsh=MWRtNmwydnBzbnhuaw=="
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-pink-600 transition"
+            title="Instagram"
+          >
+            <FaInstagram className="w-4 h-4" />
+          </a>
+          <a
+            href="https://wa.me/2347056501913?text=Hello%20Lamidev,%20I%20saw%20your%20work%20on%20Afkit%20and%20I'd%20like%20to%20connect!"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-green-600 transition"
+            title="WhatsApp"
+          >
+            <FaWhatsapp className="w-4 h-4" />
+          </a>
+        </div>
+      </motion.div>
     </motion.footer>
   );
 };

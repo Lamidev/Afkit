@@ -33,7 +33,7 @@ export default function ShoppingProductDetails() {
   const [showInstagramModal, setShowInstagramModal] = useState(false);
   const [isContentLoading, setIsContentLoading] = useState(true);
   const [thumbnailStartIndex, setThumbnailStartIndex] = useState(0);
-  
+
   const thumbnailContainerRef = useRef(null);
   const mainImageRef = useRef(null);
   const THUMBNAILS_TO_SHOW = 4;
@@ -177,7 +177,8 @@ export default function ShoppingProductDetails() {
 
   const handleOrderOnWhatsApp = () => {
     const phoneNumber = "2348164014304";
-    const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    // constant productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    const productLink = `${window.location.origin}/api/og/product/${productDetails._id}`;
     const message = `🛍️ *AFKiT Product Inquiry*\n\n*Product:* ${productDetails.title}\n*Price:* ₦${Number(productDetails.price).toLocaleString("en-NG")}\n*Quantity:* ${quantity}\n\nHello AFKiT, I'm interested in this product. Is it available?\n\n🔗 *Product Link:* ${productLink}`;
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
@@ -199,7 +200,8 @@ export default function ShoppingProductDetails() {
   };
 
   const copyInstagramMessage = () => {
-    const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    // const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    const productLink = `${window.location.origin}/api/og/product/${productDetails._id}`;
     const message = `Hello AFKiT,\n\nI'm interested in "${productDetails.title}" for ₦${Number(
       productDetails.price
     ).toLocaleString("en-NG")}.\n\nQuantity: ${quantity}.\n\nIs it still available?\n\nProduct Link: ${productLink}`;
@@ -224,7 +226,8 @@ export default function ShoppingProductDetails() {
   };
 
   const handleCopyLink = () => {
-    const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    // const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    const productLink = `${window.location.origin}/api/og/product/${productDetails._id}`;
     navigator.clipboard.writeText(productLink);
     toast.success("Product link copied to clipboard!");
 
@@ -241,11 +244,11 @@ export default function ShoppingProductDetails() {
 
   const navigateImage = (direction) => {
     if (direction === 'next') {
-      setSelectedImageIndex(prev => 
+      setSelectedImageIndex(prev =>
         prev === productImages.length - 1 ? 0 : prev + 1
       );
     } else {
-      setSelectedImageIndex(prev => 
+      setSelectedImageIndex(prev =>
         prev === 0 ? productImages.length - 1 : prev - 1
       );
     }
@@ -271,7 +274,7 @@ export default function ShoppingProductDetails() {
   const renderDescription = (description) => {
     if (!description) return null;
     return (
-      <div 
+      <div
         className="rich-text-content prose prose-gray max-w-none 
                   prose-headings:font-bold
                   prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
@@ -285,8 +288,8 @@ export default function ShoppingProductDetails() {
                   prose-blockquote:text-gray-600
                   prose-a:text-blue-600 prose-a:underline
                   [&_u]:underline [&_s]:line-through"
-        dangerouslySetInnerHTML={{ 
-          __html: DOMPurify.sanitize(description) 
+        dangerouslySetInnerHTML={{
+          __html: DOMPurify.sanitize(description)
         }}
       />
     );
@@ -304,11 +307,11 @@ export default function ShoppingProductDetails() {
     productDetails.images?.length > 0
       ? productDetails.images
       : productDetails.image
-      ? [productDetails.image]
-      : [];
+        ? [productDetails.image]
+        : [];
 
   const visibleThumbnails = productImages.slice(
-    thumbnailStartIndex, 
+    thumbnailStartIndex,
     thumbnailStartIndex + THUMBNAILS_TO_SHOW
   );
 
@@ -320,7 +323,7 @@ export default function ShoppingProductDetails() {
       <Helmet>
         <title>{productDetails.title} - AFKiT</title>
         <meta name="description" content={descriptionText} />
-        
+
         <meta property="og:title" content={productDetails.title} />
         <meta property="og:description" content={descriptionText} />
         <meta property="og:image" content={mainImage} />
@@ -329,12 +332,12 @@ export default function ShoppingProductDetails() {
         <meta property="og:url" content={window.location.href} />
         <meta property="og:type" content="product" />
         <meta property="og:site_name" content="AFKiT" />
-        
+
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={productDetails.title} />
         <meta name="twitter:description" content={descriptionText} />
         <meta name="twitter:image" content={mainImage} />
-        
+
         <meta property="product:price:amount" content={productDetails.price} />
         <meta property="product:price:currency" content="NGN" />
         <meta property="product:availability" content={productDetails.totalStock > 0 ? "in stock" : "out of stock"} />
@@ -350,7 +353,7 @@ export default function ShoppingProductDetails() {
               alt={productDetails.title}
               className="w-full h-full object-contain transition-all duration-300 ease-in-out transform"
             />
-            
+
             {/* Navigation Arrows - Only show if multiple images */}
             {productImages.length > 1 && (
               <>
@@ -388,9 +391,9 @@ export default function ShoppingProductDetails() {
                     <ChevronLeft className="h-5 w-5 text-gray-600" />
                   </button>
                 )}
-                
+
                 {/* Thumbnails Container - Larger thumbnails */}
-                <div 
+                <div
                   ref={thumbnailContainerRef}
                   className="flex gap-3 overflow-hidden flex-1 justify-center"
                 >
@@ -400,11 +403,10 @@ export default function ShoppingProductDetails() {
                       <button
                         key={actualIndex}
                         onClick={() => handleThumbnailClick(actualIndex)}
-                        className={`flex-shrink-0 w-30 h-30 rounded-lg overflow-hidden border-3 transition-all duration-300 ease-in-out ${
-                          selectedImageIndex === actualIndex
+                        className={`flex-shrink-0 w-30 h-30 rounded-lg overflow-hidden border-3 transition-all duration-300 ease-in-out ${selectedImageIndex === actualIndex
                             ? "border-blue-600 shadow-lg scale-105"
                             : "border-gray-200 hover:border-gray-400 hover:shadow-md"
-                        }`}
+                          }`}
                       >
                         <img
                           src={getAbsoluteImageUrl(img)}
@@ -427,7 +429,7 @@ export default function ShoppingProductDetails() {
                   </button>
                 )}
               </div>
-              
+
               {/* Image Counter */}
               <div className="text-center text-sm text-gray-600 mt-3 font-medium">
                 Image {selectedImageIndex + 1} of {productImages.length}
