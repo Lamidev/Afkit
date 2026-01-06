@@ -134,7 +134,7 @@ const Footer = () => {
                 href="mailto:afkitng@gmail.com"
                 className="hover:text-gray-600 transition font-bold"
               >
-                afkitng@gmail.com
+                info@afkit.ng
               </a>
             </li>
             <li className="flex items-center justify-center md:justify-start">
