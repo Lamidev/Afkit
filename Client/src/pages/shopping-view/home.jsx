@@ -231,254 +231,249 @@ function ShoppingHome() {
   }, [dispatch]);
 
   return (
-<<<<<<< HEAD
     <div className="flex flex-col space-y-4 sm:space-y-8 px-4 sm:px-6">
       {/* Hero Section */}
       <section className="w-full flex items-center justify-center py-4 sm:py-8">
-=======
-    <div className="flex flex-col space-y-8 sm:space-y-12 px-4 sm:px-6">
-          <section className="w-full flex items-center justify-center py-8 sm:py-12">
->>>>>>> origin/main
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              onClick={() =>
-                handleNavigateToListingPage({ id: "all-products" }, null)
-              }
-              className="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center h-full w-full max-w-4xl cursor-pointer hover:shadow-lg transition-shadow duration-300"
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          onClick={() =>
+            handleNavigateToListingPage({ id: "all-products" }, null)
+          }
+          className="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center h-full w-full max-w-4xl cursor-pointer hover:shadow-lg transition-shadow duration-300"
+        >
+          <motion.div
+            className="text-center space-y-4 sm:space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <ShieldCheck className="text-orange-500 w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0" />
+              <span className="text-lg sm:text-xl font-medium text-gray-800">
+                Your No.1 store that offers
+              </span>
+            </div>
+
+            <motion.h1
+              className="text-orange-500 font-extrabold text-2xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight"
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                repeatType: "loop",
+              }}
             >
+              6 MONTHS WARRANTY AND
+              <br className="hidden sm:block" /> FREE DELIVERY
+            </motion.h1>
+
+            <p className="text-lg sm:text-xl md:text-2xl">
+              on all UK-used gadgets
+            </p>
+
+            <motion.div
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.05, 1] }}
+              transition={{
+                duration: 1.5,
+                repeat: Infinity,
+                repeatType: "loop",
+              }}
+              className="pt-2"
+            >
+              <Button
+                className="bg-blue-900 hover:bg-blue-700 text-white font-bold px-6 py-3 uppercase text-sm sm:text-base mx-auto"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleNavigateToListingPage({ id: "all-products" }, null);
+                }}
+              >
+                Shop Now
+              </Button>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Shop by category */}
+      <section className="py-2 sm:py-6 bg-gray-50 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-center mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-center">
+              Shop by category
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
+            {categoriesToShow.map(({ id, label, icon: Icon }) => (
               <motion.div
-                className="text-center space-y-4 sm:space-y-6"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
+                key={id}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Card
+                  onClick={() =>
+                    handleNavigateToListingPage(
+                      { id },
+                      id === "all-products" ? null : "category"
+                    )
+                  }
+                  className="cursor-pointer hover:shadow-md h-full"
+                >
+                  <CardContent className="flex flex-col items-center justify-center p-2 sm:p-3">
+                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 mb-1 text-blue-900" />
+                    <span className="text-xs sm:text-sm font-medium text-center leading-tight">
+                      {label}
+                    </span>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto w-full">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg"
+        >
+          <div className="text-center">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
+              Can't find the product you are looking for?
+            </h3>
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              We have access to a wide range of UK-used gadgets beyond what's shown here.
+              If you don't see the specific product you need, just ask us on WhatsApp!
+            </p>
+            <Button
+              onClick={handleWhatsAppRedirect}
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
+              size="lg"
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              ASK US ON WHATSAPP
+            </Button>
+          </div >
+        </motion.div >
+      </section >
+
+      <section className="max-w-7xl mx-auto">
+        <div className="flex justify-center mb-6">
+          <h2 className="text-xl sm:text-2xl font-bold text-center">
+            Top Products
+          </h2>
+        </div>
+        <AnimatePresence mode="wait">
+          {currentProducts.length > 0 ? (
+            <motion.div
+              key={JSON.stringify(currentProducts.map((p) => p._id))}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+                },
+              }}
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+            >
+              {currentProducts.map((productItem, index) => (
+                <motion.div key={productItem._id} variants={itemVariants}>
+                  <ShoppingProductTile
+                    product={productItem}
+                    handleAddToCart={handleAddToCart}
+                    handleViewDetails={handleViewProductDetails}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="col-span-full text-center text-gray-500"
+            >
+              Loading products...
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </section>
+
+      {/* Support Features */}
+      <section className="max-w-7xl mx-auto py-8 sm:py-12">
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold">Why Choose Afkit?</h2>
+          <p className="text-gray-600 mt-2 text-sm sm:text-base">
+            We're committed to providing the best shopping experience with
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {supportFeatures.map((feature, index) => {
+            const Icon = feature.icon;
+            return (
+              <motion.div
+                key={index}
+                whileHover={{ scale: 1.03 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
               >
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <ShieldCheck className="text-orange-500 w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0" />
-                  <span className="text-lg sm:text-xl font-medium text-gray-800">
-                    Your No.1 store that offers
-                  </span>
-                </div>
-
-                <motion.h1
-                  className="text-orange-500 font-extrabold text-2xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight"
-                  initial={{ scale: 1 }}
-                  animate={{ scale: [1, 1.02, 1] }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    repeatType: "loop",
-                  }}
-                >
-                  6 MONTHS WARRANTY AND
-                  <br className="hidden sm:block" /> FREE DELIVERY
-                </motion.h1>
-
-                <p className="text-lg sm:text-xl md:text-2xl">
-                  on all UK-used gadgets
-                </p>
-
-                <motion.div
-                  initial={{ scale: 1 }}
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    repeatType: "loop",
-                  }}
-                  className="pt-2"
-                >
-                  <Button
-                    className="bg-blue-900 hover:bg-blue-700 text-white font-bold px-6 py-3 uppercase text-sm sm:text-base mx-auto"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleNavigateToListingPage({ id: "all-products" }, null);
-                    }}
-                  >
-                    Shop Now
-                  </Button>
-                </motion.div>
+                <Card className="h-full">
+                  <CardContent className="flex flex-col items-center p-4 min-h-[150px]">
+                    <Icon className="w-8 h-8 mb-3 text-blue-900" />
+                    <h3 className="font-bold text-base mb-2 text-center">
+                      {feature.title}
+                    </h3>
+                    <p className="text-sm text-center text-gray-600">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
               </motion.div>
-            </motion.div>
-          </section>
+            );
+          })}
+        </div>
+      </section>
 
-          {/* Shop by category */}
-          <section className="py-2 sm:py-6 bg-gray-50 px-4 sm:px-6">
-            <div className="max-w-7xl mx-auto">
-              <div className="flex justify-center mb-6 sm:mb-8">
-                <h2 className="text-xl sm:text-2xl font-bold text-center">
-                  Shop by category
-                </h2>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
-                {categoriesToShow.map(({ id, label, icon: Icon }) => (
-                  <motion.div
-                    key={id}
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Card
-                      onClick={() =>
-                        handleNavigateToListingPage(
-                          { id },
-                          id === "all-products" ? null : "category"
-                        )
-                      }
-                      className="cursor-pointer hover:shadow-md h-full"
-                    >
-                      <CardContent className="flex flex-col items-center justify-center p-2 sm:p-3">
-                        <Icon className="w-5 h-5 sm:w-6 sm:h-6 mb-1 text-blue-900" />
-                        <span className="text-xs sm:text-sm font-medium text-center leading-tight">
-                          {label}
-                        </span>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-          </section>
+      <CustomerReviews />
 
-          <section className="max-w-7xl mx-auto w-full">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg"
+      <section className="max-w-7xl mx-auto w-full">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg"
+        >
+          <div className="text-center">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
+              Can't find the product you are looking for?
+            </h3>
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+              Don't worry! We specialize in sourcing hard-to-find UK-used gadgets.
+              Our WhatsApp team is ready to help you find exactly what you need.
+            </p>
+            <Button
+              onClick={handleWhatsAppRedirect}
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
+              size="lg"
             >
-              <div className="text-center">
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
-                  Can't find the product you are looking for?
-                </h3>
-                <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                  We have access to a wide range of UK-used gadgets beyond what's shown here.
-                  If you don't see the specific product you need, just ask us on WhatsApp!
-                </p>
-                <Button
-                  onClick={handleWhatsAppRedirect}
-                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
-                  size="lg"
-                >
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  ASK US ON WHATSAPP
-                </Button>
-              </div >
-            </motion.div >
-          </section >
-
-          <section className="max-w-7xl mx-auto">
-            <div className="flex justify-center mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-center">
-                Top Products
-              </h2>
-            </div>
-            <AnimatePresence mode="wait">
-              {currentProducts.length > 0 ? (
-                <motion.div
-                  key={JSON.stringify(currentProducts.map((p) => p._id))}
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  variants={{
-                    hidden: { opacity: 0 },
-                    visible: {
-                      opacity: 1,
-                      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
-                    },
-                  }}
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
-                >
-                  {currentProducts.map((productItem, index) => (
-                    <motion.div key={productItem._id} variants={itemVariants}>
-                      <ShoppingProductTile
-                        product={productItem}
-                        handleAddToCart={handleAddToCart}
-                        handleViewDetails={handleViewProductDetails}
-                      />
-                    </motion.div>
-                  ))}
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="loading"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="col-span-full text-center text-gray-500"
-                >
-                  Loading products...
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </section>
-
-          {/* Support Features */}
-          <section className="max-w-7xl mx-auto py-8 sm:py-12">
-            <div className="text-center mb-6 sm:mb-8">
-              <h2 className="text-xl sm:text-2xl font-bold">Why Choose Afkit?</h2>
-              <p className="text-gray-600 mt-2 text-sm sm:text-base">
-                We're committed to providing the best shopping experience with
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {supportFeatures.map((feature, index) => {
-                const Icon = feature.icon;
-                return (
-                  <motion.div
-                    key={index}
-                    whileHover={{ scale: 1.03 }}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <Card className="h-full">
-                      <CardContent className="flex flex-col items-center p-4 min-h-[150px]">
-                        <Icon className="w-8 h-8 mb-3 text-blue-900" />
-                        <h3 className="font-bold text-base mb-2 text-center">
-                          {feature.title}
-                        </h3>
-                        <p className="text-sm text-center text-gray-600">
-                          {feature.description}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </section>
-
-          <CustomerReviews />
-
-          <section className="max-w-7xl mx-auto w-full">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg"
-            >
-              <div className="text-center">
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
-                  Can't find the product you are looking for?
-                </h3>
-                <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-                  Don't worry! We specialize in sourcing hard-to-find UK-used gadgets.
-                  Our WhatsApp team is ready to help you find exactly what you need.
-                </p>
-                <Button
-                  onClick={handleWhatsAppRedirect}
-                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
-                  size="lg"
-                >
-                  <MessageCircle className="w-5 h-5 mr-2" />
-                  ASK US ON WHATSAPP
-                </Button>
-              </div >
-            </motion.div >
-          </section >
-        </div >
-        );
+              <MessageCircle className="w-5 h-5 mr-2" />
+              ASK US ON WHATSAPP
+            </Button>
+          </div >
+        </motion.div >
+      </section >
+    </div >
+  );
 }
 
-        export default ShoppingHome;
+export default ShoppingHome;
