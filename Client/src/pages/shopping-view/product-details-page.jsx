@@ -211,12 +211,10 @@ export default function ShoppingProductDetails() {
 
   const handleOrderOnWhatsApp = () => {
     const phoneNumber = "2348164014304";
-    const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
-    const message = `🛍️ *AFKiT Product Inquiry*\n\n*Product:* ${
-      productDetails.title
-    }\n*Price:* ₦${Number(productDetails.price).toLocaleString(
-      "en-NG"
-    )}\n*Quantity:* ${quantity}\n\nHello AFKiT, I'm interested in this product. Is it available?\n\n🔗 *Product Link:* ${productLink}`;
+
+    // constant productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    const productLink = `${window.location.origin}/api/og/product/${productDetails._id}`;
+    const message = `🛍️ *AFKiT Product Inquiry*\n\n*Product:* ${productDetails.title}\n*Price:* ₦${Number(productDetails.price).toLocaleString("en-NG")}\n*Quantity:* ${quantity}\n\nHello AFKiT, I'm interested in this product. Is it available?\n\n🔗 *Product Link:* ${productLink}`;
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
       message
@@ -239,12 +237,11 @@ export default function ShoppingProductDetails() {
   };
 
   const copyInstagramMessage = () => {
-    const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
-    const message = `Hello AFKiT,\n\nI'm interested in "${
-      productDetails.title
-    }" for ₦${Number(productDetails.price).toLocaleString(
-      "en-NG"
-    )}.\n\nQuantity: ${quantity}.\n\nIs it still available?\n\nProduct Link: ${productLink}`;
+    // const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    const productLink = `${window.location.origin}/api/og/product/${productDetails._id}`;
+    const message = `Hello AFKiT,\n\nI'm interested in "${productDetails.title}" for ₦${Number(
+      productDetails.price
+    ).toLocaleString("en-NG")}.\n\nQuantity: ${quantity}.\n\nIs it still available?\n\nProduct Link: ${productLink}`;
 
     navigator.clipboard.writeText(message);
     toast.success("Message copied to clipboard");
@@ -266,7 +263,8 @@ export default function ShoppingProductDetails() {
   };
 
   const handleCopyLink = () => {
-    const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    // const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    const productLink = `${window.location.origin}/api/og/product/${productDetails._id}`;
     navigator.clipboard.writeText(productLink);
     toast.success("Product link copied to clipboard!");
 
@@ -282,12 +280,12 @@ export default function ShoppingProductDetails() {
   };
 
   const navigateImage = (direction) => {
-    if (direction === "next") {
-      setSelectedImageIndex((prev) =>
+    if (direction === 'next') {
+      setSelectedImageIndex(prev =>
         prev === productImages.length - 1 ? 0 : prev + 1
       );
     } else {
-      setSelectedImageIndex((prev) =>
+      setSelectedImageIndex(prev =>
         prev === 0 ? productImages.length - 1 : prev - 1
       );
     }
@@ -317,11 +315,11 @@ export default function ShoppingProductDetails() {
 
   const handleScroll = (event) => {
     if (!productImages.length) return;
-    
+
     const scrollLeft = event.target.scrollLeft;
     const clientWidth = event.target.clientWidth;
     const newIndex = Math.round(scrollLeft / clientWidth);
-    
+
     if (newIndex !== selectedImageIndex && newIndex >= 0 && newIndex < productImages.length) {
       setSelectedImageIndex(newIndex);
       scrollMobileThumbnailIntoView(newIndex);
@@ -369,8 +367,8 @@ export default function ShoppingProductDetails() {
   const filteredRelatedProducts =
     productDetails?.brand && relatedProducts
       ? relatedProducts
-          ?.filter((p) => p._id !== productDetails?._id)
-          ?.slice(0, 4)
+        ?.filter((p) => p._id !== productDetails?._id)
+        ?.slice(0, 4)
       : [];
 
   const renderDescription = (description) => {
@@ -378,20 +376,20 @@ export default function ShoppingProductDetails() {
     return (
       <div
         className="rich-text-content prose prose-gray max-w-none 
-                   prose-headings:font-bold
-                   prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
-                   prose-p:leading-relaxed prose-p:my-4
-                   prose-ul:my-4 prose-ol:my-4
-                   prose-li:my-2
-                   prose-strong:font-bold prose-strong:text-gray-900
-                   prose-em:italic
-                   prose-blockquote:border-l-4 prose-blockquote:border-blue-500 
-                   prose-blockquote:pl-4 prose-blockquote:italic
-                   prose-blockquote:text-gray-600
-                   prose-a:text-blue-600 prose-a:underline
-                   [&_u]:underline [&_s]:line-through"
+                  prose-headings:font-bold
+                  prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
+                  prose-p:leading-relaxed prose-p:my-4
+                  prose-ul:my-4 prose-ol:my-4
+                  prose-li:my-2
+                  prose-strong:font-bold prose-strong:text-gray-900
+                  prose-em:italic
+                  prose-blockquote:border-l-4 prose-blockquote:border-blue-500 
+                  prose-blockquote:pl-4 prose-blockquote:italic
+                  prose-blockquote:text-gray-600
+                  prose-a:text-blue-600 prose-a:underline
+                  [&_u]:underline [&_s]:line-through"
         dangerouslySetInnerHTML={{
-          __html: DOMPurify.sanitize(description),
+          __html: DOMPurify.sanitize(description)
         }}
       />
     );
@@ -409,8 +407,8 @@ export default function ShoppingProductDetails() {
     productDetails.images?.length > 0
       ? productDetails.images
       : productDetails.image
-      ? [productDetails.image]
-      : [];
+        ? [productDetails.image]
+        : [];
 
   const visibleThumbnails = productImages.slice(
     thumbnailStartIndex,
@@ -453,43 +451,18 @@ export default function ShoppingProductDetails() {
         />
       </Helmet>
 
-      {/* ADJUSTED: Reduced mobile gap from 4 to 2 (gap-2) and kept large screen gap (lg:gap-12) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-12">
-        {/* Product Image and Thumbnails (Left Column on Large Screens) */}
-        {/* ADJUSTED: Removed mobile space-y-* classes for tighter vertical fit */}
-        <div className="lg:space-y-6">
-          <div className="relative w-full mx-auto lg:aspect-square rounded-xl overflow-hidden group">
-            <div 
-              ref={imageScrollRef}
-              className="flex overflow-x-auto lg:overflow-hidden snap-x snap-mandatory lg:snap-none hide-scrollbar"
-              onScroll={handleScroll}
-              style={{ scrollBehavior: 'smooth' }}
-            >
-              {/* Mobile Image Carousel */}
-              <div className="flex lg:hidden">
-                {productImages.map((img, index) => (
-                  <div
-                    key={index}
-                    className="flex-shrink-0 w-full snap-center"
-                  >
-                    <img
-                      src={getAbsoluteImageUrl(img)}
-                      alt={`${productDetails.title} ${index + 1}`}
-                      className="w-full h-auto object-contain"
-                    />
-                  </div>
-                ))}
-              </div>
-              {/* Desktop Main Image */}
-              <div className="hidden lg:block w-full">
-                <img
-                  src={getAbsoluteImageUrl(productImages[selectedImageIndex])}
-                  alt={productDetails.title}
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="space-y-6">
+          <div className="relative aspect-square rounded-xl overflow-hidden group">
+            {/* Main Image - Takes full container */}
+            <img
+              ref={mainImageRef}
+              src={getAbsoluteImageUrl(productImages[selectedImageIndex])}
+              alt={productDetails.title}
+              className="w-full h-full object-contain transition-all duration-300 ease-in-out transform"
+            />
 
+            {/* Navigation Arrows - Only show if multiple images */}
             {productImages.length > 1 && (
               <>
                 <button
@@ -515,7 +488,7 @@ export default function ShoppingProductDetails() {
           {/* Mobile Thumbnails (Changed to show 5 and reduced vertical margin) */}
           {productImages.length > 1 && (
             <div className="lg:hidden w-full overflow-x-auto pt-1">
-              <div 
+              <div
                 ref={mobileThumbnailRef}
                 className="flex gap-2 pb-2 hide-scrollbar"
                 style={{ scrollBehavior: 'smooth' }}
@@ -525,11 +498,10 @@ export default function ShoppingProductDetails() {
                     key={index}
                     onClick={() => handleThumbnailClick(index)}
                     // ADJUSTED: Used w-[18.8%] to ensure 5 fit comfortably with gap-2
-                    className={`flex-shrink-0 w-[18.8%] h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 ease-in-out ${
-                      selectedImageIndex === index
-                        ? "border-blue-600 shadow-lg scale-105"
-                        : "border-gray-200 hover:border-gray-400 hover:shadow-md"
-                    }`}
+                    className={`flex-shrink-0 w-[18.8%] h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 ease-in-out ${selectedImageIndex === index
+                      ? "border-blue-600 shadow-lg scale-105"
+                      : "border-gray-200 hover:border-gray-400 hover:shadow-md"
+                      }`}
                   >
                     <img
                       src={getAbsoluteImageUrl(img)}
@@ -556,6 +528,7 @@ export default function ShoppingProductDetails() {
                   </button>
                 )}
 
+                {/* Thumbnails Container - Larger thumbnails */}
                 <div
                   ref={thumbnailContainerRef}
                   className="flex gap-3 overflow-hidden flex-1 justify-center"
@@ -566,17 +539,15 @@ export default function ShoppingProductDetails() {
                       <button
                         key={actualIndex}
                         onClick={() => handleThumbnailClick(actualIndex)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ease-in-out ${
-                          selectedImageIndex === actualIndex
-                            ? "border-blue-600 shadow-lg scale-105"
-                            : "border-gray-200 hover:border-gray-400 hover:shadow-md"
-                        }`}
+                        className={`flex-shrink-0 w-30 h-30 rounded-lg overflow-hidden border-3 transition-all duration-300 ease-in-out ${selectedImageIndex === actualIndex
+                          ? "border-blue-600 shadow-lg scale-105"
+                          : "border-gray-200 hover:border-gray-400 hover:shadow-md"
+                          }`}
                       >
                         <img
                           src={getAbsoluteImageUrl(img)}
-                          alt={`${productDetails.title} thumbnail ${
-                            actualIndex + 1
-                          }`}
+                          alt={`${productDetails.title} thumbnail ${actualIndex + 1
+                            }`}
                           className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                         />
                       </button>
@@ -586,16 +557,17 @@ export default function ShoppingProductDetails() {
 
                 {thumbnailStartIndex + THUMBNAILS_TO_SHOW <
                   productImages.length && (
-                  <button
-                    onClick={() => navigateThumbnails("next")}
-                    className="flex-shrink-0 bg-white border border-gray-300 rounded-lg p-2 hover:bg-gray-50 
+                    <button
+                      onClick={() => navigateThumbnails("next")}
+                      className="flex-shrink-0 bg-white border border-gray-300 rounded-lg p-2 hover:bg-gray-50 
                                transition-colors shadow-sm hover:shadow-md"
-                  >
-                    <ChevronRight className="h-5 w-5 text-gray-600" />
-                  </button>
-                )}
+                    >
+                      <ChevronRight className="h-5 w-5 text-gray-600" />
+                    </button>
+                  )}
               </div>
 
+              {/* Image Counter */}
               <div className="text-center text-sm text-gray-600 mt-3 font-medium">
                 Image {selectedImageIndex + 1} of {productImages.length}
               </div>
@@ -673,68 +645,72 @@ export default function ShoppingProductDetails() {
 
           <Separator />
         </div>
-      </div>
+      </div >
 
-      {productDetails.description && (
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-4">Product Description</h2>
-          <div className="bg-white p-6 rounded-lg border">
-            {isContentLoading ? (
-              <div className="animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-              </div>
-            ) : (
-              <>
-                {renderDescription(productDetails.description)}
-                
-                {/* Updated Need More Information Section */}
-                <div className="mt-8">
-                  <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 shadow-lg">
-                    <div className="text-center">
-                      <h3 className="text-xl font-bold text-gray-800 mb-3">
-                        Need more information about this product?
-                      </h3>
-                      <Button
-                        onClick={handleProductInfoWhatsApp}
-                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
-                        size="lg"
-                      >
-                        <MessageCircle className="w-5 h-5 mr-2" />
-                        CONTACT US ON WHATSAPP
-                      </Button>
+      {
+        productDetails.description && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-bold mb-4">Product Description</h2>
+            <div className="bg-white p-6 rounded-lg border">
+              {isContentLoading ? (
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                </div>
+              ) : (
+                <>
+                  {renderDescription(productDetails.description)}
+
+                  {/* Updated Need More Information Section */}
+                  <div className="mt-8">
+                    <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 shadow-lg">
+                      <div className="text-center">
+                        <h3 className="text-xl font-bold text-gray-800 mb-3">
+                          Need more information about this product?
+                        </h3>
+                        <Button
+                          onClick={handleProductInfoWhatsApp}
+                          className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
+                          size="lg"
+                        >
+                          <MessageCircle className="w-5 h-5 mr-2" />
+                          CONTACT US ON WHATSAPP
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
-      {filteredRelatedProducts.length > 0 && (
-        <div className="mt-16">
-          <h2 className="text-xl font-bold text-center mb-8">
-            Related Products
-          </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 justify-center">
-            {filteredRelatedProducts.map((product) => (
-              <div
-                key={product._id}
-                onClick={() => handleRelatedProductClick(product._id)}
-                className="cursor-pointer"
-              >
-                <ShoppingProductTile
-                  product={product}
-                  handleAddToCart={handleAddToCart}
-                  handleViewDetails={handleRelatedProductClick}
-                />
-              </div>
-            ))}
+      {
+        filteredRelatedProducts.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-xl font-bold text-center mb-8">
+              Related Products
+            </h2>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 justify-center">
+              {filteredRelatedProducts.map((product) => (
+                <div
+                  key={product._id}
+                  onClick={() => handleRelatedProductClick(product._id)}
+                  className="cursor-pointer"
+                >
+                  <ShoppingProductTile
+                    product={product}
+                    handleAddToCart={handleAddToCart}
+                    handleViewDetails={handleRelatedProductClick}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       <div className="max-w-7xl mx-auto w-full mt-12">
         <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg">
@@ -754,41 +730,43 @@ export default function ShoppingProductDetails() {
         </div>
       </div>
 
-      {showInstagramModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-lg font-bold mb-4">Order on Instagram</h3>
-            <p className="mb-4">
-              Copy this message and paste it when you DM us on Instagram:
-            </p>
-            <div className="bg-gray-100 p-4 rounded mb-4">
-              <p className="whitespace-pre-wrap">
-                Hello AFKiT,
-                {"\n\n"}I'm interested in "{productDetails.title}" for ₦
-                {Number(productDetails.price).toLocaleString("en-NG")}.
-                {"\n\n"}Quantity: {quantity}.
-                {"\n\n"}Is it still available?
-                {"\n\n"}Product Link: {window.location.origin}/shop/product/
-                {productDetails._id}
+      {
+        showInstagramModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full">
+              <h3 className="text-lg font-bold mb-4">Order on Instagram</h3>
+              <p className="mb-4">
+                Copy this message and paste it when you DM us on Instagram:
               </p>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowInstagramModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-pink-600 hover:bg-pink-700 text-white font-bold"
-                onClick={copyInstagramMessage}
-              >
-                Copy & Open Instagram
-              </Button>
+              <div className="bg-gray-100 p-4 rounded mb-4">
+                <p className="whitespace-pre-wrap">
+                  Hello AFKiT,
+                  {"\n\n"}I'm interested in "{productDetails.title}" for ₦
+                  {Number(productDetails.price).toLocaleString("en-NG")}.
+                  {"\n\n"}Quantity: {quantity}.
+                  {"\n\n"}Is it still available?
+                  {"\n\n"}Product Link: {window.location.origin}/shop/product/
+                  {productDetails._id}
+                </p>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowInstagramModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="bg-pink-600 hover:bg-pink-700 text-white font-bold"
+                  onClick={copyInstagramMessage}
+                >
+                  Copy & Open Instagram
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       <style jsx>{`
         .hide-scrollbar::-webkit-scrollbar {
@@ -799,7 +777,7 @@ export default function ShoppingProductDetails() {
           scrollbar-width: none;
         }
       `}</style>
-    </div>
+    </div >
   );
 }
 
