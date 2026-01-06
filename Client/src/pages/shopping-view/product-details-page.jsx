@@ -213,7 +213,7 @@ export default function ShoppingProductDetails() {
     const phoneNumber = "2348164014304";
 
     // constant productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
-    const productLink = `${window.location.origin}/api/og/product/${productDetails._id}`;
+    const productLink = `${import.meta.env.VITE_API_BASE_URL}/og/product/${productDetails._id}`;
     const message = `🛍️ *AFKiT Product Inquiry*\n\n*Product:* ${productDetails.title}\n*Price:* ₦${Number(productDetails.price).toLocaleString("en-NG")}\n*Quantity:* ${quantity}\n\nHello AFKiT, I'm interested in this product. Is it available?\n\n🔗 *Product Link:* ${productLink}`;
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
@@ -238,7 +238,7 @@ export default function ShoppingProductDetails() {
 
   const copyInstagramMessage = () => {
     // const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
-    const productLink = `${window.location.origin}/api/og/product/${productDetails._id}`;
+    const productLink = `${import.meta.env.VITE_API_BASE_URL}/og/product/${productDetails._id}`;
     const message = `Hello AFKiT,\n\nI'm interested in "${productDetails.title}" for ₦${Number(
       productDetails.price
     ).toLocaleString("en-NG")}.\n\nQuantity: ${quantity}.\n\nIs it still available?\n\nProduct Link: ${productLink}`;
@@ -264,7 +264,7 @@ export default function ShoppingProductDetails() {
 
   const handleCopyLink = () => {
     // const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
-    const productLink = `${window.location.origin}/api/og/product/${productDetails._id}`;
+    const productLink = `${import.meta.env.VITE_API_BASE_URL}/og/product/${productDetails._id}`;
     navigator.clipboard.writeText(productLink);
     toast.success("Product link copied to clipboard!");
 

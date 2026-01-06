@@ -59,7 +59,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
           `📦 *${item.title || "Product"}*\n├ Quantity: ${item.quantity
           }\n├ Price: ${formatNaira(
             item.price
-          )}\n└ Product Link: ${window.location.origin}/api/og/product/${item.productId
+          )}\n└ Product Link: ${import.meta.env.VITE_API_BASE_URL}/og/product/${item.productId
           }`
       )
       .join("\n\n")}\n\n*Total Amount:* ${formatNaira(
