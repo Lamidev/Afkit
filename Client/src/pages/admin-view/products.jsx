@@ -1,5 +1,4 @@
 
-
 import { Fragment, useState, useEffect, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,7 +22,7 @@ import {
   editProduct,
   fetchAllProducts,
 } from "@/store/admin/products-slice";
-import { ArrowUpDown, Filter, X, Plus, ChevronDown } from "lucide-react";
+import { ArrowUpDown, Filter, X, Plus, ChevronDown, Edit } from "lucide-react";
 import AdminProductFilter from "@/components/admin-view/admin-product-filter";
 import { useLocation , Link} from "react-router-dom";
 
@@ -319,9 +318,7 @@ function AdminProducts() {
         break;
     }
 
-    const imagesValid = currentEditedId
-      ? formData.images && formData.images.length > 0
-      : uploadedImageUrls.length > 0;
+    const imagesValid = uploadedImageUrls.length > 0 || (currentEditedId && formData.images && formData.images.length > 0);
 
     return basicValid && categorySpecificValid && imagesValid;
   };

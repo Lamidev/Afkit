@@ -211,14 +211,16 @@ export const shoppingViewHeaderMenuItems = [
     label: "Products",
     path: "/shop/listing",
   },
-  {
-    id: "smartphones",
-    label: "Smartphones",
-    path: "/shop/listing",
-  },
+
   {
     id: "laptops",
     label: "Laptops",
+    path: "/shop/listing",
+  },
+
+    {
+    id: "smartphones",
+    label: "Smartphones",
     path: "/shop/listing",
   },
   {

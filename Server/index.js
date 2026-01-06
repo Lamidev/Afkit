@@ -16,18 +16,15 @@ const shareOGRouter = require("./routes/common/share-og-routes");
 
 const dbURL = process.env.MONGODB_URL;
 
-// Fetch the database URL from the environment variables
-
 // Connect to MongoDB
 mongoose
-  .connect(dbURL) // Ensure options are passed
+  .connect(dbURL)
   .then(() => {
     console.log("Connected to MongoDB");
 
     const app = express(); // Initialize the Express app
     const PORT = process.env.PORT || 9050;
 
-    // Middleware setup
     // Middleware setup
     app.use(
       cors({
@@ -70,5 +67,3 @@ mongoose
     );
   })
   .catch((error) => console.error("Failed to connect to MongoDB", error));
-
-

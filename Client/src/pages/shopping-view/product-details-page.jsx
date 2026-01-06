@@ -1,10 +1,18 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Minus, Plus, CheckCircle, AlertCircle, Share2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Minus,
+  Plus,
+  CheckCircle,
+  AlertCircle,
+  Share2,
+  ChevronLeft,
+  ChevronRight,
+  MessageCircle,
+} from "lucide-react";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { toast } from "sonner";
 import {
@@ -36,7 +44,32 @@ export default function ShoppingProductDetails() {
 
   const thumbnailContainerRef = useRef(null);
   const mainImageRef = useRef(null);
+  const imageScrollRef = useRef(null);
+  const mobileThumbnailRef = useRef(null);
+  // Adjusted for desktop view
   const THUMBNAILS_TO_SHOW = 4;
+
+  const WHATSAPP_NUMBER = "2348164014304";
+  const COMPANY_NAME = "Afkit";
+
+  const handleWhatsAppRedirect = () => {
+    const message = `Hi ${COMPANY_NAME}, I'm browsing your products but couldn't find what I'm looking for. Can you help me?`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleProductInfoWhatsApp = () => {
+    const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    const message = `Hi ${COMPANY_NAME}, I need more information about this product:\n\nProduct: ${productDetails.title}\nPrice: ₦${Number(productDetails.price).toLocaleString("en-NG")}\nProduct Link: ${productLink}\n\nCould you provide more details about this product?`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  };
 
   useEffect(() => {
     if (id) {
@@ -89,9 +122,10 @@ export default function ShoppingProductDetails() {
   }, [dispatch, user]);
 
   const getAbsoluteImageUrl = (imagePath) => {
-    if (!imagePath) return '';
-    if (imagePath.startsWith('http')) return imagePath;
-    if (imagePath.startsWith('/')) return `${window.location.origin}${imagePath}`;
+    if (!imagePath) return "";
+    if (imagePath.startsWith("http")) return imagePath;
+    if (imagePath.startsWith("/"))
+      return `${window.location.origin}${imagePath}`;
     return `${window.location.origin}/${imagePath}`;
   };
 
@@ -177,11 +211,14 @@ export default function ShoppingProductDetails() {
 
   const handleOrderOnWhatsApp = () => {
     const phoneNumber = "2348164014304";
+    const phoneNumber = "2348164014304";
     // constant productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
     const productLink = `${window.location.origin}/api/og/product/${productDetails._id}`;
     const message = `🛍️ *AFKiT Product Inquiry*\n\n*Product:* ${productDetails.title}\n*Price:* ₦${Number(productDetails.price).toLocaleString("en-NG")}\n*Quantity:* ${quantity}\n\nHello AFKiT, I'm interested in this product. Is it available?\n\n🔗 *Product Link:* ${productLink}`;
 
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
+      message
+    )}`;
     window.open(whatsappUrl, "_blank");
 
     dispatch(
@@ -243,6 +280,7 @@ export default function ShoppingProductDetails() {
   };
 
   const navigateImage = (direction) => {
+  const navigateImage = (direction) => {
     if (direction === 'next') {
       setSelectedImageIndex(prev =>
         prev === productImages.length - 1 ? 0 : prev + 1
@@ -255,26 +293,90 @@ export default function ShoppingProductDetails() {
   };
 
   const navigateThumbnails = (direction) => {
-    if (direction === 'next' && thumbnailStartIndex + THUMBNAILS_TO_SHOW < productImages.length) {
-      setThumbnailStartIndex(prev => prev + 1);
-    } else if (direction === 'prev' && thumbnailStartIndex > 0) {
-      setThumbnailStartIndex(prev => prev - 1);
+    if (
+      direction === "next" &&
+      thumbnailStartIndex + THUMBNAILS_TO_SHOW < productImages.length
+    ) {
+      setThumbnailStartIndex((prev) => prev + 1);
+    } else if (direction === "prev" && thumbnailStartIndex > 0) {
+      setThumbnailStartIndex((prev) => prev - 1);
     }
   };
 
   const handleThumbnailClick = (index) => {
     setSelectedImageIndex(index);
+    if (imageScrollRef.current) {
+      const scrollPosition = index * imageScrollRef.current.clientWidth;
+      imageScrollRef.current.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleScroll = (event) => {
+    if (!productImages.length) return;
+    
+    const scrollLeft = event.target.scrollLeft;
+    const clientWidth = event.target.clientWidth;
+    const newIndex = Math.round(scrollLeft / clientWidth);
+    
+    if (newIndex !== selectedImageIndex && newIndex >= 0 && newIndex < productImages.length) {
+      setSelectedImageIndex(newIndex);
+      scrollMobileThumbnailIntoView(newIndex);
+    }
+  };
+
+  // Improved scroll function to fully reveal the last thumbnail on mobile
+  const scrollMobileThumbnailIntoView = (index) => {
+    if (mobileThumbnailRef.current) {
+      const container = mobileThumbnailRef.current;
+      const thumbnails = container.children;
+
+      if (thumbnails[index]) {
+        const thumbnail = thumbnails[index];
+        const containerWidth = container.clientWidth;
+        const thumbnailWidth = thumbnail.offsetWidth;
+        const thumbnailLeft = thumbnail.offsetLeft;
+        const thumbnailRight = thumbnailLeft + thumbnailWidth;
+
+        const maxScrollLeft = container.scrollWidth - containerWidth;
+        const currentScrollLeft = container.scrollLeft;
+
+        // Scroll left if thumbnail is out of view on left
+        if (thumbnailLeft < currentScrollLeft) {
+          container.scrollTo({
+            left: thumbnailLeft,
+            behavior: 'smooth',
+          });
+        }
+        // Scroll right if thumbnail's right edge is out of view on right
+        else if (thumbnailRight > currentScrollLeft + containerWidth) {
+          let targetScrollLeft = thumbnailRight - containerWidth;
+          if (targetScrollLeft > maxScrollLeft) {
+            targetScrollLeft = maxScrollLeft;
+          }
+          container.scrollTo({
+            left: targetScrollLeft,
+            behavior: 'smooth',
+          });
+        }
+      }
+    }
   };
 
   const filteredRelatedProducts =
     productDetails?.brand && relatedProducts
-      ? relatedProducts?.filter((p) => p._id !== productDetails?._id)?.slice(0, 4)
+      ? relatedProducts
+          ?.filter((p) => p._id !== productDetails?._id)
+          ?.slice(0, 4)
       : [];
 
   const renderDescription = (description) => {
     if (!description) return null;
     return (
       <div
+        className="rich-text-content prose prose-gray max-w-none 
         className="rich-text-content prose prose-gray max-w-none 
                   prose-headings:font-bold
                   prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg
@@ -315,11 +417,16 @@ export default function ShoppingProductDetails() {
     thumbnailStartIndex + THUMBNAILS_TO_SHOW
   );
 
-  const mainImage = getAbsoluteImageUrl(productImages[0] || productDetails.image);
-  const descriptionText = `Buy ${productDetails.title} for ₦${Number(productDetails.price).toLocaleString("en-NG")}`;
+  const mainImage = getAbsoluteImageUrl(
+    productImages[0] || productDetails.image
+  );
+  const descriptionText = `Buy ${productDetails.title} for ₦${Number(
+    productDetails.price
+  ).toLocaleString("en-NG")}`;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    // ADJUSTED: Reduced top padding on mobile (pt-2) to bring content up.
+    <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 pt-2 pb-8 lg:py-8">
       <Helmet>
         <title>{productDetails.title} - AFKiT</title>
         <meta name="description" content={descriptionText} />
@@ -340,7 +447,10 @@ export default function ShoppingProductDetails() {
 
         <meta property="product:price:amount" content={productDetails.price} />
         <meta property="product:price:currency" content="NGN" />
-        <meta property="product:availability" content={productDetails.totalStock > 0 ? "in stock" : "out of stock"} />
+        <meta
+          property="product:availability"
+          content={productDetails.totalStock > 0 ? "in stock" : "out of stock"}
+        />
       </Helmet>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -358,18 +468,18 @@ export default function ShoppingProductDetails() {
             {productImages.length > 1 && (
               <>
                 <button
-                  onClick={() => navigateImage('prev')}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white 
-                           rounded-full p-3 shadow-xl transition-all duration-200 opacity-100 lg:opacity-0 lg:group-hover:opacity-100
-                           border border-gray-200 hover:shadow-2xl"
+                  onClick={() => navigateImage("prev")}
+                  className="hidden lg:flex absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white 
+                             rounded-full p-3 shadow-xl transition-all duration-200 opacity-100 lg:opacity-0 lg:group-hover:opacity-100
+                             border border-gray-200 hover:shadow-2xl"
                 >
                   <ChevronLeft className="h-5 w-5 text-gray-700" />
                 </button>
                 <button
-                  onClick={() => navigateImage('next')}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white 
-                           rounded-full p-3 shadow-xl transition-all duration-200 opacity-100 lg:opacity-0 lg:group-hover:opacity-100
-                           border border-gray-200 hover:shadow-2xl"
+                  onClick={() => navigateImage("next")}
+                  className="hidden lg:flex absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white 
+                             rounded-full p-3 shadow-xl transition-all duration-200 opacity-100 lg:opacity-0 lg:group-hover:opacity-100
+                             border border-gray-200 hover:shadow-2xl"
                 >
                   <ChevronRight className="h-5 w-5 text-gray-700" />
                 </button>
@@ -377,16 +487,45 @@ export default function ShoppingProductDetails() {
             )}
           </div>
 
-          {/* Thumbnails Gallery - Larger and horizontal at bottom */}
+          {/* Mobile Thumbnails (Changed to show 5 and reduced vertical margin) */}
           {productImages.length > 1 && (
-            <div className="relative">
+            <div className="lg:hidden w-full overflow-x-auto pt-1">
+              <div 
+                ref={mobileThumbnailRef}
+                className="flex gap-2 pb-2 hide-scrollbar"
+                style={{ scrollBehavior: 'smooth' }}
+              >
+                {productImages.map((img, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleThumbnailClick(index)}
+                    // ADJUSTED: Used w-[18.8%] to ensure 5 fit comfortably with gap-2
+                    className={`flex-shrink-0 w-[18.8%] h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 ease-in-out ${
+                      selectedImageIndex === index
+                        ? "border-blue-600 shadow-lg scale-105"
+                        : "border-gray-200 hover:border-gray-400 hover:shadow-md"
+                    }`}
+                  >
+                    <img
+                      src={getAbsoluteImageUrl(img)}
+                      alt={`${productDetails.title} thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Desktop Thumbnails (Shows 4 with navigation) */}
+          {productImages.length > 1 && (
+            <div className="hidden lg:block relative">
               <div className="flex items-center gap-3">
-                {/* Previous Thumbnail Button */}
                 {thumbnailStartIndex > 0 && (
                   <button
-                    onClick={() => navigateThumbnails('prev')}
+                    onClick={() => navigateThumbnails("prev")}
                     className="flex-shrink-0 bg-white border border-gray-300 rounded-lg p-2 hover:bg-gray-50 
-                             transition-colors shadow-sm hover:shadow-md"
+                               transition-colors shadow-sm hover:shadow-md"
                   >
                     <ChevronLeft className="h-5 w-5 text-gray-600" />
                   </button>
@@ -410,7 +549,9 @@ export default function ShoppingProductDetails() {
                       >
                         <img
                           src={getAbsoluteImageUrl(img)}
-                          alt={`${productDetails.title} thumbnail ${actualIndex + 1}`}
+                          alt={`${productDetails.title} thumbnail ${
+                            actualIndex + 1
+                          }`}
                           className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
                         />
                       </button>
@@ -418,19 +559,22 @@ export default function ShoppingProductDetails() {
                   })}
                 </div>
 
-                {/* Next Thumbnail Button */}
-                {thumbnailStartIndex + THUMBNAILS_TO_SHOW < productImages.length && (
+                {thumbnailStartIndex + THUMBNAILS_TO_SHOW <
+                  productImages.length && (
                   <button
-                    onClick={() => navigateThumbnails('next')}
+                    onClick={() => navigateThumbnails("next")}
                     className="flex-shrink-0 bg-white border border-gray-300 rounded-lg p-2 hover:bg-gray-50 
-                             transition-colors shadow-sm hover:shadow-md"
+                               transition-colors shadow-sm hover:shadow-md"
                   >
                     <ChevronRight className="h-5 w-5 text-gray-600" />
                   </button>
                 )}
               </div>
 
+<<<<<<< HEAD
               {/* Image Counter */}
+=======
+>>>>>>> origin/main
               <div className="text-center text-sm text-gray-600 mt-3 font-medium">
                 Image {selectedImageIndex + 1} of {productImages.length}
               </div>
@@ -438,10 +582,11 @@ export default function ShoppingProductDetails() {
           )}
         </div>
 
-        {/* Product Details Section */}
-        <div className="space-y-6">
+        {/* Product Details (Right Column on Large Screens) */}
+        {/* ADJUSTED: Removed mobile margin-top (mt-4) to pull it right up to the image/thumbnail section */}
+        <div className="space-y-6 lg:mt-0">
           <div>
-            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight">
               {productDetails.title}
             </h1>
           </div>
@@ -520,7 +665,28 @@ export default function ShoppingProductDetails() {
                 <div className="h-4 bg-gray-200 rounded w-5/6"></div>
               </div>
             ) : (
-              renderDescription(productDetails.description)
+              <>
+                {renderDescription(productDetails.description)}
+                
+                {/* Updated Need More Information Section */}
+                <div className="mt-8">
+                  <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 shadow-lg">
+                    <div className="text-center">
+                      <h3 className="text-xl font-bold text-gray-800 mb-3">
+                        Need more information about this product?
+                      </h3>
+                      <Button
+                        onClick={handleProductInfoWhatsApp}
+                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
+                        size="lg"
+                      >
+                        <MessageCircle className="w-5 h-5 mr-2" />
+                        CONTACT US ON WHATSAPP
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -549,6 +715,24 @@ export default function ShoppingProductDetails() {
         </div>
       )}
 
+      <div className="max-w-7xl mx-auto w-full mt-12">
+        <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg">
+          <div className="text-center">
+            <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
+              Can't find the product you are looking for?
+            </h3>
+            <Button
+              onClick={handleWhatsAppRedirect}
+              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
+              size="lg"
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              ASK US ON WHATSAPP
+            </Button>
+          </div>
+        </div>
+      </div>
+
       {showInstagramModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
@@ -558,9 +742,11 @@ export default function ShoppingProductDetails() {
             </p>
             <div className="bg-gray-100 p-4 rounded mb-4">
               <p className="whitespace-pre-wrap">
-                Hello AFKiT,\n\nI'm interested in "{productDetails.title}" for ₦
+                Hello AFKiT,
+                {"\n\n"}I'm interested in "{productDetails.title}" for ₦
                 {Number(productDetails.price).toLocaleString("en-NG")}.
-                {"\n\n"}Quantity: {quantity}.{"\n\n"}Is it still available?
+                {"\n\n"}Quantity: {quantity}.
+                {"\n\n"}Is it still available?
                 {"\n\n"}Product Link: {window.location.origin}/shop/product/
                 {productDetails._id}
               </p>
@@ -582,6 +768,18 @@ export default function ShoppingProductDetails() {
           </div>
         </div>
       )}
+
+      <style jsx>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 }
+
+

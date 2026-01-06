@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Compass} from 'lucide-react'; // Example icon from lucide-react
+import { Compass} from 'lucide-react';
 
 const NotFound = () => {
   return (

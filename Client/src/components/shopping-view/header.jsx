@@ -1,3 +1,4 @@
+
 import {
   LogOut,
   Menu,
@@ -41,11 +42,10 @@ import {
 
 function MenuItems({ closeSheet }) {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams(); // Keep if you still need to read search params in MenuItems for other logic
+  const [searchParams] = useSearchParams();
   const [expandedMenu, setExpandedMenu] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Subcategories mapping
   const subCategories = {
     products: [
       { id: "all-products", label: "All Products", path: "/shop/listing" },
@@ -149,14 +149,12 @@ function MenuItems({ closeSheet }) {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 1024);
     };
-
-    handleResize(); // Set initial value
+    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   function handleNavigate(menuItem) {
-    // Clear all stored filters, price range, and sort when navigating via header
     sessionStorage.removeItem("filters");
     sessionStorage.removeItem("priceRange");
     sessionStorage.removeItem("sort");
@@ -179,11 +177,10 @@ function MenuItems({ closeSheet }) {
   }
 
   function handleSubItemNavigate(subItem) {
-    // Clear all stored filters, price range, and sort before applying new ones
     sessionStorage.removeItem("filters");
     sessionStorage.removeItem("priceRange");
     sessionStorage.removeItem("sort");
-    navigate(subItem.path); // Use the subItem's path directly
+    navigate(subItem.path);
     closeSheet();
   }
 
@@ -192,7 +189,7 @@ function MenuItems({ closeSheet }) {
   }
 
   return (
-    <nav className="flex flex-col mb-3 lg:mb-0 lg:items-center gap-6 lg:flex-row lg:gap-8">
+    <nav className="flex flex-col lg:flex-row lg:items-center lg:gap-8">
       {shoppingViewHeaderMenuItems.map((menuItem) => {
         const isCategoryWithSubItems = [
           "products",
@@ -208,12 +205,12 @@ function MenuItems({ closeSheet }) {
             {isMobile && isCategoryWithSubItems ? (
               <div className="flex flex-col">
                 <div
-                  className="flex items-center justify-between"
+                  className="flex items-center justify-between py-2"
                   onClick={() => toggleSubMenu(menuItem.id)}
                 >
-                  <Label className="text-base font-medium cursor-pointer flex items-center gap-2 pb-1 hover:text-primary transition-colors">
+                  <span className="text-base font-medium cursor-pointer flex items-center gap-2 hover:text-primary transition-colors">
                     {menuItem.label}
-                  </Label>
+                  </span>
                   <ChevronDown
                     className={`h-4 w-4 transition-transform ${
                       expandedMenu === menuItem.id ? "rotate-180" : ""
@@ -222,26 +219,26 @@ function MenuItems({ closeSheet }) {
                 </div>
 
                 {expandedMenu === menuItem.id && (
-                  <div className="ml-4 mt-2 space-y-2">
+                  <div className="ml-4 mt-1 space-y-1">
                     {relevantSubCategories?.map((subItem) => (
-                      <Label
+                      <span
                         key={subItem.id}
                         onClick={() => handleSubItemNavigate(subItem)}
-                        className="text-sm font-medium cursor-pointer flex items-center gap-2 pb-1 hover:text-primary transition-colors pl-2 border-l-2 border-gray-200"
+                        className="text-sm font-medium cursor-pointer flex items-center gap-2 py-2 hover:text-primary transition-colors pl-3 border-l-2 border-gray-200"
                       >
                         {subItem.label}
-                      </Label>
+                      </span>
                     ))}
                   </div>
                 )}
               </div>
             ) : (
-              <Label
+              <button
                 onClick={() => handleNavigate(menuItem)}
-                className="text-base font-medium cursor-pointer flex items-center gap-2 pb-1 hover:text-primary transition-colors after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+                className="text-base font-medium cursor-pointer flex items-center gap-2 py-2 hover:text-primary transition-colors relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
               >
                 {menuItem.label}
-              </Label>
+              </button>
             )}
           </div>
         );
@@ -250,7 +247,6 @@ function MenuItems({ closeSheet }) {
   );
 }
 
-// ... (HeaderRightContent and ShoppingHeader components remain unchanged)
 function HeaderRightContent({ closeSheet }) {
   const { user } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.shopCart);
@@ -274,7 +270,6 @@ function HeaderRightContent({ closeSheet }) {
   return (
     <TooltipProvider>
       <div className="flex items-center gap-4">
-        {/* Search - Hidden on mobile */}
         <Tooltip>
           <TooltipTrigger asChild>
             <button
@@ -290,7 +285,6 @@ function HeaderRightContent({ closeSheet }) {
           <TooltipContent>Search</TooltipContent>
         </Tooltip>
 
-        {/* Cart */}
         <Tooltip>
           <TooltipTrigger asChild>
             <button
@@ -308,7 +302,6 @@ function HeaderRightContent({ closeSheet }) {
           <TooltipContent>Cart</TooltipContent>
         </Tooltip>
 
-        {/* User */}
         <Tooltip>
           <TooltipTrigger asChild>
             {user?.userName ? (
@@ -384,7 +377,6 @@ function ShoppingHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="flex h-20 items-center justify-between px-4 md:px-6">
-        {/* Mobile Left Side (Hamburger + Logo) */}
         <div className="flex items-center gap-2">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
@@ -392,13 +384,12 @@ function ShoppingHeader() {
                 <Menu className="h-6 w-6 stroke-[2.5px]" />
               </button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[280px]">
+            <SheetContent side="left" className="w-[280px] px-4">
               <div className="flex flex-col h-full justify-between">
-                <div className="pt-6">
+                <div className="pt-6 space-y-4">
                   <MenuItems closeSheet={() => setIsSheetOpen(false)} />
                 </div>
 
-                {/* User section at bottom */}
                 {!user && (
                   <div className="pb-6 space-y-3">
                     <Button
@@ -435,12 +426,10 @@ function ShoppingHeader() {
           </Link>
         </div>
 
-        {/* Desktop Menu Items (center) */}
         <div className="hidden lg:block">
           <MenuItems closeSheet={() => setIsSheetOpen(false)} />
         </div>
 
-        {/* Right Icons (Cart + User) - visible on all screens */}
         <HeaderRightContent closeSheet={() => setIsSheetOpen(false)} />
       </div>
     </header>

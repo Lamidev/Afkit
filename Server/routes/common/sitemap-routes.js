@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Product = require("../../models/products"); // adjust path if needed
+const Product = require("../../models/products"); 
 
 const BASE_URL = "https://afkit.ng";
 

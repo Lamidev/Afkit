@@ -14,7 +14,7 @@ import shareTrackingSlice from './common-slice/share-slice/index';
 
 const store = configureStore({
   reducer: {
-    // Define your reducers here
+    // Defined my reducers here
     auth: authReducer,
 
     adminProducts: adminProductsSlice,

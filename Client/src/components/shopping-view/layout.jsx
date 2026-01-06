@@ -4,10 +4,7 @@ import ShoppingHeader from "./header";
 import Footer from "./footer";
 import SearchMenu from "@/components/shopping-view/search-menu";
 import whatappimg from "../../assets/whatsppicon.webp";
-
-// Import motion for the FAQ section animations
 import { motion } from "framer-motion";
-// Import Accordion components for the FAQ section
 import {
   Accordion,
   AccordionContent,
@@ -31,7 +28,7 @@ const ShoppingLayout = () => {
       </div>
 
       {/* Scrollable Content */}
-      <div className="pt-[160px]"> {/* Adjust this value based on your header height */}
+      <div className="pt-[160px]"> 
         <main className="flex-grow w-full">
           <Outlet />
         </main>
@@ -43,12 +40,12 @@ const ShoppingLayout = () => {
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 p-0 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center z-50"
-        style={{ width: '60px', height: '60px', overflow: 'hidden' }} // Example size, adjust as needed
+        style={{ width: '60px', height: '60px', overflow: 'hidden' }} 
       >
         <img
-          src={whatappimg} // Adjust this path based on where you put the image file
+          src={whatappimg} 
           alt="WhatsApp Chat"
-          className="w-full h-full object-cover" // Ensure the image covers the container
+          className="w-full h-full object-cover" 
         />
       </a>
 
@@ -77,7 +74,6 @@ const ShoppingLayout = () => {
               value="warranty"
               className="border-b border-gray-200 last:border-b-0"
             >
-              {/* Changed text-lg to text-base for the AccordionTrigger */}
               <AccordionTrigger className="text-base font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
                 What does the 6-Month Warranty cover?
               </AccordionTrigger>
@@ -92,7 +88,6 @@ const ShoppingLayout = () => {
               value="delivery-time"
               className="border-b border-gray-200 last:border-b-0"
             >
-              {/* Changed text-lg to text-base for the AccordionTrigger */}
               <AccordionTrigger className="text-base font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
                 How long does delivery take?
               </AccordionTrigger>
@@ -109,7 +104,6 @@ const ShoppingLayout = () => {
               value="payment-on-delivery"
               className="border-b border-gray-200 last:border-b-0"
             >
-              {/* Changed text-lg to text-base for the AccordionTrigger */}
               <AccordionTrigger className="text-base font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
                 How does your PAYMENT ON DELIVERY work?
               </AccordionTrigger>
@@ -124,7 +118,7 @@ const ShoppingLayout = () => {
               value="product-quality"
               className="border-b border-gray-200 last:border-b-0"
             >
-              {/* Changed text-lg to text-base for the AccordionTrigger */}
+          
               <AccordionTrigger className="text-base font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
                 How do you ensure product quality?
               </AccordionTrigger>
@@ -135,7 +129,7 @@ const ShoppingLayout = () => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="tech-support" className="last:border-b-0">
-              {/* Changed text-lg to text-base for the AccordionTrigger */}
+              
               <AccordionTrigger className="text-base font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
                 Is Afkit Tech support available 24/7?
               </AccordionTrigger>
@@ -148,7 +142,7 @@ const ShoppingLayout = () => {
         </motion.div>
       </section>
 
-      {/* Common Footer */}
+  
       <Footer />
     </div>
   );

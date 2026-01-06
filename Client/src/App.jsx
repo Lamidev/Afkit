@@ -35,7 +35,7 @@ function App() {
     dispatch(checkAuth());
   }, [dispatch]);
 
-  if (isLoading) return <LoadingSpinner />; // Replace Skeleton with LoadingSpinner
+  if (isLoading) return <LoadingSpinner />; 
 
   return (
     <div className="flex flex-col overflow-hidden bg-white">
@@ -95,3 +95,4 @@ function App() {
 }
 
 export default App;
+

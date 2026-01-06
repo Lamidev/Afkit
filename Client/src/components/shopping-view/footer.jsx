@@ -8,14 +8,7 @@ import {
   FaMapMarkerAlt,
   FaLinkedin,
 } from "react-icons/fa";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import Afkitlogo from "../../assets/afkit-logo.png";
 
 const Footer = () => {
@@ -83,7 +76,7 @@ const Footer = () => {
           {/* Changed text-sm to text-base */}
           <div className="text-base font-bold text-gray-900">
             <p className="mb-2 leading-relaxed">
-              <span className="text-orange-500 font-bold">Afkit</span>{" "} is your trusted tech partner in Nigeria offering premium
+              <span className="text-orange-500 font-bold">Afkit</span> is your trusted tech partner in Nigeria offering premium
               Uk-used devices with{" "}
               <span className="font-semibold text-orange-500">
                 6-month warranty

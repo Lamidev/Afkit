@@ -1,6 +1,3 @@
-
-
-
 import {
   sortOptions,
   categoryOptionsMap,
@@ -19,7 +16,6 @@ import {
   XCircle,
   SlidersHorizontal,
   MessageCircle,
-  Sparkles,
   ChevronDown,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,7 +24,7 @@ import { fetchAllFilteredProducts } from "@/store/shop/products-slice";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { getOrCreateSessionId } from "@/components/utils/session";
 
@@ -46,12 +42,14 @@ function ShoppingListing() {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [isFilterLoading, setIsFilterLoading] = useState(false);
   const [minimumLoaderTime, setMinimumLoaderTime] = useState(false);
-  const [showWhatsAppHint, setShowWhatsAppHint] = useState(false);
 
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
   const [isMobileSortDropdownOpen, setIsMobileSortDropdownOpen] = useState(false);
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(() => {
+    const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+    return pageFromUrl;
+  });
   const [productsPerPage] = useState(12);
 
   const [priceRange, setPriceRange] = useState({
@@ -82,6 +80,40 @@ function ShoppingListing() {
     };
   }, []);
 
+  const scrollToTop = () => {
+    try {
+      window.scrollTo(0, 0);
+      
+      if ('scrollBehavior' in document.documentElement.style) {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      } else {
+        const scrollDuration = 300;
+        const scrollStep = -window.scrollY / (scrollDuration / 15);
+        
+        const scrollInterval = setInterval(() => {
+          if (window.scrollY !== 0) {
+            window.scrollBy(0, scrollStep);
+          } else {
+            clearInterval(scrollInterval);
+          }
+        }, 15);
+      }
+      
+      if (document.body.scrollTop > 0) {
+        document.body.scrollTo(0, 0);
+      }
+      if (document.documentElement.scrollTop > 0) {
+        document.documentElement.scrollTo(0, 0);
+      }
+    } catch (error) {
+      console.log("Scroll to top error:", error);
+      window.scrollTo(0, 0);
+    }
+  };
+
   const handleWhatsAppRedirect = () => {
     const category = searchParams.get("category");
     const message = category 
@@ -93,17 +125,6 @@ function ShoppingListing() {
     
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
   };
-
-  useEffect(() => {
-    if (!isFilterLoading && !minimumLoaderTime && productList.length === 0) {
-      const timer = setTimeout(() => {
-        setShowWhatsAppHint(true);
-      }, 2000);
-      return () => clearTimeout(timer);
-    } else {
-      setShowWhatsAppHint(false);
-    }
-  }, [isFilterLoading, minimumLoaderTime, productList.length]);
 
   const currentFilterOptions = useMemo(() => {
     const categoryFromUrl = searchParams.get("category") || "all-products";
@@ -143,13 +164,12 @@ function ShoppingListing() {
     setMinimumLoaderTime(true);
     const startTime = Date.now();
 
-    setCurrentPage(1);
-
     const params = Object.fromEntries(searchParams.entries());
     const initialFilters = {};
     let initialMinPrice = 0;
     let initialMaxPrice = 5000000;
     let initialSort = "price-lowtohigh";
+    let initialPage = 1;
 
     for (const [key, value] of Object.entries(params)) {
       if (key === "minPrice") {
@@ -158,6 +178,8 @@ function ShoppingListing() {
         initialMaxPrice = parseInt(value) || 5000000;
       } else if (key === "sort") {
         initialSort = value;
+      } else if (key === "page") {
+        initialPage = parseInt(value) || 1;
       } else if (value.includes(",")) {
         initialFilters[key] = value.split(",");
       } else {
@@ -172,6 +194,7 @@ function ShoppingListing() {
     setFilters(initialFilters);
     setPriceRange({ min: initialMinPrice, max: initialMaxPrice });
     setSort(initialSort);
+    setCurrentPage(initialPage);
 
     dispatch(
       fetchAllFilteredProducts({
@@ -193,7 +216,9 @@ function ShoppingListing() {
       }
     });
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setTimeout(() => {
+      scrollToTop();
+    }, 100);
 
     return () => {
       abortController.abort();
@@ -218,6 +243,10 @@ function ShoppingListing() {
 
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set("sort", value);
+    
+    if (currentPage !== 1) {
+      newSearchParams.set("page", currentPage.toString());
+    }
 
     setSearchParams(newSearchParams);
     setIsSortDropdownOpen(false);
@@ -255,9 +284,16 @@ function ShoppingListing() {
       newSearchParams.set("sort", sort);
     }
 
+    if (currentPage !== 1) {
+      newSearchParams.set("page", currentPage.toString());
+    }
+
     setSearchParams(newSearchParams);
     setIsMobileFilterOpen(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    setTimeout(() => {
+      scrollToTop();
+    }, 100);
   };
 
   const handleViewProductDetails = (productId) => {
@@ -325,7 +361,10 @@ function ShoppingListing() {
     }
 
     setSearchParams(newSearchParams);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
+    setTimeout(() => {
+      scrollToTop();
+    }, 100);
   };
 
   const indexOfLastProduct = currentPage * productsPerPage;
@@ -336,7 +375,17 @@ function ShoppingListing() {
   );
   const totalPages = Math.ceil(productList.length / productsPerPage);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("page", pageNumber.toString());
+    setSearchParams(newSearchParams);
+    
+    setTimeout(() => {
+      scrollToTop();
+    }, 100);
+  };
 
   const isPrevDisabled = currentPage === 1;
   const isNextDisabled = currentPage === totalPages;
@@ -512,23 +561,28 @@ function ShoppingListing() {
                       ))}
                     </div>
 
-                    <motion.div
-                      className="mt-12 text-center border-t pt-8"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 1 }}
-                    >
-                      <p className="text-gray-800 font-semibold text-lg mb-4">
-                        Couldn't find what you're looking for?
-                      </p>
-                      <Button
-                        onClick={handleWhatsAppRedirect}
-                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg"
+                    <section className="max-w-7xl mx-auto w-full mt-12">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg"
                       >
-                        <MessageCircle className="w-5 h-5 mr-2" />
-                        Ask us on WhatsApp
-                      </Button>
-                    </motion.div>
+                        <div className="text-center">
+                          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
+                            Can't find the product you are looking for?
+                          </h3>
+                          <Button
+                            onClick={handleWhatsAppRedirect}
+                            className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
+                            size="lg"
+                          >
+                            <MessageCircle className="w-5 h-5 mr-2" />
+                            ASK US ON WHATSAPP
+                          </Button>
+                        </div>
+                      </motion.div>
+                    </section>
                   </>
                 ) : (
                   <div className="text-center py-10 text-gray-500">
@@ -544,47 +598,31 @@ function ShoppingListing() {
                         >
                           Clear Filters
                         </Button>
-                        <Button
-                          onClick={handleWhatsAppRedirect}
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          <MessageCircle className="w-4 h-4 mr-2" />
-                          Ask on WhatsApp
-                        </Button>
                       </div>
                     </div>
 
-                    <AnimatePresence>
-                      {showWhatsAppHint && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10 }}
-                          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                          className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto"
-                        >
-                          <div className="flex items-start gap-3">
-                            <Sparkles className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
-                            <div className="text-left">
-                              <h3 className="font-semibold text-blue-900 mb-1">
-                                Need something specific?
-                              </h3>
-                              <p className="text-blue-700 text-sm mb-3">
-                                We might have exactly what you're looking for! Message us on WhatsApp and we'll help you find the perfect product.
-                              </p>
-                              <Button
-                                onClick={handleWhatsAppRedirect}
-                                size="sm"
-                                className="bg-green-600 hover:bg-green-700 text-white"
-                              >
-                                <MessageCircle className="w-4 h-4 mr-2" />
-                                Contact us on WhatsApp
-                              </Button>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    <section className="max-w-7xl mx-auto w-full">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg"
+                      >
+                        <div className="text-center">
+                          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
+                            Can't find the product you are looking for?
+                          </h3>
+                          <Button
+                            onClick={handleWhatsAppRedirect}
+                            className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
+                            size="lg"
+                          >
+                            <MessageCircle className="w-5 h-5 mr-2" />
+                            ASK US ON WHATSAPP
+                          </Button>
+                        </div>
+                      </motion.div>
+                    </section>
                   </div>
                 )}
 

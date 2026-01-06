@@ -1,4 +1,5 @@
 
+
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -27,7 +28,6 @@ export const uploadProductImages = createAsyncThunk(
           headers: {
             'Content-Type': 'multipart/form-data',
           },
-          timeout: 30000, // 30 second timeout
           onUploadProgress: (progressEvent) => {
             const progress = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
@@ -71,7 +71,6 @@ export const addNewProduct = createAsyncThunk(
         productData,
         { 
           headers: { "Content-Type": "application/json" },
-          timeout: 30000
         }
       );
       return response.data;
@@ -105,8 +104,7 @@ export const fetchAllProducts = createAsyncThunk(
       }
 
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/products/get?${queryParams}`,
-        { timeout: 30000 }
+        `${import.meta.env.VITE_API_BASE_URL}/admin/products/get?${queryParams}`
       );
       return response.data;
     } catch (error) {
@@ -124,7 +122,6 @@ export const editProduct = createAsyncThunk(
         productData,
         { 
           headers: { "Content-Type": "application/json" },
-          timeout: 30000
         }
       );
       return response.data;
@@ -139,8 +136,7 @@ export const deleteProduct = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/products/delete/${id}`,
-        { timeout: 30000 }
+        `${import.meta.env.VITE_API_BASE_URL}/admin/products/delete/${id}`
       );
       return response.data;
     } catch (error) {
@@ -154,8 +150,7 @@ export const hideProduct = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/products/hide/${id}`,
-        { timeout: 30000 }
+        `${import.meta.env.VITE_API_BASE_URL}/admin/products/hide/${id}`
       );
       return response.data;
     } catch (error) {
@@ -169,8 +164,7 @@ export const unhideProduct = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/products/unhide/${id}`,
-        { timeout: 30000 }
+        `${import.meta.env.VITE_API_BASE_URL}/admin/products/unhide/${id}`
       );
       return response.data;
     } catch (error) {
