@@ -92,7 +92,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   return (
     <SheetContent className="sm:max-w-md flex flex-col h-full">
       <SheetHeader>
-        <SheetTitle>Your Cart</SheetTitle>
+        <SheetTitle>Shopping Bag</SheetTitle>
       </SheetHeader>
 
       <ScrollArea className="flex-1 pr-4 overflow-y-auto">
@@ -144,7 +144,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
                 animate={{ y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                Your cart feels lonely
+                Your bag is empty
               </motion.h3>
 
               <motion.p
@@ -168,7 +168,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
                   }}
                   className="w-full max-w-xs"
                 >
-                  Explore Products
+                  Keep Shopping
                 </Button>
               </motion.div>
             </motion.div>
@@ -194,7 +194,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
             }} 
             className="w-full h-12 text-lg font-bold rounded-xl shadow-lg shadow-primary/20"
           >
-            Proceed to Secure Checkout
+            Go to Payment
           </Button>
         </motion.div>
       )}

@@ -45,7 +45,9 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
   useEffect(() => {
     if (addressList && addressList.length > 0) {
       if (!selectedId || (addressList.length === 1 && selectedId?._id !== addressList[0]._id)) {
-        setCurrentSelectedAddress(addressList[0]);
+        if (typeof setCurrentSelectedAddress === "function") {
+          setCurrentSelectedAddress(addressList[0]);
+        }
       }
     }
   }, [addressList, selectedId, setCurrentSelectedAddress]);
@@ -89,7 +91,7 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
       ).then((data) => {
         if (data?.payload?.success) {
           dispatch(fetchAllAddresses(userId)).then(() => {
-            if (data?.payload?.data) {
+            if (data?.payload?.data && typeof setCurrentSelectedAddress === "function") {
               setCurrentSelectedAddress(data?.payload?.data);
             }
           });
@@ -121,7 +123,9 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
       if (data?.payload?.success) {
         dispatch(fetchAllAddresses(userId));
         if (selectedId?._id === getCurrentAddress._id) {
-          setCurrentSelectedAddress(null);
+          if (typeof setCurrentSelectedAddress === "function") {
+            setCurrentSelectedAddress(null);
+          }
         }
         toast.success("Address deleted.");
       }

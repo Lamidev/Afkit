@@ -60,7 +60,7 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-slate-900 font-bold text-lg mb-6 tracking-tight">Shop Categories</h3>
+            <h3 className="text-slate-900 font-bold text-lg mb-6 tracking-tight">What we sell</h3>
             <ul className="space-y-4 text-sm">
               <li><a href="/shop/listing?category=smartphones" className="hover:text-primary transition-colors">Smartphones</a></li>
               <li><a href="/shop/listing?category=laptops" className="hover:text-primary transition-colors">Laptops</a></li>

@@ -116,7 +116,7 @@ function AdminDashboard() {
   const statCards = [
     { title: "Total Revenue", value: `₦${(stats?.totalRevenue || 0).toLocaleString()}`, icon: CreditCard, color: "text-emerald-600", bg: "bg-emerald-50", delay: 0.1 },
     { title: "Total Orders", value: (stats?.totalOrders || 0).toLocaleString(), icon: TrendingUp, color: "text-indigo-600", bg: "bg-indigo-50", delay: 0.2 },
-    { title: "Registered Users", value: ((stats?.verifiedUsers || 0) + (stats?.unverifiedUsers || 0)).toLocaleString(), icon: Users, color: "text-blue-600", bg: "bg-blue-50", delay: 0.3 },
+    { title: "Total Shoppers", value: ((stats?.verifiedUsers || 0) + (stats?.unverifiedUsers || 0)).toLocaleString(), icon: Users, color: "text-blue-600", bg: "bg-blue-50", delay: 0.3 },
     { title: "Active Now", value: (stats?.activeUsers || 0).toLocaleString(), icon: Activity, color: "text-rose-600", bg: "bg-rose-50", delay: 0.4 },
     { title: "WhatsApp Shares", value: (stats?.linkShares?.dailyWhatsAppShares || 0).toLocaleString(), icon: FaWhatsapp, color: "text-green-600", bg: "bg-green-50", delay: 0.5 },
     { title: "Total Links Shared", value: (stats?.linkShares?.totalLinksShared || 0).toLocaleString(), icon: LinkIcon, color: "text-amber-600", bg: "bg-amber-50", delay: 0.6 },
@@ -191,9 +191,9 @@ function AdminDashboard() {
                 </div>
                 <div>
                   <CardTitle className="text-lg sm:text-xl font-black text-gray-800 tracking-tight">
-                    User Directory
+                    Customer List
                   </CardTitle>
-                  <p className="text-xs text-gray-500 font-medium">Manage and monitor all platform users</p>
+                  <p className="text-xs text-gray-500 font-medium">Manage and monitor all our customers</p>
                 </div>
               </div>
               <div className="bg-gray-100/50 px-3 py-1.5 rounded-full border border-gray-200">
@@ -202,7 +202,7 @@ function AdminDashboard() {
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                     </span>
-                    {totalUsers} Members Total
+                    {totalUsers} Customers in total
                  </span>
               </div>
             </div>
@@ -211,12 +211,12 @@ function AdminDashboard() {
             {isUsersListLoading ? (
               <div className="flex flex-col items-center justify-center p-12 text-gray-400">
                 <Loader2 className="h-10 w-10 animate-spin mb-4 text-blue-500" />
-                <p className="text-sm font-medium animate-pulse">Synchronizing database...</p>
+                <p className="text-sm font-medium animate-pulse">Loading data...</p>
               </div>
             ) : usersListError ? (
               <div className="m-6 p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 text-sm font-bold flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-red-600" />
-                Sync Error: {usersListError}
+                Loading Error: {usersListError}
               </div>
             ) : allUsersList.length > 0 ? (
               <>
@@ -239,7 +239,7 @@ function AdminDashboard() {
                           {isUserActive(user) ? (
                             <div className="flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                              <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Live</span>
+                              <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Online</span>
                             </div>
                           ) : (
                             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
@@ -258,16 +258,16 @@ function AdminDashboard() {
                   ))}
                 </div>
 
-                {/* Desktop High-Performance Grid */}
+                {/* Desktop Customer Table */}
                 <div className="hidden sm:block overflow-hidden rounded-2xl border border-gray-100 bg-white/50 shadow-sm mx-4 mb-4">
                   <table className="min-w-full">
                     <thead>
                       <tr className="bg-gray-50/80 border-b border-gray-100">
                         <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">User Details</th>
                         <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Joined</th>
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Security</th>
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Pulse</th>
-                        <th className="px-6 py-4 text-right text-xs font-black text-gray-400 uppercase tracking-widest">Control</th>
+                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Verification</th>
+                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Status</th>
+                        <th className="px-6 py-4 text-right text-xs font-black text-gray-400 uppercase tracking-widest">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -284,14 +284,14 @@ function AdminDashboard() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2.5 py-1 text-[10px] font-black uppercase tracking-widest rounded-full ${user.isVerified ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-                              {user.isVerified ? 'Secure' : 'Pending'}
+                              {user.isVerified ? 'Verified' : 'Unverified'}
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             {isUserActive(user) ? (
                               <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                                <span className="text-[10px] font-black text-emerald-600 uppercase">Live Now</span>
+                                <span className="text-[10px] font-black text-emerald-600 uppercase">Online Now</span>
                               </div>
                             ) : (
                               <span className="text-xs text-gray-400 font-medium italic">
@@ -314,10 +314,10 @@ function AdminDashboard() {
                   </table>
                 </div>
 
-                {/* Intelligent Pagination */}
+                {/* Page Navigation */}
                 <div className="flex justify-between items-center p-4 bg-gray-50/80 backdrop-blur-md rounded-b-2xl border-t border-gray-100">
                   <div className="text-xs font-bold text-gray-400 uppercase tracking-widest hidden sm:block">
-                    Segment {localPage} of {totalPages || 1}
+                    Page {localPage} of {totalPages || 1}
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <button
@@ -326,7 +326,7 @@ function AdminDashboard() {
                       className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-xs font-black bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-all disabled:opacity-30 shadow-sm border border-gray-200"
                     >
                       <ChevronLeft className="w-4 h-4" />
-                      PREV
+                      PREVIOUS
                     </button>
                     <div className="sm:hidden text-xs font-black text-gray-700 px-4 py-2 bg-white rounded-xl border border-gray-200 shadow-sm">
                       {localPage} / {totalPages || 1}

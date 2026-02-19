@@ -108,10 +108,10 @@ function AdminDebateRegistrations() {
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2">
             <Mic2 className="w-6 h-6 text-orange-500" />
-            Debate Registrations
+            Contest Signups
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            All participants who registered for the Afkit Debate Campaign
+            All the people who joined the Afkit Contest
           </p>
         </div>
         <button
@@ -134,7 +134,7 @@ function AdminDebateRegistrations() {
         <Card className="border-0 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Total Registrations
+              Total Entries
             </CardTitle>
             <div className="p-2 rounded-lg bg-orange-50 text-orange-600">
               <Users className="w-5 h-5" />
@@ -158,7 +158,7 @@ function AdminDebateRegistrations() {
               <div className="flex flex-col items-center justify-center p-16 text-gray-400">
                 <Loader2 className="h-10 w-10 animate-spin mb-4 text-orange-400" />
                 <p className="text-sm font-medium animate-pulse">
-                  Loading registrations...
+                  Loading entries...
                 </p>
               </div>
             ) : registrations.length === 0 ? (
@@ -176,7 +176,7 @@ function AdminDebateRegistrations() {
                         <p className="font-black text-gray-900 text-base">{reg.fullName}</p>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] bg-orange-50 text-orange-600 font-bold px-2 py-1 rounded-full uppercase border border-orange-100">
-                            Registered
+                            Joined
                           </span>
                           <button
                             onClick={() => handleDeleteClick(reg._id)}
@@ -311,7 +311,7 @@ function AdminDebateRegistrations() {
                       className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-xs font-black bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-all disabled:opacity-30 shadow-sm border border-gray-200"
                     >
                       <ChevronLeft className="w-4 h-4" />
-                      PREV
+                      PREVIOUS
                     </button>
                     <div className="sm:hidden text-xs font-black text-gray-700 px-4 py-2 bg-white rounded-xl border border-gray-200 shadow-sm">
                       {currentPage} / {totalPages || 1}

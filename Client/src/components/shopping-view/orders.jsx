@@ -44,16 +44,87 @@ function ShoppingOrders() {
       className="bg-white p-4 sm:p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100"
     >
       <div className="flex flex-col gap-1 mb-8">
-        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Order History</h2>
-        <p className="text-slate-500 font-medium">Track your recent purchases and their delivery status.</p>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight">What I've Bought</h2>
+        <p className="text-slate-500 font-medium">See your items and if they have arrived.</p>
       </div>
-      <div className="overflow-x-auto">
+
+      {/* Mobile Card Layout */}
+      <div className="sm:hidden space-y-4">
+        {orderList && orderList.length > 0 ? (
+          orderList.map((orderItem) => (
+            <div 
+              key={orderItem?._id}
+              className="bg-slate-50/50 rounded-2xl p-5 border border-slate-100 flex flex-col gap-4"
+            >
+              <div className="flex justify-between items-start">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Receipt #</span>
+                  <span className="font-mono text-xs font-black text-slate-900">
+                    #{orderItem?.orderId || orderItem?._id.slice(-6).toUpperCase()}
+                  </span>
+                </div>
+                <Badge
+                  className={`px-3 py-1 rounded-full border-none font-bold text-[9px] uppercase tracking-wider ${
+                    orderItem?.orderStatus === "confirmed"
+                      ? "bg-green-100 text-green-700"
+                      : orderItem?.orderStatus === "rejected"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-orange-100 text-orange-700"
+                  }`}
+                >
+                  {orderItem?.orderStatus}
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</span>
+                  <span className="text-xs font-bold text-slate-700">
+                    {new Date(orderItem?.orderDate).toLocaleDateString("en-GB")}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</span>
+                  <span className="text-xs font-black text-slate-900">
+                    ₦{orderItem?.totalAmount.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              <Dialog
+                open={openDetailsDialog && orderDetails?._id === orderItem?._id}
+                onOpenChange={(open) => {
+                  if (!open) {
+                    setOpenDetailsDialog(false);
+                    dispatch(resetOrderDetails());
+                  }
+                }}
+              >
+                <Button
+                  onClick={() => handleFetchOrderDetails(orderItem?._id)}
+                  className="w-full bg-white hover:bg-primary hover:text-white text-primary border border-primary/10 font-black text-xs h-11 rounded-xl transition-all active:scale-95 shadow-sm"
+                >
+                  VIEW DETAILS
+                </Button>
+                <ShoppingOrderDetailsView orderDetails={orderDetails} />
+              </Dialog>
+            </div>
+          ))
+        ) : (
+          <div className="py-12 text-center text-slate-400 font-medium italic bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+            You haven't placed any orders yet.
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table Layout */}
+      <div className="hidden sm:block overflow-x-auto">
         <Table>
           <TableHeader className="bg-slate-50/50">
             <TableRow className="hover:bg-transparent border-none">
-              <TableHead className="font-bold text-slate-900 h-12 uppercase text-[10px] tracking-widest">Order ID</TableHead>
+              <TableHead className="font-bold text-slate-900 h-12 uppercase text-[10px] tracking-widest pl-6">Receipt #</TableHead>
               <TableHead className="font-bold text-slate-900 h-12 uppercase text-[10px] tracking-widest">Date</TableHead>
-              <TableHead className="font-bold text-slate-900 h-12 uppercase text-[10px] tracking-widest">Status</TableHead>
+              <TableHead className="font-bold text-slate-900 h-12 uppercase text-[10px] tracking-widest">Item Status</TableHead>
               <TableHead className="font-bold text-slate-900 h-12 uppercase text-[10px] tracking-widest">Amount</TableHead>
               <TableHead className="sr-only">Details</TableHead>
             </TableRow>
@@ -68,8 +139,8 @@ function ShoppingOrders() {
                     transition={{ delay: index * 0.05 }}
                     className="group border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
                   >
-                    <TableCell className="font-mono text-xs text-slate-400 font-medium">#{orderItem?.orderId || orderItem?._id.slice(-6).toUpperCase()}</TableCell>
-                    <TableCell className="font-medium text-slate-600 italic">{new Date(orderItem?.orderDate).toLocaleDateString('en-GB')}</TableCell>
+                    <TableCell className="font-mono text-xs text-slate-400 font-black pl-6">#{orderItem?.orderId || orderItem?._id.slice(-6).toUpperCase()}</TableCell>
+                    <TableCell className="font-bold text-slate-600 text-xs">{new Date(orderItem?.orderDate).toLocaleDateString('en-GB')}</TableCell>
                     <TableCell>
                       <Badge
                         className={`px-4 py-1.5 rounded-full border-none font-bold text-[10px] uppercase tracking-wider ${
@@ -77,26 +148,28 @@ function ShoppingOrders() {
                             ? "bg-green-100 text-green-700"
                             : orderItem?.orderStatus === "rejected"
                             ? "bg-red-100 text-red-700"
-                            : "bg-slate-100 text-slate-700"
+                            : "bg-orange-100 text-orange-700"
                         }`}
                       >
                         {orderItem?.orderStatus}
                       </Badge>
                     </TableCell>
                     <TableCell className="font-black text-slate-900">₦{orderItem?.totalAmount.toLocaleString()}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right pr-6">
                       <Dialog
-                        open={openDetailsDialog}
-                        onOpenChange={() => {
-                          setOpenDetailsDialog(false);
-                          dispatch(resetOrderDetails());
+                        open={openDetailsDialog && orderDetails?._id === orderItem?._id}
+                        onOpenChange={(open) => {
+                          if (!open) {
+                            setOpenDetailsDialog(false);
+                            dispatch(resetOrderDetails());
+                          }
                         }}
                       >
                         <Button
                           onClick={() => handleFetchOrderDetails(orderItem?._id)}
-                          className="bg-slate-50 hover:bg-primary hover:text-white text-slate-600 font-bold h-9 px-6 rounded-xl transition-all active:scale-95"
+                          className="bg-white hover:bg-primary hover:text-white text-primary border border-primary/10 font-black text-[10px] tracking-widest h-9 px-6 rounded-xl transition-all active:scale-95 shadow-sm"
                         >
-                          Details
+                          DETAILS
                         </Button>
                         <ShoppingOrderDetailsView orderDetails={orderDetails} />
                       </Dialog>

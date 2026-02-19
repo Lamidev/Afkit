@@ -105,7 +105,7 @@ function AdminOrdersView() {
                       <p className="text-sm font-black text-slate-900">₦{orderItem?.totalAmount.toLocaleString()}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-1">Remaining Balance</p>
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-1">Balance</p>
                       <p className="text-sm font-black text-red-600">₦{orderItem?.balanceAmount.toLocaleString()}</p>
                     </div>
                   </div>
@@ -130,7 +130,7 @@ function AdminOrdersView() {
                             size="sm"
                             className="text-[10px] font-bold h-8 px-4 bg-primary hover:bg-primary/90 text-white rounded-lg"
                           >
-                            Manage
+                            Details
                           </Button>
                           <AdminOrderDetailsView orderDetails={orderDetails} />
                         </Dialog>
@@ -161,7 +161,7 @@ function AdminOrdersView() {
                 <TableHead className="text-[10px] font-black uppercase tracking-widest">Payment</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-red-600">Balance</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest">Total</TableHead>
-                <TableHead className="text-right text-[10px] font-black uppercase tracking-widest">Control</TableHead>
+                <TableHead className="text-right text-[10px] font-black uppercase tracking-widest">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -208,7 +208,7 @@ function AdminOrdersView() {
                               onClick={() => handleFetchOrderDetails(orderItem?._id)}
                               className="h-8 text-[10px] font-bold bg-primary hover:bg-primary/90 text-white px-3 rounded-lg"
                             >
-                              Manage
+                              Details
                             </Button>
                             <AdminOrderDetailsView orderDetails={orderDetails} />
                           </Dialog>

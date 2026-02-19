@@ -466,9 +466,9 @@ function AdminProducts() {
           {/* Top Level Actions */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight">Product Repository</h1>
+              <h1 className="text-2xl font-black text-gray-900 tracking-tight">Product Management</h1>
               <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">
-                {urlCategory && urlCategory !== 'all-products' ? `Cataloging: ${getCurrentCategoryName()}` : 'System-wide inventory control'}
+                {urlCategory && urlCategory !== 'all-products' ? `Managing: ${getCurrentCategoryName()}` : 'Manage your store inventory'}
               </p>
             </div>
             <Button 
@@ -530,7 +530,7 @@ function AdminProducts() {
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
                 >
                   <Filter className={`h-3.5 w-3.5 ${hasActiveFilters ? 'text-blue-500' : 'text-gray-400'}`} />
-                  <span className={`text-xs font-bold ${hasActiveFilters ? 'text-blue-700' : 'text-gray-600'}`}>Advanced filters</span>
+                  <span className={`text-xs font-bold ${hasActiveFilters ? 'text-blue-700' : 'text-gray-600'}`}>Filters</span>
                   {hasActiveFilters && (
                     <span className="h-1.5 w-1.5 bg-blue-500 rounded-full animate-pulse"></span>
                   )}
@@ -573,7 +573,7 @@ function AdminProducts() {
                 <SheetContent side="right" className="w-full sm:max-w-md p-0 border-0">
                   <div className="h-full flex flex-col bg-white">
                     <div className="p-6 border-b border-gray-100">
-                      <SheetTitle className="text-xl font-black text-gray-900 tracking-tight">Filter Engine</SheetTitle>
+                      <SheetTitle className="text-xl font-black text-gray-900 tracking-tight">Filter Products</SheetTitle>
                     </div>
                     <div className="flex-1 overflow-y-auto">
                       <AdminProductFilter
