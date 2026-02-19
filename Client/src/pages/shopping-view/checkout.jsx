@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
 import Address from "@/components/shopping-view/address";
 import { createNewOrder } from "@/store/shop/order-slice";
-import { CreditCard, Truck } from "lucide-react";
+import { CreditCard, Truck, Check } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 function ShoppingCheckout() {

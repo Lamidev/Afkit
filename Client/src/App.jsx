@@ -42,8 +42,6 @@ function App() {
 
   if (isLoading) return <LoadingSpinner />; 
 
-  console.log("Current App Path:", window.location.pathname);
-
   return (
     <div className="flex flex-col overflow-hidden bg-white">
       <Toaster />
