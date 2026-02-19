@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -23,8 +23,7 @@ import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import LoadingSpinner from "@/components/shopping-view/loading-spinner";
 import { getOrCreateSessionId } from "@/components/utils/session";
 import { recordLinkShare } from "@/store/common-slice/share-slice/index";
-import RecentlyViewed from "@/components/shopping-view/recently-viewed";
-import { formatAestheticId } from "@/utils/common";
+import { formatAestheticId, createSlug } from "@/utils/common";
 import DOMPurify from "dompurify";
 import { Helmet } from "react-helmet-async";
 
@@ -63,8 +62,14 @@ export default function ShoppingProductDetails() {
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   };
 
+  const getProductLink = useCallback(() => {
+    if (!productDetails) return "";
+    const slug = createSlug(productDetails.title);
+    return `${window.location.origin}/shop/product/${slug}-${productDetails._id}`;
+  }, [productDetails]);
+
   const handleProductInfoWhatsApp = () => {
-    const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
+    const productLink = getProductLink();
     const message = `Hi ${COMPANY_NAME}, I need more information about this product:\n\nProduct: ${productDetails.title}\nPrice: ₦${Number(productDetails.price).toLocaleString("en-NG")}\nProduct Link: ${productLink}\n\nCould you provide more details about this product?`;
 
     const encodedMessage = encodeURIComponent(message);
@@ -75,10 +80,26 @@ export default function ShoppingProductDetails() {
 
   useEffect(() => {
     if (id) {
-      dispatch(fetchProductDetails(id));
+      // Extract GAD-XXXXXX pattern from URL
+      const gadMatch = id.match(/GAD-[A-Z0-9]{6}/i);
+      const realId = gadMatch ? gadMatch[0].toUpperCase() : id;
+      dispatch(fetchProductDetails(realId));
       window.scrollTo(0, 0);
     }
   }, [id, dispatch]);
+
+  // Aesthetic URL Standardization Redirect
+  useEffect(() => {
+    if (productDetails && id) {
+      const slug = createSlug(productDetails.title);
+      const expectedAestheticId = `${slug}-${productDetails._id}`;
+
+      if (id !== expectedAestheticId) {
+        console.log("Redirecting to aesthetic URL");
+        navigate(`/shop/product/${expectedAestheticId}`, { replace: true });
+      }
+    }
+  }, [productDetails, id, navigate]);
 
   useEffect(() => {
     if (productDetails?.description) {
@@ -218,17 +239,18 @@ export default function ShoppingProductDetails() {
     }
   };
 
-  const handleRelatedProductClick = (productId) => {
-    navigate(`/shop/product/${productId}`);
+  const handleRelatedProductClick = (product) => {
+    const slug = createSlug(product?.title);
+    navigate(`/shop/product/${slug}-${product?._id}`);
     window.scrollTo(0, 0);
   };
 
   const handleOrderOnWhatsApp = () => {
     const phoneNumber = "2348164014304";
 
-    // constant productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
-    const productLink = `${import.meta.env.VITE_API_BASE_URL}/og/product/${productDetails._id}`;
-    const message = `🛍️ *AFKiT Product Inquiry*\n\n*Product:* ${productDetails.title}\n*Price:* ₦${Number(productDetails.price).toLocaleString("en-NG")}\n*Quantity:* ${quantity}\n\nHello AFKiT, I'm interested in this product. Is it available?\n\n🔗 *Product Link:* ${productLink}`;
+    const aestheticId = formatAestheticId(productDetails?._id, "GAD");
+    const productLink = getProductLink();
+    const message = `🛍️ *AFKiT Product Inquiry*\n\n*Product:* ${productDetails.title}\n*ID:* ${aestheticId}\n*Price:* ₦${Number(productDetails.price).toLocaleString("en-NG")}\n*Quantity:* ${quantity}\n\nHello AFKiT, I'm interested in this product. Is it available?\n\n🔗 *Product Link:* ${productLink}`;
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
       message
@@ -251,8 +273,7 @@ export default function ShoppingProductDetails() {
   };
 
   const copyInstagramMessage = () => {
-    // const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
-    const productLink = `${import.meta.env.VITE_API_BASE_URL}/og/product/${productDetails._id}`;
+    const productLink = getProductLink();
     const message = `Hello AFKiT,\n\nI'm interested in "${productDetails.title}" for ₦${Number(
       productDetails.price
     ).toLocaleString("en-NG")}.\n\nQuantity: ${quantity}.\n\nIs it still available?\n\nProduct Link: ${productLink}`;
@@ -277,8 +298,7 @@ export default function ShoppingProductDetails() {
   };
 
   const handleCopyLink = () => {
-    // const productLink = `${window.location.origin}/shop/product/${productDetails._id}`;
-    const productLink = `${import.meta.env.VITE_API_BASE_URL}/og/product/${productDetails._id}`;
+    const productLink = getProductLink();
     navigator.clipboard.writeText(productLink);
     toast.success("Product link copied to clipboard!");
 
@@ -780,7 +800,7 @@ export default function ShoppingProductDetails() {
               {filteredRelatedProducts.map((product) => (
                 <div
                   key={product._id}
-                  onClick={() => handleRelatedProductClick(product._id)}
+                  onClick={() => handleRelatedProductClick(product)}
                   className="cursor-pointer"
                 >
                   <ShoppingProductTile
@@ -813,9 +833,7 @@ export default function ShoppingProductDetails() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto w-full mt-12 px-4 sm:px-6 lg:px-8">
-        <RecentlyViewed />
-      </div>
+
 
       {
         showInstagramModal && (
@@ -832,8 +850,7 @@ export default function ShoppingProductDetails() {
                   {Number(productDetails.price).toLocaleString("en-NG")}.
                   {"\n\n"}Quantity: {quantity}.
                   {"\n\n"}Is it still available?
-                  {"\n\n"}Product Link: {window.location.origin}/shop/product/
-                  {productDetails._id}
+                  {"\n\n"}Product Link: {window.location.href}
                 </p>
               </div>
               <div className="flex justify-end gap-2">

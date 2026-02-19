@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const ProductSchema = new mongoose.Schema(
   {
+    _id: {
+      type: String,
+      required: true,
+    },
     images: {
       type: [String],
       validate: {

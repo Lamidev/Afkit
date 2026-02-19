@@ -7,8 +7,15 @@
  */
 export const formatAestheticId = (id, prefix = "AFK") => {
   if (!id) return "";
+  const strId = id.toString();
+  
+  // If it already contains the prefix, just return it with #
+  if (strId.toUpperCase().includes(`${prefix.toUpperCase()}-`)) {
+    return strId.startsWith("#") ? strId : `#${strId}`;
+  }
+  
   // Keep it simple and premium: uppercase prefix + last 6 chars of ID
-  const shortId = id.toString().slice(-6).toUpperCase();
+  const shortId = strId.slice(-6).toUpperCase();
   return `#${prefix}-${shortId}`;
 };
 
@@ -23,4 +30,18 @@ export const formatNaira = (amount) => {
   })
     .format(amount)
     .replace("NGN", "₦");
+};
+
+/**
+ * Creates a URL-friendly slug from a string
+ */
+export const createSlug = (text) => {
+  if (!text) return "";
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w-]+/g, "") // Remove all non-word chars
+    .replace(/--+/g, "-"); // Replace multiple - with single -
 };

@@ -11,6 +11,7 @@ import {
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { getOrCreateSessionId } from "@/components/utils/session";
+import { formatAestheticId } from "@/utils/common";
 
 // Helper function to format numbers with commas
 const formatNaira = (amount) => {
@@ -167,6 +168,9 @@ function UserCartItemsContent({ cartItem }) {
            </span>
            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
             Per Item
+           </span>
+           <span className="text-[10px] font-bold text-slate-300 font-mono uppercase tracking-widest">
+             {formatAestheticId(cartItem?.productId, "GAD")}
            </span>
         </div>
 
