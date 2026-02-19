@@ -12,6 +12,7 @@ import {
 } from "@/store/admin/order-slice";
 import { toast } from "sonner";
 import { CreditCard, Truck } from "lucide-react";
+import { formatAestheticId } from "@/utils/common";
 
 const initialFormData = {
   status: "",
@@ -48,7 +49,7 @@ function AdminOrderDetailsView({ orderDetails }) {
       <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 p-6 flex justify-between items-center">
         <div>
           <DialogTitle className="text-xl font-black text-gray-900 tracking-tight">Order Details</DialogTitle>
-          <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Order ID: {orderDetails?.orderId || orderDetails?._id}</p>
+          <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Order ID: {formatAestheticId(orderDetails?.orderId || orderDetails?._id, "ORD")}</p>
         </div>
         <Badge className={`px-4 py-1.5 rounded-full text-[10px] uppercase font-black tracking-widest ${
           orderDetails?.orderStatus === 'delivered' ? 'bg-emerald-100 text-emerald-700' : 

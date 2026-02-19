@@ -11,6 +11,7 @@ import {
   fetchAllProducts,
 } from "@/store/admin/products-slice";
 import { toast } from "sonner";
+import { formatAestheticId } from "@/utils/common";
 
 function AdminProductTile({
   product,
@@ -141,12 +142,17 @@ function AdminProductTile({
           </p>
         )}
 
-        {/* Category */}
-        {product.category && (
-          <span className="inline-block text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full capitalize w-fit">
-            {product.category}
+        {/* Category & ID */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {product.category && (
+            <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full capitalize">
+              {product.category}
+            </span>
+          )}
+          <span className="text-[9px] font-black text-slate-400 font-mono uppercase tracking-widest">
+            {formatAestheticId(product._id, "GAD")}
           </span>
-        )}
+        </div>
 
         {/* Storage / RAM for phones & laptops */}
         {(product.storage || product.ram) && (

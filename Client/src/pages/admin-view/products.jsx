@@ -25,6 +25,7 @@ import {
 import { ArrowUpDown, Filter, X, Plus, ChevronDown, Edit, ChevronLeft, ChevronRight } from "lucide-react";
 import AdminProductFilter from "@/components/admin-view/admin-product-filter";
 import { useLocation , Link} from "react-router-dom";
+import { formatAestheticId } from "@/utils/common";
 
 const initialFormData = {
   images: [],
@@ -941,7 +942,14 @@ function AdminProducts() {
                   {currentEditedId ? "Edit Product" : "Add New Product"}
                 </SheetTitle>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {currentEditedId ? "Update your product details" : "Add a new product to your store"}
+                  {currentEditedId ? (
+                    <span className="flex items-center gap-2">
+                      Update details for 
+                      <span className="font-mono font-black text-primary bg-primary/5 px-2 py-0.5 rounded-md">
+                        {formatAestheticId(currentEditedId, "GAD")}
+                      </span>
+                    </span>
+                  ) : "Add a new product to your store"}
                 </p>
               </SheetHeader>
 

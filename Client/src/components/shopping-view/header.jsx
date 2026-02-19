@@ -247,25 +247,18 @@ function MenuItems({ closeSheet }) {
   );
 }
 
-function HeaderRightContent({ closeSheet }) {
+function HeaderRightContent({ closeSheet, setIsLogoutDialogOpen }) {
   const { user } = useSelector((state) => state.auth);
   const { cartItems } = useSelector((state) => state.shopCart);
   const [openCartSheet, setOpenCartSheet] = useState(false);
-  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  function handleLogout() {
-    dispatch(logoutUser());
-    setIsLogoutDialogOpen(false);
-    closeSheet();
-  }
-
   useEffect(() => {
-    if (user?.Id) {
-      dispatch(fetchCartItems(user?.Id));
+    if (user?.id) {
+      dispatch(fetchCartItems({ userId: user?.id }));
     }
-  }, [dispatch, user?.Id]);
+  }, [dispatch, user?.id]);
 
   return (
     <TooltipProvider>
@@ -342,26 +335,6 @@ function HeaderRightContent({ closeSheet }) {
           </TooltipContent>
         </Tooltip>
 
-        <Dialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirm Logout</DialogTitle>
-            </DialogHeader>
-            <p>Are you sure you want to log out?</p>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsLogoutDialogOpen(false)}
-              >
-                Cancel
-              </Button>
-              <Button variant="destructive" onClick={handleLogout}>
-                Logout
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
         <Sheet open={openCartSheet} onOpenChange={setOpenCartSheet}>
           <UserCartWrapper
             cartItems={cartItems?.items || []}
@@ -375,8 +348,16 @@ function HeaderRightContent({ closeSheet }) {
 
 function ShoppingHeader() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  function handleLogout() {
+    dispatch(logoutUser());
+    setIsLogoutDialogOpen(false);
+    setIsSheetOpen(false);
+  }
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
@@ -394,29 +375,57 @@ function ShoppingHeader() {
                   <MenuItems closeSheet={() => setIsSheetOpen(false)} />
                 </div>
 
-                {!user && (
-                  <div className="pb-6 space-y-3">
-                    <Button
-                      onClick={() => {
-                        navigate("/auth/login");
-                        setIsSheetOpen(false);
-                      }}
-                      className="w-full"
-                    >
-                      Login
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        navigate("/auth/register");
-                        setIsSheetOpen(false);
-                      }}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      Register
-                    </Button>
-                  </div>
-                )}
+                <div className="pb-6 space-y-3">
+                  {user ? (
+                    <>
+                      <div className="px-2 py-4 mb-2 border-t border-slate-100">
+                        <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Active User</p>
+                        <p className="text-sm font-bold text-slate-900">{user.userName}</p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          navigate("/shop/account");
+                          setIsSheetOpen(false);
+                        }}
+                        className="w-full justify-start gap-3 rounded-xl h-12 border-slate-200"
+                      >
+                        <User className="h-5 w-5 text-primary" />
+                        <span className="font-bold">My Account</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsLogoutDialogOpen(true)}
+                        className="w-full justify-start gap-3 rounded-xl h-12 border-red-100 text-red-600 hover:bg-red-50 hover:text-red-700"
+                      >
+                        <LogOut className="h-5 w-5" />
+                        <span className="font-bold">Logout</span>
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={() => {
+                          navigate("/auth/login");
+                          setIsSheetOpen(false);
+                        }}
+                        className="w-full rounded-xl h-12 font-bold"
+                      >
+                        Login
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          navigate("/auth/register");
+                          setIsSheetOpen(false);
+                        }}
+                        variant="outline"
+                        className="w-full rounded-xl h-12 font-bold border-slate-200"
+                      >
+                        Register
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
             </SheetContent>
           </Sheet>
@@ -434,8 +443,36 @@ function ShoppingHeader() {
           <MenuItems closeSheet={() => setIsSheetOpen(false)} />
         </div>
 
-        <HeaderRightContent closeSheet={() => setIsSheetOpen(false)} />
+        <HeaderRightContent 
+          closeSheet={() => setIsSheetOpen(false)} 
+          setIsLogoutDialogOpen={setIsLogoutDialogOpen}
+        />
       </div>
+
+      <Dialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
+        <DialogContent className="rounded-3xl max-w-[340px] sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black text-slate-900 tracking-tight">Confirm Logout</DialogTitle>
+          </DialogHeader>
+          <p className="text-slate-500 font-medium">Are you sure you want to exit your Afkit session?</p>
+          <DialogFooter className="flex-col sm:flex-row gap-3 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsLogoutDialogOpen(false)}
+              className="w-full sm:flex-1 rounded-xl h-12 font-bold border-slate-200"
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleLogout}
+              className="w-full sm:flex-1 rounded-xl h-12 font-black uppercase tracking-tight shadow-lg shadow-red-200"
+            >
+              Logout
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }

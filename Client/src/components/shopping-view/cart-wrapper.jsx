@@ -10,16 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { recordLinkShare } from "@/store/common-slice/share-slice/index";
 import { getOrCreateSessionId } from "@/components/utils/session";
 
-// Helper function to format Naira with commas
-const formatNaira = (amount) => {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    minimumFractionDigits: 2,
-  })
-    .format(amount)
-    .replace("NGN", "₦");
-};
+import { formatAestheticId, formatNaira } from "@/utils/common";
 
 function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const navigate = useNavigate();
@@ -56,7 +47,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
     const message = `Hello AFKiT! I'd like to place an order:\n\n${cartItems
       .map(
         (item) =>
-          `📦 *${item.title || "Product"}*\n├ Quantity: ${item.quantity
+          `📦 *${item.title || "Product"}*\n├ ID: ${formatAestheticId(item.productId, "GAD")}\n├ Quantity: ${item.quantity
           }\n├ Price: ${formatNaira(
             item.price
           )}\n└ Product Link: ${import.meta.env.VITE_API_BASE_URL}/og/product/${item.productId

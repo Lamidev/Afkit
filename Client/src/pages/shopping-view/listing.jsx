@@ -27,7 +27,6 @@ import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { getOrCreateSessionId } from "@/components/utils/session";
-import RecentlyViewed from "@/components/shopping-view/recently-viewed";
 
 function ShoppingListing() {
   const dispatch = useDispatch();
@@ -690,7 +689,6 @@ function ShoppingListing() {
                   </div>
                 )}
 
-                <RecentlyViewed />
               </>
             )}
           </div>

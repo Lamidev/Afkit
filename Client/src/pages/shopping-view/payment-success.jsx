@@ -55,7 +55,7 @@ function PaymentSuccessPage() {
       })
     ).then((data) => {
       if (data?.payload?.success) {
-        dispatch(fetchCartItems(user?.id));
+        dispatch(fetchCartItems({ userId: user?.id }));
         toast.success("Added to your setup!");
       }
     });

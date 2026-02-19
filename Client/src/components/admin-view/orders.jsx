@@ -21,6 +21,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AdminOrderDetailsView from "./order-details";
 import { toast } from "sonner";
+import { formatAestheticId } from "@/utils/common";
 import {
   getAllOrdersForAdmin,
   getOrderDetailsForAdmin,
@@ -80,7 +81,7 @@ function AdminOrdersView() {
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
-                        #{orderItem?.orderId || orderItem?._id}
+                        {formatAestheticId(orderItem?.orderId || orderItem?._id, "ORD")}
                       </p>
                       <p className="text-sm font-bold text-slate-900 truncate max-w-[180px]">
                         {orderItem?.payerEmail}
@@ -168,7 +169,9 @@ function AdminOrdersView() {
               {orderList && orderList.length > 0
                 ? orderList.map((orderItem) => (
                     <TableRow key={orderItem?._id} className="hover:bg-slate-50/50 transition-colors group">
-                      <TableCell className="font-mono text-[10px] text-slate-400">#{orderItem?.orderId || orderItem?._id}</TableCell>
+                      <TableCell className="font-mono text-[10px] text-slate-400">
+                        {formatAestheticId(orderItem?.orderId || orderItem?._id, "ORD")}
+                      </TableCell>
                       <TableCell className="font-bold text-slate-700 text-xs">{orderItem?.payerEmail}</TableCell>
                       <TableCell className="text-slate-500 text-xs">{orderItem?.orderDate.split("T")[0]}</TableCell>
                       <TableCell>
@@ -238,7 +241,7 @@ function AdminOrdersView() {
           </DialogHeader>
           <div className="py-4">
             <p className="text-gray-600">
-              Are you sure you want to delete order <span className="font-bold text-gray-900">#{orderToDelete?.orderId || orderToDelete?._id}</span>? 
+              Are you sure you want to delete order <span className="font-bold text-gray-900">{formatAestheticId(orderToDelete?.orderId || orderToDelete?._id, "ORD")}</span>? 
               This action is permanent and cannot be undone.
             </p>
           </div>

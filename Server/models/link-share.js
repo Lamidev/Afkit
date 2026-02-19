@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const LinkShareSchema = new mongoose.Schema(
   {
     productId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "Product", 
       required: true,
     },

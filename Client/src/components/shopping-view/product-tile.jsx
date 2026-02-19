@@ -2,8 +2,14 @@
 import { motion } from "framer-motion";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
+import { createSlug, formatAestheticId } from "@/utils/common";
 
 function ShoppingProductTile({ product, handleAddToCart, handleViewDetails }) {
+  // Enhanced navigation with aesthetic slugs and GAD ID
+  const onProductClick = () => {
+    const slug = createSlug(product?.title);
+    handleViewDetails(`${slug}-${product?._id}`);
+  };
   // Format price with commas
   const formattedPrice = new Intl.NumberFormat('en-NG', {
     style: 'currency',
@@ -17,7 +23,7 @@ function ShoppingProductTile({ product, handleAddToCart, handleViewDetails }) {
   return (
     <div
       className="w-full h-full group cursor-pointer border border-slate-200 rounded-2xl p-0 sm:p-3 hover:shadow-xl transition-all duration-300 flex flex-col bg-white overflow-hidden"
-      onClick={() => handleViewDetails(product._id)}
+      onClick={onProductClick}
     >
       {/* Image Container */}
       <div className="relative w-full overflow-hidden flex-shrink-0 bg-white">

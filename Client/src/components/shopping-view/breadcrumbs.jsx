@@ -39,10 +39,19 @@ const Breadcrumbs = () => {
       {pathnames.map((value, index) => {
         const last = index === pathnames.length - 1;
         const to = `/${pathnames.slice(0, index + 1).join("/")}`;
-        const name = breadcrumbNameMap[value] || value;
-
+        
+        let name = breadcrumbNameMap[value] || value;
+        
         // Skip 'shop' as we already have 'Home' link or it's redundant
         if (value === "shop") return null;
+
+        // Enhanced: If it's a product URL segment (contains a 24-char ID or GAD ID)
+        if (pathnames[index - 1] === "product") {
+          const gadMatch = value.toUpperCase().match(/GAD-[A-Z0-9]{6}/);
+          name = gadMatch ? gadMatch[0] : "Product Detail";
+        } else if (value.length >= 24) {
+          name = "Product Detail";
+        }
 
         // Don't make 'product' part of path clickable if it's the parent of an ID
         const isProductParent = value === "product" && !last;

@@ -791,6 +791,9 @@ const addProduct = async (req, res) => {
     }
 
     const newlyCreatedProduct = new Product(cleanedData);
+    // Generate manual aesthetic ID
+    const shortId = newlyCreatedProduct._id.toString().slice(-6).toUpperCase();
+    newlyCreatedProduct._id = `GAD-${shortId}`;
     await newlyCreatedProduct.save();
 
     res.status(201).json({
