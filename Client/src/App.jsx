@@ -29,6 +29,7 @@ import PaystackReturnPage from "./pages/shopping-view/paystack-return";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import ShoppingAccount from "./pages/shopping-view/account";
 import AdminDebateRegistrations from "./pages/admin-view/debate-registrations";
+import DebatePage from "./pages/shopping-view/debate";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector(
@@ -84,17 +85,16 @@ function App() {
           <Route path="paystack-return" element={<PaystackReturnPage />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />
           <Route path="account" element={<ShoppingAccount />} />
+          <Route path="debate" element={<DebatePage />} />
+          <Route
+            path="checkout"
+            element={
+              <CheckAuth isAuthenticated={isAuthenticated} user={user}>
+                <ShoppingCheckout />
+              </CheckAuth>
+            }
+          />
         </Route>
-
-        {/* Checkout requires authentication */}
-        <Route
-          path="/shop/checkout"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <ShoppingCheckout />
-            </CheckAuth>
-          }
-        />
 
         {/* Unauthenticated and Not Found Pages */}
         <Route path="/unauth-page" element={<UnauthPage />} />

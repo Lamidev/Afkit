@@ -4,6 +4,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useSelector } from "react-redux";
 
+import { formatAestheticId } from "@/utils/common";
+
 function ShoppingOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth);
 
@@ -15,7 +17,9 @@ function ShoppingOrderDetailsView({ orderDetails }) {
       <div className="grid gap-6 mt-4">
         <div className="flex items-center justify-between">
           <p className="font-semibold text-slate-500">Order ID</p>
-          <Label className="text-slate-900">{orderDetails?.orderId || orderDetails?._id}</Label>
+          <Label className="text-slate-900 font-mono font-black">
+            {formatAestheticId(orderDetails?.orderId || orderDetails?._id, "ORD")}
+          </Label>
         </div>
         <div className="flex items-center justify-between">
           <p className="font-semibold text-slate-500">Order Date</p>
@@ -63,9 +67,17 @@ function ShoppingOrderDetailsView({ orderDetails }) {
           <ul className="grid gap-3">
             {orderDetails?.cartItems && orderDetails?.cartItems.length > 0
               ? orderDetails?.cartItems.map((item) => (
-                  <li key={item.productId} className="flex items-center justify-between bg-slate-50/50 p-2 rounded">
-                    <span className="text-slate-700">{item.title}</span>
-                    <span className="font-medium text-slate-500">Qty: {item.quantity} × ₦{Number(item.price).toLocaleString()}</span>
+                  <li key={item.productId} className="flex flex-col bg-slate-50/50 p-3 rounded-xl border border-slate-100">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-bold text-slate-800">{item.title}</span>
+                      <span className="text-[10px] font-mono font-black text-slate-400">
+                        {formatAestheticId(item.productId, "GAD")}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-500 font-medium">Qty: {item.quantity}</span>
+                      <span className="font-bold text-slate-900">₦{Number(item.price * item.quantity).toLocaleString()}</span>
+                    </div>
                   </li>
                 ))
               : null}

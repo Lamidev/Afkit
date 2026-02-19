@@ -23,6 +23,8 @@ import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import LoadingSpinner from "@/components/shopping-view/loading-spinner";
 import { getOrCreateSessionId } from "@/components/utils/session";
 import { recordLinkShare } from "@/store/common-slice/share-slice/index";
+import RecentlyViewed from "@/components/shopping-view/recently-viewed";
+import { formatAestheticId } from "@/utils/common";
 import DOMPurify from "dompurify";
 import { Helmet } from "react-helmet-async";
 
@@ -97,6 +99,18 @@ export default function ShoppingProductDetails() {
       dispatch(fetchProductsByBrand(productDetails.brand));
     }
   }, [productDetails, dispatch]);
+
+  // Track Recently Viewed Products
+  useEffect(() => {
+    if (productDetails?._id) {
+      const savedIds = JSON.parse(localStorage.getItem("recentlyViewed") || "[]");
+      const updatedIds = [
+        productDetails._id,
+        ...savedIds.filter((id) => id !== productDetails._id),
+      ].slice(0, 10);
+      localStorage.setItem("recentlyViewed", JSON.stringify(updatedIds));
+    }
+  }, [productDetails]);
 
   useEffect(() => {
     const fetchCart = async () => {
@@ -364,12 +378,17 @@ export default function ShoppingProductDetails() {
     }
   };
 
-  const filteredRelatedProducts =
-    productDetails?.brand && relatedProducts
-      ? relatedProducts
-        ?.filter((p) => p._id !== productDetails?._id)
-        ?.slice(0, 4)
-      : [];
+  const filteredRelatedProducts = useMemo(() => {
+    if (!productDetails || !relatedProducts) return [];
+    
+    return relatedProducts
+      .filter((p) => p._id !== productDetails._id)
+      .filter((p) => 
+        p.brand === productDetails.brand || 
+        p.category === productDetails.category
+      )
+      .slice(0, 4);
+  }, [productDetails, relatedProducts]);
 
   const renderDescription = (description) => {
     if (!description) return null;
@@ -453,60 +472,85 @@ export default function ShoppingProductDetails() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div className="space-y-6">
-          <div className="relative aspect-square rounded-xl overflow-hidden group">
-            {/* Main Image - Takes full container */}
-            <img
-              ref={mainImageRef}
-              src={getAbsoluteImageUrl(productImages[selectedImageIndex])}
-              alt={productDetails.title}
-              className="w-full h-full object-contain transition-all duration-300 ease-in-out transform"
-            />
+          <div className="relative aspect-square rounded-xl overflow-hidden group bg-slate-50 border border-slate-100 shadow-inner">
+            {/* Main Image Slider - Swipeable */}
+            <div
+              ref={imageScrollRef}
+              onScroll={handleScroll}
+              className="flex w-full h-full overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar transition-all duration-300"
+            >
+              {productImages.map((img, index) => (
+                <div key={index} className="flex-shrink-0 w-full h-full snap-center flex items-center justify-center p-2">
+                  <img
+                    src={getAbsoluteImageUrl(img)}
+                    alt={`${productDetails.title} ${index + 1}`}
+                    className="max-w-full max-h-full object-contain transition-transform duration-500 hover:scale-105"
+                  />
+                </div>
+              ))}
+            </div>
 
             {/* Navigation Arrows - Only show if multiple images */}
             {productImages.length > 1 && (
               <>
                 <button
-                  onClick={() => navigateImage("prev")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigateImage("prev");
+                  }}
                   className="hidden lg:flex absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white 
                              rounded-full p-3 shadow-xl transition-all duration-200 opacity-100 lg:opacity-0 lg:group-hover:opacity-100
-                             border border-gray-200 hover:shadow-2xl"
+                             border border-slate-200 hover:shadow-2xl z-20"
                 >
-                  <ChevronLeft className="h-5 w-5 text-gray-700" />
+                  <ChevronLeft className="h-5 w-5 text-slate-700" />
                 </button>
                 <button
-                  onClick={() => navigateImage("next")}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigateImage("next");
+                  }}
                   className="hidden lg:flex absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white 
                              rounded-full p-3 shadow-xl transition-all duration-200 opacity-100 lg:opacity-0 lg:group-hover:opacity-100
-                             border border-gray-200 hover:shadow-2xl"
+                             border border-slate-200 hover:shadow-2xl z-20"
                 >
-                  <ChevronRight className="h-5 w-5 text-gray-700" />
+                  <ChevronRight className="h-5 w-5 text-slate-700" />
                 </button>
               </>
             )}
+
+            {/* Pagination Dots (Mobile) */}
+            {productImages.length > 1 && (
+              <div className="lg:hidden absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-10 pointer-events-none">
+                {productImages.map((_, index) => (
+                  <div 
+                    key={index} 
+                    className={`h-1.5 transition-all duration-300 rounded-full ${index === selectedImageIndex ? "w-6 bg-orange-600" : "w-1.5 bg-slate-300"}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Mobile Thumbnails (Changed to show 5 and reduced vertical margin) */}
+          {/* Mobile Thumbnails - Horizontal Scrollable */}
           {productImages.length > 1 && (
-            <div className="lg:hidden w-full overflow-x-auto pt-1">
+            <div className="lg:hidden w-full overflow-x-auto py-2 scroll-smooth">
               <div
                 ref={mobileThumbnailRef}
-                className="flex gap-2 pb-2 hide-scrollbar"
-                style={{ scrollBehavior: 'smooth' }}
+                className="flex gap-4 px-2 hide-scrollbar"
               >
                 {productImages.map((img, index) => (
                   <button
                     key={index}
                     onClick={() => handleThumbnailClick(index)}
-                    // ADJUSTED: Used w-[18.8%] to ensure 5 fit comfortably with gap-2
-                    className={`flex-shrink-0 w-[18.8%] h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 ease-in-out ${selectedImageIndex === index
-                      ? "border-blue-600 shadow-lg scale-105"
-                      : "border-gray-200 hover:border-gray-400 hover:shadow-md"
+                    className={`flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden border-4 transition-all duration-300 ease-in-out ${selectedImageIndex === index
+                      ? "border-orange-500 shadow-xl scale-105"
+                      : "border-slate-100 opacity-60"
                       }`}
                   >
                     <img
                       src={getAbsoluteImageUrl(img)}
                       alt={`${productDetails.title} thumbnail ${index + 1}`}
-                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                      className="w-full h-full object-cover"
                     />
                   </button>
                 ))}
@@ -531,7 +575,7 @@ export default function ShoppingProductDetails() {
                 {/* Thumbnails Container - Larger thumbnails */}
                 <div
                   ref={thumbnailContainerRef}
-                  className="flex gap-3 overflow-hidden flex-1 justify-center"
+                  className="flex gap-4 overflow-hidden flex-1 justify-center"
                 >
                   {visibleThumbnails.map((img, index) => {
                     const actualIndex = thumbnailStartIndex + index;
@@ -539,9 +583,9 @@ export default function ShoppingProductDetails() {
                       <button
                         key={actualIndex}
                         onClick={() => handleThumbnailClick(actualIndex)}
-                        className={`flex-shrink-0 w-30 h-30 rounded-lg overflow-hidden border-3 transition-all duration-300 ease-in-out ${selectedImageIndex === actualIndex
-                          ? "border-blue-600 shadow-lg scale-105"
-                          : "border-gray-200 hover:border-gray-400 hover:shadow-md"
+                        className={`flex-shrink-0 w-36 h-36 rounded-xl overflow-hidden border-4 transition-all duration-300 ease-in-out ${selectedImageIndex === actualIndex
+                          ? "border-orange-500 shadow-xl scale-105"
+                          : "border-gray-100 hover:border-gray-300 hover:shadow-md"
                           }`}
                       >
                         <img
@@ -568,8 +612,8 @@ export default function ShoppingProductDetails() {
               </div>
 
               {/* Image Counter */}
-              <div className="text-center text-sm text-gray-600 mt-3 font-medium">
-                Image {selectedImageIndex + 1} of {productImages.length}
+              <div className="text-center text-sm font-black text-slate-400 mt-4 uppercase tracking-[0.2em]">
+                {selectedImageIndex + 1} / {productImages.length}
               </div>
             </div>
           )}
@@ -579,32 +623,38 @@ export default function ShoppingProductDetails() {
         {/* ADJUSTED: Removed mobile margin-top (mt-4) to pull it right up to the image/thumbnail section */}
         <div className="space-y-6 lg:mt-0">
           <div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-tight">
               {productDetails.title}
             </h1>
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gadget ID:</span>
+              <span className="text-xs font-mono font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-full">
+                {formatAestheticId(productDetails?._id, "GAD")}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-6 flex-wrap">
-            <p className="text-2xl font-semibold text-primary">
+            <p className="text-3xl font-black text-orange-600">
               ₦{Number(productDetails.price).toLocaleString("en-NG")}
             </p>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-2xl border border-slate-100">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-full"
+                className="h-10 w-10 rounded-xl bg-white shadow-sm hover:bg-slate-100"
                 disabled={quantity === 1}
                 onClick={() => handleUpdateQuantity("minus")}
               >
                 <Minus className="h-4 w-4" />
               </Button>
-              <span className="text-lg font-medium w-8 text-center">
+              <span className="text-xl font-black w-8 text-center text-slate-900">
                 {quantity}
               </span>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-full"
+                className="h-10 w-10 rounded-xl bg-white shadow-sm hover:bg-slate-100"
                 onClick={() => handleUpdateQuantity("plus")}
               >
                 <Plus className="h-4 w-4" />
@@ -613,10 +663,11 @@ export default function ShoppingProductDetails() {
           </div>
 
           <div className="flex flex-col gap-4">
-            {/* Main Action Buttons */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Main Action Buttons in requested order */}
+            <div className="flex flex-col gap-4 pt-4">
+              {/* 1. PAY NOW */}
               <Button
-                className="h-14 bg-primary hover:bg-primary/90 text-white font-extrabold text-lg rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
+                className="h-16 bg-primary hover:bg-primary/90 text-white font-black text-xl rounded-2xl shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-tight"
                 onClick={async () => {
                   await handleAddToCart(productDetails._id, productDetails.totalStock);
                   navigate("/shop/checkout", { state: { paymentType: 'full' } });
@@ -625,20 +676,11 @@ export default function ShoppingProductDetails() {
               >
                 PAY NOW
               </Button>
-              <Button
-                variant="outline"
-                className="h-14 border-2 border-primary text-primary hover:bg-primary/5 font-extrabold text-lg rounded-2xl transition-all hover:scale-[1.02] active:scale-95"
-                onClick={() => handleAddToCart(productDetails._id, productDetails.totalStock)}
-                disabled={productDetails.totalStock === 0}
-              >
-                ADD TO CART
-              </Button>
-            </div>
 
-            {productDetails.price >= 15000 && (
-              <div className="flex flex-col gap-2">
+              {/* 2. PAY ON DELIVERY */}
+              {productDetails.price >= 15000 && (
                 <Button
-                  className="h-14 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-lg rounded-2xl shadow-xl shadow-slate-900/10 transition-all hover:scale-[1.02] active:scale-95"
+                  className="h-16 bg-slate-900 hover:bg-slate-800 text-white font-black text-xl rounded-2xl shadow-2xl shadow-slate-900/10 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-tight"
                   onClick={async () => {
                     await handleAddToCart(productDetails._id, productDetails.totalStock);
                     navigate("/shop/checkout", { state: { paymentType: 'commitment' } });
@@ -647,31 +689,39 @@ export default function ShoppingProductDetails() {
                 >
                   PAY ON DELIVERY
                 </Button>
-                <p className="text-center text-xs font-semibold text-slate-500 italic">
-                  * Requires ₦10,000 commitment fee to secure order
-                </p>
-              </div>
-            )}
+              )}
 
-            <Button
-              className="h-14 bg-[#25D366] hover:bg-[#22c35e] text-white font-extrabold text-lg rounded-2xl shadow-xl shadow-green-500/10 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
-              onClick={handleOrderOnWhatsApp}
-            >
-              <MessageCircle className="w-6 h-6" />
-              ORDER ON WHATSAPP
-            </Button>
+              {/* 3. ORDER ON WHATSAPP */}
+              <Button
+                className="h-16 bg-[#25D366] hover:bg-[#22c35e] text-white font-black text-xl rounded-2xl shadow-2xl shadow-green-500/10 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 uppercase tracking-tight"
+                onClick={handleOrderOnWhatsApp}
+              >
+                <MessageCircle className="w-6 h-6" />
+                ORDER ON WHATSAPP
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-14 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-lg rounded-2xl transition-all"
+                onClick={() => handleAddToCart(productDetails._id, productDetails.totalStock)}
+                disabled={productDetails.totalStock === 0}
+              >
+                ADD TO CART
+              </Button>
+            </div>
           </div>
 
-          <div className="flex items-center justify-center pt-2">
+          <div className="flex items-center justify-center pt-4">
             <button 
               onClick={handleCopyLink}
-              className="text-sm font-bold text-slate-400 hover:text-primary transition-colors flex items-center gap-2"
+              className="text-base font-black text-orange-500 hover:text-orange-600 transition-colors flex items-center gap-2 group p-3 bg-orange-50 rounded-2xl"
             >
-              <Share2 className="w-4 h-4" /> Share Product
+              <Share2 className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              <span className="uppercase tracking-widest">Share Product</span>
             </button>
           </div>
 
-          <Separator />
+          <Separator className="my-8" />
         </div>
       </div >
 
@@ -717,10 +767,15 @@ export default function ShoppingProductDetails() {
 
       {
         filteredRelatedProducts.length > 0 && (
-          <div className="mt-16">
-            <h2 className="text-xl font-bold text-center mb-8">
-              Related Products
-            </h2>
+          <div className="mt-16 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm mx-4 sm:mx-6 lg:mx-8">
+            <div className="flex flex-col gap-1 mb-8">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
+                Similar Discoveries
+              </h2>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                More gadgets like this one
+              </p>
+            </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 justify-center">
               {filteredRelatedProducts.map((product) => (
                 <div
@@ -740,7 +795,7 @@ export default function ShoppingProductDetails() {
         )
       }
 
-      <div className="max-w-7xl mx-auto w-full mt-12">
+      <div className="max-w-7xl mx-auto w-full mt-12 px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg">
           <div className="text-center">
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
@@ -756,6 +811,10 @@ export default function ShoppingProductDetails() {
             </Button>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto w-full mt-12 px-4 sm:px-6 lg:px-8">
+        <RecentlyViewed />
       </div>
 
       {

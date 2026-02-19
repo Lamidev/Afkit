@@ -267,35 +267,25 @@ function ShoppingHome() {
                 ease: "easeInOut"
               }}
             >
-              6 MONTHS WARRANTY AND
-              <br className="hidden sm:block" /> PAYMENT ON DELIVERY
+              6 MONTHS WARRANTY, <br className="hidden sm:block" />
+              PAYMENT ON DELIVERY & <span className="text-slate-900">FREE DELIVERY</span>
             </motion.h1>
 
             <div className="space-y-4">
               <p className="text-lg sm:text-xl md:text-2xl text-slate-800 font-bold">
                 on all UK-used gadgets
               </p>
-              
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
-                className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed"
-              >
-                Premium quality gadgets, verified performance, and nationwide support. 
-                Experience the best tech deals with peace of mind.
-              </motion.p>
             </div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
-              className="pt-8"
+              className="pt-8 flex flex-col items-center gap-6"
             >
               <Button
                 size="lg"
-                className="h-14 px-12 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20 group-hover:scale-110 transition-transform"
+                className="h-16 px-12 rounded-2xl text-xl font-black shadow-2xl shadow-primary/30 group-hover:scale-105 transition-all uppercase tracking-tight"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleNavigateToListingPage({ id: "all-products" }, null);
@@ -303,27 +293,30 @@ function ShoppingHome() {
               >
                 Shop Now
               </Button>
-            </motion.div>
 
-            {/* Trust Badges */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.7, duration: 1 }}
-              className="mt-8 flex flex-wrap justify-center gap-6 md:gap-10"
-            >
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-primary" />
-                <span className="font-bold text-slate-700 text-sm sm:text-base">Original UK Parts</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-primary" />
-                <span className="font-bold text-slate-700 text-sm sm:text-base">6 Months Warranty</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-primary" />
-                <span className="font-bold text-slate-700 text-sm sm:text-base">Payment On Delivery</span>
-              </div>
+              {/* Debate Campaign Link */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative group/debate"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate("/shop/debate");
+                }}
+              >
+                <div className="absolute -inset-1 bg-gradient-to-r from-orange-600 to-blue-600 rounded-2xl blur opacity-25 group-hover/debate:opacity-50 transition duration-1000 group-hover/debate:duration-200"></div>
+                <div className="relative flex flex-col items-center p-4 bg-white border border-slate-100 rounded-2xl shadow-sm cursor-pointer min-w-[280px]">
+                  <span className="text-[10px] font-black text-orange-500 uppercase tracking-[4px] mb-1">
+                    Join the Contest
+                  </span>
+                  <h3 className="text-xl font-black text-slate-900 leading-none">
+                    "DEFEND YOUR FAVE"
+                  </h3>
+                  <p className="text-sm font-bold text-blue-600 mt-1 uppercase tracking-widest">
+                    Challenge
+                  </p>
+                </div>
+              </motion.div>
             </motion.div>
           </div>
         </motion.div>

@@ -3,8 +3,8 @@ import { Outlet } from "react-router-dom";
 import ShoppingHeader from "./header";
 import Footer from "./footer";
 import Newsletter from "./newsletter";
-import DebateCampaignSection from "./debate-campaign";
 import SearchMenu from "@/components/shopping-view/search-menu";
+import Breadcrumbs from "./breadcrumbs";
 import whatappimg from "../../assets/whatsppicon.webp";
 import { motion } from "framer-motion";
 import {
@@ -31,7 +31,8 @@ const ShoppingLayout = () => {
 
       {/* Scrollable Content */}
       <div className="pt-[160px] bg-slate-50/50"> 
-        <main className="flex-grow w-full">
+        <Breadcrumbs />
+        <main className="flex-grow w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -151,7 +152,6 @@ const ShoppingLayout = () => {
         </motion.div>
       </section>
 
-      <DebateCampaignSection />
       <Newsletter />
       <Footer />
     </div>

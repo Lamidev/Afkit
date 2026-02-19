@@ -128,10 +128,10 @@ function UserCartItemsContent({ cartItem }) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-white rounded-lg shadow-sm"
+      className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-3 sm:p-5 bg-white rounded-2xl shadow-sm border border-slate-50 relative group"
     >
-      {/* Product Image */}
-      <div className="w-24 h-24 sm:w-28 sm:h-28 bg-slate-50 flex items-center justify-center rounded-xl overflow-hidden flex-shrink-0 border border-slate-100">
+      {/* Product Image - Larger and Fuller */}
+      <div className="w-full sm:w-40 h-52 sm:h-40 bg-white flex items-center justify-center rounded-xl overflow-hidden flex-shrink-0 border border-slate-100 p-2 relative">
         <img
           src={productImage}
           alt={cartItem?.title}
@@ -139,54 +139,70 @@ function UserCartItemsContent({ cartItem }) {
             e.target.onerror = null; 
             e.target.src = "https://placehold.co/400x400/f8fafc/64748b?text=Product+Image";
           }}
-          className="w-full h-full object-contain mix-blend-multiply transition-transform duration-300 hover:scale-110"
+          className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 hover:scale-110 scale-[1.3]"
         />
-      </div>
-
-      {/* Product Details */}
-      <div className="flex-1">
-        <h3 className="font-extrabold text-base sm:text-lg">
-          {cartItem?.title}
-        </h3>
-        <p className="text-sm text-gray-600">
-          {formatNaira(cartItem?.price)} x {cartItem?.quantity}
-        </p>
-
-        {/* Quantity Controls */}
-        <div className="flex items-center gap-2 mt-2">
-          <Button
-            variant="outline"
-            className="h-8 w-8 rounded-full"
-            size="icon"
-            disabled={cartItem?.quantity === 1}
-            onClick={() => handleUpdateQuantity(cartItem, "minus")}
-          >
-            <Minus className="w-4 h-4" />
-            <span className="sr-only">Decrease quantity</span>
-          </Button>
-          <span className="font-semibold">{cartItem?.quantity}</span>
-          <Button
-            variant="outline"
-            className="h-8 w-8 rounded-full"
-            size="icon"
-            onClick={() => handleUpdateQuantity(cartItem, "plus")}
-          >
-            <Plus className="w-4 h-4" />
-            <span className="sr-only">Increase quantity</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Price & Delete */}
-      <div className="flex sm:flex-col items-end justify-between sm:justify-end gap-2 sm:gap-1">
-        <p className="font-semibold text-right">
-          {formatNaira(cartItem?.price * cartItem?.quantity)}
-        </p>
-        <Trash
+        {/* Delete link for mobile accessibility */}
+        <button 
           onClick={() => handleCartItemDelete(cartItem)}
-          className="cursor-pointer text-red-500 hover:text-red-700"
-          size={20}
-        />
+          className="sm:hidden absolute top-2 right-2 p-2 bg-red-50 text-red-500 rounded-full"
+        >
+          <Trash size={16} />
+        </button>
+      </div>
+
+      {/* Product Details - Content Area */}
+      <div className="flex-1 w-full min-w-0 flex flex-col gap-1">
+        <div className="flex justify-between items-start gap-2">
+          <h3 className="font-black text-slate-900 text-sm sm:text-lg leading-tight line-clamp-2">
+            {cartItem?.title}
+          </h3>
+          <p className="hidden sm:block font-black text-slate-900 whitespace-nowrap">
+            {formatNaira(cartItem?.price * cartItem?.quantity)}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 mb-2 sm:mb-0">
+           <span className="text-xs font-bold text-orange-600 px-2 py-0.5 bg-orange-50 rounded-full">
+            {formatNaira(cartItem?.price)}
+           </span>
+           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            Per Item
+           </span>
+        </div>
+
+        <div className="flex items-center justify-between sm:justify-start gap-4 mt-2 sm:mt-1">
+          {/* Quantity Controls - Premium Style */}
+          <div className="flex items-center gap-3 bg-slate-50 p-1 rounded-full border border-slate-100">
+            <Button
+              variant="ghost"
+              className="h-8 w-8 rounded-full bg-white shadow-sm hover:bg-slate-100 p-0"
+              disabled={cartItem?.quantity === 1}
+              onClick={() => handleUpdateQuantity(cartItem, "minus")}
+            >
+              <Minus className="w-3 h-3" />
+            </Button>
+            <span className="font-black text-slate-900 w-4 text-center text-sm">{cartItem?.quantity}</span>
+            <Button
+              variant="ghost"
+              className="h-8 w-8 rounded-full bg-white shadow-sm hover:bg-slate-100 p-0"
+              onClick={() => handleUpdateQuantity(cartItem, "plus")}
+            >
+              <Plus className="w-3 h-3" />
+            </Button>
+          </div>
+
+          <div className="sm:hidden font-black text-slate-900 border-l border-slate-200 pl-4">
+             {formatNaira(cartItem?.price * cartItem?.quantity)}
+          </div>
+
+          <button
+            onClick={() => handleCartItemDelete(cartItem)}
+            className="hidden sm:flex items-center gap-1.5 text-xs font-black text-slate-400 hover:text-red-500 transition-colors uppercase tracking-widest ml-auto"
+          >
+            <Trash size={14} />
+            Remove
+          </button>
+        </div>
       </div>
     </motion.div>
   );
