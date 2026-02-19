@@ -36,24 +36,24 @@ function ShoppingOrderDetailsView({ orderDetails }) {
           </Badge>
         </div>
         <div className="flex items-center justify-between">
-          <p className="font-semibold text-slate-500">Order Amount</p>
+          <p className="font-semibold text-slate-500">Total Amount</p>
           <Label className="text-xl font-bold">₦{orderDetails?.totalAmount.toLocaleString()}</Label>
         </div>
         
         {/* Payment Summary */}
         <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 space-y-2">
-           <div className="flex justify-between text-sm">
-             <span className="text-slate-500">Payment Type:</span>
-             <span className="font-medium capitalize">{orderDetails?.paymentType} Payment</span>
-           </div>
-           <div className="flex justify-between text-sm">
-             <span className="text-slate-500">Amount Paid:</span>
-             <span className="font-medium text-green-600">₦{orderDetails?.amountPaid.toLocaleString()}</span>
-           </div>
-           <div className="flex justify-between text-sm">
-             <span className="text-bold text-slate-900">Remaining Balance:</span>
-             <span className="font-bold text-red-600">₦{orderDetails?.balanceAmount.toLocaleString()}</span>
-           </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-500">Payment Method:</span>
+              <span className="font-medium capitalize">{orderDetails?.paymentType} Payment</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-500">Amount Paid:</span>
+              <span className="font-medium text-green-600">₦{orderDetails?.amountPaid.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-bold text-slate-900">Balance to Pay:</span>
+              <span className="font-bold text-red-600">₦{orderDetails?.balanceAmount.toLocaleString()}</span>
+            </div>
         </div>
 
         <Separator />
@@ -75,7 +75,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
         <Separator />
         
         <div className="grid gap-4">
-          <div className="font-semibold text-lg">Shipping Information</div>
+          <div className="font-semibold text-lg">Delivery Information</div>
           <div className="grid gap-1 bg-slate-50 p-4 rounded-lg text-slate-600">
             <span className="font-bold text-slate-900">{user.userName}</span>
             <span>{orderDetails?.addressInfo?.address}</span>
