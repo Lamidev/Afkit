@@ -200,6 +200,51 @@ export const addProductFormElements = [
   },
 ];
 
+export const addressFormControls = [
+  {
+    label: "Full Name",
+    name: "fullName",
+    componentType: "input",
+    type: "text",
+    placeholder: "Enter your full name",
+  },
+  {
+    label: "Email Address",
+    name: "email",
+    componentType: "input",
+    type: "email",
+    placeholder: "Enter your email for receipt",
+  },
+  {
+    label: "Address",
+    name: "address",
+    componentType: "input",
+    type: "text",
+    placeholder: "Enter house/office address",
+  },
+  {
+    label: "City / Location",
+    name: "city",
+    componentType: "input",
+    type: "text",
+    placeholder: "Enter city and state",
+  },
+  {
+    label: "Phone Number",
+    name: "phone",
+    componentType: "input",
+    type: "text",
+    placeholder: "Enter phone number",
+  },
+  {
+    label: "Delivery Instructions",
+    name: "notes",
+    componentType: "input",
+    type: "text",
+    placeholder: "Landmarks or delivery notes (Optional)",
+  },
+];
+
 export const shoppingViewHeaderMenuItems = [
   {
     id: "home",

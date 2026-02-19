@@ -1,4 +1,4 @@
-
+import { motion } from "framer-motion";
 import {
   LogOut,
   Menu,
@@ -277,9 +277,9 @@ function HeaderRightContent({ closeSheet }) {
                 navigate("/shop/search");
                 closeSheet();
               }}
-              className="hidden lg:flex p-2 hover:bg-accent rounded-full transition-colors"
+              className="hidden lg:flex p-2 hover:bg-slate-100 rounded-full transition-colors"
             >
-              <Search className="h-5 w-5 stroke-[2.5px]" />
+              <Search className="h-5 w-5 stroke-[2.5px] text-primary" />
             </button>
           </TooltipTrigger>
           <TooltipContent>Search</TooltipContent>
@@ -289,9 +289,9 @@ function HeaderRightContent({ closeSheet }) {
           <TooltipTrigger asChild>
             <button
               onClick={() => setOpenCartSheet(true)}
-              className="p-2 hover:bg-accent rounded-full transition-colors relative"
+              className="p-2 hover:bg-slate-100 rounded-full transition-colors relative"
             >
-              <ShoppingCart className="h-5 w-5 stroke-[2.5px]" />
+              <ShoppingCart className="h-5 w-5 stroke-[2.5px] text-primary" />
               {cartItems?.items?.length > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-white text-[10px] font-bold">
                   {cartItems.items.length}
@@ -307,14 +307,18 @@ function HeaderRightContent({ closeSheet }) {
             {user?.userName ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="p-2 hover:bg-accent rounded-full transition-colors">
-                    <User className="h-5 w-5 stroke-[2.5px]" />
+                  <button className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                    <User className="h-5 w-5 stroke-[2.5px] text-primary" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="right" className="w-56">
                   <DropdownMenuLabel>
                     Logged in as {user?.userName}
                   </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/shop/account")}>
+                    <User className="mr-2 h-5 w-5" /> Account
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => setIsLogoutDialogOpen(true)}>
                     <LogOut className="mr-2 h-5 w-5" /> Logout
@@ -327,9 +331,9 @@ function HeaderRightContent({ closeSheet }) {
                   navigate("/auth/login");
                   closeSheet();
                 }}
-                className="p-2 hover:bg-accent rounded-full transition-colors"
+                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
               >
-                <User className="h-5 w-5 stroke-[2.5px]" />
+                <User className="h-5 w-5 stroke-[2.5px] text-primary" />
               </button>
             )}
           </TooltipTrigger>

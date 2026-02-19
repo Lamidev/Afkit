@@ -45,9 +45,9 @@ const registerUser = async (req, res) => {
     generateTokenAndSetCookie(res, newUser._id);
     await sendVerificationEmail(newUser.email, verificationToken);
 
+    const rawId = newUser._id.toString();
     const user = newUser.toObject();
-    user.id = user._id;
-    delete user._id;
+    user.id = rawId;
 
     res.status(200).json({
       success: true,
@@ -154,15 +154,15 @@ const loginUser = async (req, res) => {
 
     const token = generateTokenAndSetCookie(res, user._id);
 
+    const rawId = user._id.toString(); // capture before toObject() transform deletes it
     const userData = user.toObject();
-    userData.id = userData._id;
-    delete userData._id;
+    userData.id = rawId; // ensure id is always a plain string
 
     res.status(200).json({
       success: true,
       message: "Logged in successfully",
       user: userData,
-      token // Optional: Only if you need it in response
+      token
     });
   } catch (e) {
     console.log(e);
@@ -321,9 +321,9 @@ const checkAuth = async (req, res) => {
       return res.status(400).json({ success: false, message: "User not found" });
     }
 
+    const rawId = user._id.toString();
     const userData = user.toObject();
-    userData.id = userData._id;
-    delete userData._id;
+    userData.id = rawId;
 
     res.status(200).json({ success: true, user: userData });
   } catch (error) {

@@ -16,93 +16,88 @@ function ShoppingProductTile({ product, handleAddToCart, handleViewDetails }) {
 
   return (
     <div
-      className="w-full h-full group cursor-pointer border border-gray-400 rounded-lg p-2 hover:shadow-md transition-shadow duration-200 flex flex-col"
+      className="w-full h-full group cursor-pointer border border-slate-200 rounded-2xl p-2 sm:p-3 hover:shadow-xl transition-all duration-300 flex flex-col bg-white"
       onClick={() => handleViewDetails(product._id)}
     >
       {/* Image Container */}
-      <div className="relative w-full overflow-hidden rounded-lg flex-shrink-0">
+      <div className="relative w-full overflow-hidden rounded-xl flex-shrink-0 bg-slate-50">
         <motion.div
-          className="aspect-square bg-gray-100"
+          className="aspect-square flex items-center justify-center p-2"
           whileHover={{ scale: 1.05 }}
           transition={{ duration: 0.3 }}
         >
           <img
             src={mainImage}
             alt={product?.title}
-            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.onerror = null; 
+              e.target.src = "https://placehold.co/400x400/f8fafc/64748b?text=Product+Image";
+            }}
+            className="w-full h-full object-contain mix-blend-multiply"
           />
         </motion.div>
 
         {product?.condition && (
-          <motion.div
-            initial={{ y: -30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="absolute top-2 right-2"
-          >
+          <div className="absolute top-2 right-2">
             <Badge
-              className={`text-[9px] px-1.5 py-0.5 h-5 ${
+              className={`text-[9px] sm:text-[10px] uppercase font-black px-3 py-1 rounded-full border shadow-sm transition-transform group-hover:scale-110 ${
                 product?.condition === "Brand New"
-                  ? "bg-green-500 hover:bg-green-600"
-                  : "bg-yellow-500 hover:bg-yellow-600"
+                  ? "bg-gradient-to-r from-amber-400 to-yellow-600 text-white border-amber-500 shadow-amber-200"
+                  : "bg-gradient-to-r from-slate-400 to-slate-600 text-white border-slate-500 shadow-slate-200"
               }`}
             >
               {product?.condition}
             </Badge>
-          </motion.div>
+          </div>
         )}
 
         {/* Stock Badges */}
         <div className="absolute top-2 left-2">
           {product?.totalStock === 0 ? (
-            <Badge className="text-[9px] px-1.5 py-0.5 h-5 bg-red-500 hover:bg-red-600">
-              Out Of Stock
+            <Badge variant="destructive" className="text-[9px] sm:text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">
+              Sold Out
             </Badge>
           ) : product?.totalStock < 10 ? (
-            <Badge className="text-[9px] px-1.5 py-0.5 h-5 bg-red-500 hover:bg-red-600">
-              {product?.totalStock} in stock
+            <Badge className="text-[9px] sm:text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 border-none hover:bg-red-100">
+              Only {product?.totalStock} Left
             </Badge>
           ) : null}
         </div>
       </div>
       
       {/* Product Info Container */}
-      <div className="mt-3 flex flex-col flex-grow min-h-[80px]">
-        <div className="space-y-1">
-          <h2 className="text-sm font-semibold leading-tight break-words">
-            {product?.title}
-          </h2>
-          <p className="text-sm font-bold text-peach-600">
+      <div className="mt-4 flex flex-col flex-grow min-h-[90px] px-1">
+        <h2 className="text-sm sm:text-base font-bold text-slate-800 leading-tight break-words mb-2">
+          {product?.title}
+        </h2>
+        <div className="mt-auto">
+          <p className="text-base sm:text-lg font-black text-primary">
             {formattedPrice}
           </p>
         </div>
       </div>
 
       {/* Add to Cart Button */}
-      {product?.totalStock > 0 && (
-        <div className="mt-4 flex justify-center">
+      <div className="mt-4 px-1">
+        {product?.totalStock > 0 ? (
           <Button
             onClick={(e) => {
               e.stopPropagation();
               handleAddToCart(product?._id, product?.totalStock);
             }}
-            className="text-xs sm:text-sm bg-blue-900 text-white hover:bg-blue-600 px-6 py-2 rounded-md"
+            className="w-full text-xs sm:text-sm h-10 sm:h-11 rounded-xl font-bold bg-primary text-white hover:bg-primary/90 transition-all"
           >
             Add to cart
           </Button>
-        </div>
-      )}
-
-      {product?.totalStock === 0 && (
-          <div className="mt-4 flex justify-center">
-              <Button
-                disabled
-                className="text-xs sm:text-sm bg-gray-300 text-gray-600 cursor-not-allowed px-6 py-2 rounded-md"
-              >
-                  Out of Stock
-              </Button>
-          </div>
-      )}
+        ) : (
+          <Button
+            disabled
+            className="w-full text-xs sm:text-sm h-10 sm:h-11 rounded-xl bg-slate-100 text-slate-400 cursor-not-allowed"
+          >
+            Out of Stock
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

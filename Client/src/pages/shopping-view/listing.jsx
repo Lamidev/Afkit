@@ -409,129 +409,159 @@ function ShoppingListing() {
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="sm:hidden flex justify-between items-center mb-4">
-          <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
-            <SheetTrigger asChild>
+        {/* Mobile Control Bar */}
+        <div className="sm:hidden flex flex-col gap-4 mb-6">
+          <div className="flex items-center justify-between">
+             <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">
+                {pageTitle}
+              </h2>
+              {searchParams.has("category") && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClearCategory}
+                  className="text-red-500 hover:text-red-600 hover:bg-red-50 text-[10px] font-black uppercase tracking-widest h-7 px-2"
+                  disabled={isFilterLoading || minimumLoaderTime}
+                >
+                  <XCircle className="h-3 w-3 mr-1" /> Reset
+                </Button>
+              )}
+          </div>
+          
+          <div className="flex gap-2">
+            <Sheet open={isMobileFilterOpen} onOpenChange={setIsMobileFilterOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="flex-1 h-11 bg-white border-slate-200 rounded-xl shadow-sm flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest"
+                  disabled={isFilterLoading || minimumLoaderTime}
+                >
+                  <SlidersHorizontal className="h-3.5 w-3.5 text-primary" />
+                  Filter Artifacts
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="right"
+                className="w-full sm:max-w-xs p-0 border-0"
+              >
+                <div className="h-full flex flex-col">
+                   <div className="p-6 border-b border-slate-100 italic">
+                      <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">Filter Engine</h3>
+                   </div>
+                   <div className="flex-1 overflow-y-auto">
+                    <ProductFilter
+                      filters={filters}
+                      onApplyFilters={onApplyFilters}
+                      filterOptions={currentFilterOptions}
+                      priceRange={priceRange}
+                      setPriceRange={setPriceRange}
+                      isFilterLoading={isFilterLoading || minimumLoaderTime}
+                      setIsMobileFilterOpen={setIsMobileFilterOpen}
+                    />
+                   </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <div className="flex-1 relative" ref={mobileDropdownRef}>
               <Button
                 variant="outline"
-                className="flex-1 mr-2 flex items-center justify-center space-x-2 border-r pr-2"
-                disabled={isFilterLoading || minimumLoaderTime}
+                className="w-full h-11 bg-white border-slate-200 rounded-xl shadow-sm flex items-center justify-center gap-2 font-black text-[10px] uppercase tracking-widest"
+                onClick={() => setIsMobileSortDropdownOpen(!isMobileSortDropdownOpen)}
               >
-                <SlidersHorizontal className="h-4 w-4" />
-                <span>Filter</span>
+                <ArrowUpDown className="h-3.5 w-3.5 text-primary" />
+                Sort Order
               </Button>
-            </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="w-[80vw] sm:max-w-xs md:max-w-sm overflow-y-auto"
-            >
-              <ProductFilter
-                filters={filters}
-                onApplyFilters={onApplyFilters}
-                filterOptions={currentFilterOptions}
-                priceRange={priceRange}
-                setPriceRange={setPriceRange}
-                isFilterLoading={isFilterLoading || minimumLoaderTime}
-                setIsMobileFilterOpen={setIsMobileFilterOpen}
-              />
-            </SheetContent>
-          </Sheet>
-
-          <div className="flex-1 ml-2 relative" ref={mobileDropdownRef}>
-            <Button
-              variant="outline"
-              className="w-full flex items-center justify-center space-x-2"
-              onClick={() => setIsMobileSortDropdownOpen(!isMobileSortDropdownOpen)}
-            >
-              <ArrowUpDown className="h-4 w-4" />
-              <span>{getCurrentSortLabel()}</span>
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-            
-            {isMobileSortDropdownOpen && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-xl z-50">
-                <div className="p-2">
-                  {sortOptions.map((option) => (
-                    <button
-                      key={option.id}
-                      className={`w-full flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-100 cursor-pointer transition-colors ${
-                        sort === option.id ? 'bg-blue-50 text-blue-700' : ''
-                      }`}
-                      onClick={() => handleSort(option.id)}
-                    >
-                      <div className={`w-2 h-2 rounded-full mr-2 ${
-                        sort === option.id ? 'bg-blue-600' : 'bg-gray-300'
-                      }`} />
-                      {option.label}
-                    </button>
-                  ))}
+              
+              {isMobileSortDropdownOpen && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                  <div className="p-1.5">
+                    {sortOptions.map((option) => (
+                      <button
+                        key={option.id}
+                        className={`w-full flex items-center px-4 py-3 text-[11px] font-bold rounded-xl hover:bg-slate-50 transition-colors ${
+                          sort === option.id ? 'bg-primary/5 text-primary' : 'text-slate-500'
+                        }`}
+                        onClick={() => handleSort(option.id)}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row">
-          <div className="hidden sm:block w-full sm:w-1/4 pr-0 sm:pr-8 mb-6 sm:mb-0">
-            <ProductFilter
-              filters={filters}
-              onApplyFilters={onApplyFilters}
-              filterOptions={currentFilterOptions}
-              priceRange={priceRange}
-              setPriceRange={setPriceRange}
-              isFilterLoading={isFilterLoading || minimumLoaderTime}
-              setIsMobileFilterOpen={setIsMobileFilterOpen}
-            />
+        <div className="flex flex-col sm:flex-row gap-8">
+          <div className="hidden sm:block w-72 shrink-0">
+             <div className="sticky top-24">
+                <ProductFilter
+                  filters={filters}
+                  onApplyFilters={onApplyFilters}
+                  filterOptions={currentFilterOptions}
+                  priceRange={priceRange}
+                  setPriceRange={setPriceRange}
+                  isFilterLoading={isFilterLoading || minimumLoaderTime}
+                  setIsMobileFilterOpen={setIsMobileFilterOpen}
+                />
+             </div>
           </div>
 
-          <div className="w-full sm:w-3/4">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-                {pageTitle}
+          <div className="flex-1">
+            <div className="hidden sm:flex justify-between items-center mb-8">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
+                  {pageTitle}
+                </h2>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
+                  DISCOVERED {productList.length} PREMIUM ARTIFACTS
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-4">
                 {searchParams.has("category") && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleClearCategory}
-                    className="ml-4 text-red-500 hover:text-red-700"
+                    className="text-red-500 hover:text-red-600 hover:bg-red-50 font-black text-[10px] uppercase tracking-widest h-9"
                     disabled={isFilterLoading || minimumLoaderTime}
                   >
-                    <XCircle className="h-4 w-4 mr-1" /> Clear Category
+                    <XCircle className="h-4 w-4 mr-2" /> Reset Category
                   </Button>
                 )}
-              </h2>
-              
-              <div className="hidden sm:block relative" ref={dropdownRef}>
-                <Button
-                  variant="outline"
-                  className="flex items-center space-x-2"
-                  onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
-                >
-                  <ArrowUpDown className="h-4 w-4" />
-                  <span>{getCurrentSortLabel()}</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-                
-                {isSortDropdownOpen && (
-                  <div className="absolute top-full right-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-xl z-50 min-w-[200px]">
-                    <div className="p-2">
-                      {sortOptions.map((option) => (
-                        <button
-                          key={option.id}
-                          className={`w-full flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-100 cursor-pointer transition-colors ${
-                            sort === option.id ? 'bg-blue-50 text-blue-700' : ''
-                          }`}
-                          onClick={() => handleSort(option.id)}
-                        >
-                          <div className={`w-2 h-2 rounded-full mr-2 ${
-                            sort === option.id ? 'bg-blue-600' : 'bg-gray-300'
-                          }`} />
-                          {option.label}
-                        </button>
-                      ))}
+
+                <div className="relative" ref={dropdownRef}>
+                  <Button
+                    variant="outline"
+                    className="h-10 border-slate-200 rounded-xl px-4 flex items-center gap-3 bg-white hover:bg-slate-50 transition-all shadow-sm"
+                    onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
+                  >
+                    <ArrowUpDown className="h-3.5 w-3.5 text-slate-400" />
+                    <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">{getCurrentSortLabel()}</span>
+                    <ChevronDown className={`h-3.5 w-3.5 text-slate-400 transition-transform duration-200 ${isSortDropdownOpen ? 'rotate-180' : ''}`} />
+                  </Button>
+                  
+                  {isSortDropdownOpen && (
+                    <div className="absolute top-full right-0 mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl z-50 min-w-[220px] overflow-hidden">
+                      <div className="p-1.5">
+                        {sortOptions.map((option) => (
+                          <button
+                            key={option.id}
+                            className={`w-full flex items-center px-4 py-2.5 text-[11px] font-bold rounded-xl hover:bg-slate-50 transition-colors ${
+                              sort === option.id ? 'bg-primary/5 text-primary' : 'text-slate-500'
+                            }`}
+                            onClick={() => handleSort(option.id)}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
 

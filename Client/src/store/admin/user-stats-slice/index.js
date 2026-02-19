@@ -27,13 +27,13 @@ export const fetchUserStats = createAsyncThunk(
   }
 );
 
-export const fetchVerifiedUsersList = createAsyncThunk(
-  "userStats/fetchVerifiedUsersList",
+export const fetchAllUsersList = createAsyncThunk(
+  "userStats/fetchAllUsersList",
   async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
       const token = sessionStorage.getItem("token");
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats/verified-list`,
+        `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats/users-list`,
         { 
           params: { page, limit },
           headers: {
@@ -45,12 +45,35 @@ export const fetchVerifiedUsersList = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch verified users list"
+        error.response?.data?.message || "Failed to fetch users list"
       );
     }
   }
 );
 
+
+export const deleteVerifiedUser = createAsyncThunk(
+  "userStats/deleteVerifiedUser",
+  async (id, { rejectWithValue }) => {
+    try {
+      const token = sessionStorage.getItem("token");
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats/delete-user/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete user"
+      );
+    }
+  }
+);
 
 const userStatsSlice = createSlice({
   name: "userStats",
@@ -60,10 +83,10 @@ const userStatsSlice = createSlice({
       unverifiedUsers: 0,
       activeUsers: 0,
       totalUsers: 0,
+      totalOrders: 0,
+      totalRevenue: 0,
       linkShares: {
         dailyWhatsAppShares: 0,
-        dailyInstagramShares: 0,
-        dailyCheckoutShares: 0,
         totalLinksShared: 0,
         dailyAuthenticatedShares: 0,
         dailyGuestShares: 0,
@@ -71,7 +94,7 @@ const userStatsSlice = createSlice({
         totalGuestShares: 0,
       },
     },
-    verifiedUsersList: [],
+    allUsersList: [],
     totalUsers: 0,
     currentPage: 1,
     totalPages: 1,
@@ -96,18 +119,18 @@ const userStatsSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
-      .addCase(fetchVerifiedUsersList.pending, (state) => {
+      .addCase(fetchAllUsersList.pending, (state) => {
         state.isUsersListLoading = true;
         state.usersListError = null;
       })
-      .addCase(fetchVerifiedUsersList.fulfilled, (state, action) => {
+      .addCase(fetchAllUsersList.fulfilled, (state, action) => {
         state.isUsersListLoading = false;
-        state.verifiedUsersList = action.payload.verifiedUsers;
+        state.allUsersList = action.payload.users;
         state.totalUsers = action.payload.total;
         state.currentPage = action.payload.currentPage;
         state.totalPages = action.payload.totalPages;
       })
-      .addCase(fetchVerifiedUsersList.rejected, (state, action) => {
+      .addCase(fetchAllUsersList.rejected, (state, action) => {
         state.isUsersListLoading = false;
         state.usersListError = action.payload;
       });

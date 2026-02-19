@@ -612,35 +612,63 @@ export default function ShoppingProductDetails() {
             </div>
           </div>
 
-          <Button
-            className="h-12 w-full bg-blue-800 hover:bg-blue-600 text-white font-bold"
-            onClick={() =>
-              handleAddToCart(productDetails._id, productDetails.totalStock)
-            }
-            disabled={productDetails.totalStock === 0}
-          >
-            {productDetails.totalStock === 0 ? "Out of Stock" : "Add to Cart"}
-          </Button>
+          <div className="flex flex-col gap-4">
+            {/* Main Action Buttons */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button
+                className="h-14 bg-primary hover:bg-primary/90 text-white font-extrabold text-lg rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
+                onClick={async () => {
+                  await handleAddToCart(productDetails._id, productDetails.totalStock);
+                  navigate("/shop/checkout", { state: { paymentType: 'full' } });
+                }}
+                disabled={productDetails.totalStock === 0}
+              >
+                PAY NOW
+              </Button>
+              <Button
+                variant="outline"
+                className="h-14 border-2 border-primary text-primary hover:bg-primary/5 font-extrabold text-lg rounded-2xl transition-all hover:scale-[1.02] active:scale-95"
+                onClick={() => handleAddToCart(productDetails._id, productDetails.totalStock)}
+                disabled={productDetails.totalStock === 0}
+              >
+                ADD TO CART
+              </Button>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            {productDetails.price >= 15000 && (
+              <div className="flex flex-col gap-2">
+                <Button
+                  className="h-14 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-lg rounded-2xl shadow-xl shadow-slate-900/10 transition-all hover:scale-[1.02] active:scale-95"
+                  onClick={async () => {
+                    await handleAddToCart(productDetails._id, productDetails.totalStock);
+                    navigate("/shop/checkout", { state: { paymentType: 'commitment' } });
+                  }}
+                  disabled={productDetails.totalStock === 0}
+                >
+                  PAY ON DELIVERY
+                </Button>
+                <p className="text-center text-xs font-semibold text-slate-500 italic">
+                  * Requires ₦10,000 commitment fee to secure order
+                </p>
+              </div>
+            )}
+
             <Button
-              className="h-12 bg-green-700 hover:bg-green-600 text-white font-bold"
+              className="h-14 bg-[#25D366] hover:bg-[#22c35e] text-white font-extrabold text-lg rounded-2xl shadow-xl shadow-green-500/10 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
               onClick={handleOrderOnWhatsApp}
             >
-              Order on WhatsApp
+              <MessageCircle className="w-6 h-6" />
+              ORDER ON WHATSAPP
             </Button>
-            <Button
-              className="h-12 bg-pink-700 hover:bg-pink-600 text-white font-bold"
-              onClick={handleOrderOnInstagram}
-            >
-              Order on Instagram
-            </Button>
-            <Button
-              className="h-12 bg-gray-600 hover:bg-gray-700 text-white font-bold flex items-center justify-center gap-2"
+          </div>
+
+          <div className="flex items-center justify-center pt-2">
+            <button 
               onClick={handleCopyLink}
+              className="text-sm font-bold text-slate-400 hover:text-primary transition-colors flex items-center gap-2"
             >
-              <Share2 className="h-5 w-5" /> Share Link
-            </Button>
+              <Share2 className="w-4 h-4" /> Share Product
+            </button>
           </div>
 
           <Separator />

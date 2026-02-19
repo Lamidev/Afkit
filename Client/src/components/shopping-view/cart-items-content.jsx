@@ -131,11 +131,17 @@ function UserCartItemsContent({ cartItem }) {
       className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-white rounded-lg shadow-sm"
     >
       {/* Product Image */}
-     <img
-  src={productImage}
-  alt={cartItem?.title}
-  className="w-full sm:w-20 h-32 sm:h-20 object-contain rounded" // Changed object-cover to object-contain
-/>
+      <div className="w-24 h-24 sm:w-28 sm:h-28 bg-slate-50 flex items-center justify-center rounded-xl overflow-hidden flex-shrink-0 border border-slate-100">
+        <img
+          src={productImage}
+          alt={cartItem?.title}
+          onError={(e) => {
+            e.target.onerror = null; 
+            e.target.src = "https://placehold.co/400x400/f8fafc/64748b?text=Product+Image";
+          }}
+          className="w-full h-full object-contain mix-blend-multiply transition-transform duration-300 hover:scale-110"
+        />
+      </div>
 
       {/* Product Details */}
       <div className="flex-1">

@@ -2,6 +2,8 @@
 import { Outlet } from "react-router-dom";
 import ShoppingHeader from "./header";
 import Footer from "./footer";
+import Newsletter from "./newsletter";
+import DebateCampaignSection from "./debate-campaign";
 import SearchMenu from "@/components/shopping-view/search-menu";
 import whatappimg from "../../assets/whatsppicon.webp";
 import { motion } from "framer-motion";
@@ -28,9 +30,16 @@ const ShoppingLayout = () => {
       </div>
 
       {/* Scrollable Content */}
-      <div className="pt-[160px]"> 
+      <div className="pt-[160px] bg-slate-50/50"> 
         <main className="flex-grow w-full">
-          <Outlet />
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            <Outlet />
+          </motion.div>
         </main>
       </div>
 
@@ -74,10 +83,10 @@ const ShoppingLayout = () => {
               value="warranty"
               className="border-b border-gray-200 last:border-b-0"
             >
-              <AccordionTrigger className="text-base font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
+              <AccordionTrigger className="text-base font-semibold text-primary hover:text-blue-700 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3 text-left">
                 What does the 6-Month Warranty cover?
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground text-base p-4 bg-white">
+              <AccordionContent className="text-muted-foreground text-base p-4 bg-white leading-relaxed">
                 For UK-used laptops: it covers motherboard, RAM, and SSD-related
                 issues. If we cannot fix it, we will replace the laptop for you even
                 after 5 months of use. For other gadgets like UK-used phones,
@@ -88,10 +97,10 @@ const ShoppingLayout = () => {
               value="delivery-time"
               className="border-b border-gray-200 last:border-b-0"
             >
-              <AccordionTrigger className="text-base font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
+              <AccordionTrigger className="text-base font-semibold text-primary hover:text-blue-700 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3 text-left">
                 How long does delivery take?
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground text-base p-4 bg-white">
+              <AccordionContent className="text-muted-foreground text-base p-4 bg-white leading-relaxed">
                 For deliveries within our office locations, it's 1-2 working days.
                 For deliveries outside our office locations: South West – 2 to 3
                 working days East and North – 3 to 5 working days We’ve added a
@@ -104,10 +113,10 @@ const ShoppingLayout = () => {
               value="payment-on-delivery"
               className="border-b border-gray-200 last:border-b-0"
             >
-              <AccordionTrigger className="text-base font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
+              <AccordionTrigger className="text-base font-semibold text-primary hover:text-blue-700 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3 text-left">
                 How does your PAYMENT ON DELIVERY work?
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground text-base p-4 bg-white">
+              <AccordionContent className="text-muted-foreground text-base p-4 bg-white leading-relaxed">
                 For the Payment on Delivery option, you pay only after you receive
                 and check your item. No Risk, no Worries. Also, we charge 10K as a
                 commitment fee. This is to ensure the seriousness of the potential
@@ -119,10 +128,10 @@ const ShoppingLayout = () => {
               className="border-b border-gray-200 last:border-b-0"
             >
           
-              <AccordionTrigger className="text-base font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
+              <AccordionTrigger className="text-base font-semibold text-primary hover:text-blue-700 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3 text-left">
                 How do you ensure product quality?
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground text-base p-4 bg-white">
+              <AccordionContent className="text-muted-foreground text-base p-4 bg-white leading-relaxed">
                 Our quality control team ensures that all our UK-used gadgets are
                 thoroughly tested before sale. Every component is carefully inspected
                 for cleanliness, functionality, and overall performance.
@@ -130,10 +139,10 @@ const ShoppingLayout = () => {
             </AccordionItem>
             <AccordionItem value="tech-support" className="last:border-b-0">
               
-              <AccordionTrigger className="text-base font-semibold text-primary hover:text-orange-500 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3">
+              <AccordionTrigger className="text-base font-semibold text-primary hover:text-blue-700 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3 text-left">
                 Is Afkit Tech support available 24/7?
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground text-base p-4 bg-white">
+              <AccordionContent className="text-muted-foreground text-base p-4 bg-white leading-relaxed">
                 Our tech support team is available Monday to Saturday, from 9:00 AM
                 to 6:00 PM.
               </AccordionContent>
@@ -142,7 +151,8 @@ const ShoppingLayout = () => {
         </motion.div>
       </section>
 
-  
+      <DebateCampaignSection />
+      <Newsletter />
       <Footer />
     </div>
   );
