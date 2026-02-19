@@ -22,13 +22,13 @@ function ShoppingAccount() {
                 value="orders" 
                 className="text-lg data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
               >
-                Orders
+                What I Bought
               </TabsTrigger>
               <TabsTrigger 
                 value="address" 
                 className="text-lg data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
               >
-                Addresses
+                Saved Addresses
               </TabsTrigger>
             </TabsList>
             <TabsContent value="orders" className="p-4 pt-8">

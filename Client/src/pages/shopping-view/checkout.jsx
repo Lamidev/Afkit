@@ -102,7 +102,7 @@ function ShoppingCheckout() {
               <div className="p-2 bg-primary/10 rounded-lg">
                 <Truck className="w-5 h-5 text-primary" />
               </div>
-              Shipping Intelligence
+              Delivery Address
             </h2>
             <Address
               selectedId={currentSelectedAddress}
@@ -115,7 +115,7 @@ function ShoppingCheckout() {
               <div className="p-2 bg-primary/10 rounded-lg">
                 <CreditCard className="w-5 h-5 text-primary" />
               </div>
-              Settlement Protocol
+              Payment Method
             </h2>
             <div className={`grid grid-cols-1 ${totalCartAmount >= 15000 ? 'sm:grid-cols-2' : ''} gap-4`}>
               {totalCartAmount >= 15000 && (
@@ -162,7 +162,7 @@ function ShoppingCheckout() {
 
         <div className="lg:col-span-5">
           <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-xl border border-slate-100 lg:sticky lg:top-24">
-            <h2 className="text-lg sm:text-xl font-black mb-6 text-slate-900 uppercase tracking-tight">Order Architecture</h2>
+            <h2 className="text-lg sm:text-xl font-black mb-6 text-slate-900 uppercase tracking-tight">Order Summary</h2>
             <div className="space-y-4 max-h-[40vh] lg:max-h-[500px] overflow-auto pr-2 custom-scrollbar">
               {cartItems && cartItems.items && cartItems.items.length > 0 ? (
                 cartItems.items.map((item) => (
@@ -177,17 +177,17 @@ function ShoppingCheckout() {
 
             <div className="mt-8 space-y-3">
               <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
-                <span>Gross Value</span>
+                <span>Items Price</span>
                 <span className="text-slate-900">₦{totalCartAmount.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-xs font-black text-emerald-500 uppercase tracking-widest leading-none">
-                <span>Logistics Fee</span>
+                <span>Delivery Fee</span>
                 <span>FREE</span>
               </div>
               
               <div className="pt-4 border-t border-slate-100">
                 <div className="flex justify-between items-end">
-                  <span className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none mb-2">Net Payable</span>
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none mb-2">Total to pay</span>
                   <span className="text-3xl font-black text-slate-900 leading-none tracking-tighter">₦{totalCartAmount.toLocaleString()}</span>
                 </div>
               </div>
@@ -196,11 +196,11 @@ function ShoppingCheckout() {
                 <div className="bg-slate-900 p-4 rounded-xl mt-6 border border-slate-800 shadow-2xl overflow-hidden relative">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full -mr-8 -mt-8" />
                   <div className="flex justify-between items-center relative z-10">
-                    <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Immediate Deposit</span>
+                    <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Pay Now</span>
                     <span className="text-xl font-black text-white">₦10,000</span>
                   </div>
                   <div className="flex justify-between text-[10px] text-white/40 mt-2 font-bold uppercase tracking-widest border-t border-white/5 pt-2">
-                    <span>Balance at Portal</span>
+                    <span>Pay on delivery</span>
                     <span className="text-amber-500">₦{(totalCartAmount - 10000).toLocaleString()}</span>
                   </div>
                 </div>
@@ -210,7 +210,7 @@ function ShoppingCheckout() {
             <Button
               onClick={handleInitiatePaystackPayment}
               disabled={isProcessingOrder || cartItems?.items?.length === 0}
-              className="w-full h-12 mt-8 text-sm font-black uppercase tracking-widest rounded-xl shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1)] bg-slate-900 hover:bg-slate-800 transition-all hover:scale-[1.02]"
+              className="w-full h-12 mt-8 text-sm font-black uppercase tracking-widest rounded-xl shadow-[0_10px_20px_-5px_rgba(30,58,138,0.2)] bg-primary hover:bg-primary/90 border-none transition-all hover:scale-[1.02] text-white"
             >
               {isProcessingOrder ? "INITIALIZING SECURE LINK..." : paymentType === "commitment" ? "PAY DEPOSIT (₦10,000)" : "PROCESS FULL PAYMENT"}
             </Button>

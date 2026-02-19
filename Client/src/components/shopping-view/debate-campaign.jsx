@@ -53,7 +53,7 @@ const DebateCampaignSection = () => {
 
       if (data.success) {
         setIsRegistered(true);
-        toast.success("Registration successful! Check your email.");
+        toast.success("You're signed up! Check your email.");
       } else {
         toast.error(data.message || "Registration failed. Please try again.");
       }
@@ -199,7 +199,7 @@ const DebateCampaignSection = () => {
                     You're Registered! 🎉
                   </h3>
                   <p className="text-slate-400 text-base max-w-sm">
-                    Welcome to the Afkit Debate Campaign! We've sent you a
+                    You're in! We've sent you a
                     confirmation email with all the details.
                   </p>
                 </motion.div>
@@ -277,7 +277,7 @@ const DebateCampaignSection = () => {
                     ) : (
                       <span className="flex items-center gap-2 justify-center">
                         <Mic2 className="w-5 h-5" />
-                        Register for the Debate
+                        Join the Contest
                       </span>
                     )}
                   </Button>

@@ -47,8 +47,8 @@ function AdminOrderDetailsView({ orderDetails }) {
     <DialogContent className="sm:max-w-[700px] border-0 shadow-2xl overflow-hidden p-0 bg-gray-50/50 backdrop-blur-xl">
       <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 p-6 flex justify-between items-center">
         <div>
-          <DialogTitle className="text-xl font-black text-gray-900 tracking-tight">Order Intelligence</DialogTitle>
-          <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Ref: {orderDetails?.orderId || orderDetails?._id}</p>
+          <DialogTitle className="text-xl font-black text-gray-900 tracking-tight">Order Details</DialogTitle>
+          <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Order ID: {orderDetails?.orderId || orderDetails?._id}</p>
         </div>
         <Badge className={`px-4 py-1.5 rounded-full text-[10px] uppercase font-black tracking-widest ${
           orderDetails?.orderStatus === 'delivered' ? 'bg-emerald-100 text-emerald-700' : 
@@ -62,7 +62,7 @@ function AdminOrderDetailsView({ orderDetails }) {
         {/* Payment Architecture */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-2">
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Billing Strategy</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Method</p>
             <div className="flex items-center justify-between">
               <span className="text-sm font-bold text-gray-800">
                 {orderDetails?.paymentType === 'commitment' ? 'Pay on Delivery' : 'Full Advance'}
@@ -73,7 +73,7 @@ function AdminOrderDetailsView({ orderDetails }) {
             </div>
           </div>
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-2">
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Financial Status</p>
+            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Payment Status</p>
             <div className="flex items-center justify-between">
               <span className={`text-sm font-black uppercase tracking-tighter ${orderDetails?.paymentStatus === 'paid' ? 'text-emerald-600' : 'text-amber-600'}`}>
                 {orderDetails?.paymentStatus}
@@ -92,16 +92,16 @@ function AdminOrderDetailsView({ orderDetails }) {
           <div className="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8 bg-blue-500/20 rounded-full blur-3xl group-hover:bg-blue-500/30 transition-colors" />
           <div className="relative space-y-4">
             <div className="flex justify-between items-center pb-4 border-b border-white/10">
-              <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Invoice Value</span>
+              <span className="text-xs font-bold text-white/50 uppercase tracking-widest">Total Amount</span>
               <span className="text-lg font-black text-white">₦{orderDetails?.totalAmount.toLocaleString()}</span>
             </div>
             <div className="flex justify-between items-center text-emerald-400 text-xs font-bold uppercase tracking-widest">
-              <span>Verified Received</span>
+              <span>Amount Paid</span>
               <span>- ₦{orderDetails?.amountPaid.toLocaleString()}</span>
             </div>
             <div className="flex justify-between items-end pt-2">
               <div>
-                <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block mb-1">Balance to Collect</span>
+                <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block mb-1">Balance to Pay</span>
                 <span className="text-3xl font-black text-white leading-none">₦{orderDetails?.balanceAmount.toLocaleString()}</span>
               </div>
               <div className="text-right">
@@ -115,18 +115,18 @@ function AdminOrderDetailsView({ orderDetails }) {
         {/* Logistics Profile */}
         <div className="space-y-4">
            <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-             <Truck className="w-4 h-4" /> Logistics Profile
+             <Truck className="w-4 h-4" /> Delivery Information
            </h3>
             <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4">
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Destination</span>
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Address</span>
                 <p className="text-sm font-black text-gray-900 leading-relaxed">
                   {orderDetails?.addressInfo?.address}, {orderDetails?.addressInfo?.city}
                 </p>
               </div>
               {orderDetails?.addressInfo?.notes && (
                 <div className="flex flex-col gap-1 p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">
-                  <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Delivery Intel</span>
+                  <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Delivery Notes</span>
                   <div
                     className="text-xs font-bold text-amber-900 notes-content"
                     dangerouslySetInnerHTML={{ __html: orderDetails?.addressInfo?.notes }}
@@ -149,28 +149,29 @@ function AdminOrderDetailsView({ orderDetails }) {
         {/* Control Interface */}
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
            <Separator className="mb-6 opacity-30" />
-           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Command Center</p>
+           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">Update Order Status</p>
            <CommonForm
              formControls={[
                {
                  label: "",
                  name: "status",
-                 placeholder: "Modify Order Trajectory",
+                 placeholder: "Select Order Status",
                  componentType: "select",
                  options: [
-                   { id: "pending", label: "Pending Verification" },
-                   { id: "confirmed", label: "Confirmed (Activate Stock)" },
-                   { id: "processing", label: "Processing Operations" },
-                   { id: "shipped", label: "Out for Delivery" },
-                   { id: "delivered", label: "Delivered & Settled" },
-                   { id: "rejected", label: "Rejection Protocol" },
-                   { id: "cancelled", label: "Termination" },
+                   { id: "pending", label: "Pending" },
+                   { id: "confirmed", label: "Confirmed" },
+                   { id: "processing", label: "Processing" },
+                   { id: "shipped", label: "Shipped" },
+                   { id: "delivered", label: "Delivered" },
+                   { id: "rejected", label: "Rejected" },
+                   { id: "cancelled", label: "Cancelled" },
                  ],
                },
              ]}
              formData={formData}
              setFormData={setFormData}
-             buttonText={"Apply Pulse Update"}
+             buttonText={"Update Status"}
+             isBtnDisabled={!formData.status}
              buttonClassName="bg-primary hover:bg-primary/90"
              onSubmit={handleUpdateStatus}
            />
