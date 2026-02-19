@@ -5,6 +5,7 @@ import AuthRegister from "./pages/auth/register";
 import AdminLayout from "./components/admin-view/layout";
 import AdminDashboard from "./pages/admin-view/dashboard";
 import AdminProducts from "./pages/admin-view/products";
+import AdminOrdersPage from "./pages/admin-view/orders";
 import ShoppingLayout from "./components/shopping-view/layout";
 import NotFound from "./pages/not-found";
 import ShoppingHome from "./pages/shopping-view/home";
@@ -24,6 +25,10 @@ import LoadingSpinner from "./components/shopping-view/loading-spinner";
 import { Toaster } from "./components/ui/sonner";
 import ShoppingProductDetails from "./pages/shopping-view/product-details-page";
 import AuthListener from "./components/shopping-view/auth-listener";
+import PaystackReturnPage from "./pages/shopping-view/paystack-return";
+import PaymentSuccessPage from "./pages/shopping-view/payment-success";
+import ShoppingAccount from "./pages/shopping-view/account";
+import AdminDebateRegistrations from "./pages/admin-view/debate-registrations";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector(
@@ -36,6 +41,8 @@ function App() {
   }, [dispatch]);
 
   if (isLoading) return <LoadingSpinner />; 
+
+  console.log("Current App Path:", window.location.pathname);
 
   return (
     <div className="flex flex-col overflow-hidden bg-white">
@@ -65,6 +72,8 @@ function App() {
         >
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
+          <Route path="orders" element={<AdminOrdersPage />} />
+          <Route path="debate-registrations" element={<AdminDebateRegistrations />} />
         </Route>
 
         {/* Shopping Routes (Public) */}
@@ -74,6 +83,9 @@ function App() {
           <Route path="product/:id" element={<ShoppingProductDetails />} />
           <Route path="search" element={<SearchProducts />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="paystack-return" element={<PaystackReturnPage />} />
+          <Route path="payment-success" element={<PaymentSuccessPage />} />
+          <Route path="account" element={<ShoppingAccount />} />
         </Route>
 
         {/* Checkout requires authentication */}

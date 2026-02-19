@@ -22,7 +22,7 @@ import {
   editProduct,
   fetchAllProducts,
 } from "@/store/admin/products-slice";
-import { ArrowUpDown, Filter, X, Plus, ChevronDown, Edit } from "lucide-react";
+import { ArrowUpDown, Filter, X, Plus, ChevronDown, Edit, ChevronLeft, ChevronRight } from "lucide-react";
 import AdminProductFilter from "@/components/admin-view/admin-product-filter";
 import { useLocation , Link} from "react-router-dom";
 
@@ -456,48 +456,65 @@ function AdminProducts() {
 
   return (
     <Fragment>
-      <div ref={topRef} className="space-y-6">
+      <div ref={topRef} className="space-y-6 w-full min-w-0">
         <motion.div
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+          className="flex flex-col gap-6"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="flex items-center gap-4">
+          {/* Top Level Actions */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-bold">Manage Products</h1>
-              {urlCategory && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  Category: <span className="font-medium">{getCurrentCategoryName()}</span>
-                </p>
-              )}
+              <h1 className="text-2xl font-black text-gray-900 tracking-tight">Product Repository</h1>
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">
+                {urlCategory && urlCategory !== 'all-products' ? `Cataloging: ${getCurrentCategoryName()}` : 'System-wide inventory control'}
+              </p>
             </div>
-            <div className="flex gap-2">
-              <div className="relative" ref={sortDropdownRef}>
+            <Button 
+              onClick={() => setOpenCreateProductsDialog(true)}
+              className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white font-bold text-xs px-6 h-11 rounded-xl shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add New Product
+            </Button>
+          </div>
+
+          {/* Filtering & Sorting Controls */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+            <div className="lg:col-span-5 flex items-center gap-2">
+              <AdminProductSearch 
+                onSearch={setSearchQuery}
+                placeholder="Search by title, brand, or specs..."
+                className="flex-1"
+              />
+            </div>
+            
+            <div className="lg:col-span-7 flex flex-wrap sm:flex-nowrap items-center gap-2">
+              <div className="flex-1 relative" ref={sortDropdownRef}>
                 <Button
                   variant="outline"
-                  className="flex items-center space-x-2"
+                  className="w-full flex items-center justify-between border-gray-100 bg-gray-50/50 hover:bg-white transition-all h-10 rounded-xl px-4"
                   onClick={() => setIsSortDropdownOpen(!isSortDropdownOpen)}
                 >
-                  <ArrowUpDown className="h-4 w-4" />
-                  <span>{getCurrentSortLabel()}</span>
-                  <ChevronDown className="h-4 w-4" />
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <ArrowUpDown className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+                    <span className="text-xs font-bold text-gray-600 truncate">{getCurrentSortLabel()}</span>
+                  </div>
+                  <ChevronDown className={`h-3.5 w-3.5 text-gray-400 transition-transform duration-200 ${isSortDropdownOpen ? 'rotate-180' : ''}`} />
                 </Button>
                 
                 {isSortDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-xl z-50 min-w-[200px]">
-                    <div className="p-2">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                    <div className="p-1.5">
                       {adminSortOptions.map((option) => (
                         <button
                           key={option.id}
-                          className={`w-full flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-100 cursor-pointer transition-colors ${
-                            sortBy === option.id ? 'bg-blue-50 text-blue-700' : ''
+                          className={`w-full flex items-center px-4 py-2.5 text-[11px] font-bold rounded-xl hover:bg-gray-50 transition-colors ${
+                            sortBy === option.id ? 'bg-blue-50 text-blue-700' : 'text-gray-500'
                           }`}
                           onClick={() => handleSortChange(option.id)}
                         >
-                          <div className={`w-2 h-2 rounded-full mr-2 ${
-                            sortBy === option.id ? 'bg-blue-600' : 'bg-gray-300'
-                          }`} />
                           {option.label}
                         </button>
                       ))}
@@ -506,31 +523,26 @@ function AdminProducts() {
                 )}
               </div>
 
-              <div className="hidden sm:block relative" ref={filterDropdownRef}>
+              <div className="hidden sm:block relative flex-1" ref={filterDropdownRef}>
                 <Button
                   variant="outline"
-                  className="flex items-center space-x-2 relative"
+                  className={`w-full flex items-center justify-center gap-2 border-gray-100 bg-gray-50/50 hover:bg-white transition-all h-10 rounded-xl px-4 ${hasActiveFilters ? 'border-blue-200 bg-blue-50/30' : ''}`}
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
                 >
-                  <Filter className="h-4 w-4" />
-                  <span>Filter</span>
+                  <Filter className={`h-3.5 w-3.5 ${hasActiveFilters ? 'text-blue-500' : 'text-gray-400'}`} />
+                  <span className={`text-xs font-bold ${hasActiveFilters ? 'text-blue-700' : 'text-gray-600'}`}>Advanced filters</span>
                   {hasActiveFilters && (
-                    <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-600 rounded-full"></span>
+                    <span className="h-1.5 w-1.5 bg-blue-500 rounded-full animate-pulse"></span>
                   )}
                 </Button>
                 
                 {isFilterOpen && (
-                  <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-xl z-50 w-80">
-                    <div className="p-4 border-b flex items-center justify-between">
-                      <h3 className="font-semibold">Filters</h3>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsFilterOpen(false)}
-                        className="h-8 w-8 p-0 hover:bg-gray-100"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                  <div className="absolute top-full right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 w-80 overflow-hidden">
+                    <div className="p-4 border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
+                      <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Active Filters</h3>
+                      <button onClick={() => setIsFilterOpen(false)} className="hover:bg-gray-100 p-1.5 rounded-lg transition-colors">
+                        <X className="h-4 w-4 text-gray-400" />
+                      </button>
                     </div>
                     <div className="max-h-96 overflow-y-auto">
                       <AdminProductFilter
@@ -552,50 +564,35 @@ function AdminProducts() {
                 <SheetTrigger asChild>
                   <Button
                     variant="outline"
-                    className="flex items-center space-x-2 sm:hidden relative"
+                    className={`flex-1 flex sm:hidden items-center justify-center gap-2 border-gray-100 bg-gray-50/50 hover:bg-white transition-all h-10 rounded-xl px-4 ${hasActiveFilters ? 'border-blue-200 bg-blue-50/30' : ''}`}
                   >
-                    <Filter className="h-4 w-4" />
-                    <span>Filter</span>
-                    {hasActiveFilters && (
-                      <span className="absolute -top-1 -right-1 h-2 w-2 bg-blue-600 rounded-full"></span>
-                    )}
+                    <Filter className={`h-3.5 w-3.5 ${hasActiveFilters ? 'text-blue-500' : 'text-gray-400'}`} />
+                    <span className={`text-xs font-bold ${hasActiveFilters ? 'text-blue-700' : 'text-gray-600'}`}>Filters</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent
-                  side="right"
-                  className="w-[85vw] sm:max-w-md overflow-y-auto p-0"
-                >
-                  <div className="flex-1 overflow-y-auto">
-                    <AdminProductFilter
-                      filters={filters}
-                      onApplyFilters={handleApplyFilters}
-                      onResetFilters={handleResetFilters}
-                      onCloseFilter={handleCloseFilter}
-                      filterOptions={currentFilterOptions}
-                      priceRange={priceRange}
-                      setPriceRange={setPriceRange}
-                      isDropdown={false}
-                      isMobileFilterOpen={isMobileFilterOpen}
-                      setIsMobileFilterOpen={setIsMobileFilterOpen}
-                    />
+                <SheetContent side="right" className="w-full sm:max-w-md p-0 border-0">
+                  <div className="h-full flex flex-col bg-white">
+                    <div className="p-6 border-b border-gray-100">
+                      <SheetTitle className="text-xl font-black text-gray-900 tracking-tight">Filter Engine</SheetTitle>
+                    </div>
+                    <div className="flex-1 overflow-y-auto">
+                      <AdminProductFilter
+                        filters={filters}
+                        onApplyFilters={handleApplyFilters}
+                        onResetFilters={handleResetFilters}
+                        onCloseFilter={handleCloseFilter}
+                        filterOptions={currentFilterOptions}
+                        priceRange={priceRange}
+                        setPriceRange={setPriceRange}
+                        isDropdown={false}
+                        isMobileFilterOpen={isMobileFilterOpen}
+                        setIsMobileFilterOpen={setIsMobileFilterOpen}
+                      />
+                    </div>
                   </div>
                 </SheetContent>
               </Sheet>
             </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <AdminProductSearch 
-              onSearch={setSearchQuery}
-              placeholder="Search products..."
-              className="w-full sm:w-64"
-            />
-            <Button 
-              onClick={() => setOpenCreateProductsDialog(true)}
-              className="hidden sm:flex bg-blue-900 hover:bg-blue-600"
-            >
-              Add New Product
-            </Button>
           </div>
         </motion.div>
 
@@ -706,15 +703,15 @@ function AdminProducts() {
 
           <TabsContent value="active" className="mt-6">
             {isLoading ? (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="h-64 bg-muted rounded-lg animate-pulse" />
+                  <div key={i} className="aspect-[3/4] bg-slate-100 rounded-xl animate-pulse" />
                 ))}
               </div>
             ) : activeProducts.length > 0 ? (
               <>
                 <motion.div
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-4"
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3"
                   initial="hidden"
                   animate="visible"
                   variants={{
@@ -763,35 +760,34 @@ function AdminProducts() {
                 </motion.div>
                 
                 {totalActivePages > 1 && (
-                  <div className="flex justify-center mt-6">
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                      >
-                        Previous
-                      </Button>
-                      {Array.from({ length: totalActivePages }, (_, i) => i + 1).map((page) => (
-                        <Button
-                          key={page}
-                          variant={page === currentPage ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => handlePageChange(page)}
-                        >
-                          {page}
-                        </Button>
-                      ))}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalActivePages}
-                      >
-                        Next
-                      </Button>
+                  <div className="flex flex-wrap items-center justify-center gap-2 mt-8 pb-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="h-9 px-4 rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      <ChevronLeft className="h-4 w-4 mr-1" />
+                      Prev
+                    </Button>
+                    
+                    <div className="flex items-center bg-gray-100/50 p-1 rounded-xl">
+                      <span className="px-3 text-xs font-black text-gray-500 uppercase tracking-widest">
+                        Page {currentPage} of {totalActivePages}
+                      </span>
                     </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalActivePages}
+                      className="h-9 px-4 rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
                   </div>
                 )}
               </>
@@ -804,10 +800,10 @@ function AdminProducts() {
                   }
                 </p>
                 <Button
-                  className="mt-4 bg-blue-900 hover:bg-blue-600"
+                  className="mt-4 bg-primary hover:bg-primary/90 text-white font-bold text-sm px-8 h-11 rounded-xl"
                   onClick={() => setOpenCreateProductsDialog(true)}
                 >
-                  Add Your First Product
+                  <Plus className="w-4 h-4 mr-2" /> Add First Product
                 </Button>
               </div>
             )}
@@ -817,7 +813,7 @@ function AdminProducts() {
             {hiddenProducts.length > 0 ? (
               <>
                 <motion.div
-                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-4"
+                  className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3"
                   initial="hidden"
                   animate="visible"
                   variants={{
@@ -866,35 +862,34 @@ function AdminProducts() {
                 </motion.div>
                 
                 {totalHiddenPages > 1 && (
-                  <div className="flex justify-center mt-6">
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePageChange(currentPage - 1)}
-                        disabled={currentPage === 1}
-                      >
-                        Previous
-                      </Button>
-                      {Array.from({ length: totalHiddenPages }, (_, i) => i + 1).map((page) => (
-                        <Button
-                          key={page}
-                          variant={page === currentPage ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => handlePageChange(page)}
-                        >
-                          {page}
-                        </Button>
-                      ))}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handlePageChange(currentPage + 1)}
-                        disabled={currentPage === totalHiddenPages}
-                      >
-                        Next
-                      </Button>
+                  <div className="flex flex-wrap items-center justify-center gap-2 mt-8 pb-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="h-9 px-4 rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      <ChevronLeft className="h-4 w-4 mr-1" />
+                      Prev
+                    </Button>
+                    
+                    <div className="flex items-center bg-gray-100/50 p-1 rounded-xl">
+                      <span className="px-3 text-xs font-black text-gray-500 uppercase tracking-widest">
+                        Page {currentPage} of {totalHiddenPages}
+                      </span>
                     </div>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalHiddenPages}
+                      className="h-9 px-4 rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
                   </div>
                 )}
               </>
@@ -920,7 +915,7 @@ function AdminProducts() {
           <Button
             onClick={() => setOpenCreateProductsDialog(true)}
             size="lg"
-            className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-all duration-200 bg-blue-900 hover:bg-blue-600"
+            className="rounded-full w-14 h-14 shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 bg-primary hover:bg-primary/90 border-4 border-white"
           >
             <Plus className="h-6 w-6" />
             <span className="sr-only">Add New Product</span>
@@ -973,6 +968,7 @@ function AdminProducts() {
                         formData={formData}
                         setFormData={setFormData}
                         buttonText={currentEditedId ? "Update Product" : "Add Product"}
+                        buttonClassName="bg-primary hover:bg-primary/90"
                         formControls={getDynamicFormControls()}
                         isBtnDisabled={!isFormValid()}
                       />

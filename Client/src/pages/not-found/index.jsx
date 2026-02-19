@@ -11,7 +11,7 @@ const NotFound = () => {
           Oops! Page Not Found
         </h1>
         <p className="text-lg text-gray-600 mb-6">
-          We can't seem to find the page you're looking for.
+          We can't seem to find the page you're looking for: <span className="font-mono text-red-500">{window.location.pathname}</span>
         </p>
         <p className="text-sm text-gray-500 mb-8">
           Perhaps you mistyped the URL, or the page has moved.

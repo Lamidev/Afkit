@@ -23,6 +23,7 @@ function CommonForm({
   onSubmit,
   buttonText,
   isBtnDisabled,
+  buttonClassName,
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -269,7 +270,7 @@ function CommonForm({
       <Button 
         disabled={isBtnDisabled} 
         type="submit" 
-        className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+        className={`w-full text-white font-bold h-11 rounded-xl transition-all ${buttonClassName || "bg-primary hover:bg-primary/90"}`}
         size="lg"
       >
         {buttonText || "Submit"}

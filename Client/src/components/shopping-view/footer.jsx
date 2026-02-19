@@ -13,189 +13,122 @@ import Afkitlogo from "../../assets/afkit-logo.png";
 
 const Footer = () => {
   return (
-    <motion.footer
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="bg-gray-100 text-black py-10 mt-auto"
-    >
-      <div className="container mx-auto px-4 sm:px-6 md:px-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-        {/* Logo + Socials */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="flex flex-col items-center md:items-start space-y-4"
-        >
-          <img
-            src={Afkitlogo}
-            alt="Afkit Logo"
-            className="w-33 md:w-36 font-bold object-contain"
-          />
-
-          {/* Social Media Icons */}
-          <div className="flex justify-center md:justify-start space-x-4 pt-2">
-            <motion.a
-              whileHover={{ y: -2 }}
-              href="https://x.com/afkit_official?t=EeaWvQxeihXFWrb4WLhrNg&s=09"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-black hover:text-blue-500"
-            >
-              <FaTwitter className="w-7 h-7" />
-            </motion.a>
-            <motion.a
-              whileHover={{ y: -2 }}
-              href="https://www.instagram.com/afkit_official?igsh=MXZ2MGZyOGowaDlmYw=="
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-black hover:text-pink-500"
-            >
-              <FaInstagram className="w-7 h-7" />
-            </motion.a>
-            <motion.a
-              whileHover={{ y: -2 }}
-              href="https://wa.me/2348164014304"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-black hover:text-green-500"
-            >
-              <FaWhatsapp className="w-7 h-7" />
-            </motion.a>
-          </div>
-        </motion.div>
-
-        {/* New About Us Section (replaces Services) */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="md:border-l border-gray-400 md:pl-6" // Added border and padding for separation
-        >
-          <h2 className="text-xl font-semibold mb-4">About Us</h2>
-          {/* Changed text-sm to text-base */}
-          <div className="text-base font-bold text-gray-900">
-            <p className="mb-2 leading-relaxed">
-              <span className="text-orange-500 font-bold">Afkit</span> is your trusted tech partner in Nigeria offering premium
-              Uk-used devices with{" "}
-              <span className="font-semibold text-orange-500">
-                6-month warranty
-              </span>{" "}
-              and{" "}
-              <span className="font-semibold text-orange-500">
-                payment on delivery
-              </span>{" "}
-              option
+    <footer className="bg-white text-slate-600 py-16 mt-auto border-t border-slate-200">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+          {/* Brand Section */}
+          <div className="flex flex-col space-y-6">
+            <img
+              src={Afkitlogo}
+              alt="Afkit Logo"
+              className="h-10 w-fit"
+            />
+            <p className="text-sm leading-relaxed max-w-xs text-slate-500">
+              Your trusted partner for premium UK-used gadgets in Nigeria. 
+              Quality verified, 6-month warranty, and nationwide delivery.
             </p>
-            <p>
-              <a
-                href="/shop/about"
-                className="text-blue-600 hover:underline font-medium inline-flex items-center"
+            <div className="flex space-x-4">
+              <motion.a
+                whileHover={{ y: -3, color: "#1e3a8a" }}
+                href="https://x.com/afkit_official"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-slate-50 p-2.5 rounded-full transition-colors border border-slate-100"
               >
-                Discover our story
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 ml-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </a>
-            </p>
+                <FaTwitter className="w-5 h-5" />
+              </motion.a>
+              <motion.a
+                whileHover={{ y: -3, color: "#ec4899" }}
+                href="https://www.instagram.com/afkit_official"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-slate-50 p-2.5 rounded-full transition-colors border border-slate-100"
+              >
+                <FaInstagram className="w-5 h-5" />
+              </motion.a>
+              <motion.a
+                whileHover={{ y: -3, color: "#22c55e" }}
+                href="https://wa.me/2348164014304"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-slate-50 p-2.5 rounded-full transition-colors border border-slate-100"
+              >
+                <FaWhatsapp className="w-5 h-5" />
+              </motion.a>
+            </div>
           </div>
-        </motion.div>
 
-        {/* Contact */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }} // Adjusted delay
-          className="md:border-l border-gray-400 md:pl-6"
-        >
-          <h2 className="text-xl font-semibold mb-4">Contact Us</h2>
-          {/* Changed text-sm to text-base for the list items as well */}
-          <ul className="space-y-3 text-base">
-            <li className="flex items-center justify-center md:justify-start">
-              <FaEnvelope className="w-5 h-5 mr-2 text-blue-900" />
-              <a
-                href="mailto:afkitng@gmail.com"
-                className="hover:text-gray-600 transition font-bold"
-              >
-                info@afkit.ng
-              </a>
-            </li>
-            <li className="flex items-center justify-center md:justify-start">
-              <FaPhone className="w-5 h-5 mr-2 text-blue-900" />
-              <a
-                href="tel:+2348164014304"
-                className="hover:text-gray-600 transition font-bold"
-              >
-                0816 401 4304
-              </a>
-            </li>
-            <li className="flex items-center justify-center md:justify-start">
-              <FaMapMarkerAlt className="w-5 h-5 mr-2 text-blue-900" />
-              <span className="font-bold">
-                Shop A25, Platinum Plaza, No 7 Adepele Street, Computer Village,
-                Ikeja
-              </span>
-            </li>
-          </ul>
-        </motion.div>
-      </div>
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-slate-900 font-bold text-lg mb-6 tracking-tight">Shop Categories</h3>
+            <ul className="space-y-4 text-sm">
+              <li><a href="/shop/listing?category=smartphones" className="hover:text-primary transition-colors">Smartphones</a></li>
+              <li><a href="/shop/listing?category=laptops" className="hover:text-primary transition-colors">Laptops</a></li>
+              <li><a href="/shop/listing?category=monitors" className="hover:text-primary transition-colors">Monitors</a></li>
+              <li><a href="/shop/listing?category=accessories" className="hover:text-primary transition-colors">Accessories</a></li>
+            </ul>
+          </div>
 
-      {/* Separator + Copyright */}
-      <Separator className="my-8 bg-gray-500" />
-      <p className="text-center text-sm text-gray-600 px-4">
-        &copy; {new Date().getFullYear()} AFKiT. All rights reserved.
-      </p>
+          {/* About Section */}
+          <div>
+            <h3 className="text-slate-900 font-bold text-lg mb-6 tracking-tight">Why Afkit?</h3>
+            <ul className="space-y-4 text-sm">
+              <li className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 shrink-0"></span>
+                <span>6-Month Warranty</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 shrink-0"></span>
+                <span>Payment on Delivery</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 bg-primary rounded-full mt-1.5 shrink-0"></span>
+                <span>Tested & Verified Gadgets</span>
+              </li>
+              <li>
+                <a href="/shop/about" className="text-primary font-bold hover:underline inline-flex items-center mt-2">
+                  Our Story <FaMapMarkerAlt className="ml-2 w-3 h-3" />
+                </a>
+              </li>
+            </ul>
+          </div>
 
-      {/* Developer Credits - Moved slightly below rights reserved */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-4 pt-4 text-center border-t border-gray-200 w-full max-w-xs mx-auto text-xs text-gray-500"
-      >
-        <p className="mb-2 font-medium">Built with ❤️ by <span className="text-blue-600 font-bold">Lamidev</span></p>
-        <div className="flex justify-center space-x-4 items-center">
-          <a
-            href="https://www.linkedin.com/in/akinyemi-oluwatosin-95519130b"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-400 hover:text-blue-700 transition"
-            title="LinkedIn"
-          >
-            <FaLinkedin className="w-4 h-4" />
-          </a>
-          <a
-            href="https://www.instagram.com/thisslami?igsh=MWRtNmwydnBzbnhuaw=="
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-400 hover:text-pink-600 transition"
-            title="Instagram"
-          >
-            <FaInstagram className="w-4 h-4" />
-          </a>
-          <a
-            href="https://wa.me/2347056501913?text=Hello%20Lamidev,%20I%20saw%20your%20work%20on%20Afkit%20and%20I'd%20like%20to%20connect!"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-400 hover:text-green-600 transition"
-            title="WhatsApp"
-          >
-            <FaWhatsapp className="w-4 h-4" />
-          </a>
+          {/* Contact Section */}
+          <div>
+            <h3 className="text-slate-900 font-bold text-lg mb-6 tracking-tight">Support</h3>
+            <ul className="space-y-4 text-sm">
+              <li className="flex items-center gap-3">
+                <FaEnvelope className="text-primary shrink-0" />
+                <a href="mailto:info@afkit.ng" className="hover:text-primary transition-colors">info@afkit.ng</a>
+              </li>
+              <li className="flex items-center gap-3">
+                <FaPhone className="text-primary shrink-0" />
+                <a href="tel:+2348164014304" className="hover:text-primary transition-colors">0816 401 4304</a>
+              </li>
+              <li className="flex items-start gap-3 leading-relaxed">
+                <FaMapMarkerAlt className="text-primary mt-1 shrink-0" />
+                <span>Shop A25, Platinum Plaza, Computer Village, Ikeja</span>
+              </li>
+            </ul>
+          </div>
         </div>
-      </motion.div>
-    </motion.footer>
+
+        <Separator className="my-12 bg-slate-100" />
+        
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-slate-400">
+          <p>&copy; {new Date().getFullYear()} AFKiT. All rights reserved.</p>
+          
+          <div className="flex items-center gap-4">
+            <p>Built by <span className="text-slate-600 font-bold">Lamidev</span></p>
+            <div className="flex gap-3">
+              <a href="https://www.linkedin.com/in/akinyemi-oluwatosin-95519130b" className="hover:text-slate-600 transition-all"><FaLinkedin className="w-4 h-4" /></a>
+              <a href="https://www.instagram.com/thisslami" className="hover:text-slate-600 transition-all"><FaInstagram className="w-4 h-4" /></a>
+              <a href="https://wa.me/2347056501913" className="hover:text-slate-600 transition-all"><FaWhatsapp className="w-4 h-4" /></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 };
 

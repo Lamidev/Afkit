@@ -187,8 +187,14 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
             <span className="font-semibold">Total</span>
             <span className="font-semibold">{formatNaira(totalCartAmount)}</span>
           </div>
-          <Button onClick={handleCheckout} className="w-full">
-            Checkout via WhatsApp
+          <Button 
+            onClick={() => {
+              navigate("/shop/checkout");
+              setOpenCartSheet(false);
+            }} 
+            className="w-full h-12 text-lg font-bold rounded-xl shadow-lg shadow-primary/20"
+          >
+            Proceed to Secure Checkout
           </Button>
         </motion.div>
       )}

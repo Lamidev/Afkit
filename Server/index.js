@@ -6,9 +6,15 @@ require("dotenv").config();
 const authRouter = require("./routes/auth/auth-routes")
 const adminProductsRouter = require("./routes/admin/products-routes");
 const adminUserStatsRouter = require("./routes/admin/user-stats-routes");
+const adminOrderRouter = require("./routes/admin/order-routes");
 const shopProductsRouter = require("./routes/shop/products-routes");
 const shopCartRouter = require("./routes/shop/cart-routes");
+const shopAddressRouter = require("./routes/shop/address-routes");
+const shopOrderRouter = require("./routes/shop/order-routes");
 const shopSearchRouter = require("./routes/shop/search-routes")
+const shopNewsletterRouter = require("./routes/shop/newsletter-routes")
+const shopDebateRouter = require("./routes/shop/debate-routes")
+const adminDebateRouter = require("./routes/admin/debate-routes")
 const commonFeaturesRouter = require("./routes/common/features-routes")
 const sitemapRouter = require("./routes/common/sitemap-routes")
 const shareRouter = require("./routes/common/share-routes");
@@ -53,9 +59,15 @@ mongoose
     app.use("/api/auth", authRouter);
     app.use("/api/admin/products", adminProductsRouter);
     app.use("/api/admin/user-stats", adminUserStatsRouter);
+    app.use("/api/admin/orders", adminOrderRouter);
     app.use("/api/shop/products", shopProductsRouter);
     app.use("/api/shop/cart", shopCartRouter);
+    app.use("/api/shop/address", shopAddressRouter);
+    app.use("/api/shop/order", shopOrderRouter);
     app.use("/api/shop/search", shopSearchRouter);
+    app.use("/api/shop/newsletter", shopNewsletterRouter);
+    app.use("/api/shop/debate", shopDebateRouter);
+    app.use("/api/admin/debate", adminDebateRouter);
     app.use("/api/common/features", commonFeaturesRouter);
     app.use("/", sitemapRouter)
     app.use("/api/shares", shareRouter);

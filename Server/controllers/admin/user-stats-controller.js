@@ -132,10 +132,11 @@
 
 const User = require("../../models/users");
 const LinkShare = require("../../models/link-share");
+const Order = require("../../models/order");
 
 const getUserStats = async (req, res) => {
   try {
-   const oneMinuteAgo = new Date(Date.now() - 60 * 1000); 
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000); 
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     const [
@@ -143,33 +144,25 @@ const getUserStats = async (req, res) => {
       unverifiedUsersCount,
       activeUsersCount,
       dailyWhatsAppShares,
-      dailyInstagramShares,
-      dailyCheckoutShares,
       totalLinksShared,
       dailyAuthenticatedShares,
       dailyGuestShares,
       totalAuthenticatedShares,
       totalGuestShares,
+      totalOrders,
+      revenueStats
     ] = await Promise.all([
       // User counts (only 'user' role, excluding 'admin')
       User.countDocuments({ isVerified: true, role: "user" }),
       User.countDocuments({ isVerified: false, role: "user" }),
       User.countDocuments({ 
         role: "user",
-         lastLogin: { $gte: oneMinuteAgo } // Updated to 1 minute
+        lastLogin: { $gte: oneMinuteAgo }
       }),
 
       // Share counts (24h)
       LinkShare.countDocuments({
         shareDestination: "WhatsApp",
-        createdAt: { $gte: twentyFourHoursAgo },
-      }),
-      LinkShare.countDocuments({
-        shareDestination: "Instagram",
-        createdAt: { $gte: twentyFourHoursAgo },
-      }),
-      LinkShare.countDocuments({
-        sourcePage: "Checkout",
         createdAt: { $gte: twentyFourHoursAgo },
       }),
 
@@ -189,7 +182,20 @@ const getUserStats = async (req, res) => {
       // Total authenticated vs guest shares
       LinkShare.countDocuments({ isGuest: false }),
       LinkShare.countDocuments({ isGuest: true }),
+
+      // Order counts and revenue
+      Order.countDocuments({}),
+      Order.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalRevenue: { $sum: "$totalAmount" }
+          }
+        }
+      ])
     ]);
+
+    const totalRevenue = revenueStats.length > 0 ? revenueStats[0].totalRevenue : 0;
 
     res.status(200).json({
       success: true,
@@ -198,10 +204,10 @@ const getUserStats = async (req, res) => {
         unverifiedUsers: unverifiedUsersCount,
         activeUsers: activeUsersCount,
         totalUsers: verifiedUsersCount + unverifiedUsersCount,
+        totalOrders,
+        totalRevenue,
         linkShares: {
           dailyWhatsAppShares,
-          dailyInstagramShares,
-          dailyCheckoutShares,
           totalLinksShared,
           dailyAuthenticatedShares,
           dailyGuestShares,
@@ -220,49 +226,61 @@ const getUserStats = async (req, res) => {
   }
 };
 
-const getVerifiedUsersList = async (req, res) => {
+const getAllUsersList = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
     const skip = (page - 1) * limit;
     
-    const [verifiedUsers, total] = await Promise.all([
+    const [users, total] = await Promise.all([
       User.find(
         { 
-          isVerified: true, 
           role: "user" // Only user role
         },
-        "userName email createdAt lastLogin" // Only necessary fields
+        "userName email createdAt lastLogin isVerified _id" // Include isVerified
       )
       .sort({ createdAt: -1 }) // Newest first
       .skip(skip)
       .limit(parseInt(limit))
-      .lean(), // Convert to plain JS objects
+      .lean(),
       
       User.countDocuments({ 
-        isVerified: true, 
-        role: "user" // Only user role
+        role: "user" 
       })
     ]);
 
     res.status(200).json({
       success: true,
-      verifiedUsers,
+      users,
       total,
       currentPage: parseInt(page),
       totalPages: Math.ceil(total / limit),
       limit: parseInt(limit)
     });
   } catch (error) {
-    console.error("Error fetching verified users list:", error);
+    console.error("Error fetching users list:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch verified users list",
+      message: "Failed to fetch users list",
       error: error.message
     });
   }
 };
 
-module.exports = { 
-  getUserStats, 
-  getVerifiedUsersList 
+const deleteVerifiedUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    if (user.role === "admin") return res.status(403).json({ success: false, message: "Action forbidden" });
+    await User.findByIdAndDelete(id);
+    res.status(200).json({ success: true, message: "User deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error deleting user" });
+  }
+};
+
+module.exports = {
+  getUserStats,
+  getAllUsersList,
+  deleteVerifiedUser,
 };

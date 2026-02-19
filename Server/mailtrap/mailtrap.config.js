@@ -5,16 +5,24 @@ const { MailtrapClient } = require("mailtrap");
 
 // Load environment variables
 const MAILTRAP_TOKEN = process.env.MAILTRAP_TOKEN;
-const MAILTRAP_ENDPOINT = process.env.MAILTRAP_ENDPOINT;
+let MAILTRAP_ENDPOINT = process.env.MAILTRAP_ENDPOINT;
 
-// Ensure credentials exist before initializing the client
-if (!MAILTRAP_TOKEN || !MAILTRAP_ENDPOINT) {
-  throw new Error("Missing Mailtrap configuration in environment variables.");
+// Ensure credentials exist
+if (!MAILTRAP_TOKEN) {
+  throw new Error("Missing MAILTRAP_TOKEN in environment variables.");
 }
 
-// Initialize Mailtrap client securely
+// SDK usually just wants the base URL without /api/send
+if (MAILTRAP_ENDPOINT) {
+  MAILTRAP_ENDPOINT = MAILTRAP_ENDPOINT.replace(/\/api\/send\/?$/, "");
+  MAILTRAP_ENDPOINT = MAILTRAP_ENDPOINT.replace(/\/+$/, "");
+}
+
+// If token starts with something specific to sandbox or if user wants to force it
+const isSandbox = !MAILTRAP_ENDPOINT || MAILTRAP_ENDPOINT.includes("sandbox");
+
 const mailtrapClient = new MailtrapClient({
-  endpoint: MAILTRAP_ENDPOINT,
+  endpoint: MAILTRAP_ENDPOINT || "https://send.api.mailtrap.io",
   token: MAILTRAP_TOKEN
 });
 
