@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ShoppingOrderDetailsView from "./order-details";
+import { formatAestheticId } from "@/utils/common";
 import {
   getAllOrdersByUserId,
   getOrderDetails,
@@ -60,7 +61,7 @@ function ShoppingOrders() {
                 <div className="flex flex-col gap-1">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Receipt #</span>
                   <span className="font-mono text-xs font-black text-slate-900">
-                    #{orderItem?.orderId || orderItem?._id.slice(-6).toUpperCase()}
+                    {formatAestheticId(orderItem?.orderId || orderItem?._id, "ORD")}
                   </span>
                 </div>
                 <Badge
@@ -139,7 +140,9 @@ function ShoppingOrders() {
                     transition={{ delay: index * 0.05 }}
                     className="group border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
                   >
-                    <TableCell className="font-mono text-xs text-slate-400 font-black pl-6">#{orderItem?.orderId || orderItem?._id.slice(-6).toUpperCase()}</TableCell>
+                    <TableCell className="font-mono text-xs text-slate-400 font-black pl-6">
+                      {formatAestheticId(orderItem?.orderId || orderItem?._id, "ORD")}
+                    </TableCell>
                     <TableCell className="font-bold text-slate-600 text-xs">{new Date(orderItem?.orderDate).toLocaleDateString('en-GB')}</TableCell>
                     <TableCell>
                       <Badge

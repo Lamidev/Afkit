@@ -27,6 +27,7 @@ import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { getOrCreateSessionId } from "@/components/utils/session";
+import RecentlyViewed from "@/components/shopping-view/recently-viewed";
 
 function ShoppingListing() {
   const dispatch = useDispatch();
@@ -437,7 +438,7 @@ function ShoppingListing() {
                   disabled={isFilterLoading || minimumLoaderTime}
                 >
                   <SlidersHorizontal className="h-3.5 w-3.5 text-primary" />
-                  Filter Artifacts
+                  Filter
                 </Button>
               </SheetTrigger>
               <SheetContent
@@ -446,7 +447,7 @@ function ShoppingListing() {
               >
                 <div className="h-full flex flex-col">
                    <div className="p-6 border-b border-slate-100 italic">
-                      <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">Filter Engine</h3>
+                      <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">Filters</h3>
                    </div>
                    <div className="flex-1 overflow-y-auto">
                     <ProductFilter
@@ -516,7 +517,7 @@ function ShoppingListing() {
                   {pageTitle}
                 </h2>
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">
-                  DISCOVERED {productList.length} PREMIUM ARTIFACTS
+                  DISCOVERED {productList.length} GADGETS
                 </p>
               </div>
               
@@ -688,6 +689,8 @@ function ShoppingListing() {
                     </Button>
                   </div>
                 )}
+
+                <RecentlyViewed />
               </>
             )}
           </div>

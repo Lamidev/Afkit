@@ -5,17 +5,21 @@ import { toast } from "sonner";
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
 import Address from "@/components/shopping-view/address";
 import { createNewOrder } from "@/store/shop/order-slice";
-import { CreditCard, Truck, Check } from "lucide-react";
+import { CreditCard, Truck, Check, AlertCircle } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart);
   const { user } = useSelector((state) => state.auth);
   const { approvalURL } = useSelector((state) => state.shopOrder);
+  const { productList } = useSelector((state) => state.shopProducts);
   const location = useLocation();
   const [currentSelectedAddress, setCurrentSelectedAddress] = useState(null);
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
-  const [paymentType, setPaymentType] = useState(location.state?.paymentType || "commitment"); // Default to commitment fee unless specified
+  const [paymentType, setPaymentType] = useState(location.state?.paymentType || "commitment");
+  const [isGift, setIsGift] = useState(false);
+  const [recipientName, setRecipientName] = useState("");
   const dispatch = useDispatch();
 
   const totalCartAmount =
@@ -26,12 +30,20 @@ function ShoppingCheckout() {
       )
     : 0;
 
-  // Enforce full payment for orders below 15,000
+  // Check if cart contains non-gadget items (accessories)
+  const hasOnlyGadgets = cartItems?.items?.every(item => {
+    const product = productList.find(p => p._id === item.productId);
+    return product && ["laptops", "smartphones", "monitors"].includes(product.category);
+  });
+
+  // Enforce full payment for orders below 15,000 or if accessories are present
   useEffect(() => {
-    if (totalCartAmount > 0 && totalCartAmount < 15000 && paymentType === "commitment") {
-      setPaymentType("full");
+    if (totalCartAmount > 0) {
+      if ((totalCartAmount < 15000 || !hasOnlyGadgets) && paymentType === "commitment") {
+        setPaymentType("full");
+      }
     }
-  }, [totalCartAmount, paymentType]);
+  }, [totalCartAmount, paymentType, hasOnlyGadgets]);
 
   function handleInitiatePaystackPayment() {
     if (cartItems.items.length === 0) {
@@ -60,6 +72,8 @@ function ShoppingCheckout() {
         city: currentSelectedAddress?.city,
         phone: currentSelectedAddress?.phone,
         notes: currentSelectedAddress?.notes,
+        isGift: isGift,
+        receiptName: isGift ? recipientName : currentSelectedAddress?.fullName,
       },
       orderStatus: "pending",
       paymentMethod: "Paystack",
@@ -84,55 +98,158 @@ function ShoppingCheckout() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50">
-      <div className="relative h-[250px] w-full overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1557821552-17105176677c?auto=format&fit=crop&q=80&w=1600"
-          className="h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-          <h1 className="text-4xl font-bold text-white tracking-tight">Checkout</h1>
+    <div className="flex flex-col">
+      {/* Step Tracker for Checkout */}
+      <div className="bg-white border-b border-slate-100 py-6 sm:py-8 sticky top-[155px] -mx-4 sm:-mx-6 lg:-mx-8 z-30 shadow-sm shadow-slate-200/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between max-w-2xl mx-auto relative px-2">
+            {/* Connection Lines */}
+            <div className="absolute top-1/2 left-4 right-4 h-0.5 bg-slate-100 -translate-y-1/2 z-0" />
+            
+            {/* Step 1: Info */}
+            <div className="relative z-10 flex flex-col items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-lg shadow-orange-500/20 font-black">
+                1
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-900">Information</span>
+            </div>
+
+            {/* Step 2: Payment */}
+            <div className="relative z-10 flex flex-col items-center gap-2">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black transition-all ${
+                currentSelectedAddress ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "bg-white border-2 border-slate-100 text-slate-300"
+              }`}>
+                2
+              </div>
+              <span className={`text-[10px] font-black uppercase tracking-widest ${
+                currentSelectedAddress ? "text-slate-900" : "text-slate-300"
+              }`}>Payment</span>
+            </div>
+
+            {/* Step 3: Success */}
+            <div className="relative z-10 flex flex-col items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-white border-2 border-slate-100 text-slate-300 flex items-center justify-center font-black">
+                3
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Complete</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 py-8">
         <div className="lg:col-span-7 space-y-6">
           <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h2 className="text-lg sm:text-xl font-black mb-6 flex items-center gap-3 text-slate-900">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Truck className="w-5 h-5 text-primary" />
-              </div>
-              Delivery Address
-            </h2>
+            <div className="mb-6">
+              <h2 className="text-lg sm:text-xl font-black flex items-center gap-3 text-slate-900 uppercase">
+                <div className="p-2 bg-orange-500/10 rounded-lg">
+                  <Truck className="w-5 h-5 text-orange-500" />
+                </div>
+                1. Delivery Address & Receipt Info
+              </h2>
+              <p className="text-[11px] font-bold text-slate-500 mt-2 uppercase tracking-wider leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">
+                <span className="text-orange-500">Note:</span> If you're buying for friends or family, please provide THEIR details below so we can add their name to the official receipt.
+              </p>
+            </div>
             <Address
               selectedId={currentSelectedAddress}
               setCurrentSelectedAddress={setCurrentSelectedAddress}
             />
           </div>
 
+          {/* Gift Selection Section */}
           <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h2 className="text-lg sm:text-xl font-black mb-6 flex items-center gap-3 text-slate-900">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <CreditCard className="w-5 h-5 text-primary" />
+            <h2 className="text-lg sm:text-xl font-black mb-4 flex items-center gap-3 text-slate-900 uppercase">
+              <div className="p-2 bg-orange-500/10 rounded-lg">
+                <Check className="w-5 h-5 text-orange-500" />
               </div>
-              Payment Method
+              3. Is this a Gift?
             </h2>
-            <div className={`grid grid-cols-1 ${totalCartAmount >= 15000 ? 'sm:grid-cols-2' : ''} gap-4`}>
-              {totalCartAmount >= 15000 && (
+            <div className="space-y-4">
+              <div 
+                onClick={() => setIsGift(!isGift)}
+                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-4 ${
+                  isGift ? "border-orange-500 bg-orange-50" : "border-slate-100 bg-slate-50/50 hover:bg-slate-50"
+                }`}
+              >
+                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                  isGift ? "bg-orange-500 border-orange-500" : "bg-white border-slate-300"
+                }`}>
+                  {isGift && <Check className="w-4 h-4 text-white" />}
+                </div>
+                <div>
+                  <p className="font-extrabold text-sm text-slate-900 uppercase tracking-tight">Buying for someone else?</p>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">We will use the recipient's name on the receipt</p>
+                </div>
+              </div>
+
+              <AnimatePresence>
+                {isGift && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{ opacity: 1, height: "auto", marginTop: 16 }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="space-y-2 pb-2">
+                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Recipient's Full Name (for Receipt)</label>
+                      <input
+                        type="text"
+                        value={recipientName}
+                        onChange={(e) => setRecipientName(e.target.value)}
+                        placeholder="Enter the name of the gadget owner"
+                        className="w-full h-14 px-5 rounded-xl border-2 border-slate-100 bg-white focus:border-primary focus:outline-none transition-all font-bold placeholder:text-slate-300"
+                      />
+                      <p className="text-[10px] font-bold text-blue-600 bg-blue-50 p-2 rounded-lg italic border border-blue-100">
+                        * This is the name that will appear on the final ownership receipt.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
+          <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h2 className="text-lg sm:text-xl font-black mb-6 flex items-center gap-3 text-slate-900 uppercase">
+              <div className="p-2 bg-orange-500/10 rounded-lg">
+                <CreditCard className="w-5 h-5 text-orange-500" />
+              </div>
+              2. Payment Method
+            </h2>
+
+            {!hasOnlyGadgets && (
+              <div className="mb-4 bg-orange-50 border border-orange-200 p-4 rounded-xl flex gap-3 items-center">
+                <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0" />
+                <p className="text-xs font-bold text-orange-800">
+                  Payment on Delivery is only available for Gadgets (Laptops, Smartphones, Monitors). 
+                  Cart contains accessories which require full payment.
+                </p>
+              </div>
+            )}
+
+            <div className={`grid grid-cols-1 ${(totalCartAmount >= 15000 && hasOnlyGadgets) ? 'sm:grid-cols-2' : ''} gap-4`}>
+              {totalCartAmount >= 15000 && hasOnlyGadgets && (
                 <div
                   onClick={() => setPaymentType("commitment")}
-                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all relative ${
+                  className={`p-5 rounded-2xl border-2 cursor-pointer transition-all relative ${
                     paymentType === "commitment"
-                      ? "border-primary bg-primary/5 ring-4 ring-primary/5"
-                      : "border-slate-100 hover:border-primary/30"
+                      ? "border-orange-500 bg-orange-50/50 ring-4 ring-orange-500/5"
+                      : "border-slate-100 hover:border-orange-500/30"
                   }`}
                 >
-                  <div className="font-black text-slate-900">Pay on Delivery</div>
-                  <p className="text-[11px] font-bold text-slate-500 mt-1 leading-relaxed">
-                    Pay ₦10,000 security deposit, balance on arrival.
-                  </p>
+                  <div className="font-black text-slate-900 uppercase tracking-tight">Payment on Delivery</div>
+                  <div className="space-y-2 mt-2">
+                    <p className="text-[10px] font-black text-slate-700 leading-relaxed">
+                      Pay ₦10,000 commitment fee now, balance on arrival.
+                    </p>
+                    <p className="text-[10px] font-bold text-slate-500 leading-relaxed italic">
+                      Refundable if you don't like the product after checking it. FREE DELIVERY included.
+                    </p>
+                  </div>
                   {paymentType === "commitment" && (
-                    <div className="absolute -top-2 -right-2 bg-primary text-white p-1 rounded-full shadow-lg">
+                    <div className="absolute -top-2 -right-2 bg-orange-500 text-white p-1 rounded-full shadow-lg">
                        <Check className="w-3 h-3" />
                     </div>
                   )}
@@ -140,18 +257,18 @@ function ShoppingCheckout() {
               )}
               <div
                 onClick={() => setPaymentType("full")}
-                className={`p-4 rounded-xl border-2 cursor-pointer transition-all relative ${
+                className={`p-5 rounded-2xl border-2 cursor-pointer transition-all relative ${
                   paymentType === "full"
-                    ? "border-primary bg-primary/5 ring-4 ring-primary/5"
-                    : "border-slate-100 hover:border-primary/30"
+                    ? "border-orange-500 bg-orange-50/50 ring-4 ring-orange-500/5"
+                    : "border-slate-100 hover:border-orange-500/30"
                 }`}
               >
-                <div className="font-black text-slate-900">Full Upfront</div>
-                <p className="text-[11px] font-bold text-slate-500 mt-1 leading-relaxed">
-                  Clear the entire balance now for priority processing.
+                <div className="font-black text-slate-900 uppercase tracking-tight">Full Upfront Payment</div>
+                <p className="text-[10px] font-bold text-slate-500 mt-2 leading-relaxed">
+                  Pay the total amount now for faster processing and delivery.
                 </p>
                  {paymentType === "full" && (
-                   <div className="absolute -top-2 -right-2 bg-primary text-white p-1 rounded-full shadow-lg">
+                   <div className="absolute -top-2 -right-2 bg-orange-500 text-white p-1 rounded-full shadow-lg">
                       <Check className="w-3 h-3" />
                    </div>
                 )}
