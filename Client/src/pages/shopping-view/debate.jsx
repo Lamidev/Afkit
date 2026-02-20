@@ -113,7 +113,7 @@ const DebatePage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0d1b2a] flex flex-col pt-20">
+    <div className="min-h-screen bg-[#0d1b2a] flex flex-col pt-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
       {/* Background Decorations */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse" />
@@ -128,7 +128,7 @@ const DebatePage = () => {
         />
       </div>
 
-      <div className="container mx-auto px-4 relative z-10 flex-grow pb-20">
+      <div className="max-w-7xl mx-auto w-full px-0 relative z-10 flex-grow pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left Column: Marketing & Info */}
           <motion.div

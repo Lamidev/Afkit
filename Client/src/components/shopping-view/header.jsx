@@ -8,6 +8,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { FaInstagram, FaWhatsapp } from "react-icons/fa";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
@@ -189,7 +190,7 @@ function MenuItems({ closeSheet }) {
   }
 
   return (
-    <nav className="flex flex-col lg:flex-row lg:items-center lg:gap-8">
+    <nav className="flex flex-col lg:flex-row lg:items-center lg:gap-8 gap-1">
       {shoppingViewHeaderMenuItems.map((menuItem) => {
         const isCategoryWithSubItems = [
           "products",
@@ -205,26 +206,26 @@ function MenuItems({ closeSheet }) {
             {isMobile && isCategoryWithSubItems ? (
               <div className="flex flex-col">
                 <div
-                  className="flex items-center justify-between py-2"
+                  className="flex items-center justify-between py-3 border-b border-slate-50 lg:border-none"
                   onClick={() => toggleSubMenu(menuItem.id)}
                 >
-                  <span className="text-base font-medium cursor-pointer flex items-center gap-2 hover:text-primary transition-colors">
+                  <span className="text-base font-bold cursor-pointer flex items-center gap-2 hover:text-primary transition-colors text-slate-700">
                     {menuItem.label}
                   </span>
                   <ChevronDown
-                    className={`h-4 w-4 transition-transform ${
+                    className={`h-4 w-4 text-slate-400 transition-transform ${
                       expandedMenu === menuItem.id ? "rotate-180" : ""
                     }`}
                   />
                 </div>
 
                 {expandedMenu === menuItem.id && (
-                  <div className="ml-4 mt-1 space-y-1">
+                  <div className="ml-4 mt-2 space-y-2 mb-2">
                     {relevantSubCategories?.map((subItem) => (
                       <span
                         key={subItem.id}
                         onClick={() => handleSubItemNavigate(subItem)}
-                        className="text-sm font-medium cursor-pointer flex items-center gap-2 py-2 hover:text-primary transition-colors pl-3 border-l-2 border-gray-200"
+                        className="text-sm font-semibold cursor-pointer flex items-center gap-2 py-2 hover:text-primary transition-colors pl-4 border-l-2 border-orange-100 text-slate-600"
                       >
                         {subItem.label}
                       </span>
@@ -235,7 +236,7 @@ function MenuItems({ closeSheet }) {
             ) : (
               <button
                 onClick={() => handleNavigate(menuItem)}
-                className="text-base font-medium cursor-pointer flex items-center gap-2 py-2 hover:text-primary transition-colors relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+                className="text-base font-bold lg:font-medium cursor-pointer flex items-center gap-2 py-3 lg:py-2 hover:text-primary transition-colors relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full border-b border-slate-50 lg:border-none w-full lg:w-auto text-left text-slate-700 lg:text-inherit"
               >
                 {menuItem.label}
               </button>
@@ -270,7 +271,7 @@ function HeaderRightContent({ closeSheet, setIsLogoutDialogOpen }) {
                 navigate("/shop/search");
                 closeSheet();
               }}
-              className="hidden lg:flex p-2 hover:bg-slate-100 rounded-full transition-colors"
+              className="flex p-2 hover:bg-slate-100 rounded-full transition-colors"
             >
               <Search className="h-5 w-5 stroke-[2.5px] text-primary" />
             </button>
@@ -300,7 +301,7 @@ function HeaderRightContent({ closeSheet, setIsLogoutDialogOpen }) {
             {user?.userName ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                  <button className="hidden lg:flex p-2 hover:bg-slate-100 rounded-full transition-colors">
                     <User className="h-5 w-5 stroke-[2.5px] text-primary" />
                   </button>
                 </DropdownMenuTrigger>
@@ -324,7 +325,7 @@ function HeaderRightContent({ closeSheet, setIsLogoutDialogOpen }) {
                   navigate("/auth/login");
                   closeSheet();
                 }}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+                className={`${user ? 'hidden lg:flex' : 'flex'} p-2 hover:bg-slate-100 rounded-full transition-colors`}
               >
                 <User className="h-5 w-5 stroke-[2.5px] text-primary" />
               </button>
@@ -371,14 +372,21 @@ function ShoppingHeader() {
             </SheetTrigger>
             <SheetContent side="left" className="w-[280px] px-4">
               <div className="flex flex-col h-full justify-between">
-                <div className="pt-6 space-y-4">
+                <div className="pt-2 sm:pt-4 space-y-6">
+                  <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
+                    <img
+                      src={Afkitlogo}
+                      alt="Afkit Logo"
+                      className="h-6 object-contain"
+                    />
+                  </div>
                   <MenuItems closeSheet={() => setIsSheetOpen(false)} />
                 </div>
 
-                <div className="pb-6 space-y-3">
+                <div className="pb-6 space-y-4">
                   {user ? (
                     <>
-                      <div className="px-2 py-4 mb-2 border-t border-slate-100">
+                      <div className="px-2 py-4 border-t border-slate-100">
                         <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Active User</p>
                         <p className="text-sm font-bold text-slate-900">{user.userName}</p>
                       </div>

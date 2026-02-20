@@ -10,6 +10,7 @@ import {
   AlertCircle,
   ShieldCheck,
   MessageCircle,
+  ChevronRight,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
@@ -133,7 +134,8 @@ function ShoppingHome() {
   };
 
   const handleViewProductDetails = (productId) => {
-    navigate(`/shop/product/${productId}`);
+    const gadId = formatAestheticId(productId, "GAD").replace("#", "");
+    navigate(`/shop/product/${gadId}`);
   };
 
   const handleAddToCart = async (getCurrentProductId, getTotalStock) => {
@@ -251,17 +253,17 @@ function ShoppingHome() {
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className="flex items-center justify-center gap-2 mb-2">
               <ShieldCheck className="text-orange-500 w-6 h-6 sm:w-8 sm:h-8 flex-shrink-0" />
-              <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">
+              <span className="text-base sm:text-lg md:text-xl font-semibold text-gray-700">
                 Your No.1 online store that offers
               </span>
             </div>
 
             <motion.h1
-              className="text-orange-500 font-extrabold text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight"
+              className="text-orange-500 font-bold text-2xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight"
               initial={{ scale: 1 }}
-              animate={{ scale: [1, 1.05, 1] }}
+              animate={{ scale: [1, 1.03, 1] }}
               transition={{
-                duration: 2,
+                duration: 2.5,
                 repeat: Infinity,
                 repeatType: "loop",
                 ease: "easeInOut"
@@ -272,7 +274,7 @@ function ShoppingHome() {
             </motion.h1>
 
             <div className="space-y-4">
-              <p className="text-lg sm:text-xl md:text-2xl text-slate-800 font-bold">
+              <p className="text-base sm:text-lg text-slate-600 font-medium">
                 on all UK-used gadgets
               </p>
             </div>
@@ -285,7 +287,7 @@ function ShoppingHome() {
             >
               <Button
                 size="lg"
-                className="h-16 px-12 rounded-2xl text-xl font-black shadow-2xl shadow-primary/30 group-hover:scale-105 transition-all uppercase tracking-tight"
+                className="h-14 px-10 rounded-2xl text-lg font-bold shadow-xl shadow-primary/25 group-hover:scale-105 transition-all uppercase tracking-tight"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleNavigateToListingPage({ id: "all-products" }, null);
@@ -385,12 +387,26 @@ function ShoppingHome() {
           </div>
         </motion.div>
       </section>
-
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex justify-center mb-5 sm:mb-8">
-          <h2 className="text-xl sm:text-2xl font-bold text-center">
-            Top Products
-          </h2>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div className="flex items-center justify-between mb-8 sm:mb-12">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
+              <span className="relative">
+                TOP
+                <span className="absolute -bottom-1 left-0 w-full h-1 bg-orange-500 rounded-full"></span>
+              </span>
+              <span className="text-orange-600">PRODUCTS</span>
+            </h2>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Handpicked for you</p>
+          </div>
+          <Button 
+            variant="ghost" 
+            className="text-orange-600 font-bold hover:bg-orange-50 group px-0"
+            onClick={() => handleNavigateToListingPage({ id: "all-products" }, null)}
+          >
+            VIEW ALL 
+            <ChevronRight className="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Button>
         </div>
         <AnimatePresence mode="wait">
           {currentProducts.length > 0 ? (

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
 import Address from "@/components/shopping-view/address";
 import { createNewOrder } from "@/store/shop/order-slice";
-import { CreditCard, Truck, Check, AlertCircle } from "lucide-react";
+import { CreditCard, Truck, Check, AlertCircle, AlertTriangle, Gift, User } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -20,6 +20,7 @@ function ShoppingCheckout() {
   const [paymentType, setPaymentType] = useState(location.state?.paymentType || "commitment");
   const [isGift, setIsGift] = useState(false);
   const [recipientName, setRecipientName] = useState("");
+  const [isPodConfirmed, setIsPodConfirmed] = useState(false);
   const dispatch = useDispatch();
 
   const totalCartAmount =
@@ -52,6 +53,11 @@ function ShoppingCheckout() {
     }
     if (currentSelectedAddress === null) {
       toast.error("Please select a shipping address to proceed.");
+      return;
+    }
+    // Block POD + proxy order without confirmation
+    if (isGift && paymentType === "commitment" && !isPodConfirmed) {
+      toast.error("Please confirm the recipient is aware they need to pay on delivery.");
       return;
     }
 
@@ -157,58 +163,122 @@ function ShoppingCheckout() {
             />
           </div>
 
-          {/* Gift Selection Section */}
+          {/* Purchase Intent Section */}
           <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h2 className="text-lg sm:text-xl font-black mb-4 flex items-center gap-3 text-slate-900 uppercase">
+            <h2 className="text-base sm:text-lg font-bold mb-4 flex items-center gap-3 text-slate-800">
               <div className="p-2 bg-orange-500/10 rounded-lg">
-                <Check className="w-5 h-5 text-orange-500" />
+                <Gift className="w-4 h-4 text-orange-500" />
               </div>
-              3. Is this a Gift?
+              Who is this order for?
             </h2>
-            <div className="space-y-4">
-              <div 
-                onClick={() => setIsGift(!isGift)}
-                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-4 ${
+            <div className="grid grid-cols-2 gap-3">
+              {/* Personal Option */}
+              <div
+                onClick={() => { setIsGift(false); setIsPodConfirmed(false); }}
+                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${
+                  !isGift ? "border-orange-500 bg-orange-50" : "border-slate-100 bg-slate-50/50 hover:bg-slate-50"
+                }`}
+              >
+                <User className={`w-6 h-6 ${!isGift ? "text-orange-500" : "text-slate-400"}`} />
+                <div>
+                  <p className="font-bold text-sm text-slate-900">For Myself</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Personal purchase</p>
+                </div>
+                {!isGift && (
+                  <div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center mt-1">
+                    <Check className="w-2.5 h-2.5 text-white" />
+                  </div>
+                )}
+              </div>
+
+              {/* For Someone Else Option */}
+              <div
+                onClick={() => { setIsGift(true); setIsPodConfirmed(false); }}
+                className={`p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center gap-2 text-center ${
                   isGift ? "border-orange-500 bg-orange-50" : "border-slate-100 bg-slate-50/50 hover:bg-slate-50"
                 }`}
               >
-                <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                  isGift ? "bg-orange-500 border-orange-500" : "bg-white border-slate-300"
-                }`}>
-                  {isGift && <Check className="w-4 h-4 text-white" />}
-                </div>
+                <Gift className={`w-6 h-6 ${isGift ? "text-orange-500" : "text-slate-400"}`} />
                 <div>
-                  <p className="font-extrabold text-sm text-slate-900 uppercase tracking-tight">Buying for someone else?</p>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">We will use the recipient's name on the receipt</p>
+                  <p className="font-bold text-sm text-slate-900">For Someone Else</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Helping a friend or family</p>
                 </div>
-              </div>
-
-              <AnimatePresence>
                 {isGift && (
-                  <motion.div 
-                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                    animate={{ opacity: 1, height: "auto", marginTop: 16 }}
-                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="overflow-hidden"
-                  >
-                    <div className="space-y-2 pb-2">
-                      <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Recipient's Full Name (for Receipt)</label>
-                      <input
-                        type="text"
-                        value={recipientName}
-                        onChange={(e) => setRecipientName(e.target.value)}
-                        placeholder="Enter the name of the gadget owner"
-                        className="w-full h-14 px-5 rounded-xl border-2 border-slate-100 bg-white focus:border-primary focus:outline-none transition-all font-bold placeholder:text-slate-300"
-                      />
-                      <p className="text-[10px] font-bold text-blue-600 bg-blue-50 p-2 rounded-lg italic border border-blue-100">
-                        * This is the name that will appear on the final ownership receipt.
-                      </p>
-                    </div>
-                  </motion.div>
+                  <div className="w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center mt-1">
+                    <Check className="w-2.5 h-2.5 text-white" />
+                  </div>
                 )}
-              </AnimatePresence>
+              </div>
             </div>
+
+            {/* Recipient Name Field */}
+            <AnimatePresence>
+              {isGift && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginTop: 16 }}
+                  exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="overflow-hidden"
+                >
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest ml-1">Recipient's Full Name (for Receipt)</label>
+                    <input
+                      type="text"
+                      value={recipientName}
+                      onChange={(e) => setRecipientName(e.target.value)}
+                      placeholder="Enter the gadget owner's name"
+                      className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 focus:border-primary focus:bg-white focus:outline-none transition-all font-medium text-sm placeholder:text-slate-300"
+                    />
+                    <p className="text-[10px] text-blue-600 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
+                      ✨ This name will appear on the official ownership receipt — not the payment receipt.
+                    </p>
+
+                    {/* POD Warning Gate — only shows if POD is selected */}
+                    <AnimatePresence>
+                      {paymentType === "commitment" && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          transition={{ duration: 0.25 }}
+                          className="mt-2 p-4 bg-amber-50 border-2 border-amber-200 rounded-xl"
+                        >
+                          <div className="flex gap-3">
+                            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                              <p className="text-sm font-bold text-amber-800">Heads up!</p>
+                              <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+                                You selected <strong>Pay on Delivery</strong> for an order going to someone else.
+                                This means <strong>{recipientName || "the recipient"}</strong> will be responsible for paying the balance at the door.
+                                Please confirm they are aware.
+                              </p>
+                              <div
+                                onClick={() => setIsPodConfirmed(!isPodConfirmed)}
+                                className={`mt-3 flex items-center gap-2 cursor-pointer p-2.5 rounded-lg border-2 transition-all ${
+                                  isPodConfirmed
+                                    ? "border-green-500 bg-green-50"
+                                    : "border-amber-300 bg-white"
+                                }`}
+                              >
+                                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                                  isPodConfirmed ? "border-green-500 bg-green-500" : "border-amber-400"
+                                }`}>
+                                  {isPodConfirmed && <Check className="w-3 h-3 text-white" />}
+                                </div>
+                                <span className="text-xs font-semibold text-amber-900">
+                                  I confirm — {recipientName || "the recipient"} knows they need to pay on delivery.
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100">

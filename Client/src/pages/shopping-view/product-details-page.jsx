@@ -64,8 +64,10 @@ export default function ShoppingProductDetails() {
 
   const getProductLink = useCallback(() => {
     if (!productDetails) return "";
-    const slug = createSlug(productDetails.title);
-    return `${window.location.origin}/shop/product/${slug}-${productDetails._id}`;
+    const gadId = formatAestheticId(productDetails._id, "GAD").replace("#", "");
+    // Use the backend OG route for better share previews on WhatsApp/Social Media
+    const apiBase = import.meta.env.VITE_API_BASE_URL || "";
+    return `${apiBase}/og/product/${gadId}`;
   }, [productDetails]);
 
   const handleProductInfoWhatsApp = () => {
@@ -88,15 +90,14 @@ export default function ShoppingProductDetails() {
     }
   }, [id, dispatch]);
 
-  // Aesthetic URL Standardization Redirect
+  // Aesthetic URL Standardization Redirect to simplified GAD-XXXXXX format
   useEffect(() => {
     if (productDetails && id) {
-      const slug = createSlug(productDetails.title);
-      const expectedAestheticId = `${slug}-${productDetails._id}`;
+      const gadPrefixId = formatAestheticId(productDetails._id, "GAD").replace("#", "");
 
-      if (id !== expectedAestheticId) {
-        console.log("Redirecting to aesthetic URL");
-        navigate(`/shop/product/${expectedAestheticId}`, { replace: true });
+      if (id !== gadPrefixId) {
+        console.log("Redirecting to standardized GAD URL");
+        navigate(`/shop/product/${gadPrefixId}`, { replace: true });
       }
     }
   }, [productDetails, id, navigate]);
@@ -240,9 +241,8 @@ export default function ShoppingProductDetails() {
   };
 
   const handleRelatedProductClick = (product) => {
-    const slug = createSlug(product?.title);
-    navigate(`/shop/product/${slug}-${product?._id}`);
-    window.scrollTo(0, 0);
+    const gadId = formatAestheticId(product?._id, "GAD").replace("#", "");
+    navigate(`/shop/product/${gadId}`);
   };
 
   const handleOrderOnWhatsApp = () => {
@@ -471,9 +471,12 @@ export default function ShoppingProductDetails() {
         <meta property="og:title" content={productDetails.title} />
         <meta property="og:description" content={descriptionText} />
         <meta property="og:image" content={mainImage} />
+        {mainImage.startsWith("https") && (
+          <meta property="og:image:secure_url" content={mainImage} />
+        )}
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:url" content={window.location.href} />
+        <meta property="og:url" content={getProductLink()} />
         <meta property="og:type" content="product" />
         <meta property="og:site_name" content="AFKiT" />
 
@@ -491,8 +494,8 @@ export default function ShoppingProductDetails() {
       </Helmet>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        <div className="space-y-6">
-          <div className="relative aspect-square rounded-xl overflow-hidden group bg-slate-50 border border-slate-100 shadow-inner">
+        <div className="space-y-3">
+          <div className="relative aspect-[4/5] sm:aspect-square rounded-xl overflow-hidden group bg-slate-50 border border-slate-100 shadow-inner">
             {/* Main Image Slider - Swipeable */}
             <div
               ref={imageScrollRef}
@@ -500,11 +503,11 @@ export default function ShoppingProductDetails() {
               className="flex w-full h-full overflow-x-auto snap-x snap-mandatory scroll-smooth hide-scrollbar transition-all duration-300"
             >
               {productImages.map((img, index) => (
-                <div key={index} className="flex-shrink-0 w-full h-full snap-center flex items-center justify-center p-2">
+                <div key={index} className="flex-shrink-0 w-full h-full snap-center flex items-center justify-center">
                   <img
                     src={getAbsoluteImageUrl(img)}
                     alt={`${productDetails.title} ${index + 1}`}
-                    className="max-w-full max-h-full object-contain transition-transform duration-500 hover:scale-105"
+                    className="w-full h-full object-contain transition-transform duration-500 hover:scale-105"
                   />
                 </div>
               ))}
@@ -643,7 +646,7 @@ export default function ShoppingProductDetails() {
         {/* ADJUSTED: Removed mobile margin-top (mt-4) to pull it right up to the image/thumbnail section */}
         <div className="space-y-6 lg:mt-0">
           <div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 leading-tight">
+            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 leading-snug">
               {productDetails.title}
             </h1>
             <div className="mt-2 flex items-center gap-2">
@@ -655,7 +658,7 @@ export default function ShoppingProductDetails() {
           </div>
 
           <div className="flex items-center gap-6 flex-wrap">
-            <p className="text-3xl font-black text-orange-600">
+            <p className="text-2xl font-semibold text-orange-600">
               ₦{Number(productDetails.price).toLocaleString("en-NG")}
             </p>
             <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-2xl border border-slate-100">
@@ -787,16 +790,16 @@ export default function ShoppingProductDetails() {
 
       {
         filteredRelatedProducts.length > 0 && (
-          <div className="mt-16 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm mx-4 sm:mx-6 lg:mx-8">
+          <div className="mt-12 bg-white p-6 sm:p-10 rounded-[2rem] border border-slate-100 shadow-sm mx-0 sm:mx-4 lg:mx-0">
             <div className="flex flex-col gap-1 mb-8">
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight uppercase">
                 Similar Discoveries
               </h2>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                 More gadgets like this one
               </p>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 justify-center">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-8">
               {filteredRelatedProducts.map((product) => (
                 <div
                   key={product._id}

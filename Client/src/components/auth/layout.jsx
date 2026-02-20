@@ -99,21 +99,21 @@ function AuthLayout() {
 
           {/* Right Panel for Forms */}
           <motion.div
-            className="flex-1 flex flex-col justify-center p-4 sm:p-8 lg:p-12"
+            className="flex-1 flex flex-col justify-center p-6 sm:p-10 lg:p-16"
             initial={{ x: 30, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
           >
             {/* Mobile Logo — only visible on small screens */}
-            <div className="lg:hidden w-full flex justify-center mb-8">
+            <div className="lg:hidden w-full flex justify-center mb-10">
               <img
                 src={Afkitlogo}
                 alt="Afkit Logo"
-                className="w-36 h-auto object-contain"
+                className="w-40 h-auto object-contain"
               />
             </div>
 
-            <div className="w-full max-w-md mx-auto">
+            <div className="w-full max-w-xl mx-auto">
               <Outlet />
             </div>
           </motion.div>
