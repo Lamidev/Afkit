@@ -185,11 +185,14 @@ const getUserStats = async (req, res) => {
 
       // Order counts and revenue
       Order.countDocuments({}),
+      // Revenue: only count money actually received (amountPaid), not the full totalAmount.
+      // This ensures POD/commitment orders only count the deposit (e.g. ₦10,000) in revenue
+      // until the remaining balance is paid upon delivery.
       Order.aggregate([
         {
           $group: {
             _id: null,
-            totalRevenue: { $sum: "$totalAmount" }
+            totalRevenue: { $sum: "$amountPaid" }
           }
         }
       ])

@@ -132,7 +132,7 @@ function UserCartItemsContent({ cartItem }) {
       className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-3 sm:p-5 bg-white rounded-2xl shadow-sm border border-slate-50 relative group"
     >
       {/* Product Image - Larger and Fuller */}
-      <div className="w-full sm:w-40 h-52 sm:h-40 bg-white flex items-center justify-center rounded-xl overflow-hidden flex-shrink-0 border border-slate-100 p-2 relative">
+      <div className="w-full sm:w-32 h-44 sm:h-32 bg-white flex items-center justify-center rounded-xl overflow-hidden flex-shrink-0 border border-slate-100 p-2 relative">
         <img
           src={productImage}
           alt={cartItem?.title}
@@ -140,7 +140,7 @@ function UserCartItemsContent({ cartItem }) {
             e.target.onerror = null; 
             e.target.src = "https://placehold.co/400x400/f8fafc/64748b?text=Product+Image";
           }}
-          className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 hover:scale-110 scale-[1.3]"
+          className="w-full h-full object-contain mix-blend-multiply transition-transform duration-500 hover:scale-105"
         />
         {/* Delete link for mobile accessibility */}
         <button 
@@ -154,7 +154,7 @@ function UserCartItemsContent({ cartItem }) {
       {/* Product Details - Content Area */}
       <div className="flex-1 w-full min-w-0 flex flex-col gap-1">
         <div className="flex justify-between items-start gap-2">
-          <h3 className="font-black text-slate-900 text-sm sm:text-lg leading-tight line-clamp-2">
+          <h3 className="font-black text-slate-900 text-sm sm:text-base leading-tight">
             {cartItem?.title}
           </h3>
           <p className="hidden sm:block font-black text-slate-900 whitespace-nowrap">
@@ -162,7 +162,12 @@ function UserCartItemsContent({ cartItem }) {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 mb-2 sm:mb-0">
+        <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-0">
+           {["laptops", "smartphones", "monitors"].includes(product?.category) && (
+             <span className="text-[9px] font-black text-blue-600 px-1.5 py-0.5 bg-blue-50 rounded border border-blue-100 uppercase tracking-tighter">
+               Major Gadget
+             </span>
+           )}
            <span className="text-xs font-bold text-orange-600 px-2 py-0.5 bg-orange-50 rounded-full">
             {formatNaira(cartItem?.price)}
            </span>

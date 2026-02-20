@@ -325,7 +325,7 @@ function HeaderRightContent({ closeSheet, setIsLogoutDialogOpen }) {
                   navigate("/auth/login");
                   closeSheet();
                 }}
-                className={`${user ? 'hidden lg:flex' : 'flex'} p-2 hover:bg-slate-100 rounded-full transition-colors`}
+                className="hidden lg:flex p-2 hover:bg-slate-100 rounded-full transition-colors"
               >
                 <User className="h-5 w-5 stroke-[2.5px] text-primary" />
               </button>
@@ -355,7 +355,10 @@ function ShoppingHeader() {
   const dispatch = useDispatch();
 
   function handleLogout() {
-    dispatch(logoutUser());
+    dispatch(logoutUser()).then(() => {
+      navigate("/shop/home");
+      window.location.reload(); // Force a clean state refresh
+    });
     setIsLogoutDialogOpen(false);
     setIsSheetOpen(false);
   }

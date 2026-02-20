@@ -125,20 +125,21 @@ function AdminDashboard() {
   ];
 
   return (
-    <div className="p-3 sm:p-4 md:p-6 bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Admin Dashboard</h1>
-        <button
-          onClick={refreshData}
-          disabled={isLoading || isUsersListLoading}
-          className="flex items-center gap-2 text-sm bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-2 rounded transition-colors disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 ${(isLoading || isUsersListLoading) ? "animate-spin" : ""}`} />
-          Refresh Data
-        </button>
-      </div>
+    <div className="p-3 sm:p-4 md:p-6 bg-gray-50 min-h-screen w-full overflow-x-hidden">
+      <div className="max-w-[1400px] mx-auto min-w-0 overflow-hidden">
+        <div className="flex justify-between items-center mb-6 px-1">
+          <h1 className="text-xl sm:text-2xl font-black text-gray-800 tracking-tight">Admin Dashboard</h1>
+          <button
+            onClick={refreshData}
+            disabled={isLoading || isUsersListLoading}
+            className="flex items-center gap-2 text-xs font-bold bg-blue-50 hover:bg-blue-100 text-blue-600 px-4 py-2.5 rounded-xl transition-all disabled:opacity-50 border border-blue-100 shadow-sm"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${(isLoading || isUsersListLoading) ? "animate-spin" : ""}`} />
+            REFRESH DATA
+          </button>
+        </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-10 w-full">
         {statCards.map((card, index) => (
           <motion.div
             key={index}
@@ -146,9 +147,9 @@ function AdminDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: card.delay }}
             whileHover={{ scale: 1.02 }}
-            className="group"
+            className="group w-full"
           >
-            <Card className="h-full border-0 shadow-sm glass-morphism hover:shadow-xl transition-all duration-300 overflow-hidden relative">
+            <Card className="w-full h-full border-0 shadow-sm glass-morphism hover:shadow-xl transition-all duration-300 overflow-hidden relative">
               <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full ${card.bg} opacity-20 group-hover:opacity-30 transition-opacity`} />
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -175,7 +176,7 @@ function AdminDashboard() {
             </Card>
           </motion.div>
         ))}
-      </div>
+        </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -373,6 +374,7 @@ function AdminDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

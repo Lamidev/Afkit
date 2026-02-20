@@ -29,6 +29,12 @@ const OrderSchema = new mongoose.Schema(
       city: String,
       phone: String,
       notes: String,
+      isGift: {
+        type: Boolean,
+        default: false,
+      },
+      receiptName: String,
+      recipientEmail: String,
     },
     orderStatus: {
       type: String,

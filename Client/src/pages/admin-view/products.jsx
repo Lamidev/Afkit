@@ -571,7 +571,7 @@ function AdminProducts() {
                     <span className={`text-xs font-bold ${hasActiveFilters ? 'text-blue-700' : 'text-gray-600'}`}>Filters</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-full sm:max-w-md p-0 border-0">
+                <SheetContent side="right" className="w-[85vw] max-w-sm p-0 border-0">
                   <div className="h-full flex flex-col bg-white">
                     <div className="p-6 border-b border-gray-100">
                       <SheetTitle className="text-xl font-black text-gray-900 tracking-tight">Filter Products</SheetTitle>

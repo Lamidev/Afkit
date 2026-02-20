@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import UserCartItemsContent from "@/components/shopping-view/cart-items-content";
 import Address from "@/components/shopping-view/address";
 import { createNewOrder } from "@/store/shop/order-slice";
-import { CreditCard, Truck, Check, AlertCircle, AlertTriangle, Gift, User } from "lucide-react";
-import { useLocation } from "react-router-dom";
+import { CreditCard, Truck, Check, AlertCircle, AlertTriangle, Gift, User, ChevronLeft } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 function ShoppingCheckout() {
@@ -20,8 +20,10 @@ function ShoppingCheckout() {
   const [paymentType, setPaymentType] = useState(location.state?.paymentType || "commitment");
   const [isGift, setIsGift] = useState(false);
   const [recipientName, setRecipientName] = useState("");
+  const [recipientEmail, setRecipientEmail] = useState("");
   const [isPodConfirmed, setIsPodConfirmed] = useState(false);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const totalCartAmount =
   cartItems && cartItems.items && cartItems.items.length > 0
@@ -31,20 +33,20 @@ function ShoppingCheckout() {
       )
     : 0;
 
-  // Check if cart contains non-gadget items (accessories)
-  const hasOnlyGadgets = cartItems?.items?.every(item => {
+  // Check if cart contains major gadgets (Laptops, Phones, Monitors)
+  const hasMajorGadget = cartItems?.items?.some(item => {
     const product = productList.find(p => p._id === item.productId);
     return product && ["laptops", "smartphones", "monitors"].includes(product.category);
   });
 
-  // Enforce full payment for orders below 15,000 or if accessories are present
+  // Enforce full payment for orders below 15,000 or if NO major gadgets are present
   useEffect(() => {
     if (totalCartAmount > 0) {
-      if ((totalCartAmount < 15000 || !hasOnlyGadgets) && paymentType === "commitment") {
+      if ((totalCartAmount < 15000 || !hasMajorGadget) && paymentType === "commitment") {
         setPaymentType("full");
       }
     }
-  }, [totalCartAmount, paymentType, hasOnlyGadgets]);
+  }, [totalCartAmount, paymentType, hasMajorGadget]);
 
   function handleInitiatePaystackPayment() {
     if (cartItems.items.length === 0) {
@@ -80,6 +82,7 @@ function ShoppingCheckout() {
         notes: currentSelectedAddress?.notes,
         isGift: isGift,
         receiptName: isGift ? recipientName : currentSelectedAddress?.fullName,
+        recipientEmail: isGift ? recipientEmail : "",
       },
       orderStatus: "pending",
       paymentMethod: "Paystack",
@@ -143,6 +146,18 @@ function ShoppingCheckout() {
         </div>
       </div>
 
+      {/* Back to Shop Link - For effortless navigation */}
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate('/shop/listing')}
+          className="group flex items-center gap-2 text-slate-400 hover:text-orange-600 transition-colors p-0 h-auto font-black text-[10px] uppercase tracking-[0.2em]"
+        >
+          <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          Continue Shopping
+        </Button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 py-8">
         <div className="lg:col-span-7 space-y-6">
           <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
@@ -151,10 +166,10 @@ function ShoppingCheckout() {
                 <div className="p-2 bg-orange-500/10 rounded-lg">
                   <Truck className="w-5 h-5 text-orange-500" />
                 </div>
-                1. Delivery Address & Receipt Info
+                1. Recipient & Delivery Address
               </h2>
               <p className="text-[11px] font-bold text-slate-500 mt-2 uppercase tracking-wider leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">
-                <span className="text-orange-500">Note:</span> If you're buying for friends or family, please provide THEIR details below so we can add their name to the official receipt.
+                <span className="text-orange-500 font-black">IMPORTANT:</span> If this is a gift, please select/add the <span className="underline">Recipient's Address</span> so the rider can find them.
               </p>
             </div>
             <Address
@@ -230,8 +245,16 @@ function ShoppingCheckout() {
                       placeholder="Enter the gadget owner's name"
                       className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 focus:border-primary focus:bg-white focus:outline-none transition-all font-medium text-sm placeholder:text-slate-300"
                     />
+                    <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest ml-1">Recipient's Email (Optional)</label>
+                    <input
+                      type="email"
+                      value={recipientEmail}
+                      onChange={(e) => setRecipientEmail(e.target.value)}
+                      placeholder="email@example.com"
+                      className="w-full h-12 px-4 rounded-xl border-2 border-slate-100 bg-slate-50 focus:border-primary focus:bg-white focus:outline-none transition-all font-medium text-sm placeholder:text-slate-300"
+                    />
                     <p className="text-[10px] text-blue-600 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
-                      ✨ This name will appear on the official ownership receipt — not the payment receipt.
+                      ✨ We'll only send the warranty here <span className="underline">after</span> successful delivery. No spoilers before!
                     </p>
 
                     {/* POD Warning Gate — only shows if POD is selected */}
@@ -289,18 +312,21 @@ function ShoppingCheckout() {
               2. Payment Method
             </h2>
 
-            {!hasOnlyGadgets && (
-              <div className="mb-4 bg-orange-50 border border-orange-200 p-4 rounded-xl flex gap-3 items-center">
-                <AlertCircle className="w-5 h-5 text-orange-600 flex-shrink-0" />
-                <p className="text-xs font-bold text-orange-800">
-                  Payment on Delivery is only available for Gadgets (Laptops, Smartphones, Monitors). 
-                  Cart contains accessories which require full payment.
-                </p>
+            {!hasMajorGadget && cartItems?.items?.length > 0 && (
+              <div className="mb-4 bg-amber-50 border-2 border-amber-200 p-4 rounded-xl flex gap-4 items-start shadow-sm">
+                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="text-xs font-black text-amber-900 uppercase">Accessory Cart Detected</p>
+                  <p className="text-[10px] font-bold text-amber-800 leading-relaxed uppercase">
+                    Payment on Delivery is only available for <span className="underline font-black">Major Gadgets</span> (Laptops/Phones/Monitors). 
+                    Since your cart contains only accessories, <span className="font-black text-amber-950 text-[11px]">Full Payment</span> is required.
+                  </p>
+                </div>
               </div>
             )}
 
-            <div className={`grid grid-cols-1 ${(totalCartAmount >= 15000 && hasOnlyGadgets) ? 'sm:grid-cols-2' : ''} gap-4`}>
-              {totalCartAmount >= 15000 && hasOnlyGadgets && (
+            <div className={`grid grid-cols-1 ${(totalCartAmount >= 15000 && hasMajorGadget) ? 'sm:grid-cols-2' : ''} gap-4`}>
+              {totalCartAmount >= 15000 && hasMajorGadget && (
                 <div
                   onClick={() => setPaymentType("commitment")}
                   className={`p-5 rounded-2xl border-2 cursor-pointer transition-all relative ${
@@ -383,15 +409,72 @@ function ShoppingCheckout() {
                 <div className="bg-slate-900 p-4 rounded-xl mt-6 border border-slate-800 shadow-2xl overflow-hidden relative">
                   <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full -mr-8 -mt-8" />
                   <div className="flex justify-between items-center relative z-10">
-                    <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Pay Now</span>
+                    <span className="text-[10px] font-black text-white/50 uppercase tracking-widest">Deposit Due Now</span>
                     <span className="text-xl font-black text-white">₦10,000</span>
                   </div>
                   <div className="flex justify-between text-[10px] text-white/40 mt-2 font-bold uppercase tracking-widest border-t border-white/5 pt-2">
-                    <span>Pay on delivery</span>
+                    <span>Balance on Arrival</span>
                     <span className="text-amber-500">₦{(totalCartAmount - 10000).toLocaleString()}</span>
                   </div>
                 </div>
               )}
+
+              {/* Dynamic Responsibility Summary */}
+              <div className="mt-8 p-4 sm:p-5 bg-slate-50 rounded-2xl border-2 border-slate-100 space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                   <div className="w-1.5 h-4 bg-orange-500 rounded-full" />
+                   <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest">Clear Responsibilities</h3>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Delivery Location */}
+                  <div className="flex items-start gap-3">
+                    <div className="p-1.5 bg-white rounded-lg border border-slate-200">
+                      <Truck className="w-3.5 h-3.5 text-slate-400" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Delivery Target</p>
+                      <p className="text-xs font-bold text-slate-900">
+                        {currentSelectedAddress ? `${currentSelectedAddress.fullName} in ${currentSelectedAddress.city}` : "Select Address First"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Payment Flow */}
+                  <div className="flex items-start gap-3">
+                    <div className="p-1.5 bg-white rounded-lg border border-slate-200">
+                      <CreditCard className="w-3.5 h-3.5 text-slate-400" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">What happens now?</p>
+                      <p className="text-xs font-bold text-slate-900 leading-relaxed">
+                        {isGift 
+                          ? `You are paying ${paymentType === 'commitment' ? 'only the ₦10,000 deposit' : 'the full ₦' + totalCartAmount.toLocaleString()} today for ${recipientName || 'your friend'}.`
+                          : `You are paying ${paymentType === 'commitment' ? '₦10,000 now' : 'the full amount'} for your personal order.`
+                        }
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Door Payment Responsibility */}
+                  <div className="flex items-start gap-3">
+                    <div className="p-1.5 bg-white rounded-lg border border-slate-200">
+                      <User className="w-3.5 h-3.5 text-slate-400" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Who pays at the door?</p>
+                      <p className={`text-xs font-black leading-relaxed ${paymentType === 'commitment' ? 'text-orange-600' : 'text-emerald-600'}`}>
+                        {paymentType === 'full' 
+                          ? "Nothing! The order is fully paid. Just receive and enjoy." 
+                          : isGift 
+                            ? `${recipientName || 'The recipient'} MUST have ₦${(totalCartAmount - 10000).toLocaleString()} ready on arrival.`
+                            : `You will pay the ₦${(totalCartAmount - 10000).toLocaleString()} balance when the rider arrives.`
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <Button

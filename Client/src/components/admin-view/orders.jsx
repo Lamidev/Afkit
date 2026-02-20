@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Trash2 } from "lucide-react";
+import { Trash2, Gift } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AdminOrderDetailsView from "./order-details";
@@ -77,11 +77,14 @@ function AdminOrdersView() {
         <div className="sm:hidden divide-y divide-slate-100">
           {orderList && orderList.length > 0
             ? orderList.map((orderItem) => (
-                <div key={orderItem?._id} className="p-4 space-y-4">
+                <div key={orderItem?._id} className="p-3 space-y-3">
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
                         {formatAestheticId(orderItem?.orderId || orderItem?._id, "ORD")}
+                        {orderItem?.addressInfo?.isGift && (
+                          <Gift className="inline-block w-3 h-3 text-orange-500 ml-1.5 align-text-top" />
+                        )}
                       </p>
                       <p className="text-sm font-bold text-slate-900 truncate max-w-[180px]">
                         {orderItem?.payerEmail}
@@ -119,13 +122,6 @@ function AdminOrdersView() {
                       </Badge>
                     </div>
                     <div className="flex gap-2">
-                       <Dialog
-                          open={openDetailsDialog}
-                          onOpenChange={() => {
-                            setOpenDetailsDialog(false);
-                            dispatch(resetOrderDetails());
-                          }}
-                        >
                           <Button
                             onClick={() => handleFetchOrderDetails(orderItem?._id)}
                             size="sm"
@@ -133,8 +129,6 @@ function AdminOrdersView() {
                           >
                             Details
                           </Button>
-                          <AdminOrderDetailsView orderDetails={orderDetails} />
-                        </Dialog>
                         <Button
                           onClick={() => handleDeleteOrder(orderItem)}
                           variant="ghost"
@@ -171,6 +165,9 @@ function AdminOrdersView() {
                     <TableRow key={orderItem?._id} className="hover:bg-slate-50/50 transition-colors group">
                       <TableCell className="font-mono text-[10px] text-slate-400">
                         {formatAestheticId(orderItem?.orderId || orderItem?._id, "ORD")}
+                        {orderItem?.addressInfo?.isGift && (
+                          <Gift className="inline-block w-2.5 h-2.5 text-orange-500 ml-1.5" title="Third-Party Order" />
+                        )}
                       </TableCell>
                       <TableCell className="font-bold text-slate-700 text-xs">{orderItem?.payerEmail}</TableCell>
                       <TableCell className="text-slate-500 text-xs">{orderItem?.orderDate.split("T")[0]}</TableCell>
@@ -200,21 +197,13 @@ function AdminOrdersView() {
                       <TableCell className="font-black text-slate-900 text-xs">₦{orderItem?.totalAmount.toLocaleString()}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1.5">
-                          <Dialog
-                            open={openDetailsDialog}
-                            onOpenChange={() => {
-                              setOpenDetailsDialog(false);
-                              dispatch(resetOrderDetails());
-                            }}
+                             <Button
+                            onClick={() => handleFetchOrderDetails(orderItem?._id)}
+                            size="sm"
+                            className="text-[10px] font-bold h-8 px-4 bg-primary hover:bg-primary/90 text-white rounded-lg"
                           >
-                            <Button
-                              onClick={() => handleFetchOrderDetails(orderItem?._id)}
-                              className="h-8 text-[10px] font-bold bg-primary hover:bg-primary/90 text-white px-3 rounded-lg"
-                            >
-                              Details
-                            </Button>
-                            <AdminOrderDetailsView orderDetails={orderDetails} />
-                          </Dialog>
+                            Details
+                          </Button>
                           <Button
                             onClick={() => handleDeleteOrder(orderItem)}
                             variant="ghost"
@@ -233,6 +222,19 @@ function AdminOrdersView() {
           </Table>
         </div>
       </div>
+
+      <Dialog
+        open={openDetailsDialog}
+        onOpenChange={() => {
+          setOpenDetailsDialog(false);
+          dispatch(resetOrderDetails());
+        }}
+      >
+        <AdminOrderDetailsView 
+          orderDetails={orderDetails} 
+          setOpenDialog={setOpenDetailsDialog} 
+        />
+      </Dialog>
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>

@@ -369,11 +369,23 @@ function ShoppingListing() {
 
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = productList.slice(
+  // Business-logic deduplication: If products have same title and image, hide duplicates.
+  // We PRESERVE the order from the API (productList) so that sorting works correctly.
+  const uniqueProductList = useMemo(() => {
+    const seen = new Set();
+    return productList.filter((product) => {
+      const visualKey = `${product.title}-${product.image}`;
+      if (seen.has(visualKey)) return false;
+      seen.add(visualKey);
+      return true;
+    });
+  }, [productList]);
+
+  const totalPages = Math.ceil(uniqueProductList.length / productsPerPage);
+  const currentProducts = uniqueProductList.slice(
     indexOfFirstProduct,
     indexOfLastProduct
   );
-  const totalPages = Math.ceil(productList.length / productsPerPage);
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -442,7 +454,7 @@ function ShoppingListing() {
               </SheetTrigger>
               <SheetContent
                 side="right"
-                className="w-full sm:max-w-xs p-0 border-0"
+                className="w-[85vw] max-w-sm p-0 border-0"
               >
                 <div className="h-full flex flex-col">
                    <div className="p-6 border-b border-slate-100 italic">
