@@ -467,14 +467,14 @@ function AdminProducts() {
           {/* Top Level Actions */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-black text-gray-900 tracking-tight">Product Management</h1>
-              <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Product Management</h1>
+              <p className="text-xs text-gray-500 font-semibold uppercase tracking-widest mt-1">
                 {urlCategory && urlCategory !== 'all-products' ? `Managing: ${getCurrentCategoryName()}` : 'Manage your store inventory'}
               </p>
             </div>
             <Button 
               onClick={() => setOpenCreateProductsDialog(true)}
-              className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white font-bold text-xs px-6 h-11 rounded-xl shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5"
+              className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white font-semibold text-xs px-6 h-11 rounded-xl shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add New Product
@@ -500,7 +500,7 @@ function AdminProducts() {
                 >
                   <div className="flex items-center gap-2 overflow-hidden">
                     <ArrowUpDown className="h-3.5 w-3.5 text-gray-400 shrink-0" />
-                    <span className="text-xs font-bold text-gray-600 truncate">{getCurrentSortLabel()}</span>
+                    <span className="text-xs font-semibold text-gray-600 truncate">{getCurrentSortLabel()}</span>
                   </div>
                   <ChevronDown className={`h-3.5 w-3.5 text-gray-400 transition-transform duration-200 ${isSortDropdownOpen ? 'rotate-180' : ''}`} />
                 </Button>
@@ -511,7 +511,7 @@ function AdminProducts() {
                       {adminSortOptions.map((option) => (
                         <button
                           key={option.id}
-                          className={`w-full flex items-center px-4 py-2.5 text-[11px] font-bold rounded-xl hover:bg-gray-50 transition-colors ${
+                          className={`w-full flex items-center px-4 py-2.5 text-[11px] font-semibold rounded-xl hover:bg-gray-50 transition-colors ${
                             sortBy === option.id ? 'bg-blue-50 text-blue-700' : 'text-gray-500'
                           }`}
                           onClick={() => handleSortChange(option.id)}
@@ -531,7 +531,7 @@ function AdminProducts() {
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
                 >
                   <Filter className={`h-3.5 w-3.5 ${hasActiveFilters ? 'text-blue-500' : 'text-gray-400'}`} />
-                  <span className={`text-xs font-bold ${hasActiveFilters ? 'text-blue-700' : 'text-gray-600'}`}>Filters</span>
+                  <span className={`text-xs font-semibold ${hasActiveFilters ? 'text-blue-700' : 'text-gray-600'}`}>Filters</span>
                   {hasActiveFilters && (
                     <span className="h-1.5 w-1.5 bg-blue-500 rounded-full animate-pulse"></span>
                   )}
@@ -540,7 +540,7 @@ function AdminProducts() {
                 {isFilterOpen && (
                   <div className="absolute top-full right-0 mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-50 w-80 overflow-hidden">
                     <div className="p-4 border-b border-gray-50 flex items-center justify-between bg-gray-50/30">
-                      <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest">Active Filters</h3>
+                      <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest">Active Filters</h3>
                       <button onClick={() => setIsFilterOpen(false)} className="hover:bg-gray-100 p-1.5 rounded-lg transition-colors">
                         <X className="h-4 w-4 text-gray-400" />
                       </button>
@@ -574,7 +574,7 @@ function AdminProducts() {
                 <SheetContent side="right" className="w-[85vw] max-w-sm p-0 border-0">
                   <div className="h-full flex flex-col bg-white">
                     <div className="p-6 border-b border-gray-100">
-                      <SheetTitle className="text-xl font-black text-gray-900 tracking-tight">Filter Products</SheetTitle>
+                      <SheetTitle className="text-xl font-bold text-gray-900 tracking-tight">Filter Products</SheetTitle>
                     </div>
                     <div className="flex-1 overflow-y-auto">
                       <AdminProductFilter
@@ -774,7 +774,7 @@ function AdminProducts() {
                     </Button>
                     
                     <div className="flex items-center bg-gray-100/50 p-1 rounded-xl">
-                      <span className="px-3 text-xs font-black text-gray-500 uppercase tracking-widest">
+                      <span className="px-3 text-xs font-bold text-gray-500 uppercase tracking-widest">
                         Page {currentPage} of {totalActivePages}
                       </span>
                     </div>

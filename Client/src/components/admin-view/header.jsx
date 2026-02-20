@@ -170,7 +170,7 @@ function AdminHeader({ setOpen }) {
 
         <Button
           onClick={() => setIsLogoutDialogOpen(true)}
-          className="inline-flex gap-1.5 items-center px-2.5 sm:px-4 py-2 text-sm font-semibold shadow-sm rounded border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 hover:border-red-300 transition-colors"
+          className="inline-flex gap-1.5 items-center px-2.5 sm:px-4 py-2 text-sm shadow-sm rounded border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 hover:border-red-300 transition-colors"
           variant="ghost"
         >
           <LogOut size={16} />

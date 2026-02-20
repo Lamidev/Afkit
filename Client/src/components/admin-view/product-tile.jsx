@@ -91,14 +91,14 @@ function AdminProductTile({
     >
       {/* Hidden badge */}
       {product.isHidden && (
-        <span className="absolute top-1.5 left-1.5 z-10 bg-purple-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 uppercase">
+        <span className="absolute top-1.5 left-1.5 z-10 bg-purple-500 text-white text-[8px] font-semibold px-1.5 py-0.5 rounded-full flex items-center gap-0.5 uppercase">
           <EyeOff className="h-2 w-2" />
           Hidden
         </span>
       )}
 
       {/* Stock badge */}
-      <span className="absolute top-1.5 right-1.5 z-10 bg-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">
+      <span className="absolute top-1.5 right-1.5 z-10 bg-red-500 text-white text-[8px] font-semibold px-1.5 py-0.5 rounded-full">
         {product.totalStock}
       </span>
 
@@ -126,7 +126,7 @@ function AdminProductTile({
         </h2>
 
         {/* Price */}
-        <p className="text-xs font-black text-primary leading-none">
+        <p className="text-xs font-bold text-primary leading-none">
           {formatPrice(product.price)}
         </p>
 
@@ -145,11 +145,11 @@ function AdminProductTile({
         {/* Category & ID */}
         <div className="flex items-center gap-2 flex-wrap">
           {product.category && (
-            <span className="text-[9px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full capitalize">
+            <span className="text-[9px] font-semibold text-primary bg-primary/10 px-1.5 py-0.5 rounded-full capitalize">
               {product.category}
             </span>
           )}
-          <span className="text-[9px] font-black text-slate-400 font-mono uppercase tracking-widest">
+          <span className="text-[9px] font-bold text-slate-400 font-mono uppercase tracking-widest">
             {formatAestheticId(product._id, "GAD")}
           </span>
         </div>
@@ -170,7 +170,7 @@ function AdminProductTile({
               setFormData({ ...product, images: product.images || [] });
             }}
             title="Edit"
-            className="flex items-center justify-center gap-0.5 h-7 rounded-lg bg-primary hover:bg-primary/90 text-white text-[9px] font-bold transition-colors"
+            className="flex items-center justify-center gap-0.5 h-7 rounded-lg bg-primary hover:bg-primary/90 text-white text-[9px] font-semibold transition-colors"
           >
             <Pencil className="h-3 w-3" />
             <span>Edit</span>
@@ -180,7 +180,7 @@ function AdminProductTile({
             <button
               onClick={() => setShowConfirmUnhide(true)}
               title="Make Visible"
-              className="flex items-center justify-center gap-0.5 h-7 rounded-lg bg-green-600 hover:bg-green-700 text-white text-[9px] font-bold transition-colors"
+              className="flex items-center justify-center gap-0.5 h-7 rounded-lg bg-green-600 hover:bg-green-700 text-white text-[9px] font-semibold transition-colors"
             >
               <Eye className="h-3 w-3" />
               <span>Show</span>
@@ -189,7 +189,7 @@ function AdminProductTile({
             <button
               onClick={() => setShowConfirmHide(true)}
               title="Hide"
-              className="flex items-center justify-center gap-0.5 h-7 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-[9px] font-bold transition-colors"
+              className="flex items-center justify-center gap-0.5 h-7 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-[9px] font-semibold transition-colors"
             >
               <EyeOff className="h-3 w-3" />
               <span>Hide</span>
@@ -199,7 +199,7 @@ function AdminProductTile({
           <button
             onClick={() => setShowConfirmDelete(true)}
             title="Delete"
-            className="flex items-center justify-center gap-0.5 h-7 rounded-lg bg-red-500 hover:bg-red-600 text-white text-[9px] font-bold transition-colors"
+            className="flex items-center justify-center gap-0.5 h-7 rounded-lg bg-red-500 hover:bg-red-600 text-white text-[9px] font-semibold transition-colors"
           >
             <Trash2 className="h-3 w-3" />
             <span>Del</span>

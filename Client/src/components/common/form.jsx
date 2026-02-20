@@ -195,13 +195,20 @@ function CommonForm({
             onValueChange={(value) => handleFieldChange(control.name, value)}
             value={value}
           >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={control.label} />
+            <SelectTrigger className="w-full bg-slate-50 border-slate-200 hover:bg-white hover:border-slate-300 transition-all h-11 rounded-xl shadow-sm focus:ring-2 focus:ring-slate-900/10">
+              <SelectValue placeholder={control.label || control.placeholder} />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent 
+              className="z-[100] bg-white border-slate-200 rounded-2xl shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-200"
+              onPointerDownOutside={(e) => e.preventDefault()}
+            >
               {control.options?.map((option) => (
-                <SelectItem key={option.id} value={option.id}>
-                  {option.label}
+                <SelectItem 
+                  key={option.id} 
+                  value={option.id}
+                  className="rounded-xl py-3 px-4 focus:bg-slate-900 focus:text-white cursor-pointer transition-colors mb-1 last:mb-0"
+                >
+                  <span className="text-xs font-black uppercase tracking-widest">{option.label}</span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -253,7 +260,7 @@ function CommonForm({
           if (!shouldShowControl(control)) return null;
           return (
             <div className="grid w-full gap-2" key={control.name}>
-              <Label htmlFor={control.name} className="text-sm font-medium">
+              <Label htmlFor={control.name} className="text-sm font-semibold">
                 {control.label}
                 {control.required && <span className="text-destructive ml-1">*</span>}
               </Label>

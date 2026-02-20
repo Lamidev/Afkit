@@ -230,7 +230,7 @@ function AdminProductFilter({
     <div className={isDropdown ? "p-4" : "bg-background rounded-lg shadow-sm h-full flex flex-col"}>
       {!isDropdown && (
         <div className="p-4 border-b flex items-center justify-between">
-          <h2 className="text-lg font-extrabold">Filters</h2>
+          <h2 className="text-lg font-bold">Filters</h2>
         </div>
       )}
 

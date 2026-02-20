@@ -56,20 +56,20 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center gap-2">
             <Package className="w-5 h-5 text-blue-400" />
-            <DialogTitle className="text-xl font-black text-white tracking-tight">Manage Order</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-white tracking-tight">Manage Order</DialogTitle>
           </div>
-          <p className="text-[10px] text-white/40 font-black uppercase tracking-[0.2em]">ID: {formatAestheticId(orderDetails?.orderId || orderDetails?._id, "ORD")}</p>
+          <p className="text-[10px] text-white/40 font-bold uppercase tracking-[0.2em]">ID: {formatAestheticId(orderDetails?.orderId || orderDetails?._id, "ORD")}</p>
         </div>
         
         <div className="mt-4 flex flex-wrap gap-2">
-          <Badge className={`px-4 py-1.5 rounded-full text-[10px] uppercase font-black tracking-widest border-none ${
+          <Badge className={`px-4 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-widest border-none ${
             orderDetails?.orderStatus === 'delivered' ? 'bg-emerald-500 text-white' : 
             orderDetails?.orderStatus === 'rejected' ? 'bg-rose-500 text-white' : 'bg-blue-600 text-white'
           }`}>
             Current: {orderDetails?.orderStatus}
           </Badge>
           <div className="flex gap-2">
-            <Badge className={`px-3 py-1 border-none font-black text-[10px] uppercase tracking-wider ${orderDetails?.addressInfo?.isGift ? 'bg-orange-500/20 text-orange-400' : 'bg-slate-700 text-slate-300'}`}>
+            <Badge className={`px-3 py-1 border-none font-bold text-[10px] uppercase tracking-wider ${orderDetails?.addressInfo?.isGift ? 'bg-orange-500/20 text-orange-400' : 'bg-slate-700 text-slate-300'}`}>
                {orderDetails?.addressInfo?.isGift ? 'Gift' : 'Standard'}
             </Badge>
           </div>
@@ -79,15 +79,15 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
       <Tabs defaultValue="overview" className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 shrink-0">
           <TabsList className="bg-slate-200/50 p-1 rounded-xl h-auto w-full sm:w-fit grid grid-cols-3 sm:flex">
-            <TabsTrigger value="overview" className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm font-black text-[10px] uppercase tracking-tighter sm:tracking-widest transition-all">
+            <TabsTrigger value="overview" className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold text-[10px] uppercase tracking-tighter sm:tracking-widest transition-all">
               <Package className="w-3.5 h-3.5 hidden sm:block" />
               Summary
             </TabsTrigger>
-            <TabsTrigger value="logistics" className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm font-black text-[10px] uppercase tracking-tighter sm:tracking-widest transition-all">
+            <TabsTrigger value="logistics" className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold text-[10px] uppercase tracking-tighter sm:tracking-widest transition-all">
               <Truck className="w-3.5 h-3.5 hidden sm:block" />
               Transit
             </TabsTrigger>
-            <TabsTrigger value="update" className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm font-black text-[10px] uppercase tracking-tighter sm:tracking-widest transition-all">
+            <TabsTrigger value="update" className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm font-bold text-[10px] uppercase tracking-tighter sm:tracking-widest transition-all">
               <UserCheck className="w-3.5 h-3.5 hidden sm:block" />
               Action
             </TabsTrigger>
@@ -102,17 +102,17 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                 <div className="absolute top-0 right-0 w-32 h-32 -mr-8 -mt-8 bg-blue-500/10 rounded-full blur-3xl" />
                 <div className="relative space-y-3">
                   <div className="flex justify-between items-center pb-3 border-b border-white/10">
-                    <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Total Bill</span>
-                    <span className="text-base font-black text-white">₦{orderDetails?.totalAmount.toLocaleString()}</span>
+                    <span className="text-[10px] font-semibold text-white/50 uppercase tracking-widest">Total Bill</span>
+                    <span className="text-base font-bold text-white">₦{orderDetails?.totalAmount.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between items-center text-emerald-400 text-[10px] font-bold uppercase tracking-widest">
+                  <div className="flex justify-between items-center text-emerald-400 text-[10px] font-semibold uppercase tracking-widest">
                     <span>Paid</span>
                     <span>- ₦{orderDetails?.amountPaid.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-end pt-2">
                     <div>
-                      <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block mb-1">Balance Due</span>
-                      <span className="text-2xl font-black text-white leading-none">₦{orderDetails?.balanceAmount.toLocaleString()}</span>
+                      <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest block mb-1">Balance Due</span>
+                      <span className="text-2xl font-bold text-white leading-none">₦{orderDetails?.balanceAmount.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -120,7 +120,7 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
 
               {/* Products List - Was Missing! */}
               <div className="space-y-4">
-                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                   <Package className="w-4 h-4" /> Items Ordered ({orderDetails?.cartItems?.length})
                 </h3>
                 <div className="space-y-3">
@@ -135,11 +135,11 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[11px] font-black text-gray-900 leading-tight line-clamp-2">{item.title}</p>
-                          <p className="text-[10px] font-bold text-gray-500">{item.quantity} x ₦{item.price.toLocaleString()}</p>
+                          <p className="text-[11px] font-bold text-gray-900 leading-tight line-clamp-2">{item.title}</p>
+                          <p className="text-[10px] font-semibold text-gray-500">{item.quantity} x ₦{item.price.toLocaleString()}</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-xs font-black text-gray-900">₦{(item.price * item.quantity).toLocaleString()}</p>
+                          <p className="text-xs font-bold text-gray-900">₦{(item.price * item.quantity).toLocaleString()}</p>
                         </div>
                       </div>
                     ))
@@ -152,22 +152,22 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
             <TabsContent value="logistics" className="mt-0 space-y-6 focus-visible:outline-none">
               {/* Delivery Info */}
               <div className="space-y-4">
-                <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                   <MapPin className="w-4 h-4" /> Shipping Address
                 </h3>
                 <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4">
                   <div>
-                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Destination</span>
-                    <p className="text-xs font-black text-gray-900 leading-relaxed">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Destination</span>
+                    <p className="text-xs font-bold text-gray-900 leading-relaxed">
                       {orderDetails?.addressInfo?.fullName}<br/>
                       {orderDetails?.addressInfo?.address}, {orderDetails?.addressInfo?.city}
                     </p>
-                    <p className="text-xs font-bold text-blue-600 mt-2">{orderDetails?.addressInfo?.phone}</p>
+                    <p className="text-xs font-semibold text-blue-600 mt-2">{orderDetails?.addressInfo?.phone}</p>
                   </div>
                   {orderDetails?.addressInfo?.notes && (
                     <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">
-                      <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Courier Notes</span>
-                      <div className="text-[11px] font-bold text-amber-900 mt-1" dangerouslySetInnerHTML={{ __html: orderDetails?.addressInfo?.notes }} />
+                      <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Courier Notes</span>
+                      <div className="text-[11px] font-semibold text-amber-900 mt-1" dangerouslySetInnerHTML={{ __html: orderDetails?.addressInfo?.notes }} />
                     </div>
                   )}
                 </div>
@@ -176,18 +176,18 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
               {/* Gift Details */}
               {orderDetails?.addressInfo?.isGift && (
                 <div className="space-y-4">
-                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                  <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                     <Gift className="w-4 h-4" /> Gift Ownership
                   </h3>
                   <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 space-y-4 shadow-sm">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest block mb-1">Send Warranty To</span>
-                        <p className="text-xs font-bold text-slate-900 truncate">{orderDetails?.addressInfo?.recipientEmail || "No Email Provided"}</p>
+                        <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest block mb-1">Send Warranty To</span>
+                        <p className="text-xs font-semibold text-slate-900 truncate">{orderDetails?.addressInfo?.recipientEmail || "No Email Provided"}</p>
                       </div>
                       <div>
-                        <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest block mb-1">Certificate Name</span>
-                        <p className="text-xs font-black text-blue-700 bg-white/50 px-2 py-0.5 rounded w-fit capitalize">
+                        <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest block mb-1">Certificate Name</span>
+                        <p className="text-xs font-bold text-blue-700 bg-white/50 px-2 py-0.5 rounded w-fit capitalize">
                           {orderDetails?.addressInfo?.receiptName || orderDetails?.addressInfo?.fullName}
                         </p>
                       </div>
@@ -198,17 +198,17 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
 
               {/* Payer Info */}
               <div className="space-y-4">
-                  <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                  <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
                     <UserCheck className="w-4 h-4" /> Payer Context
                   </h3>
                   <div className="bg-white rounded-2xl p-4 border border-gray-100 flex justify-between items-center shadow-sm">
                     <div>
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Buyer Email</p>
-                      <p className="text-xs font-bold text-gray-900">{orderDetails?.payerEmail}</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Buyer Email</p>
+                      <p className="text-xs font-semibold text-gray-900">{orderDetails?.payerEmail}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Transaction</p>
-                      <p className="text-xs font-black text-gray-900">₦{orderDetails?.totalAmount.toLocaleString()}</p>
+                      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Transaction</p>
+                      <p className="text-xs font-bold text-gray-900">₦{orderDetails?.totalAmount.toLocaleString()}</p>
                     </div>
                   </div>
               </div>
@@ -221,8 +221,8 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                     <DollarSign className="w-4 h-4 text-slate-600" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest">Workflow</h3>
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Update Pipeline</p>
+                    <h3 className="text-xs font-bold text-slate-800 uppercase tracking-widest">Workflow</h3>
+                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Update Pipeline</p>
                   </div>
                 </div>
 
@@ -232,8 +232,8 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                 }`}>
                   <AlertTriangle className={`w-4 h-4 shrink-0 mt-0.5 ${orderDetails?.addressInfo?.isGift ? 'text-orange-500' : 'text-blue-500'}`} />
                   <div className="space-y-1">
-                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Logistics Requirement</p>
-                    <p className="text-xs font-bold leading-relaxed">
+                    <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Logistics Requirement</p>
+                    <p className="text-xs font-semibold leading-relaxed">
                       {orderDetails?.addressInfo?.isGift 
                         ? orderDetails?.paymentType === 'commitment'
                           ? `🚨 GIFT POD: Confirm with recipient ${orderDetails?.addressInfo?.fullName} first. Balance: ₦${orderDetails?.balanceAmount.toLocaleString()}.`
@@ -268,7 +268,7 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                   setFormData={setFormData}
                   buttonText={"Execute Transition"}
                   isBtnDisabled={!formData.status}
-                  buttonClassName="w-full bg-slate-900 hover:bg-slate-800 h-11 text-xs uppercase font-black tracking-widest rounded-xl"
+                  buttonClassName="w-full bg-slate-900 hover:bg-slate-800 h-11 text-xs uppercase font-bold tracking-widest rounded-xl"
                   onSubmit={handleUpdateStatus}
                 />
               </div>
@@ -281,7 +281,7 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
         <Button 
           variant="outline" 
           onClick={() => setOpenDialog(false)}
-          className="w-full sm:w-auto font-black text-[10px] uppercase tracking-widest rounded-xl h-10 px-6 border-gray-200 hover:bg-white hover:text-black transition-all"
+          className="w-full sm:w-auto font-bold text-[10px] uppercase tracking-widest rounded-xl h-10 px-6 border-gray-200 hover:bg-white hover:text-black transition-all"
         >
           Dismiss Details
         </Button>
