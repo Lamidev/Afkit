@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -141,7 +142,7 @@ function AdminDebateRegistrations() {
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-black text-gray-900">{total}</p>
+            <p className="text-3xl font-bold text-gray-900">{total}</p>
           </CardContent>
         </Card>
       </motion.div>
@@ -173,7 +174,7 @@ function AdminDebateRegistrations() {
                   {registrations.map((reg) => (
                     <div key={reg._id} className="p-5 hover:bg-gray-50 transition-colors">
                       <div className="flex justify-between items-start mb-3">
-                        <p className="font-black text-gray-900 text-base">{reg.fullName}</p>
+                        <p className="font-bold text-gray-900 text-base">{reg.fullName}</p>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] bg-orange-50 text-orange-600 font-bold px-2 py-1 rounded-full uppercase border border-orange-100">
                             Joined
@@ -221,26 +222,26 @@ function AdminDebateRegistrations() {
                   <table className="min-w-full">
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-100">
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">#</th>
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">#</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">
                           Full Name
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">
                           Phone
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">
                           Email
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">
                           TikTok
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">
                           Instagram
                         </th>
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">
                           Date
                         </th>
-                        <th className="px-6 py-4 text-center text-xs font-black text-gray-400 uppercase tracking-widest">
+                        <th className="px-6 py-4 text-center text-xs font-bold text-gray-400 uppercase tracking-widest">
                           Action
                         </th>
                       </tr>
@@ -255,7 +256,7 @@ function AdminDebateRegistrations() {
                             {(currentPage - 1) * limit + index + 1}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm font-black text-gray-900">
+                            <span className="text-sm font-bold text-gray-900">
                               {reg.fullName}
                             </span>
                           </td>
@@ -308,18 +309,18 @@ function AdminDebateRegistrations() {
                     <button
                       onClick={() => fetchRegistrations(currentPage - 1)}
                       disabled={currentPage === 1 || isLoading}
-                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-xs font-black bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-all disabled:opacity-30 shadow-sm border border-gray-200"
+                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-xs font-bold bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-all disabled:opacity-30 shadow-sm border border-gray-200"
                     >
                       <ChevronLeft className="w-4 h-4" />
                       PREVIOUS
                     </button>
-                    <div className="sm:hidden text-xs font-black text-gray-700 px-4 py-2 bg-white rounded-xl border border-gray-200 shadow-sm">
+                    <div className="sm:hidden text-xs font-bold text-gray-700 px-4 py-2 bg-white rounded-xl border border-gray-200 shadow-sm">
                       {currentPage} / {totalPages || 1}
                     </div>
                     <button
                       onClick={() => fetchRegistrations(currentPage + 1)}
                       disabled={currentPage === totalPages || totalPages === 0 || isLoading}
-                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-xs font-black bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-all disabled:opacity-30 shadow-sm border border-gray-200"
+                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-xs font-bold bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-all disabled:opacity-30 shadow-sm border border-gray-200"
                     >
                       NEXT
                       <ChevronRight className="w-4 h-4" />

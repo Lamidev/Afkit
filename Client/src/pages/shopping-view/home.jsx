@@ -134,8 +134,7 @@ function ShoppingHome() {
   };
 
   const handleViewProductDetails = (productId) => {
-    const gadId = formatAestheticId(productId, "GAD").replace("#", "");
-    navigate(`/shop/product/${gadId}`);
+    navigate(`/shop/product/${productId}`);
   };
 
   const handleAddToCart = async (getCurrentProductId, getTotalStock) => {

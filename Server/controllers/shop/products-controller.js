@@ -22,7 +22,7 @@ const getFilteredProducts = async (req, res) => {
       specificAccessory = [],
       minPrice,
       maxPrice,
-      sortBy = "price-hightolow fi",
+      sortBy = "price-hightolow",
     } = req.query;
 
     let filters = { isHidden: { $ne: true } };
@@ -122,23 +122,8 @@ const getProductDetails = async (req, res) => {
     const { id } = req.params;
     let product;
 
-    // Support for Aesthetic GAD-XXXXXX IDs
-    if (id.toUpperCase().startsWith("GAD-")) {
-      const shortId = id.split("-")[1];
-      // Search for product whose ID ends with the short code
-      product = await Product.findOne({ 
-        $expr: { 
-          $eq: [
-            { $toUpper: { $substr: [{ $toString: "$_id" }, 18, 6] } }, 
-            shortId.toUpperCase() 
-          ] 
-        },
-        isHidden: { $ne: true } 
-      });
-    } else {
-      // Standard MongoDB ID lookup
-      product = await Product.findOne({ _id: id, isHidden: { $ne: true } });
-    }
+    // Unified ID lookup: Everything is now a String GAD-XXXXXX ID
+    product = await Product.findOne({ _id: id, isHidden: { $ne: true } });
 
     if (!product)
       return res.status(404).json({

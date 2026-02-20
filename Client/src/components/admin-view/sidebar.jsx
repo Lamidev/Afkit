@@ -1,5 +1,4 @@
 import {
-  ChartNoAxesCombined,
   LayoutDashboard,
   ShoppingBasket,
   BadgeCheck,
@@ -8,6 +7,7 @@ import {
 import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "../ui/sheet";
+import afkitLogo from "@/assets/afkit-logo.png";
 
 const adminSidebarMenuItems = [
   {
@@ -67,9 +67,8 @@ function AdminSideBar({ open, setOpen }) {
         <SheetContent side="left" className="w-64">
           <div className="flex flex-col h-full">
             <SheetHeader className="border-b">
-              <SheetTitle className="flex gap-2 mt-5 mb-5">
-                <ChartNoAxesCombined size={28} />
-                <h1 className="text-2xl font-extrabold">Afkit Panel</h1>
+              <SheetTitle className="flex items-center mt-5 mb-5">
+                <img src={afkitLogo} alt="Afkit" className="h-10 w-auto object-contain" />
               </SheetTitle>
             </SheetHeader>
             <MenuItems setOpen={setOpen} />
@@ -79,10 +78,9 @@ function AdminSideBar({ open, setOpen }) {
       <aside className="hidden w-64 flex-col border-r bg-background p-6 lg:flex">
         <div
           onClick={() => navigate("/admin/dashboard")}
-          className="flex cursor-pointer items-center gap-2"
+          className="flex cursor-pointer items-center"
         >
-          <ChartNoAxesCombined size={30} />
-          <h1 className="text-2xl font-extrabold">Afkik Panel</h1>
+          <img src={afkitLogo} alt="Afkit" className="h-10 w-auto object-contain" />
         </div>
         <MenuItems />
       </aside>

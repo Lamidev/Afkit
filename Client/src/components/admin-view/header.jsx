@@ -29,6 +29,8 @@ function AdminHeader({ setOpen }) {
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const dropdownBtnRef = useRef(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -72,12 +74,26 @@ function AdminHeader({ setOpen }) {
     setIsCategoryDropdownOpen(false);
   };
 
+  const handleToggleDropdown = () => {
+    if (!isCategoryDropdownOpen && dropdownBtnRef.current) {
+      const rect = dropdownBtnRef.current.getBoundingClientRect();
+      const dropdownWidth = 192; // w-48 = 12rem = 192px
+      // position: fixed is viewport-relative — do NOT add scroll offsets
+      // Centre the dropdown horizontally relative to the button
+      const centeredLeft = rect.left + rect.width / 2 - dropdownWidth / 2;
+      // Clamp so it never goes off the left or right edge (16px margin)
+      const clampedLeft = Math.max(16, Math.min(centeredLeft, window.innerWidth - dropdownWidth - 16));
+      setDropdownPos({ top: rect.bottom + 8, left: clampedLeft });
+    }
+    setIsCategoryDropdownOpen((prev) => !prev);
+  };
+
   return (
-    <header className="flex items-center justify-between px-4 py-3 bg-background border-b">
-      <div className="flex items-center gap-4">
+    <header className="flex items-center justify-between px-3 py-3 bg-background border-b w-full">
+      <div className="flex items-center gap-2">
         <Button
           onClick={() => setOpen(true)}
-          className="lg:hidden rounded"
+          className="lg:hidden rounded flex-shrink-0"
           variant="outline"
           size="icon"
         >
@@ -85,35 +101,28 @@ function AdminHeader({ setOpen }) {
           <span className="sr-only">Toggle Menu</span>
         </Button>
 
+        {/* Mobile category selector */}
         <div className="lg:hidden relative" ref={dropdownRef}>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium text-blue-600">
-                {user?.userName?.charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <div>
-              <p className="font-medium text-sm">{user?.userName}</p>
-              <p className="text-xs text-muted-foreground">Administrator</p>
-            </div>
-          </div>
-
           <Button
+            ref={dropdownBtnRef}
             variant="outline"
-            className="flex items-center space-x-2 min-w-[160px] justify-between px-3 py-2"
-            onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+            className="flex items-center gap-1.5 max-w-[130px] sm:max-w-[170px] justify-between px-2.5 py-1.5 text-xs h-8"
+            onClick={handleToggleDropdown}
           >
             <span className="truncate">{getCurrentCategoryLabel()}</span>
-            <ChevronDown className="h-4 w-4 flex-shrink-0" />
+            <ChevronDown className="h-3.5 w-3.5 flex-shrink-0" />
           </Button>
 
           {isCategoryDropdownOpen && (
-            <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 min-w-[220px] overflow-hidden">
+            <div
+              style={{ position: "fixed", top: dropdownPos.top, left: dropdownPos.left, zIndex: 9999 }}
+              className="bg-white border border-gray-200 rounded-xl shadow-xl w-48 overflow-hidden"
+            >
               <div className="flex flex-col divide-y divide-gray-100">
                 {adminMenuItems.map((menuItem) => (
                   <button
                     key={menuItem.id}
-                    className={`text-left w-full px-4 py-3 text-sm font-medium transition-colors ${
+                    className={`text-left w-full px-4 py-2.5 text-sm font-medium transition-colors ${
                       isActive(menuItem.path)
                         ? "bg-blue-50 text-blue-700"
                         : "text-gray-700 hover:bg-gray-100"
@@ -145,25 +154,26 @@ function AdminHeader({ setOpen }) {
         ))}
       </nav>
 
-      <div className="flex items-center gap-4 flex-1 justify-end">
-        <div className="hidden md:flex items-center gap-3 text-sm">
-          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+      <div className="flex items-center gap-3 flex-shrink-0">
+        {/* User info — avatar always visible, name only on sm+ */}
+        <div className="flex items-center gap-2 text-sm">
+          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
             <span className="text-sm font-medium text-blue-600">
               {user?.userName?.charAt(0).toUpperCase()}
             </span>
           </div>
           <div>
-            <p className="font-medium">{user?.userName}</p>
+            <p className="font-medium leading-tight text-sm">{user?.userName}</p>
             <p className="text-xs text-muted-foreground">Administrator</p>
           </div>
         </div>
 
         <Button
           onClick={() => setIsLogoutDialogOpen(true)}
-          className="inline-flex gap-2 items-center px-4 py-2 text-sm font-medium shadow rounded"
-          variant="outline"
+          className="inline-flex gap-1.5 items-center px-2.5 sm:px-4 py-2 text-sm shadow-sm rounded border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 hover:text-red-700 hover:border-red-300 transition-colors"
+          variant="ghost"
         >
-          <LogOut size={18} />
+          <LogOut size={16} />
           <span className="hidden sm:inline">Log Out</span>
         </Button>
       </div>

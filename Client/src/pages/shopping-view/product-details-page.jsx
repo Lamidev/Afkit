@@ -80,27 +80,13 @@ export default function ShoppingProductDetails() {
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   };
 
+  // Standardized ID loading logic
   useEffect(() => {
     if (id) {
-      // Extract GAD-XXXXXX pattern from URL
-      const gadMatch = id.match(/GAD-[A-Z0-9]{6}/i);
-      const realId = gadMatch ? gadMatch[0].toUpperCase() : id;
-      dispatch(fetchProductDetails(realId));
+      dispatch(fetchProductDetails(id));
       window.scrollTo(0, 0);
     }
   }, [id, dispatch]);
-
-  // Aesthetic URL Standardization Redirect to simplified GAD-XXXXXX format
-  useEffect(() => {
-    if (productDetails && id) {
-      const gadPrefixId = formatAestheticId(productDetails._id, "GAD").replace("#", "");
-
-      if (id !== gadPrefixId) {
-        console.log("Redirecting to standardized GAD URL");
-        navigate(`/shop/product/${gadPrefixId}`, { replace: true });
-      }
-    }
-  }, [productDetails, id, navigate]);
 
   useEffect(() => {
     if (productDetails?.description) {
@@ -241,8 +227,7 @@ export default function ShoppingProductDetails() {
   };
 
   const handleRelatedProductClick = (product) => {
-    const gadId = formatAestheticId(product?._id, "GAD").replace("#", "");
-    navigate(`/shop/product/${gadId}`);
+    navigate(`/shop/product/${product?._id}`);
   };
 
   const handleOrderOnWhatsApp = () => {

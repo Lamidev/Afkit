@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { useSelector } from "react-redux";
 
 import { formatAestheticId } from "@/utils/common";
+import { Gift } from "lucide-react";
 
 function ShoppingOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth);
@@ -12,7 +13,15 @@ function ShoppingOrderDetailsView({ orderDetails }) {
   return (
     <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-auto">
       <DialogHeader>
-        <DialogTitle className="text-2xl font-bold">Order Details</DialogTitle>
+        <DialogTitle className="text-xl sm:text-2xl font-bold flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+          Order Details
+          {orderDetails?.addressInfo?.isGift && (
+            <Badge className="bg-orange-500 text-white flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] sm:text-[10px] uppercase font-bold w-fit">
+              <Gift className="w-3 h-3" />
+              Someone Else
+            </Badge>
+          )}
+        </DialogTitle>
       </DialogHeader>
       <div className="grid gap-6 mt-4">
         <div className="flex items-center justify-between">
@@ -89,9 +98,14 @@ function ShoppingOrderDetailsView({ orderDetails }) {
         <div className="grid gap-4">
           <div className="font-semibold text-lg">Delivery Information</div>
           <div className="grid gap-1 bg-slate-50 p-4 rounded-lg text-slate-600">
-            <span className="font-bold text-slate-900">{user.userName}</span>
+            <span className="font-bold text-slate-900">Recipient: {orderDetails?.addressInfo?.fullName}</span>
+            {orderDetails?.addressInfo?.isGift && (
+              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded w-fit mb-1 mt-1">
+                Receipt Owner: {orderDetails?.addressInfo?.receiptName}
+              </span>
+            )}
             <span>{orderDetails?.addressInfo?.address}</span>
-            <span>{orderDetails?.addressInfo?.city}, {orderDetails?.addressInfo?.pincode}</span>
+            <span>{orderDetails?.addressInfo?.city}</span>
             <span>Phone: {orderDetails?.addressInfo?.phone}</span>
             {orderDetails?.addressInfo?.notes && (
                <span className="italic mt-2 text-sm text-slate-400">

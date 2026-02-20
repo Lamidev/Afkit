@@ -9,10 +9,9 @@ function ShoppingProductTile({ product, handleAddToCart, handleViewDetails }) {
   const navigate = useNavigate(); // Initialize useNavigate hook
 
   // Enhanced navigation with pure GAD ID for cleaner URLs
+  // Use the raw database ID for navigation to ensure consistency across the system
   const onProductClick = () => {
-    const gadId = formatAestheticId(product?._id, "GAD").replace("#", "");
-    // Changed to use navigate directly for cleaner URLs and consistent behavior
-    navigate(`/shop/product/${gadId}`);
+    navigate(`/shop/product/${product?._id}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   // Format price with commas

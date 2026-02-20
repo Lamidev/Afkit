@@ -16,14 +16,14 @@ function AuthLayout() {
         <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-blue-100 rounded-full opacity-20 blur-3xl" />
       </div>
 
-      <div className="relative w-full max-w-5xl mx-auto">
+      <div className="relative w-full max-w-[1400px] mx-auto">
         {/*
           On mobile: no card — just content with small side spacing (px-4 on parent handles it)
           On desktop (lg): card with shadow, rounded corners, split layout
         */}
         <div className="
           flex flex-col
-          lg:flex-row lg:bg-white lg:rounded-3xl lg:shadow-2xl lg:overflow-hidden lg:border lg:border-gray-100/80 lg:min-h-[540px]
+          lg:flex-row lg:bg-white lg:rounded-3xl lg:shadow-2xl lg:overflow-hidden lg:border lg:border-gray-100/80 lg:min-h-[540px] w-full
         ">
           
           {/* Left Panel — Desktop only (hidden on mobile) */}
@@ -113,7 +113,7 @@ function AuthLayout() {
               />
             </div>
 
-            <div className="w-full max-w-xl mx-auto">
+            <div className="w-full max-w-2xl mx-auto">
               <Outlet />
             </div>
           </motion.div>

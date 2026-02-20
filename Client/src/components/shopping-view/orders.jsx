@@ -42,7 +42,7 @@ function ShoppingOrders() {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white p-4 sm:p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100"
+      className="bg-white p-2 sm:p-8 rounded-2xl shadow-xl shadow-slate-200/50 border border-slate-100"
     >
       <div className="flex flex-col gap-1 mb-8">
         <h2 className="text-2xl font-black text-slate-900 tracking-tight">What I've Bought</h2>
@@ -55,7 +55,7 @@ function ShoppingOrders() {
           orderList.map((orderItem) => (
             <div 
               key={orderItem?._id}
-              className="bg-slate-50/50 rounded-2xl p-5 border border-slate-100 flex flex-col gap-4"
+              className="bg-slate-50/50 rounded-2xl p-3 border border-slate-100 flex flex-col gap-3"
             >
               <div className="flex justify-between items-start">
                 <div className="flex flex-col gap-1">

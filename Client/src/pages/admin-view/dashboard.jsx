@@ -125,20 +125,21 @@ function AdminDashboard() {
   ];
 
   return (
-    <div className="p-3 sm:p-4 md:p-6 bg-gray-50 min-h-screen">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">Admin Dashboard</h1>
-        <button
-          onClick={refreshData}
-          disabled={isLoading || isUsersListLoading}
-          className="flex items-center gap-2 text-sm bg-blue-100 hover:bg-blue-200 text-blue-800 px-3 py-2 rounded transition-colors disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 ${(isLoading || isUsersListLoading) ? "animate-spin" : ""}`} />
-          Refresh Data
-        </button>
-      </div>
+    <div className="p-3 sm:p-4 md:p-6 bg-gray-50 min-h-screen w-full overflow-x-hidden">
+      <div className="max-w-[1400px] mx-auto min-w-0 overflow-hidden">
+        <div className="flex justify-between items-center mb-6 px-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">Admin Dashboard</h1>
+          <button
+            onClick={refreshData}
+            disabled={isLoading || isUsersListLoading}
+            className="flex items-center gap-2 text-xs font-semibold bg-blue-50 hover:bg-blue-100 text-blue-600 px-4 py-2.5 rounded-xl transition-all disabled:opacity-50 border border-blue-100 shadow-sm"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${(isLoading || isUsersListLoading) ? "animate-spin" : ""}`} />
+            REFRESH DATA
+          </button>
+        </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-10 w-full">
         {statCards.map((card, index) => (
           <motion.div
             key={index}
@@ -146,9 +147,9 @@ function AdminDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: card.delay }}
             whileHover={{ scale: 1.02 }}
-            className="group"
+            className="group w-full"
           >
-            <Card className="h-full border-0 shadow-sm glass-morphism hover:shadow-xl transition-all duration-300 overflow-hidden relative">
+            <Card className="w-full h-full border-0 shadow-sm glass-morphism hover:shadow-xl transition-all duration-300 overflow-hidden relative">
               <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full ${card.bg} opacity-20 group-hover:opacity-30 transition-opacity`} />
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -166,7 +167,7 @@ function AdminDashboard() {
                   </div>
                 ) : (
                   <div className="flex items-baseline gap-2">
-                    <p className="text-2xl font-black text-gray-900">
+                    <p className="text-2xl font-bold text-gray-900">
                       {card.value}
                     </p>
                   </div>
@@ -175,7 +176,7 @@ function AdminDashboard() {
             </Card>
           </motion.div>
         ))}
-      </div>
+        </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -190,14 +191,14 @@ function AdminDashboard() {
                   <Users className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg sm:text-xl font-black text-gray-800 tracking-tight">
+                  <CardTitle className="text-lg sm:text-xl font-bold text-gray-800 tracking-tight">
                     Customer List
                   </CardTitle>
                   <p className="text-xs text-gray-500 font-medium">Manage and monitor all our customers</p>
                 </div>
               </div>
               <div className="bg-gray-100/50 px-3 py-1.5 rounded-full border border-gray-200">
-                 <span className="text-xs font-bold text-gray-600 uppercase tracking-widest flex items-center gap-2">
+                 <span className="text-xs font-semibold text-gray-600 uppercase tracking-widest flex items-center gap-2">
                     <span className="relative flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
@@ -226,10 +227,10 @@ function AdminDashboard() {
                     <div key={user._id} className="p-5 hover:bg-gray-50/50 transition-colors">
                       <div className="flex justify-between items-start mb-3">
                         <div className="space-y-1">
-                          <p className="font-black text-gray-900 leading-none">{user.userName}</p>
-                          <p className="text-xs text-gray-400 font-bold">{user.email}</p>
+                          <p className="font-bold text-gray-900 leading-none">{user.userName}</p>
+                          <p className="text-xs text-gray-400 font-semibold">{user.email}</p>
                         </div>
-                        <div className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest ${user.isVerified ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                        <div className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest ${user.isVerified ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
                           {user.isVerified ? 'Verified' : 'Unverified'}
                         </div>
                       </div>
@@ -239,10 +240,10 @@ function AdminDashboard() {
                           {isUserActive(user) ? (
                             <div className="flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                              <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Online</span>
+                              <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Online</span>
                             </div>
                           ) : (
-                            <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
                               {user.lastLogin ? formatRelativeTime(user.lastLogin) : 'Offline'}
                             </div>
                           )}
@@ -263,11 +264,11 @@ function AdminDashboard() {
                   <table className="min-w-full">
                     <thead>
                       <tr className="bg-gray-50/80 border-b border-gray-100">
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">User Details</th>
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Joined</th>
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Verification</th>
-                        <th className="px-6 py-4 text-left text-xs font-black text-gray-400 uppercase tracking-widest">Status</th>
-                        <th className="px-6 py-4 text-right text-xs font-black text-gray-400 uppercase tracking-widest">Actions</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">User Details</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Joined</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Verification</th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">Status</th>
+                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-widest">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50">
@@ -275,15 +276,15 @@ function AdminDashboard() {
                         <tr key={user._id} className="hover:bg-blue-50/30 transition-colors group">
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex flex-col">
-                              <span className="text-sm font-black text-gray-900">{user.userName}</span>
+                              <span className="text-sm font-bold text-gray-900">{user.userName}</span>
                               <span className="text-xs text-gray-400 font-medium">{user.email}</span>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-xs font-bold text-gray-600 tracking-tight">{formatDate(user.createdAt)}</span>
+                            <span className="text-xs font-semibold text-gray-600 tracking-tight">{formatDate(user.createdAt)}</span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2.5 py-1 text-[10px] font-black uppercase tracking-widest rounded-full ${user.isVerified ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                            <span className={`px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full ${user.isVerified ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
                               {user.isVerified ? 'Verified' : 'Unverified'}
                             </span>
                           </td>
@@ -291,7 +292,7 @@ function AdminDashboard() {
                             {isUserActive(user) ? (
                               <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                                <span className="text-[10px] font-black text-emerald-600 uppercase">Online Now</span>
+                                <span className="text-[10px] font-bold text-emerald-600 uppercase">Online Now</span>
                               </div>
                             ) : (
                               <span className="text-xs text-gray-400 font-medium italic">
@@ -323,18 +324,18 @@ function AdminDashboard() {
                     <button
                       onClick={() => handlePageChange(localPage - 1)}
                       disabled={localPage === 1}
-                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-xs font-black bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-all disabled:opacity-30 shadow-sm border border-gray-200"
+                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-xs font-bold bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-all disabled:opacity-30 shadow-sm border border-gray-200"
                     >
                       <ChevronLeft className="w-4 h-4" />
                       PREVIOUS
                     </button>
-                    <div className="sm:hidden text-xs font-black text-gray-700 px-4 py-2 bg-white rounded-xl border border-gray-200 shadow-sm">
+                    <div className="sm:hidden text-xs font-bold text-gray-700 px-4 py-2 bg-white rounded-xl border border-gray-200 shadow-sm">
                       {localPage} / {totalPages || 1}
                     </div>
                     <button
                       onClick={() => handlePageChange(localPage + 1)}
                       disabled={localPage === totalPages || totalPages === 0}
-                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-xs font-black bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-all disabled:opacity-30 shadow-sm border border-gray-200"
+                      className="flex-1 sm:flex-initial flex items-center justify-center gap-2 text-xs font-bold bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-xl transition-all disabled:opacity-30 shadow-sm border border-gray-200"
                     >
                       NEXT
                       <ChevronRight className="w-4 h-4" />
@@ -373,6 +374,7 @@ function AdminDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }
