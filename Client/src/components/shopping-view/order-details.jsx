@@ -94,7 +94,9 @@ function ShoppingOrderDetailsView({ orderDetails }) {
             <span>{orderDetails?.addressInfo?.city}, {orderDetails?.addressInfo?.pincode}</span>
             <span>Phone: {orderDetails?.addressInfo?.phone}</span>
             {orderDetails?.addressInfo?.notes && (
-               <span className="italic mt-2 text-sm text-slate-400">Note: {orderDetails?.addressInfo?.notes}</span>
+               <span className="italic mt-2 text-sm text-slate-400">
+                 Note: {orderDetails?.addressInfo?.notes.replace(/<\/?[^>]+(>|$)/g, "")}
+               </span>
             )}
           </div>
         </div>

@@ -40,7 +40,13 @@ function SearchMenu({ className = "" }) {
           type="text"
           placeholder="Search for uk-used gadgets..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value;
+            setSearchTerm(value);
+            if (!value.trim()) {
+              navigate('/shop/search');
+            }
+          }}
           className="pl-12 pr-12 py-6 text-base sm:text-lg placeholder:italic placeholder:text-sm sm:placeholder:text-base border-2 border-gray-200 rounded-full shadow-sm focus-visible:ring-2 focus-visible:ring-primary"
         />
 

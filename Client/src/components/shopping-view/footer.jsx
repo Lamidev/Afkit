@@ -21,7 +21,7 @@ const Footer = () => {
             <img
               src={Afkitlogo}
               alt="Afkit Logo"
-              className="h-10 w-fit"
+              className="h-6 w-fit"
             />
             <p className="text-sm leading-relaxed max-w-xs text-slate-500">
               Your trusted partner for premium UK-used gadgets in Nigeria. 

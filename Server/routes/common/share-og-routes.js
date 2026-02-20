@@ -15,7 +15,24 @@ function escapeHtml(text) {
 
 router.get("/product/:id", async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id).lean();
+        const { id } = req.params;
+        let product;
+
+        if (id.toUpperCase().startsWith("GAD-")) {
+            const shortId = id.split("-")[1];
+            product = await Product.findOne({
+                $expr: {
+                    $eq: [
+                        { $toUpper: { $substr: [{ $toString: "$_id" }, 18, 6] } },
+                        shortId.toUpperCase()
+                    ]
+                },
+                isHidden: { $ne: true }
+            }).lean();
+        } else {
+            product = await Product.findById(id).lean();
+        }
+
         if (!product) return res.status(404).send("Product not found");
 
         const price = Number(product.price).toLocaleString("en-NG");
@@ -23,7 +40,12 @@ router.get("/product/:id", async (req, res) => {
         const description = `₦${price} | ${product.title}. Premium UK Used Gadgets on AFKiT. 6 Months Warranty. Pay on Delivery.`;
 
         const mainImage = product.images?.[0] || product.image || "https://afkit.ng/default-og.png";
-        const productUrl = `https://afkit.ng/shop/product/${product._id}`;
+        
+        // Use aesthetic ID for the redirect URL
+        const aestheticId = `GAD-${product._id.toString().slice(-6).toUpperCase()}`;
+        
+        const frontendUrl = process.env.FRONTEND_URL || "https://afkit.ng";
+        const productUrl = `${frontendUrl}/shop/product/${aestheticId}`;
 
         // Escaped values for HTML attributes
         const safeTitle = escapeHtml(product.title);
