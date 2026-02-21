@@ -243,6 +243,15 @@ export const addressFormControls = [
     type: "text",
     placeholder: "Landmarks or delivery notes (Optional)",
   },
+  {
+    label: "Address Category",
+    name: "addressType",
+    componentType: "select",
+    options: [
+      { id: "personal", label: "📦 Personal (For Me)" },
+      { id: "recipient", label: "🎁 Recipient (Someone Else / Gift)" },
+    ],
+  },
 ];
 
 export const shoppingViewHeaderMenuItems = [
@@ -312,6 +321,11 @@ export const filterOptions = {
     min: 0,
     max: 5000000,
   },
+  priceRangeOptions: [
+    { id: "under-200k", label: "Under ₦200k", min: 0, max: 200000 },
+    { id: "200k-500k", label: "₦200k - ₦500k", min: 200000, max: 500000 },
+    { id: "500k-above", label: "₦500k Above", min: 500000, max: 5000000 },
+  ],
   condition: [
     { id: "Brand New", label: "Brand New" },
     { id: "UK Used", label: "UK Used" },

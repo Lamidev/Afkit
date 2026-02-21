@@ -139,7 +139,7 @@ function AdminDashboard() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-10 w-full">
+        <div className="flex flex-wrap justify-center gap-4 mb-10 w-full">
         {statCards.map((card, index) => (
           <motion.div
             key={index}
@@ -147,7 +147,7 @@ function AdminDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: card.delay }}
             whileHover={{ scale: 1.02 }}
-            className="group w-full"
+            className="group w-full sm:w-[calc(50%-1rem)] xl:w-[calc(25%-1rem)] min-w-[280px]"
           >
             <Card className="w-full h-full border-0 shadow-sm glass-morphism hover:shadow-xl transition-all duration-300 overflow-hidden relative">
               <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full ${card.bg} opacity-20 group-hover:opacity-30 transition-opacity`} />

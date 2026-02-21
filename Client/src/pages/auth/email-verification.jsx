@@ -57,7 +57,7 @@ const EmailVerificationPage = () => {
 
       navigate("/auth/login");
     } catch (error) {
-      toast.error(error.message || "Verification failed", {
+      toast.error(error?.message || "Verification failed. Please check your code.", {
         icon: <AlertCircle className="text-red-500" />,
       });
     }
@@ -79,7 +79,7 @@ const EmailVerificationPage = () => {
         icon: <CheckCircle className="text-green-500" />,
       });
     } catch (error) {
-      toast.error(error || "Failed to resend verification code", {
+      toast.error(error?.message || error || "Failed to resend verification code", {
         icon: <AlertCircle className="text-red-500" />,
       });
     } finally {

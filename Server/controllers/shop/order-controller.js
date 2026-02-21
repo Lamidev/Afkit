@@ -2,6 +2,7 @@ const Order = require("../../models/order");
 const Cart = require("../../models/cart");
 const Product = require("../../models/products");
 const paystackHelper = require("../../helpers/paystack")(process.env.PAYSTACK_SECRET_KEY);
+const { sendOrderConfirmationEmail } = require("../../mailtrap/emails");
 
 const createOrder = async (req, res) => {
   try {
@@ -19,7 +20,8 @@ const createOrder = async (req, res) => {
       payerEmail,
     } = req.body;
 
-    // 1. Initial Stock Check
+    // 1. Initial Stock and Price Check
+    let calculatedTotal = 0;
     for (let item of cartItems) {
       let product = await Product.findById(item.productId);
       if (!product || product.totalStock < item.quantity) {
@@ -28,6 +30,15 @@ const createOrder = async (req, res) => {
           message: `Product ${item.title} is out of stock or does not exist.`,
         });
       }
+      calculatedTotal += product.price * item.quantity;
+    }
+
+    // Security: Validate that the total amount sent by client matches the server calculation
+    if (Math.abs(calculatedTotal - totalAmount) > 0.01) {
+      return res.status(400).json({
+        success: false,
+        message: "Order amount mismatch. Please refresh your cart and try again.",
+      });
     }
 
     // 2. Determine Paystack Amount
@@ -40,7 +51,6 @@ const createOrder = async (req, res) => {
 
     // 3. Initialize Paystack Transaction
     const callbackUrl = `${process.env.CLIENT_URL}/shop/paystack-return`;
-    console.log("DEBUG: finalAmountToPay", finalAmountToPay, "enforcedPaymentType", enforcedPaymentType);
 
     const paystackData = await paystackHelper.initializePayment({
       email: payerEmail,
@@ -126,8 +136,16 @@ const capturePayment = async (req, res) => {
         for (let item of order.cartItems) {
           let product = await Product.findById(item.productId);
           if (product) {
-            product.totalStock -= item.quantity;
-            await product.save();
+            // Guard against going below 0 (race condition / double capture)
+            const deductQty = Math.min(item.quantity, product.totalStock);
+            if (deductQty > 0) {
+              product.totalStock -= deductQty;
+              await product.save();
+            } else {
+              console.warn(
+                `Stock already at 0 for product ${product._id} (${product.title}). Skipping deduction.`
+              );
+            }
           }
         }
         order.isStockDeducted = true;
@@ -137,6 +155,11 @@ const capturePayment = async (req, res) => {
       await Cart.findOneAndUpdate({ userId: order.userId }, { items: [] });
 
       await order.save();
+
+      // Send Order Confirmation Email (non-blocking)
+      sendOrderConfirmationEmail(order).catch(err => {
+        console.error("Order email error:", err.message);
+      });
 
       res.status(200).json({
         success: true,

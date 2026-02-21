@@ -83,6 +83,15 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                         {formatAestheticId(item.productId, "GAD")}
                       </span>
                     </div>
+                    {item.condition && (
+                      <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full w-fit mb-1 ${
+                        item.condition === "Brand New"
+                          ? "bg-amber-50 text-amber-700 border border-amber-200"
+                          : "bg-slate-100 text-slate-500 border border-slate-200"
+                      }`}>
+                        {item.condition === "Brand New" ? "✨" : "🇬🇧"} {item.condition}
+                      </span>
+                    )}
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-slate-500 font-medium">Qty: {item.quantity}</span>
                       <span className="font-bold text-slate-900">₦{Number(item.price * item.quantity).toLocaleString()}</span>

@@ -31,6 +31,19 @@ const AddressSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    addressType: {
+      type: String,
+      enum: ["personal", "recipient"],
+      default: "personal",
+    },
+    isLastUsed: {
+      type: Boolean,
+      default: false,
+    },
+    isLastUsedRecipient: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

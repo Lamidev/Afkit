@@ -123,12 +123,13 @@ function ShoppingHome() {
     sessionStorage.removeItem("filters");
 
     if (item.id === "all-products") {
-      navigate(`/shop/listing`);
+      navigate(`/shop/listing?sort=latest-arrival`);
     } else {
       const currentFilter = { [section]: [item.id] };
       sessionStorage.setItem("filters", JSON.stringify(currentFilter));
       const queryParams = new URLSearchParams();
       queryParams.set(section, item.id);
+      queryParams.set("sort", "latest-arrival");
       navigate(`/shop/listing?${queryParams.toString()}`);
     }
   };
@@ -226,7 +227,7 @@ function ShoppingHome() {
     dispatch(
       fetchAllFilteredProducts({
         filterParams: {},
-        sortParams: "price-lowtohigh",
+        sortParams: "latest-arrival",
       })
     );
   }, [dispatch]);
@@ -286,7 +287,7 @@ function ShoppingHome() {
             >
               <Button
                 size="lg"
-                className="h-14 px-10 rounded-2xl text-lg font-bold shadow-xl shadow-primary/25 group-hover:scale-105 transition-all uppercase tracking-tight"
+                className="h-12 sm:h-14 px-8 sm:px-10 rounded-2xl text-sm sm:text-lg font-bold shadow-xl shadow-primary/25 group-hover:scale-105 transition-all uppercase tracking-tight"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleNavigateToListingPage({ id: "all-products" }, null);
@@ -347,9 +348,9 @@ function ShoppingHome() {
                   }
                   className="cursor-pointer hover:shadow-md h-full"
                 >
-                  <CardContent className="flex flex-col items-center justify-center p-2 sm:p-3">
-                    <Icon className="w-5 h-5 sm:w-6 sm:h-6 mb-1 text-blue-900" />
-                    <span className="text-xs sm:text-sm font-medium text-center leading-tight">
+                  <CardContent className="flex flex-col items-center justify-center p-4 sm:p-6">
+                    <Icon className="w-8 h-8 sm:w-10 sm:h-10 mb-2 text-blue-900 group-hover:text-orange-500 transition-colors" />
+                    <span className="text-sm sm:text-base font-bold text-center leading-tight uppercase tracking-tight">
                       {label}
                     </span>
                   </CardContent>

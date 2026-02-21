@@ -30,7 +30,7 @@ function AuthRegister() {
         navigate("/auth/verify-email");
         setFormData(initialState);
       } else {
-        toast.error(data?.payload?.message, {
+        toast.error(data?.payload?.message || "Registration failed. Please try again.", {
           icon: <AlertCircle className="text-red-500" />,
         });
       }
@@ -38,14 +38,14 @@ function AuthRegister() {
   }
 
   return (
-    <div className=" flex items-center justify-center px-4">
+    <div className="flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md space-y-6 bg-white bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden"
+        className="w-full max-w-[95%] sm:max-w-md space-y-4 sm:space-y-6 bg-white bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden"
       >
-        <div className="p-8">
+        <div className="p-5 sm:p-8">
           <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center bg-gradient-to-r from-black to-black text-transparent bg-clip-text">
             Create Account
           </h2>
@@ -61,7 +61,7 @@ function AuthRegister() {
           <PasswordStrengthMeter password={formData.password} />
         </div>
 
-        <div className="px-8 py-4 bg-white bg-opacity-50 flex justify-center">
+        <div className="px-5 sm:px-8 py-4 bg-white bg-opacity-50 flex justify-center">
           <p className="text-sm text-black">
             Already have an account?{" "}
             <Link

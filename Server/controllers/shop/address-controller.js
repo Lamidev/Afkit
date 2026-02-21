@@ -2,19 +2,21 @@ const Address = require("../../models/address");
 
 const addAddress = async (req, res) => {
   try {
-    const { userId, fullName, email, address, city, phone, notes } = req.body;
-    console.log("DEBUG: addAddress payload", req.body);
-
+    const { userId, fullName, email, address, city, phone, notes, addressType } = req.body;
     const requiredFields = { userId, fullName, email, address, city, phone };
     const missingFields = Object.keys(requiredFields).filter(key => !requiredFields[key] || requiredFields[key] === "undefined");
 
     if (missingFields.length > 0) {
-      console.log("DEBUG: missing fields", missingFields);
       return res.status(400).json({
         success: false,
         message: `Missing or invalid fields: ${missingFields.join(", ")}`,
       });
     }
+
+    // Clear other last used flags for this user and type
+    const flagToClear = addressType === "recipient" ? { isLastUsedRecipient: true } : { isLastUsed: true };
+    const resetData = addressType === "recipient" ? { isLastUsedRecipient: false } : { isLastUsed: false };
+    await Address.updateMany({ userId, ...flagToClear }, resetData);
 
     const newlyCreatedAddress = new Address({
       userId,
@@ -24,6 +26,9 @@ const addAddress = async (req, res) => {
       city,
       phone,
       notes,
+      addressType: addressType || "personal",
+      isLastUsed: addressType !== "recipient",
+      isLastUsedRecipient: addressType === "recipient"
     });
 
     await newlyCreatedAddress.save();
@@ -51,7 +56,7 @@ const fetchAllAddress = async (req, res) => {
       });
     }
 
-    const addressList = await Address.find({ userId });
+    const addressList = await Address.find({ userId }).sort({ updatedAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -66,6 +71,40 @@ const fetchAllAddress = async (req, res) => {
   }
 };
 
+const getLastUsedAddress = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { type } = req.query; // 'personal' or 'recipient'
+
+    if (!userId || userId === "undefined") {
+      return res.status(400).json({
+        success: false,
+        message: "User id is required!",
+      });
+    }
+
+    const query = { userId };
+    if (type === "recipient") {
+      query.isLastUsedRecipient = true;
+    } else {
+      query.isLastUsed = true;
+    }
+
+    const address = await Address.findOne(query);
+
+    res.status(200).json({
+      success: true,
+      data: address,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching last used address",
+    });
+  }
+};
+
 const editAddress = async (req, res) => {
   try {
     const { userId, addressId } = req.params;
@@ -76,6 +115,14 @@ const editAddress = async (req, res) => {
         success: false,
         message: "User and address id is required!",
       });
+    }
+
+    // If this edit involves setting a last used flag, reset others
+    if (formData.isLastUsed) {
+        await Address.updateMany({ userId, _id: { $ne: addressId } }, { isLastUsed: false });
+    }
+    if (formData.isLastUsedRecipient) {
+        await Address.updateMany({ userId, _id: { $ne: addressId } }, { isLastUsedRecipient: false });
     }
 
     const address = await Address.findOneAndUpdate(
@@ -142,6 +189,7 @@ const deleteAddress = async (req, res) => {
 module.exports = {
   addAddress,
   fetchAllAddress,
+  getLastUsedAddress,
   editAddress,
   deleteAddress,
 };

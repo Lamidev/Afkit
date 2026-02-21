@@ -7,8 +7,8 @@ function ShoppingAccount() {
     <div className="flex flex-col min-h-screen bg-slate-50 pt-14 sm:pt-16">
       <div className="container mx-auto px-1 sm:px-6 py-1 sm:py-2 max-w-[99%] 2xl:max-w-[1400px]">
         <div className="flex flex-col gap-1 mb-1 sm:mb-2 text-center sm:text-left ml-1 sm:ml-2">
-          <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Account Settings</h1>
-          <p className="text-sm font-bold text-slate-400 tracking-widest uppercase">Everything you bought & where they go</p>
+          <h1 className="text-2xl sm:text-3xl font-bold sm:font-black text-slate-900 uppercase tracking-tight">Account Settings</h1>
+          <p className="text-[10px] sm:text-sm font-bold text-slate-400 tracking-widest uppercase">Everything you bought & where they go</p>
         </div>
         <div className="flex flex-col rounded-xl bg-white shadow-sm border border-slate-200">
           <Tabs defaultValue="orders">

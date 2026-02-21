@@ -69,8 +69,8 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
             Current: {orderDetails?.orderStatus}
           </Badge>
           <div className="flex gap-2">
-            <Badge className={`px-3 py-1 border-none font-bold text-[10px] uppercase tracking-wider ${orderDetails?.addressInfo?.isGift ? 'bg-orange-500/20 text-orange-400' : 'bg-slate-700 text-slate-300'}`}>
-               {orderDetails?.addressInfo?.isGift ? 'Gift' : 'Standard'}
+            <Badge className={`px-3 py-1 border-none font-bold text-[10px] uppercase tracking-wider ${orderDetails?.addressInfo?.isGift ? 'bg-orange-500/20 text-orange-400' : orderDetails?.addressInfo?.isAssisted ? 'bg-blue-500/20 text-blue-400' : 'bg-slate-700 text-slate-300'}`}>
+               {orderDetails?.addressInfo?.isGift ? 'Gift' : orderDetails?.addressInfo?.isAssisted ? 'Assisted' : 'Personal'}
             </Badge>
           </div>
         </div>
@@ -136,6 +136,15 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-[11px] font-bold text-gray-900 leading-tight line-clamp-2">{item.title}</p>
+                          {item.condition && (
+                            <span className={`inline-block text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full mt-0.5 mb-0.5 ${
+                              item.condition === "Brand New"
+                                ? "bg-amber-50 text-amber-700 border border-amber-200"
+                                : "bg-slate-100 text-slate-500 border border-slate-200"
+                            }`}>
+                              {item.condition === "Brand New" ? "✨" : "🇬🇧"} {item.condition}
+                            </span>
+                          )}
                           <p className="text-[10px] font-semibold text-gray-500">{item.quantity} x ₦{item.price.toLocaleString()}</p>
                         </div>
                         <div className="text-right">
@@ -163,7 +172,11 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                       {orderDetails?.addressInfo?.address}, {orderDetails?.addressInfo?.city}
                     </p>
                     <p className="text-xs font-semibold text-blue-600 mt-2">{orderDetails?.addressInfo?.phone}</p>
+                    {orderDetails?.addressInfo?.shippingInfo?.backupPhone && (
+                      <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Backup: {orderDetails?.addressInfo?.shippingInfo?.backupPhone}</p>
+                    )}
                   </div>
+                  
                   {orderDetails?.addressInfo?.notes && (
                     <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">
                       <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Courier Notes</span>
@@ -173,26 +186,56 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                 </div>
               </div>
 
-              {/* Gift Details */}
-              {orderDetails?.addressInfo?.isGift && (
-                <div className="space-y-4">
-                  <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                    <Gift className="w-4 h-4" /> Gift Ownership
-                  </h3>
-                  <div className="bg-orange-50 border border-orange-200 rounded-2xl p-5 space-y-4 shadow-sm">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest block mb-1">Send Warranty To</span>
-                        <p className="text-xs font-semibold text-slate-900 truncate">{orderDetails?.addressInfo?.recipientEmail || "No Email Provided"}</p>
+              {/* Enhanced Someone Else Details */}
+              {(orderDetails?.addressInfo?.isGift || orderDetails?.addressInfo?.isAssisted) && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                   {/* Receipt/Ownership Info */}
+                   <div className="space-y-4">
+                      <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        <Gift className="w-4 h-4" /> Ownership (Receipt Details)
+                      </h3>
+                      <div className="bg-slate-900 rounded-2xl p-5 space-y-4 shadow-sm text-white">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">Legal Owner</span>
+                            <p className="text-xs font-bold text-white uppercase">{orderDetails?.addressInfo?.receiptInfo?.name || orderDetails?.addressInfo?.receiptName || "N/A"}</p>
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">Warranty Email</span>
+                            <p className="text-xs font-bold text-blue-400 truncate">{orderDetails?.addressInfo?.receiptInfo?.email || orderDetails?.addressInfo?.recipientEmail || "N/A"}</p>
+                          </div>
+                          <div className="col-span-full">
+                            <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">Billing Address</span>
+                            <p className="text-xs font-medium text-white/80">{orderDetails?.addressInfo?.receiptInfo?.address || "N/A"}</p>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-[10px] font-bold text-orange-500 uppercase tracking-widest block mb-1">Certificate Name</span>
-                        <p className="text-xs font-bold text-blue-700 bg-white/50 px-2 py-0.5 rounded w-fit capitalize">
-                          {orderDetails?.addressInfo?.receiptName || orderDetails?.addressInfo?.fullName}
-                        </p>
+                   </div>
+
+                   {/* Recipient Logistics Info */}
+                   <div className="space-y-4">
+                      <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                        <Truck className="w-4 h-4" /> Recipient Logistics
+                      </h3>
+                      <div className="bg-blue-50 border-2 border-blue-100 rounded-2xl p-5 space-y-4 shadow-sm">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <span className="text-[9px] font-bold text-blue-900/40 uppercase tracking-widest block mb-1">Courier Contact</span>
+                            <p className="text-xs font-bold text-blue-900 uppercase">{orderDetails?.addressInfo?.shippingInfo?.name || orderDetails?.addressInfo?.fullName}</p>
+                            <p className="text-xs font-bold text-blue-600 mt-1">{orderDetails?.addressInfo?.shippingInfo?.phone || orderDetails?.addressInfo?.phone}</p>
+                            {orderDetails?.addressInfo?.shippingInfo?.backupPhone && (
+                               <Badge variant="outline" className="mt-2 bg-white text-blue-600 border-blue-200 text-[8px] font-black tracking-widest uppercase">
+                                 Backup: {orderDetails?.addressInfo?.shippingInfo?.backupPhone}
+                               </Badge>
+                            )}
+                          </div>
+                          <div>
+                            <span className="text-[9px] font-bold text-blue-900/40 uppercase tracking-widest block mb-1">Exact Location</span>
+                            <p className="text-xs font-bold text-blue-900 leading-relaxed uppercase">{orderDetails?.addressInfo?.shippingInfo?.location || orderDetails?.addressInfo?.address}</p>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                   </div>
                 </div>
               )}
 

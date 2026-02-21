@@ -5,7 +5,8 @@ import UserCartItemsContent from "./cart-items-content";
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
 import { motion } from "framer-motion";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Truck, CreditCard } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { recordLinkShare } from "@/store/common-slice/share-slice/index";
 import { getOrCreateSessionId } from "@/components/utils/session";
@@ -44,18 +45,14 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
 
-    const message = `Hello AFKiT! I'd like to place an order:\n\n${cartItems
+    const message = `🛍️ *NEW ORDER FROM AFKiT*\n--------------------------------\n\n${cartItems
       .map(
-        (item) =>
-          `📦 *${item.title || "Product"}*\n├ ID: ${formatAestheticId(item.productId, "GAD")}\n├ Quantity: ${item.quantity
-          }\n├ Price: ${formatNaira(
-            item.price
-          )}\n└ Product Link: ${import.meta.env.VITE_API_BASE_URL}/og/product/${item.productId
-          }`
+        (item, index) =>
+          `✨ *ITEM #${index + 1}*\n*Product:* ${item.title || "Product"}\n*GAD ID:* ${formatAestheticId(item.productId, "GAD")}\n*Qty:* ${item.quantity}\n*Price:* ${formatNaira(item.price)}\n\n🔍 *View Product:* \n${import.meta.env.VITE_API_BASE_URL}/og/product/${item.productId.toString().replace("#", "")}`
       )
-      .join("\n\n")}\n\n*Total Amount:* ${formatNaira(
+      .join("\n\n--------------------------------\n\n")}\n\n💰 *Total Amount:* ${formatNaira(
         totalCartAmount
-      )}\n\nPlease confirm availability and provide payment details. Thank you!`;
+      )}\n\n✅ *Please confirm availability and send payment instructions. Thank you!*`;
 
     const whatsappNumber = "+2348164014304";
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
@@ -169,24 +166,82 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
 
       {cartItems && cartItems.length > 0 && (
         <motion.div
-          className="p-4 border-t bg-white dark:bg-black sticky bottom-0 z-10"
+          className="p-4 border-t bg-white dark:bg-black sticky bottom-0 z-10 space-y-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="flex justify-between mb-3 text-base">
-            <span className="font-semibold">Total</span>
-            <span className="font-semibold">{formatNaira(totalCartAmount)}</span>
+          <div className="flex justify-between mb-2 text-sm">
+            <span className="font-medium text-slate-400 uppercase tracking-widest text-[10px]">Total Amount</span>
+            <span className="font-bold text-slate-900 text-lg">{formatNaira(totalCartAmount)}</span>
           </div>
-          <Button 
-            onClick={() => {
-              navigate("/shop/checkout");
-              setOpenCartSheet(false);
-            }} 
-            className="w-full h-12 text-lg font-bold rounded-xl shadow-lg shadow-primary/20"
-          >
-            Go to Payment
-          </Button>
+
+          <div className="flex flex-col gap-3">
+            {/* 1. PAY NOW - High Contrast Style */}
+            <button
+              onClick={() => {
+                navigate("/shop/checkout", { state: { paymentType: "full" } });
+                setOpenCartSheet(false);
+              }}
+              className="w-full flex items-center justify-center gap-2.5 py-1.5 group"
+            >
+              <div className="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors">
+                <CreditCard className="w-4 h-4 text-blue-900" />
+              </div>
+              <span className="text-[11px] font-black text-slate-950 uppercase tracking-[0.2em] group-hover:text-blue-900 transition-colors">
+                Pay Now
+              </span>
+            </button>
+
+            <div className="h-px bg-slate-100 mx-8" />
+
+            <div className="flex flex-col gap-3 px-1">
+              {/* 2. PAY ON DELIVERY */}
+              {(() => {
+                const hasMajorGadget = cartItems.some(item => 
+                  item.category && ["smartphones", "laptops", "monitors"].includes(item.category)
+                );
+                
+                if (totalCartAmount >= 15000 && hasMajorGadget) {
+                  return (
+                    <button
+                      onClick={() => {
+                        navigate("/shop/checkout", { state: { paymentType: "commitment" } });
+                        setOpenCartSheet(false);
+                      }}
+                      className="flex items-center justify-center gap-2.5 group"
+                    >
+                      <div className="p-1.5 bg-slate-50 rounded-lg group-hover:bg-orange-50 transition-colors">
+                        <Truck className="w-4 h-4 text-slate-600 group-hover:text-orange-600" />
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-black text-slate-950 uppercase tracking-widest group-hover:text-orange-600 transition-colors">
+                          Pay on Delivery
+                        </span>
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter opacity-70">
+                          ₦10,000 Deposit Required
+                        </span>
+                      </div>
+                    </button>
+                  );
+                }
+                return null;
+              })()}
+
+              {/* 3. PAY ON WHATSAPP */}
+              <button
+                onClick={handleCheckout}
+                className="flex items-center justify-center gap-2.5 group"
+              >
+                <div className="p-1.5 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors">
+                  <FaWhatsapp className="w-4 h-4 text-[#25D366]" />
+                </div>
+                <span className="text-[10px] font-black text-slate-950 uppercase tracking-widest group-hover:text-green-600 transition-colors">
+                  Order via WhatsApp
+                </span>
+              </button>
+            </div>
+          </div>
         </motion.div>
       )}
     </SheetContent>
