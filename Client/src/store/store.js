@@ -14,6 +14,7 @@ import shopSearchSlice from "./shop/search-slice";
 
 import commonFeatureSlice from "./common-slice/index";
 import shareTrackingSlice from './common-slice/share-slice/index';
+import notificationSlice from "./common-slice/notification-slice";
 
 const store = configureStore({
   reducer: {
@@ -32,6 +33,7 @@ const store = configureStore({
 
     commonFeature: commonFeatureSlice,
     shareTracking: shareTrackingSlice,
+    notifications: notificationSlice,
   },
  
 });

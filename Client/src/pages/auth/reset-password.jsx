@@ -44,7 +44,7 @@ const ResetPasswordPage = () => {
         navigate("/auth/login");
       }, 2000);
     } catch (error) {
-      toast.error(error || "Error resetting password", {
+      toast.error(error?.message || error || "Error resetting password", {
         icon: <AlertCircle className="text-red-500" />, // Error icon for API failure
       });
     }

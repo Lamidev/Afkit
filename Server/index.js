@@ -19,6 +19,7 @@ const commonFeaturesRouter = require("./routes/common/features-routes")
 const sitemapRouter = require("./routes/common/sitemap-routes")
 const shareRouter = require("./routes/common/share-routes");
 const shareOGRouter = require("./routes/common/share-og-routes");
+const commonNotificationRouter = require("./routes/common/notification-routes");
 
 const dbURL = process.env.MONGODB_URL;
 
@@ -30,6 +31,9 @@ mongoose
 
     const app = express(); // Initialize the Express app
     const PORT = process.env.PORT || 9050;
+
+    // Trust proxy for rate limiting (essential for Render/Heroku/Nginx)
+    app.set("trust proxy", 1);
 
     // Middleware setup
     app.use(
@@ -72,6 +76,7 @@ mongoose
     app.use("/", sitemapRouter)
     app.use("/api/shares", shareRouter);
     app.use("/api/og", shareOGRouter);
+    app.use("/api/common/notifications", commonNotificationRouter);
 
     // Start the server
     app.listen(PORT, () =>

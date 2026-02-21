@@ -4,6 +4,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 const initialState = {
   cartItems: [],
   isLoading: false,
+  itemsRemoved: false, 
+  openCartSheet: false, 
 };
 
 export const addToCart = createAsyncThunk(
@@ -101,7 +103,11 @@ export const deleteCartItem = createAsyncThunk(
 const shoppingCartSlice = createSlice({
   name: "shoppingCart",
   initialState,
-  reducers: {},
+  reducers: {
+    setOpenCartSheet: (state, action) => {
+      state.openCartSheet = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(addToCart.pending, (state) => {
@@ -122,6 +128,7 @@ const shoppingCartSlice = createSlice({
       .addCase(fetchCartItems.fulfilled, (state, action) => {
         state.isLoading = false;
         state.cartItems = action.payload.data;
+        state.itemsRemoved = action.payload.data.itemsRemoved;
       })
       .addCase(fetchCartItems.rejected, (state, action) => {
         state.isLoading = false;
@@ -158,6 +165,7 @@ const shoppingCartSlice = createSlice({
       .addCase(mergeCarts.fulfilled, (state, action) => {
         state.isLoading = false;
         state.cartItems = action.payload.data;
+        state.itemsRemoved = action.payload.data.itemsRemoved;
       })
       .addCase(mergeCarts.rejected, (state, action) => {
         state.isLoading = false;
@@ -165,5 +173,7 @@ const shoppingCartSlice = createSlice({
       });
   },
 });
+
+export const { setOpenCartSheet } = shoppingCartSlice.actions;
 
 export default shoppingCartSlice.reducer;

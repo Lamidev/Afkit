@@ -5,7 +5,7 @@ import Afkitlogo from "../../assets/afkit-logo.png";
 function AuthLayout() {
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30 w-full flex items-center justify-center px-4 lg:px-12 py-10"
+      className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-orange-50/30 w-full flex items-center justify-center px-1 lg:px-12 py-10"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}

@@ -9,8 +9,17 @@ router.get("/:productId", async (req, res) => {
     const product = await Product.findById(productId);
     if (!product) return res.status(404).send("Product not found");
 
-    const imageUrl = product.images?.[0] || product.image || "https://afkit.ng/default-product.png";
-    const description = product.description || `Buy ${product.title} for ₦${Number(product.price).toLocaleString("en-NG")}`;
+    const getAbsoluteImageUrl = (url) => {
+      if (!url) return "https://afkit.ng/default-product.png";
+      if (url.startsWith("http")) return url;
+      const apiBase = process.env.VITE_API_BASE_URL || "https://afkit.ng";
+      return `${apiBase}${url.startsWith("/") ? "" : "/"}${url}`;
+    };
+
+    const imageUrl = getAbsoluteImageUrl(product.images?.[0] || product.image);
+    const description = product.description 
+      ? product.description.substring(0, 150).replace(/<[^>]*>?/gm, '') + "..."
+      : `Buy ${product.title} for ₦${Number(product.price).toLocaleString("en-NG")} at Afkit. 6-Month Warranty & Free Delivery.`;
 
     const frontendBaseUrl =
       process.env.NODE_ENV === "development"
@@ -31,6 +40,7 @@ router.get("/:productId", async (req, res) => {
           <meta property="og:image" content="${imageUrl}" />
           <meta property="og:url" content="${frontendBaseUrl}/shop/product/${product._id}" />
           <meta property="og:type" content="product" />
+          <meta property="og:site_name" content="Afkit Gadgets" />
 
           <!-- Twitter -->
           <meta name="twitter:card" content="summary_large_image" />
@@ -40,7 +50,6 @@ router.get("/:productId", async (req, res) => {
         </head>
         <body>
           <script>
-            // Redirect users to SPA product page
             window.location.href = "${frontendBaseUrl}/shop/product/${product._id}";
           </script>
         </body>

@@ -28,7 +28,7 @@ const registerUser = async (req, res) => {
     if (checkUser)
       return res
         .status(400)
-        .json({ success: false, message: "User already exists!" });
+        .json({ success: false, message: "This email is already registered. Please log in or use a different email address." });
 
     const hashPassword = await bcrypt.hash(password, 12);
     const verificationToken = Math.floor(100000 + Math.random() * 900000).toString();
@@ -145,7 +145,7 @@ const loginUser = async (req, res) => {
     if (!user) return res.status(400).json({ success: false, message: "User doesn't exist!" });
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) return res.json({ success: false, message: "Incorrect password!" });
+    if (!isPasswordValid) return res.status(401).json({ success: false, message: "Incorrect password!" });
 
     const now = new Date();
     user.lastLogin = now;

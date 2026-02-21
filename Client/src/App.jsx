@@ -30,6 +30,7 @@ import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import ShoppingAccount from "./pages/shopping-view/account";
 import AdminDebateRegistrations from "./pages/admin-view/debate-registrations";
 import DebatePage from "./pages/shopping-view/debate";
+import ScrollToTop from "./components/common/scroll-to-top";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector(
@@ -45,6 +46,7 @@ function App() {
 
   return (
     <div className="flex flex-col overflow-hidden bg-white">
+      <ScrollToTop />
       <Toaster />
       <AuthListener />
       <Routes>

@@ -1,6 +1,8 @@
 const Order = require("../../models/order");
 const Product = require("../../models/products");
 const Cart = require("../../models/cart");
+const Notification = require("../../models/notification");
+const { sendWarrantyActivationEmail, sendDeliveryConfirmationToPayer } = require("../../mailtrap/emails");
 
 const getAllOrdersOfAllUsers = async (req, res) => {
   try {
@@ -97,6 +99,48 @@ const updateOrderStatus = async (req, res) => {
 
     order.orderUpdateDate = new Date();
     await order.save();
+
+    // 4. Trigger Notifications based on status
+    const statusNotifications = {
+      confirmed: {
+        title: "Order Confirmed! ✅",
+        message: `Your order ${order.orderId} has been confirmed. We are starting to prepare your gadgets!`,
+      },
+      processing: {
+        title: "Order Processing ⚙️",
+        message: `We're currently quality-checking and packing your order ${order.orderId}.`,
+      },
+      shipped: {
+        title: "Order Shipped! 🚚",
+        message: `Exciting news! Your order ${order.orderId} is on its way to you.`,
+      },
+      delivered: {
+        title: "Order Delivered! 📦",
+        message: `Great news! Your order ${order.orderId} has been delivered. Your 6-month warranty is now active.`,
+      },
+    };
+
+    if (statusNotifications[order.orderStatus]) {
+      const { title, message } = statusNotifications[order.orderStatus];
+      const notification = new Notification({
+        userId: order.userId,
+        orderId: order._id,
+        title,
+        message,
+      });
+      await notification.save();
+
+      // Special handling for delivery (Emails)
+      if (order.orderStatus === "delivered") {
+        sendWarrantyActivationEmail(order).catch(err => {
+          console.error("Warranty activation email error:", err.message);
+        });
+        
+        sendDeliveryConfirmationToPayer(order).catch(err => {
+          console.error("Payer delivery confirmation email error:", err.message);
+        });
+      }
+    }
 
     res.status(200).json({
       success: true,

@@ -10,6 +10,21 @@ import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { toast } from "sonner";
 
+// --- Local Helpers ---
+const formatAestheticId = (rawId, prefix = "ORD") => {
+  if (!rawId) return "";
+  const short = String(rawId).slice(-8).toUpperCase();
+  return `${prefix}-${short}`;
+};
+
+const formatNaira = (amount) => {
+  return new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+    minimumFractionDigits: 0,
+  }).format(amount);
+};
+
 function PaymentSuccessPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,15 +49,75 @@ function PaymentSuccessPage() {
     }
   }, [productList]);
 
+  useEffect(() => {
+    if (!orderData) {
+      navigate("/shop/home");
+    }
+  }, [orderData, navigate]);
+
   const handleWhatsAppSync = () => {
-    const phoneNumber = "2349114389146"; // Official Afkit Line
-    const orderId = orderData?._id?.slice(-6).toUpperCase() || "RECENT";
-    const amount = orderData?.totalAmount ? `₦${orderData.totalAmount.toLocaleString()}` : "";
-    const items = orderData?.cartItems?.map(item => `${item.quantity}x ${item.title}`).join(", ") || "gadgets";
+    if (!orderData) return;
     
-    const message = `Hello AFKiT! 🚀 I just completed my purchase on the website.\n\n*Order ID:* #${orderId}\n*Items:* ${items}\n*Total:* ${amount}\n\nPlease confirm my order and let me know when it ships! Thanks.`;
+    const phoneNumber = "2348164014304";
+    const orderDetails = orderData;
+    const isGift = orderDetails?.addressInfo?.isGift;
+    const isAssisted = orderDetails?.addressInfo?.isAssisted;
+    const recipientName = orderDetails?.addressInfo?.receiptName || orderDetails?.addressInfo?.fullName;
+    // Buyer is strictly the Account Owner (the payer)
+    const buyerName = user?.fullName || "AFKiT Customer";
+    const aestheticOrderId = orderDetails?.orderId || (orderDetails?._id ? formatAestheticId(orderDetails._id, "ORD") : "PENDING");
     
-    const encodedMessage = encodeURIComponent(message);
+    // Premium Design Tokens
+    const divider = "━━━━━━━━━━━━━━━━━━━━";
+    const bullet = "🔸";
+    
+    // Intent-Specific Branding
+    const intentHeader = isGift ? "🎁 *PREMIUM SURPRISE GIFT*" : (isAssisted ? "🤝 *ASSISTED PURCHASE*" : "📦 *PERSONAL ORDER*");
+    
+    // Payment Status Logic
+    const isPOD = orderDetails?.paymentType === "commitment";
+    const paymentStatusHeader = isPOD ? "🟠 DEPOSIT PAID (₦10,000)" : "🟢 FULLY PAID (100%)";
+
+    const cartItemsText = orderDetails.cartItems
+      .map((item) => `${bullet} *${item.title}*\n   _Condition: ${item.condition || "Standard"}_\n   _Qty: ${item.quantity}_`)
+      .join("\n\n");
+
+    const messageRaw = `
+${intentHeader}
+${divider}
+
+*ORDER ID:* ${aestheticOrderId}
+*STATUS:* ${paymentStatusHeader}
+*BUYER (PAYER):* ${buyerName}
+
+${divider}
+*🛒 PURCHASED ITEMS:*
+${cartItemsText}
+
+${divider}
+*💰 FINANCIAL SUMMARY:*
+*Order Total:* ₦${parseFloat(orderDetails.totalAmount).toLocaleString()}
+*Amount Paid:* ₦${parseFloat(orderDetails.amountPaid).toLocaleString()}
+*Balance Due:* ₦${parseFloat(orderDetails.balanceAmount).toLocaleString()}
+
+${isPOD ? `*DOOR PAYMENT:* ${recipientName} will pay ₦${parseFloat(orderDetails.balanceAmount).toLocaleString()} to the rider.` : "*DOOR PAYMENT:* ₦0 (Fully Paid)"}
+
+${divider}
+*📍 DELIVERY DETAILS:*
+*Recipient:* ${recipientName}
+*City:* ${orderDetails.addressInfo?.city || 'N/A'}
+*Phone:* ${orderDetails.addressInfo?.phone || 'N/A'}
+${isGift ? `\n*NOTE:* This is a SURPRISE for ${recipientName}!` : ""}
+
+${divider}
+⚡ *ADMIN ACTION:*
+Please verify payment, confirm stock, and prepare for dispatch.
+Admin Link: ${window.location.origin}/admin/orders
+
+_Sent via AFKiT Secure Checkout_
+`;
+
+    const encodedMessage = encodeURIComponent(messageRaw.trim());
     window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, "_blank");
   };
 
@@ -60,6 +135,8 @@ function PaymentSuccessPage() {
       }
     });
   };
+
+  const aestheticOrderId = orderData?._id ? formatAestheticId(orderData._id, "ORD") : "";
 
   return (
     <div className="container mx-auto px-4 py-12 flex flex-col items-center gap-12">
@@ -80,9 +157,9 @@ function PaymentSuccessPage() {
           </div>
         </div>
         
-        <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">Payment Successful!</h1>
-        <p className="text-slate-600 text-lg md:text-xl">
-          Your order {orderData?._id ? `#${orderData._id.slice(-6).toUpperCase()}` : ""} has been received. 
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold sm:font-black text-slate-900 tracking-tight">Payment Successful!</h1>
+        <p className="text-slate-600 text-base sm:text-lg md:text-xl">
+          Your order {aestheticOrderId ? `${aestheticOrderId}` : ""} has been received. 
           We've locked your gadgets and our logistics team is preparing them for delivery.
         </p>
 
@@ -90,17 +167,17 @@ function PaymentSuccessPage() {
         <div className="pt-4 flex flex-col items-center gap-4">
           <Button 
             onClick={handleWhatsAppSync}
-            className="group relative h-16 px-10 bg-green-600 hover:bg-green-700 text-white font-black text-lg rounded-2xl shadow-xl shadow-green-200"
+            className="group relative h-14 sm:h-16 px-6 sm:px-10 bg-green-600 hover:bg-green-700 text-white font-bold sm:font-black text-base sm:text-lg rounded-2xl shadow-xl shadow-green-200"
           >
             <motion.div 
               animate={{ scale: [1, 1.1, 1] }}
               transition={{ repeat: Infinity, duration: 1.5 }}
               className="absolute inset-0 bg-green-400 rounded-2xl -z-10 opacity-20"
             />
-            <MessageCircle className="w-6 h-6 mr-3 transition-transform group-hover:rotate-12" />
+            <MessageCircle className="w-5 h-5 sm:w-6 h-6 mr-2 sm:mr-3 transition-transform group-hover:rotate-12" />
             Notify Attendant on WhatsApp
           </Button>
-          <p className="text-sm text-slate-400 font-medium italic">
+          <p className="text-[10px] sm:text-sm text-slate-400 font-medium italic">
             Speed up your delivery by notifying us directly!
           </p>
         </div>
@@ -111,14 +188,14 @@ function PaymentSuccessPage() {
         <Button 
           onClick={() => navigate("/shop/account")} 
           variant="secondary"
-          className="flex-1 h-14 font-bold rounded-xl"
+          className="flex-1 h-12 sm:h-14 font-bold rounded-xl"
         >
           View Order History
         </Button>
         <Button 
           onClick={() => navigate("/shop/home")} 
           variant="outline"
-          className="flex-1 h-14 font-bold rounded-xl border-slate-200"
+          className="flex-1 h-12 sm:h-14 font-bold rounded-xl border-slate-200"
         >
           Return to Store
         </Button>

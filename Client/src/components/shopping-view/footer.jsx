@@ -115,15 +115,23 @@ const Footer = () => {
 
         <Separator className="my-12 bg-slate-100" />
         
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-slate-400">
-          <p>&copy; {new Date().getFullYear()} AFKiT. All rights reserved.</p>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-[11px] sm:text-xs text-slate-500">
+          <p className="text-center md:text-left leading-relaxed opacity-60">
+            &copy; {new Date().getFullYear()} AFKiT. All rights reserved.
+          </p>
           
-          <div className="flex items-center gap-4">
-            <p>Built by <span className="text-slate-600 font-bold">Lamidev</span></p>
-            <div className="flex gap-3">
-              <a href="https://www.linkedin.com/in/akinyemi-oluwatosin-95519130b" className="hover:text-slate-600 transition-all"><FaLinkedin className="w-4 h-4" /></a>
-              <a href="https://www.instagram.com/thisslami" className="hover:text-slate-600 transition-all"><FaInstagram className="w-4 h-4" /></a>
-              <a href="https://wa.me/2347056501913" className="hover:text-slate-600 transition-all"><FaWhatsapp className="w-4 h-4" /></a>
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <p className="flex items-center gap-1.5 font-bold uppercase tracking-[0.2em] text-[10px] text-slate-400">
+               Built by <span className="text-blue-900 font-black cursor-pointer hover:text-orange-500 transition-colors">Lamidev</span>
+            </p>
+            
+            <div className="flex items-center gap-5">
+              <span className="hidden md:block text-slate-200">|</span>
+              <div className="flex gap-5">
+                <a href="https://www.linkedin.com/in/akinyemi-oluwatosin-95519130b" className="text-slate-400 hover:text-blue-700 transition-all transform hover:scale-110"><FaLinkedin className="w-5 h-5" /></a>
+                <a href="https://www.instagram.com/thisslami" className="text-slate-400 hover:text-pink-600 transition-all transform hover:scale-110"><FaInstagram className="w-5 h-5" /></a>
+                <a href="https://wa.me/2347056501913" className="text-slate-400 hover:text-green-600 transition-all transform hover:scale-110"><FaWhatsapp className="w-5 h-5" /></a>
+              </div>
             </div>
           </div>
         </div>

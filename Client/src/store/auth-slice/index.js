@@ -23,7 +23,7 @@ export const registerUser = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Error registering user"
+        error.response?.data || { message: "Error registering user" }
       );
     }
   }
@@ -41,7 +41,7 @@ export const verifyEmail = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Error verifying email"
+        error.response?.data || { message: "Error verifying email" }
       );
     }
   }
@@ -58,7 +58,7 @@ export const resendVerificationCode = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Error resending verification code"
+        error.response?.data || { message: "Error resending verification code" }
       );
     }
   }
@@ -84,7 +84,7 @@ export const loginUser = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Error logging in"
+        error.response?.data || { message: "Error logging in" }
       );
     }
   }
@@ -96,7 +96,7 @@ export const logoutUser = createAsyncThunk(
       await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/logout`);
       return {};
     } catch (error) {
-      return rejectWithValue("Error logging out");
+      return rejectWithValue({ message: "Error logging out" });
     }
   }
 );
@@ -113,7 +113,7 @@ export const forgotPassword = createAsyncThunk(
     } catch (error) {
       console.log("Error response:", error.response?.data);
       return rejectWithValue(
-        error.response?.data?.message || "Error sending reset email"
+        error.response?.data || { message: "Error sending reset email" }
       );
     }
   }
@@ -130,7 +130,7 @@ export const resetPassword = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || "Error resetting password"
+        error.response?.data || { message: "Error resetting password" }
       );
     }
   }
@@ -153,7 +153,7 @@ export const checkAuth = createAsyncThunk(
       return response.data;
     } catch (error) {
       console.error("Check Auth Error:", error);
-      return rejectWithValue(error.message || "Failed to check auth");
+      return rejectWithValue({ message: error.message || "Failed to check auth" });
     }
   }
 );
@@ -180,7 +180,7 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error = action.payload?.message || "Error registering user";
         state.isAuthenticated = false;
       })
       .addCase(verifyEmail.pending, (state) => {
@@ -192,7 +192,7 @@ const authSlice = createSlice({
       })
       .addCase(verifyEmail.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error = action.payload?.message || "Error verifying email";
       })
       .addCase(resendVerificationCode.pending, (state) => {
         state.isLoading = true;
@@ -204,7 +204,7 @@ const authSlice = createSlice({
       })
       .addCase(resendVerificationCode.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error = action.payload?.message || "Error resending verification code";
       })
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
@@ -218,7 +218,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error = action.payload?.message || "Error logging in";
         state.isAuthenticated = false;
       })
       .addCase(logoutUser.pending, (state) => {
@@ -232,7 +232,7 @@ const authSlice = createSlice({
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error = action.payload?.message || "Error logging out";
       })
       .addCase(forgotPassword.pending, (state) => {
         state.isLoading = true;
@@ -244,7 +244,7 @@ const authSlice = createSlice({
       })
       .addCase(forgotPassword.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error = action.payload?.message || "Error sending reset email";
       })
       .addCase(resetPassword.pending, (state) => {
         state.isLoading = true;
@@ -254,7 +254,7 @@ const authSlice = createSlice({
       })
       .addCase(resetPassword.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload;
+        state.error = action.payload?.message || "Error resetting password";
       })
       .addCase(checkAuth.pending, (state) => {
         state.isCheckingAuth = true;

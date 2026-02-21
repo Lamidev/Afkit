@@ -59,8 +59,8 @@ function ShoppingOrders() {
             >
               <div className="flex justify-between items-start">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Receipt #</span>
-                  <span className="font-mono text-xs font-black text-slate-900">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Receipt #</span>
+                  <span className="font-mono text-[11px] font-bold text-slate-900">
                     {formatAestheticId(orderItem?.orderId || orderItem?._id, "ORD")}
                   </span>
                 </div>
@@ -79,14 +79,14 @@ function ShoppingOrders() {
 
               <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</span>
-                  <span className="text-xs font-bold text-slate-700">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</span>
+                  <span className="text-[11px] font-bold text-slate-700">
                     {new Date(orderItem?.orderDate).toLocaleDateString("en-GB")}
                   </span>
                 </div>
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</span>
-                  <span className="text-xs font-black text-slate-900">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Amount</span>
+                  <span className="text-[11px] font-bold text-slate-900">
                     ₦{orderItem?.totalAmount.toLocaleString()}
                   </span>
                 </div>
@@ -103,7 +103,7 @@ function ShoppingOrders() {
               >
                 <Button
                   onClick={() => handleFetchOrderDetails(orderItem?._id)}
-                  className="w-full bg-white hover:bg-primary hover:text-white text-primary border border-primary/10 font-black text-xs h-11 rounded-xl transition-all active:scale-95 shadow-sm"
+                  className="w-full bg-white hover:bg-primary hover:text-white text-primary border border-primary/10 font-bold text-xs h-11 rounded-xl transition-all active:scale-95 shadow-sm"
                 >
                   VIEW DETAILS
                 </Button>

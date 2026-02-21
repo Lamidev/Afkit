@@ -4,8 +4,12 @@ const {
   PASSWORD_RESET_REQUEST_TEMPLATE,
   PASSWORD_RESET_SUCCESS_TEMPLATE,
   VERIFICATION_EMAIL_TEMPLATE,
+  WELCOME_EMAIL_TEMPLATE,
   getNewsletterSubscriberTemplate,
   getAdminNewsletterTemplate,
+  getOrderConfirmationTemplate,
+  getWarrantyActivationTemplate,
+  getPayerDeliveryConfirmationTemplate,
   getDebateThankYouTemplate,
   getDebateAdminTemplate,
 } = require("./email-template.js");
@@ -23,19 +27,12 @@ const handleEmailError = (error, message) => {
   if (error.response?.data?.errors) {
     console.error("🔍 Mailtrap Specific Errors:", error.response.data.errors);
   }
-  
-  // Log the sender to verify identity
-  console.log("📤 Attempted Sender:", sender.email);
-  
-  // Don't throw if we want non-blocking delivery
 };
 
-// ─── AUTH EMAILS ──────────────────────────────────────────────────────────────
 
 // Send Verification Email
 exports.sendVerificationEmail = async (email, verificationToken) => {
   const recipient = [{ email }];
-  console.log("Verification token:", verificationToken);
   try {
     await mailtrapClient.send({
       from: sender,
@@ -49,29 +46,17 @@ exports.sendVerificationEmail = async (email, verificationToken) => {
   }
 };
 
-// Send Welcome Email using Mailtrap Template API
+// Send Welcome Email using Inbuilt Template
 exports.sendWelcomeEmail = async (email, userName) => {
   const recipient = [{ email }];
-  const templateUUID = "7847782c-f195-4de0-b39e-432e13a1d90a";
   try {
-    await axios.post(
-      MAILTRAP_ENDPOINT,
-      {
-        from: sender,
-        to: recipient,
-        template_uuid: templateUUID,
-        template_variables: {
-          company_info_name: "Afkit",
-          name: userName,
-        },
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${MAILTRAP_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    await mailtrapClient.send({
+      from: sender,
+      to: recipient,
+      subject: "🎉 Welcome to the Afkit Family!",
+      html: WELCOME_EMAIL_TEMPLATE.replace("{name}", userName),
+      category: "Welcome",
+    });
   } catch (error) {
     handleEmailError(error, "Error sending welcome email");
   }
@@ -88,7 +73,6 @@ exports.sendPasswordResetEmail = async (email, resetURL) => {
       html: PASSWORD_RESET_REQUEST_TEMPLATE.replace("{resetURL}", resetURL),
       category: "Password Reset",
     });
-    console.log("Password reset request email sent successfully");
   } catch (error) {
     handleEmailError(error, "Error sending password reset email");
   }
@@ -105,7 +89,6 @@ exports.sendResetSuccessEmail = async (email) => {
       html: PASSWORD_RESET_SUCCESS_TEMPLATE,
       category: "Password Reset",
     });
-    console.log("Password reset success email sent successfully");
   } catch (error) {
     handleEmailError(error, "Error sending password reset success email");
   }
@@ -145,6 +128,68 @@ exports.sendAdminNewsletterNotificationEmail = async (subscriberEmail) => {
     });
   } catch (error) {
     handleEmailError(error, "Error sending admin newsletter notification");
+  }
+};
+
+// ─── Order Confirmation ───────────────────────────────────────────────────────
+exports.sendOrderConfirmationEmail = async (order) => {
+  const recipient = [{ email: order.payerEmail }];
+  try {
+    await mailtrapClient.send({
+      from: sender,
+      to: recipient,
+      subject: `🎉 Order Confirmed! [ID: ${order.orderId}]`,
+      html: getOrderConfirmationTemplate(order),
+      category: "Order Confirmation",
+    });
+  } catch (error) {
+    handleEmailError(error, "Error sending order confirmation email");
+  }
+};
+
+// ─── Warranty Activation (On Delivery) ───────────────────────────────────────
+exports.sendWarrantyActivationEmail = async (order) => {
+  const isGift = order.addressInfo?.isGift;
+  const isAssisted = order.addressInfo?.isAssisted;
+  const recipientEmail = order.addressInfo?.recipientEmail;
+
+  // For Gifts and Assisted orders, send to recipient if email is provided
+  // Otherwise default to the payer
+  const targetEmail = (isGift || isAssisted) && recipientEmail 
+    ? recipientEmail 
+    : order.payerEmail;
+
+  if (!targetEmail) return;
+
+  const recipient = [{ email: targetEmail }];
+  try {
+    await mailtrapClient.send({
+      from: sender,
+      to: recipient,
+      subject: `🛡️ Warranty Activated: Your ${isGift ? 'Gift' : 'Gadget'} is Now Insured!`,
+      html: getWarrantyActivationTemplate(order),
+      category: "Warranty Activation",
+    });
+  } catch (error) {
+    handleEmailError(error, "Error sending warranty activation email");
+  }
+};
+
+// ─── Payer Delivery Confirmation (On Delivery) ──────────────────────────────────
+exports.sendDeliveryConfirmationToPayer = async (order) => {
+  if (!order.payerEmail) return;
+
+  const recipient = [{ email: order.payerEmail }];
+  try {
+    await mailtrapClient.send({
+      from: sender,
+      to: recipient,
+      subject: `📦 Delivery Successful: Order ${order.orderId}`,
+      html: getPayerDeliveryConfirmationTemplate(order),
+      category: "Delivery Confirmation",
+    });
+  } catch (error) {
+    handleEmailError(error, "Error sending delivery confirmation to payer");
   }
 };
 

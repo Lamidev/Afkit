@@ -21,15 +21,24 @@ const initialAddressFormData = {
   city: "",
   phone: "",
   notes: "",
+  addressType: "personal",
 };
 
-function Address({ setCurrentSelectedAddress, selectedId }) {
+function Address({ setCurrentSelectedAddress, selectedId, filterType }) {
   const [formData, setFormData] = useState(initialAddressFormData);
   const [currentEditedId, setCurrentEditedId] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const dispatch = useDispatch();
+  
   const { user } = useSelector((state) => state.auth);
   const { addressList } = useSelector((state) => state.shopAddress);
+
+  // Filter addresses based on type if filterType is provided
+  const filteredAddressList = filterType 
+    ? addressList.filter(item => item.addressType === filterType)
+    : addressList;
+
+  const [showForm, setShowForm] = useState(filteredAddressList.length === 0);
+  const [isSaving, setIsSaving] = useState(false);
+  const dispatch = useDispatch();
 
   // Single source of truth for userId throughout this component
   const userId = user?.id;
@@ -41,16 +50,32 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
     }
   }, [dispatch, userId]);
 
+  // Default addressType to filterType when opening a new form
+  useEffect(() => {
+    if (!currentEditedId && showForm && filterType) {
+      setFormData(prev => ({ ...prev, addressType: filterType }));
+    }
+  }, [showForm, filterType, currentEditedId]);
+
+  // Handle empty list in checkout/account
+  useEffect(() => {
+    if (filteredAddressList.length === 0 && !showForm) {
+      setShowForm(true);
+    }
+  }, [filteredAddressList.length, showForm]);
+
   // Auto-select logic
   useEffect(() => {
-    if (addressList && addressList.length > 0) {
-      if (!selectedId || (addressList.length === 1 && selectedId?._id !== addressList[0]._id)) {
+    if (filteredAddressList && filteredAddressList.length > 0) {
+      if (!selectedId || (filteredAddressList.length === 1 && selectedId?._id !== filteredAddressList[0]._id)) {
         if (typeof setCurrentSelectedAddress === "function") {
-          setCurrentSelectedAddress(addressList[0]);
+          setCurrentSelectedAddress(filteredAddressList[0]);
         }
       }
     }
-  }, [addressList, selectedId, setCurrentSelectedAddress]);
+  }, [filteredAddressList, selectedId, setCurrentSelectedAddress]);
+
+
 
   function handleManageAddress(event) {
     event.preventDefault();
@@ -66,14 +91,20 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
       return;
     }
 
+    setIsSaving(true);
     if (currentEditedId !== null) {
       dispatch(
         editAddress({
           userId,
           addressId: currentEditedId,
-          formData,
+          formData: {
+            ...formData,
+            isLastUsed: formData.addressType === "personal",
+            isLastUsedRecipient: formData.addressType === "recipient",
+          },
         })
       ).then((data) => {
+        setIsSaving(false);
         if (data?.payload?.success) {
           dispatch(fetchAllAddresses(userId));
           setCurrentEditedId(null);
@@ -87,8 +118,11 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
         addNewAddress({
           ...formData,
           userId,
+          isLastUsed: formData.addressType === "personal",
+          isLastUsedRecipient: formData.addressType === "recipient",
         })
       ).then((data) => {
+        setIsSaving(false);
         if (data?.payload?.success) {
           dispatch(fetchAllAddresses(userId)).then(() => {
             if (data?.payload?.data && typeof setCurrentSelectedAddress === "function") {
@@ -112,6 +146,7 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
       city: getCuurentAddress?.city || "",
       phone: getCuurentAddress?.phone || "",
       notes: getCuurentAddress?.notes || "",
+      addressType: getCuurentAddress?.addressType || "personal",
     });
     setShowForm(true);
   }
@@ -143,8 +178,8 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {addressList && addressList.length > 0
-          ? addressList.map((singleAddressItem) => (
+        {filteredAddressList && filteredAddressList.length > 0
+          ? filteredAddressList.map((singleAddressItem) => (
               <AddressCard
                 key={singleAddressItem._id}
                 selectedId={selectedId}
@@ -165,8 +200,8 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
               setShowForm(true);
             }}
           >
-            <Plus className="w-8 h-8 text-slate-300 group-hover:text-primary transition-colors mb-2" />
-            <p className="font-bold text-slate-400 group-hover:text-primary transition-colors">Add New Address</p>
+            <Plus className="w-8 h-8 text-blue-300 group-hover:text-blue-600 transition-colors mb-2" />
+            <p className="font-bold text-blue-400 group-hover:text-blue-600 transition-colors">Add New Address</p>
           </div>
         )}
       </div>
@@ -197,9 +232,9 @@ function Address({ setCurrentSelectedAddress, selectedId }) {
               formControls={addressFormControls}
               formData={formData}
               setFormData={setFormData}
-              buttonText={currentEditedId !== null ? "Update Address" : "Use This Address"}
+              buttonText={isSaving ? "Processing..." : (currentEditedId !== null ? "Update Address" : "Use This Address")}
               onSubmit={handleManageAddress}
-              isBtnDisabled={!isFormValid()}
+              isBtnDisabled={!isFormValid() || isSaving}
             />
           </CardContent>
         </Card>

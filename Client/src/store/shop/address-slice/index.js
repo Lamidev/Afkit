@@ -41,6 +41,17 @@ export const editAddress = createAsyncThunk(
   }
 );
 
+export const fetchLastUsedAddress = createAsyncThunk(
+  "/address/fetchLastUsedAddress",
+  async ({ userId, type }) => {
+    const response = await axios.get(
+      `${import.meta.env.VITE_API_BASE_URL}/shop/address/last-used/${userId}?type=${type}`
+    );
+
+    return response.data;
+  }
+);
+
 export const deleteAddress = createAsyncThunk(
   "/address/deleteAddress",
   async ({ userId, addressId }) => {

@@ -19,16 +19,22 @@ router.get("/product/:id", async (req, res) => {
         let product;
 
         if (id.toUpperCase().startsWith("GAD-")) {
-            const shortId = id.split("-")[1];
-            product = await Product.findOne({
-                $expr: {
-                    $eq: [
-                        { $toUpper: { $substr: [{ $toString: "$_id" }, 18, 6] } },
-                        shortId.toUpperCase()
-                    ]
-                },
-                isHidden: { $ne: true }
-            }).lean();
+            // It's an aesthetic ID, try exact match first
+            product = await Product.findById(id.toUpperCase()).lean();
+            
+            if (!product) {
+                // If not found, try the substring logic for legacy/compatibility
+                const shortId = id.split("-")[1];
+                product = await Product.findOne({
+                    $expr: {
+                        $eq: [
+                            { $toUpper: { $substr: [{ $toString: "$_id" }, 18, 6] } },
+                            shortId.toUpperCase()
+                        ]
+                    },
+                    isHidden: { $ne: true }
+                }).lean();
+            }
         } else {
             product = await Product.findById(id).lean();
         }

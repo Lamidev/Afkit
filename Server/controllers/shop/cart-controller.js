@@ -54,9 +54,31 @@ const addToCart = async (req, res) => {
     }
 
     await cart.save();
+
+    // Populate the cart items to match fetchCartItems format
+    await cart.populate({
+      path: "items.productId",
+      select: "images title price salePrice category condition totalStock",
+    });
+
+    const populateCartItems = cart.items.map((item) => ({
+      productId: item.productId ? item.productId._id : null,
+      image: item.productId && item.productId.images ? item.productId.images[0] : null,
+      title: item.productId ? item.productId.title : "Product not found",
+      price: item.productId ? item.productId.price : null,
+      salePrice: item.productId ? item.productId.salePrice : null,
+      category: item.productId ? item.productId.category : null,
+      condition: item.productId ? item.productId.condition : null,
+      quantity: item.quantity,
+      totalStock: item.productId ? item.productId.totalStock : 0,
+    }));
+
     res.status(200).json({
       success: true,
-      data: cart,
+      data: {
+        ...cart._doc,
+        items: populateCartItems,
+      },
     });
   } catch (error) {
     console.log(error);
@@ -81,7 +103,7 @@ const fetchCartItems = async (req, res) => {
     const query = userId ? { userId } : { sessionId };
     const cart = await Cart.findOne(query).populate({
       path: "items.productId",
-      select: "images title price salePrice",
+      select: "images title price salePrice category condition totalStock",
     });
 
     if (!cart) {
@@ -91,13 +113,21 @@ const fetchCartItems = async (req, res) => {
       });
     }
 
-    const validItems = cart.items.filter(
-      (productItem) => productItem.productId
-    );
+    // 2. Filter valid, visible, and in-stock items
+    // If a product is hidden or has 0 stock, we remove it from the cart automatically
+    const validItems = cart.items.filter((item) => {
+      return (
+        item.productId && 
+        item.productId.totalStock > 0
+        // Add more visibility checks here if you have a 'status' field (e.g., item.productId.status !== 'hidden')
+      );
+    });
 
+    let itemsRemoved = false;
     if (validItems.length < cart.items.length) {
       cart.items = validItems;
       await cart.save();
+      itemsRemoved = true;
     }
 
     const populateCartItems = validItems.map((item) => ({
@@ -106,7 +136,10 @@ const fetchCartItems = async (req, res) => {
       title: item.productId.title,
       price: item.productId.price,
       salePrice: item.productId.salePrice,
+      category: item.productId.category,
+      condition: item.productId.condition,
       quantity: item.quantity,
+      totalStock: item.productId.totalStock,
     }));
 
     res.status(200).json({
@@ -114,6 +147,7 @@ const fetchCartItems = async (req, res) => {
       data: {
         ...cart._doc,
         items: populateCartItems,
+        itemsRemoved, // Tell frontend if we cleaned up the cart
       },
     });
   } catch (error) {
@@ -183,7 +217,7 @@ const mergeCarts = async (req, res) => {
     // Return populated cart
     await userCart.populate({
       path: "items.productId",
-      select: "images title price salePrice",
+      select: "images title price salePrice category condition",
     });
 
     const populateCartItems = userCart.items.map((item) => ({
@@ -192,6 +226,8 @@ const mergeCarts = async (req, res) => {
       title: item.productId ? item.productId.title : "Product not found",
       price: item.productId ? item.productId.price : null,
       salePrice: item.productId ? item.productId.salePrice : null,
+      category: item.productId ? item.productId.category : null,
+      condition: item.productId ? item.productId.condition : null,
       quantity: item.quantity,
     }));
 
@@ -259,7 +295,7 @@ const updateCartItemQty = async (req, res) => {
     // Populate product details
     await cart.populate({
       path: "items.productId",
-      select: "images title price salePrice",
+      select: "images title price salePrice category condition totalStock",
     });
 
     const populateCartItems = cart.items.map((item) => ({
@@ -268,7 +304,10 @@ const updateCartItemQty = async (req, res) => {
       title: item.productId ? item.productId.title : "Product not found",
       price: item.productId ? item.productId.price : null,
       salePrice: item.productId ? item.productId.salePrice : null,
+      category: item.productId ? item.productId.category : null,
+      condition: item.productId ? item.productId.condition : null,
       quantity: item.quantity,
+      totalStock: item.productId ? item.productId.totalStock : 0,
     }));
 
     res.status(200).json({
@@ -305,7 +344,7 @@ const deleteCartItem = async (req, res) => {
     const query = userId ? { userId } : { sessionId };
     const cart = await Cart.findOne(query).populate({
       path: "items.productId",
-      select: "images title price salePrice",
+      select: "images title price salePrice category condition totalStock",
     });
 
     if (!cart) {
@@ -326,8 +365,11 @@ const deleteCartItem = async (req, res) => {
       image: item.productId && item.productId.images ? item.productId.images[0] : null,
       title: item.productId ? item.productId.title : "Product not found",
       price: item.productId ? item.productId.price : null,
-      // salePrice: item.productId ? item.productId.salePrice : null,
+      salePrice: item.productId ? item.productId.salePrice : null,
+      category: item.productId ? item.productId.category : null,
+      condition: item.productId ? item.productId.condition : null,
       quantity: item.quantity,
+      totalStock: item.productId ? item.productId.totalStock : 0,
     }));
 
     res.status(200).json({

@@ -23,7 +23,7 @@ import {
 } from "../ui/dropdown-menu";
 import { logoutUser } from "@/store/auth-slice";
 import { useEffect, useState } from "react";
-import { fetchCartItems } from "@/store/shop/cart-slice";
+import { fetchCartItems, setOpenCartSheet } from "@/store/shop/cart-slice";
 import { Label } from "../ui/label";
 import {
   Dialog,
@@ -40,6 +40,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "../ui/tooltip";
+import NotificationCenter from "./notification-center";
 
 function MenuItems({ closeSheet }) {
   const navigate = useNavigate();
@@ -160,7 +161,7 @@ function MenuItems({ closeSheet }) {
     sessionStorage.removeItem("priceRange");
     sessionStorage.removeItem("sort");
 
-    const path =
+    let path =
       menuItem.id === "products"
         ? "/shop/listing"
         : menuItem.id === "smartphones"
@@ -173,6 +174,12 @@ function MenuItems({ closeSheet }) {
         ? "/shop/listing?category=accessories"
         : menuItem.path;
 
+    // Consistency: Apply latest-arrival sort to category links if not present
+    if (path.includes("/shop/listing") && !path.includes("sort=")) {
+      const separator = path.includes("?") ? "&" : "?";
+      path = `${path}${separator}sort=latest-arrival`;
+    }
+
     navigate(path);
     closeSheet();
   }
@@ -181,7 +188,15 @@ function MenuItems({ closeSheet }) {
     sessionStorage.removeItem("filters");
     sessionStorage.removeItem("priceRange");
     sessionStorage.removeItem("sort");
-    navigate(subItem.path);
+    
+    let path = subItem.path;
+    // Consistency: Apply latest-arrival sort to category links if not present
+    if (path.includes("/shop/listing") && !path.includes("sort=")) {
+      const separator = path.includes("?") ? "&" : "?";
+      path = `${path}${separator}sort=latest-arrival`;
+    }
+    
+    navigate(path);
     closeSheet();
   }
 
@@ -250,8 +265,7 @@ function MenuItems({ closeSheet }) {
 
 function HeaderRightContent({ closeSheet, setIsLogoutDialogOpen }) {
   const { user } = useSelector((state) => state.auth);
-  const { cartItems } = useSelector((state) => state.shopCart);
-  const [openCartSheet, setOpenCartSheet] = useState(false);
+  const { cartItems, openCartSheet } = useSelector((state) => state.shopCart);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -261,28 +275,36 @@ function HeaderRightContent({ closeSheet, setIsLogoutDialogOpen }) {
     }
   }, [dispatch, user?.id]);
 
+  const setOpenCartSheetLocal = (val) => {
+    dispatch(setOpenCartSheet(val));
+  };
+
   return (
     <TooltipProvider>
       <div className="flex items-center gap-4">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              onClick={() => {
-                navigate("/shop/search");
-                closeSheet();
-              }}
-              className="flex p-2 hover:bg-slate-100 rounded-full transition-colors"
-            >
-              <Search className="h-5 w-5 stroke-[2.5px] text-primary" />
-            </button>
-          </TooltipTrigger>
-          <TooltipContent>Search</TooltipContent>
-        </Tooltip>
+        {user ? (
+          <NotificationCenter />
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => {
+                  navigate("/shop/search");
+                  closeSheet();
+                }}
+                className="flex p-2 hover:bg-slate-100 rounded-full transition-colors"
+              >
+                <Search className="h-5 w-5 stroke-[2.5px] text-primary" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Search</TooltipContent>
+          </Tooltip>
+        )}
 
         <Tooltip>
           <TooltipTrigger asChild>
             <button
-              onClick={() => setOpenCartSheet(true)}
+              onClick={() => setOpenCartSheetLocal(true)}
               className="p-2 hover:bg-slate-100 rounded-full transition-colors relative"
             >
               <ShoppingCart className="h-5 w-5 stroke-[2.5px] text-primary" />
@@ -336,10 +358,10 @@ function HeaderRightContent({ closeSheet, setIsLogoutDialogOpen }) {
           </TooltipContent>
         </Tooltip>
 
-        <Sheet open={openCartSheet} onOpenChange={setOpenCartSheet}>
+        <Sheet open={openCartSheet} onOpenChange={setOpenCartSheetLocal}>
           <UserCartWrapper
             cartItems={cartItems?.items || []}
-            setOpenCartSheet={setOpenCartSheet}
+            setOpenCartSheet={setOpenCartSheetLocal}
           />
         </Sheet>
       </div>
@@ -382,6 +404,11 @@ function ShoppingHeader() {
                       alt="Afkit Logo"
                       className="h-6 object-contain"
                     />
+                    {user && (
+                      <div className="flex items-center gap-1">
+                        <NotificationCenter />
+                      </div>
+                    )}
                   </div>
                   <MenuItems closeSheet={() => setIsSheetOpen(false)} />
                 </div>

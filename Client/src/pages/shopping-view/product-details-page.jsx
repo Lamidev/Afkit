@@ -83,10 +83,16 @@ export default function ShoppingProductDetails() {
   // Standardized ID loading logic
   useEffect(() => {
     if (id) {
-      dispatch(fetchProductDetails(id));
+      // If we don't have details or the ID changed, fetch fresh data
+      if (!productDetails || productDetails._id !== id) {
+        dispatch(fetchProductDetails(id));
+      }
+      // Always reset view state on ID change for a clean swap
+      setSelectedImageIndex(0);
+      setQuantity(1);
       window.scrollTo(0, 0);
     }
-  }, [id, dispatch]);
+  }, [id, dispatch, productDetails?._id]);
 
   useEffect(() => {
     if (productDetails?.description) {
@@ -227,6 +233,8 @@ export default function ShoppingProductDetails() {
   };
 
   const handleRelatedProductClick = (product) => {
+    // Instant switch: Populate details immediately with data we already have
+    dispatch(setProductDetails(product));
     navigate(`/shop/product/${product?._id}`);
   };
 
@@ -566,66 +574,34 @@ export default function ShoppingProductDetails() {
             </div>
           )}
 
-          {/* Desktop Thumbnails (Shows 4 with navigation) */}
+          {/* Desktop Thumbnails - Simple Clean Row Under Image */}
           {productImages.length > 1 && (
-            <div className="hidden lg:block relative">
-              <div className="flex items-center gap-3">
-                {thumbnailStartIndex > 0 && (
+            <div className="hidden lg:block">
+              <div className="flex flex-wrap gap-4 justify-center py-2">
+                {productImages.map((img, index) => (
                   <button
-                    onClick={() => navigateThumbnails("prev")}
-                    className="flex-shrink-0 bg-white border border-gray-300 rounded-lg p-2 hover:bg-gray-50 
-                               transition-colors shadow-sm hover:shadow-md"
+                    key={index}
+                    onClick={() => handleThumbnailClick(index)}
+                    className={`flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden border-2 transition-all duration-300 ease-in-out ${selectedImageIndex === index
+                      ? "border-orange-500 shadow-lg scale-105"
+                      : "border-slate-100 hover:border-slate-300 opacity-70 hover:opacity-100"
+                      }`}
                   >
-                    <ChevronLeft className="h-5 w-5 text-gray-600" />
+                    <img
+                      src={getAbsoluteImageUrl(img)}
+                      alt={`${productDetails.title} thumbnail ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
-                )}
-
-                {/* Thumbnails Container - Larger thumbnails */}
-                <div
-                  ref={thumbnailContainerRef}
-                  className="flex gap-4 overflow-hidden flex-1 justify-center"
-                >
-                  {visibleThumbnails.map((img, index) => {
-                    const actualIndex = thumbnailStartIndex + index;
-                    return (
-                      <button
-                        key={actualIndex}
-                        onClick={() => handleThumbnailClick(actualIndex)}
-                        className={`flex-shrink-0 w-36 h-36 rounded-xl overflow-hidden border-4 transition-all duration-300 ease-in-out ${selectedImageIndex === actualIndex
-                          ? "border-orange-500 shadow-xl scale-105"
-                          : "border-gray-100 hover:border-gray-300 hover:shadow-md"
-                          }`}
-                      >
-                        <img
-                          src={getAbsoluteImageUrl(img)}
-                          alt={`${productDetails.title} thumbnail ${actualIndex + 1
-                            }`}
-                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-                        />
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {thumbnailStartIndex + THUMBNAILS_TO_SHOW <
-                  productImages.length && (
-                    <button
-                      onClick={() => navigateThumbnails("next")}
-                      className="flex-shrink-0 bg-white border border-gray-300 rounded-lg p-2 hover:bg-gray-50 
-                               transition-colors shadow-sm hover:shadow-md"
-                    >
-                      <ChevronRight className="h-5 w-5 text-gray-600" />
-                    </button>
-                  )}
-              </div>
-
-              {/* Image Counter */}
-              <div className="text-center text-sm font-black text-slate-400 mt-4 uppercase tracking-[0.2em]">
-                {selectedImageIndex + 1} / {productImages.length}
+                ))}
               </div>
             </div>
           )}
-        </div>
+            {/* Image Counter */}
+            <div className="text-center text-sm font-black text-slate-400 mt-4 uppercase tracking-[0.2em]">
+              {selectedImageIndex + 1} / {productImages.length}
+            </div>
+          </div>
 
         {/* Product Details (Right Column on Large Screens) */}
         {/* ADJUSTED: Removed mobile margin-top (mt-4) to pull it right up to the image/thumbnail section */}
@@ -634,11 +610,22 @@ export default function ShoppingProductDetails() {
             <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 leading-snug">
               {productDetails.title}
             </h1>
-            <div className="mt-2 flex items-center gap-2">
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gadget ID:</span>
               <span className="text-xs font-mono font-black text-slate-900 bg-slate-100 px-3 py-1 rounded-full">
                 {formatAestheticId(productDetails?._id, "GAD")}
               </span>
+              {productDetails?.condition && (
+                <span
+                  className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border ${
+                    productDetails.condition === "Brand New"
+                      ? "bg-amber-50 text-amber-700 border-amber-300"
+                      : "bg-slate-100 text-slate-600 border-slate-300"
+                  }`}
+                >
+                  {productDetails.condition === "Brand New" ? "✨" : "🇬🇧"} {productDetails.condition}
+                </span>
+              )}
             </div>
           </div>
 

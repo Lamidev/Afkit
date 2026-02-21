@@ -119,8 +119,11 @@ function AdminOrdersView() {
                   <div className="flex justify-between items-center pt-1">
                     <div className="flex flex-col">
                       <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Payment</p>
-                      <Badge variant="outline" className={`w-fit text-[10px] border ${orderItem?.paymentStatus === 'paid' ? 'border-green-500 text-green-600' : 'border-amber-500 text-amber-600'}`}>
-                        {orderItem?.paymentStatus}
+                      <Badge variant="outline" className={`w-fit text-[10px] border ${
+                        orderItem?.paymentStatus === 'paid' ? 'border-green-500 text-green-600' : 
+                        orderItem?.paymentStatus === 'pending' ? 'border-red-200 bg-red-50 text-red-500' : 'border-amber-500 text-amber-600'
+                      }`}>
+                        {orderItem?.paymentStatus === 'pending' ? 'Abandoned' : orderItem?.paymentStatus}
                       </Badge>
                     </div>
                     <div className="flex gap-2">
@@ -189,8 +192,11 @@ function AdminOrdersView() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className={`text-[9px] font-semibold border ${orderItem?.paymentStatus === 'paid' ? 'border-green-500 text-green-600' : 'border-amber-500 text-amber-600'}`}>
-                          {orderItem?.paymentStatus}
+                        <Badge variant="outline" className={`text-[9px] font-semibold border ${
+                          orderItem?.paymentStatus === 'paid' ? 'border-green-500 text-green-600' : 
+                          orderItem?.paymentStatus === 'pending' ? 'border-red-200 bg-red-50 text-red-500' : 'border-amber-500 text-amber-600'
+                        }`}>
+                          {orderItem?.paymentStatus === 'pending' ? 'Abandoned' : orderItem?.paymentStatus}
                         </Badge>
                       </TableCell>
                       <TableCell className="font-bold text-red-600 text-xs">

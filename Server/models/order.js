@@ -19,6 +19,7 @@ const OrderSchema = new mongoose.Schema(
         image: String,
         price: String,
         quantity: Number,
+        condition: String,
       },
     ],
     addressInfo: {
@@ -29,12 +30,23 @@ const OrderSchema = new mongoose.Schema(
       city: String,
       phone: String,
       notes: String,
-      isGift: {
-        type: Boolean,
-        default: false,
-      },
+      isGift: Boolean,
+      isAssisted: Boolean,
       receiptName: String,
       recipientEmail: String,
+      // Enhanced tracking for "Someone Else"
+      receiptInfo: {
+        name: String,
+        address: String,
+        phone: String,
+        email: String,
+      },
+      shippingInfo: {
+        name: String,
+        location: String,
+        phone: String,
+        backupPhone: String,
+      },
     },
     orderStatus: {
       type: String,
