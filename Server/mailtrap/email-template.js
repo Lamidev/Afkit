@@ -449,7 +449,7 @@ const getOrderConfirmationTemplate = (order) => {
         </div>
         ` : ''}
         <h1 style="margin:0 0 12px;font-size:28px;font-weight:900;color:${BRAND_DARK}; line-height: 1.2;">THANK YOU FOR YOUR ORDER</h1>
-        <p style="margin:0;font-size:16px;color:#64748b;">Order Ref: <strong style="color:${BRAND_ORANGE};">${order.orderId}</strong></p>
+        <p style="margin:0;font-size:16px;color:#64748b;">Order Ref: <strong style="color:${BRAND_ORANGE};">ORD-${(order.orderId || order._id).toString().slice(-8).toUpperCase()}</strong></p>
       </td>
     </tr>
     <tr>
@@ -685,7 +685,7 @@ const getPayerDeliveryConfirmationTemplate = (order) => {
         <div style="background:#f8fafc;border-radius:20px;padding:30px;border:1px solid #e2e8f0;margin-bottom:32px;">
           <h3 style="margin:0 0 15px;font-size:12px;color:${BRAND_DARK};text-transform:uppercase;letter-spacing:1px;">Purchase Details</h3>
           <p style="margin:0;font-size:14px;color:#475569;line-height:1.8;">
-            <strong>Order ID:</strong> ${order.orderId}<br/>
+            <strong>Order ID:</strong> ORD-${(order.orderId || order._id).toString().slice(-8).toUpperCase()}<br/>
             <strong>Delivered to:</strong> ${recipientName}<br/>
             <strong>Location:</strong> ${order.addressInfo?.city}<br/>
             <strong>Date:</strong> ${deliveryDate}
