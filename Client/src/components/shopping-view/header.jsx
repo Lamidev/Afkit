@@ -251,7 +251,7 @@ function MenuItems({ closeSheet }) {
             ) : (
               <button
                 onClick={() => handleNavigate(menuItem)}
-                className="text-base font-bold lg:font-medium cursor-pointer flex items-center gap-2 py-3 lg:py-2 hover:text-primary transition-colors relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full border-b border-slate-50 lg:border-none w-full lg:w-auto text-left text-slate-700 lg:text-inherit"
+                className="text-base font-bold lg:font-medium cursor-pointer flex items-center gap-2 py-3 lg:py-2 hover:text-primary transition-colors relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full border-b border-slate-50 lg:border-none w-full lg:w-auto text-left text-slate-700 lg:text-inherit focus-visible:outline-none"
               >
                 {menuItem.label}
               </button>
@@ -404,11 +404,6 @@ function ShoppingHeader() {
                       alt="Afkit Logo"
                       className="h-6 object-contain"
                     />
-                    {user && (
-                      <div className="flex items-center gap-1">
-                        <NotificationCenter />
-                      </div>
-                    )}
                   </div>
                   <MenuItems closeSheet={() => setIsSheetOpen(false)} />
                 </div>

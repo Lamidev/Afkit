@@ -25,21 +25,23 @@ const initialFormData = {
 
 function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
   const [formData, setFormData] = useState(initialFormData);
+  const [isUpdating, setIsUpdating] = useState(false);
   const dispatch = useDispatch();
 
   function handleUpdateStatus(event) {
     event.preventDefault();
     const { status } = formData;
 
+    setIsUpdating(true);
     dispatch(
       updateOrderStatus({ 
         id: orderDetails?._id, 
         orderStatus: status,
-        // If delivered, we assume payment is finalized if it was POD
         paymentStatus: status === 'delivered' ? 'paid' : orderDetails?.paymentStatus,
         amountPaid: status === 'delivered' ? orderDetails?.totalAmount : orderDetails?.amountPaid
       })
     ).then((data) => {
+      setIsUpdating(false);
       if (data?.payload?.success) {
         dispatch(getOrderDetailsForAdmin(orderDetails?._id));
         dispatch(getAllOrdersForAdmin());
@@ -60,6 +62,13 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
           </div>
           <p className="text-[10px] text-white/40 font-bold uppercase tracking-[0.2em]">ID: {formatAestheticId(orderDetails?.orderId || orderDetails?._id, "ORD")}</p>
         </div>
+        
+        <button 
+          onClick={() => setOpenDialog(false)}
+          className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 text-white transition-all focus-visible:outline-none"
+        >
+          <X className="w-5 h-5 shadow-sm" />
+        </button>
         
         <div className="mt-4 flex flex-wrap gap-2">
           <Badge className={`px-4 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-widest border-none ${
@@ -299,19 +308,21 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                       options: [
                         { id: "pending", label: "Pending" },
                         { id: "confirmed", label: "Confirmed" },
-                        { id: "processing", label: "Processing" },
                         { id: "shipped", label: "Shipped" },
                         { id: "delivered", label: "Delivered" },
-                        { id: "rejected", label: "Rejected" },
                         { id: "cancelled", label: "Cancelled" },
                       ],
                     },
                   ]}
                   formData={formData}
                   setFormData={setFormData}
-                  buttonText={"Execute Transition"}
-                  isBtnDisabled={!formData.status}
-                  buttonClassName="w-full bg-slate-900 hover:bg-slate-800 h-11 text-xs uppercase font-bold tracking-widest rounded-xl"
+                  buttonText={isUpdating ? "Processing..." : formData.status === orderDetails?.orderStatus ? "No Change" : "Execute Transition"}
+                  isBtnDisabled={isUpdating || !formData.status || formData.status === orderDetails?.orderStatus}
+                  buttonClassName={`w-full h-11 text-xs uppercase font-bold tracking-widest rounded-xl transition-all ${
+                    isUpdating || !formData.status || formData.status === orderDetails?.orderStatus
+                      ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                      : "bg-slate-900 hover:bg-slate-800 text-white shadow-lg"
+                  }`}
                   onSubmit={handleUpdateStatus}
                 />
               </div>
@@ -320,11 +331,11 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
         </div>
       </Tabs>
 
-      <DialogFooter className="p-4 bg-gray-50 border-t border-gray-100 sm:justify-end shrink-0">
+      <DialogFooter className="p-4 sm:p-6 bg-gray-50 border-t border-gray-100 sm:justify-end shrink-0 pb-10 sm:pb-6">
         <Button 
           variant="outline" 
           onClick={() => setOpenDialog(false)}
-          className="w-full sm:w-auto font-bold text-[10px] uppercase tracking-widest rounded-xl h-10 px-6 border-gray-200 hover:bg-white hover:text-black transition-all"
+          className="w-full sm:w-auto font-bold text-[10px] uppercase tracking-widest rounded-xl h-10 px-6 border-gray-200 hover:bg-white hover:text-black transition-all shadow-sm"
         >
           Dismiss Details
         </Button>

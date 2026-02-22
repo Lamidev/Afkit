@@ -283,7 +283,7 @@ function ShoppingCheckout() {
                 <p className="text-xs font-semibold text-slate-500 mt-0.5 uppercase leading-relaxed">
                   {currentSelectedAddress.address}, {currentSelectedAddress.city}
                 </p>
-                <p className="text-xs font-black text-slate-700 mt-2 flex items-center gap-1.5">
+                <p className="text-xs font-black text-slate-700 mt-2 flex items-center gap-1.5 tracking-tighter overflow-hidden text-ellipsis whitespace-nowrap">
                   <span>📞</span> {currentSelectedAddress.phone}
                 </p>
                 {currentSelectedAddress.email && (
