@@ -185,19 +185,12 @@ function NotificationCenter() {
                           <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">
                             {new Date(notification.createdAt).toLocaleDateString()}
                           </span>
-                          {!notification.isRead ? (
+                          {!notification.isRead && (
                             <button
                               onClick={() => handleMarkAsRead(notification._id)}
                               className="text-[9px] font-black text-orange-600 uppercase tracking-widest hover:underline flex items-center gap-1"
                             >
                               <Check className="h-3 w-3" /> Mark Read
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleRemove(notification._id)}
-                              className="text-[9px] font-black text-slate-400 uppercase tracking-widest hover:text-red-500 flex items-center gap-1"
-                            >
-                              <X className="h-3 w-3" /> Clear
                             </button>
                           )}
                         </div>

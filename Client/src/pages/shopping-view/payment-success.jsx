@@ -79,7 +79,11 @@ function PaymentSuccessPage() {
     const paymentStatusHeader = isPOD ? "🟠 DEPOSIT PAID (₦10,000)" : "🟢 FULLY PAID (100%)";
 
     const cartItemsText = orderDetails.cartItems
-      .map((item) => `${bullet} *${item.title}*\n   _Condition: ${item.condition || "Standard"}_\n   _Qty: ${item.quantity}_`)
+      .map((item) => {
+        // WhatsApp link scraper works best with full URLs to show metadata/images
+        const shopUrl = `${window.location.origin}/shop/listing`;
+        return `${bullet} *${item.title}*\n   _Condition: ${item.condition || "Standard"}_\n   _Qty: ${item.quantity}_\n   🔗 See Item: ${shopUrl}`;
+      })
       .join("\n\n");
 
     const messageRaw = `

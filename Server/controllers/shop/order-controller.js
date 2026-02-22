@@ -70,7 +70,7 @@ const createOrder = async (req, res) => {
     }
 
     // 4. Create Order in DB (Pending)
-    const orderId = `AFK-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const orderId = `ORD-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
     const newlyCreatedOrder = new Order({
       userId,
