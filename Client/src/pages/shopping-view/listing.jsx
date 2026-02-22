@@ -28,6 +28,7 @@ import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { getOrCreateSessionId } from "@/components/utils/session";
+import QuickFilter from "@/components/shopping-view/quick-filter";
 
 function ShoppingListing() {
   const dispatch = useDispatch();
@@ -441,31 +442,14 @@ function ShoppingListing() {
               )}
           </div>
 
-          {/* Quick Filter Bar for Mobile - Minimalist Tags */}
+          {/* Quick Filter Bar for Mobile - Premium Horizontal Scroll */}
           {searchParams.has("category") && (
-            <div className="flex flex-wrap gap-x-4 gap-y-2 px-1 py-1">
-              {/* Reset Subcategory Chip */}
-              <button
-                onClick={() => {
-                  const newParams = new URLSearchParams(searchParams);
-                  ["brand", "laptopType", "monitorType", "accessoryCategory", "minPrice", "maxPrice"].forEach(p => newParams.delete(p));
-                  setSearchParams(newParams);
-                }}
-                className={`text-[10px] font-bold uppercase tracking-widest transition-all ${
-                  !["brand", "laptopType", "monitorType", "accessoryCategory", "minPrice", "maxPrice"].some(p => searchParams.has(p))
-                    ? "text-blue-900 underline underline-offset-4 decoration-2"
-                    : "text-slate-400 hover:text-slate-600"
-                }`}
-              >
-                All
-              </button>
-
-              {/* Dynamic Subcategory Tags */}
+            <div className="px-1">
               {(() => {
                 const category = searchParams.get("category");
                 let subOptions = [];
                 let paramKey = "";
-                
+
                 if (category === "laptops") {
                   subOptions = filterOptions.laptops.laptopType;
                   paramKey = "laptopType";
@@ -480,48 +464,13 @@ function ShoppingListing() {
                   paramKey = "accessoryCategory";
                 }
 
-                return subOptions.map((opt) => (
-                  <button
-                    key={opt.id}
-                    onClick={() => {
-                      const newParams = new URLSearchParams(searchParams);
-                      newParams.set(paramKey, opt.id);
-                      setSearchParams(newParams);
-                    }}
-                    className={`text-[10px] font-bold uppercase tracking-widest transition-all ${
-                      searchParams.get(paramKey) === opt.id
-                        ? "text-orange-500 underline underline-offset-4 decoration-2"
-                        : "text-slate-400 hover:text-slate-600"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ));
+                return (
+                  <QuickFilter
+                    subOptions={subOptions}
+                    paramKey={paramKey}
+                  />
+                );
               })()}
-
-              {/* Price Range Tags */}
-              {filterOptions.priceRangeOptions?.map((range) => (
-                <button
-                  key={range.id}
-                  onClick={() => {
-                    const newParams = new URLSearchParams(searchParams);
-                    if (range.min !== undefined) newParams.set("minPrice", range.min.toString());
-                    else newParams.delete("minPrice");
-                    if (range.max !== undefined) newParams.set("maxPrice", range.max.toString());
-                    else newParams.delete("maxPrice");
-                    setSearchParams(newParams);
-                  }}
-                  className={`text-[10px] font-bold uppercase tracking-widest transition-all ${
-                    (range.min === undefined || searchParams.get("minPrice") === range.min.toString()) &&
-                    (range.max === undefined || searchParams.get("maxPrice") === range.max.toString()) &&
-                    (searchParams.has("minPrice") || searchParams.has("maxPrice"))
-                      ? "text-blue-600 underline underline-offset-4 decoration-2"
-                      : "text-slate-400 hover:text-slate-600"
-                  }`}
-                >
-                  {range.label}
-                </button>
-              ))}
             </div>
           )}
           
