@@ -133,12 +133,19 @@ exports.sendAdminNewsletterNotificationEmail = async (subscriberEmail) => {
 
 // ─── Order Confirmation (to Buyer) ───────────────────────────────────────────
 exports.sendOrderConfirmationEmail = async (order) => {
+  if (!order.payerEmail) {
+    console.warn("⚠️ Skipping order confirmation email: No payerEmail provided for order", order._id);
+    return;
+  }
+
   const recipient = [{ email: order.payerEmail }];
+  const orderId = order.orderId || order._id.toString();
+  
   try {
     await mailtrapClient.send({
       from: sender,
       to: recipient,
-      subject: `🎉 Order Confirmed! [ID: ${order.orderId}]`,
+      subject: `🎉 Order Confirmed! [ID: #${orderId.startsWith('ORD-') ? orderId : 'ORD-' + orderId.slice(-8).toUpperCase()}]`,
       html: getOrderConfirmationTemplate(order),
       category: "Order Confirmation",
     });

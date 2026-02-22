@@ -1,7 +1,7 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { capturePayment } from "@/store/shop/order-slice";
 import { fetchCartItems } from "@/store/shop/cart-slice";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getOrCreateSessionId } from "@/components/utils/session";
@@ -14,8 +14,11 @@ function PaystackReturnPage() {
   const params = new URLSearchParams(location.search);
   const paymentId = params.get("reference");
 
+  const hasCaptured = useRef(false);
+
   useEffect(() => {
-    if (paymentId) {
+    if (paymentId && !hasCaptured.current) {
+      hasCaptured.current = true;
       const orderId = JSON.parse(sessionStorage.getItem("currentOrderId"));
 
       dispatch(capturePayment({ paymentId, orderId })).then((data) => {

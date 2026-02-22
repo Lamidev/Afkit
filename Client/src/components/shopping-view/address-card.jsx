@@ -40,7 +40,7 @@ function AddressCard({
           <p>Email: {addressInfo?.email}</p>
           <p>Address: {addressInfo?.address}</p>
           <p>Location: {addressInfo?.city}</p>
-          <p className="font-mono">Phone: {addressInfo?.phone}</p>
+          <p className="font-mono whitespace-nowrap">Phone: {addressInfo?.phone}</p>
           {cleanNotes && <p className="italic text-xs mt-2 border-t pt-1 text-slate-400">Notes: {cleanNotes}</p>}
         </div>
       </CardContent>
