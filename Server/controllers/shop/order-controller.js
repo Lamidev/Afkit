@@ -2,7 +2,7 @@ const Order = require("../../models/order");
 const Cart = require("../../models/cart");
 const Product = require("../../models/products");
 const paystackHelper = require("../../helpers/paystack")(process.env.PAYSTACK_SECRET_KEY);
-const { sendOrderConfirmationEmail } = require("../../mailtrap/emails");
+const { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } = require("../../mailtrap/emails");
 
 const createOrder = async (req, res) => {
   try {
@@ -118,6 +118,17 @@ const capturePayment = async (req, res) => {
       });
     }
 
+    // ── Idempotency Guard ───────────────────────────────────────────────────
+    // If this order was already confirmed (e.g. page refresh, React double-invoke),
+    // return success without re-processing to prevent duplicate emails & stock deduction.
+    if (order.paymentStatus === "paid" || order.paymentStatus === "partially_paid") {
+      return res.status(200).json({
+        success: true,
+        message: "Order already confirmed",
+        data: order,
+      });
+    }
+
     // Verify with Paystack
     const verificationData = await paystackHelper.verifyPayment(paymentId);
 
@@ -156,9 +167,15 @@ const capturePayment = async (req, res) => {
 
       await order.save();
 
-      // Send Order Confirmation Email (non-blocking)
+      // ── Send Emails (non-blocking, single send guard already handled above) ──
+      // 1. Buyer confirmation email
       sendOrderConfirmationEmail(order).catch(err => {
         console.error("Order email error:", err.message);
+      });
+
+      // 2. Admin notification email
+      sendAdminOrderNotificationEmail(order).catch(err => {
+        console.error("Admin order notification email error:", err.message);
       });
 
       res.status(200).json({

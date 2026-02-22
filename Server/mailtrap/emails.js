@@ -131,7 +131,7 @@ exports.sendAdminNewsletterNotificationEmail = async (subscriberEmail) => {
   }
 };
 
-// ─── Order Confirmation ───────────────────────────────────────────────────────
+// ─── Order Confirmation (to Buyer) ───────────────────────────────────────────
 exports.sendOrderConfirmationEmail = async (order) => {
   const recipient = [{ email: order.payerEmail }];
   try {
@@ -147,31 +147,81 @@ exports.sendOrderConfirmationEmail = async (order) => {
   }
 };
 
-// ─── Warranty Activation (On Delivery) ───────────────────────────────────────
-exports.sendWarrantyActivationEmail = async (order) => {
+// ─── Admin New Order Notification ─────────────────────────────────────────────
+exports.sendAdminOrderNotificationEmail = async (order) => {
   const isGift = order.addressInfo?.isGift;
-  const isAssisted = order.addressInfo?.isAssisted;
-  const recipientEmail = order.addressInfo?.recipientEmail;
+  const items = order.cartItems?.map(i => `${i.title} x${i.quantity}`).join(", ") || "Unknown items";
+  const paymentTypeLabel = order.paymentType === "commitment" ? `Deposit (₦10,000 paid, ₦${(order.totalAmount - 10000).toLocaleString()} balance)` : `Full Payment (₦${order.totalAmount?.toLocaleString()})`;
 
-  // For Gifts and Assisted orders, send to recipient if email is provided
-  // Otherwise default to the payer
-  const targetEmail = (isGift || isAssisted) && recipientEmail 
-    ? recipientEmail 
-    : order.payerEmail;
+  const html = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 32px; border-radius: 12px;">
+      <div style="background: #0f172a; color: white; padding: 20px 24px; border-radius: 8px; margin-bottom: 24px;">
+        <h1 style="margin:0; font-size:18px;">💳 New Order Received — Afkit</h1>
+        <p style="margin:4px 0 0; opacity:0.6; font-size:12px;">Order ID: ${order.orderId}</p>
+      </div>
+      <table style="width:100%; border-collapse: collapse; font-size:13px;">
+        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Buyer Email</td><td style="padding:8px 0;">${order.payerEmail}</td></tr>
+        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Ship To</td><td style="padding:8px 0;">${order.addressInfo?.fullName} — ${order.addressInfo?.address}, ${order.addressInfo?.city}</td></tr>
+        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Phone</td><td style="padding:8px 0;">${order.addressInfo?.phone}</td></tr>
+        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Order Type</td><td style="padding:8px 0;">${isGift ? '🎁 GIFT / SOMEONE ELSE' : '📦 Personal Order'}</td></tr>
+        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Items</td><td style="padding:8px 0;">${items}</td></tr>
+        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Payment</td><td style="padding:8px 0; color:#f97316; font-weight:bold;">${paymentTypeLabel}</td></tr>
+      </table>
+      <div style="margin-top:24px; padding:16px; background:#fff7ed; border:2px solid #f97316; border-radius:8px; font-size:12px; color:#9a3412;">
+        <strong>⚡ Action Required:</strong> Log in to the admin panel to confirm and begin processing this order.
+      </div>
+    </div>
+  `;
 
-  if (!targetEmail) return;
-
-  const recipient = [{ email: targetEmail }];
   try {
     await mailtrapClient.send({
       from: sender,
-      to: recipient,
-      subject: `🛡️ Warranty Activated: Your ${isGift ? 'Gift' : 'Gadget'} is Now Insured!`,
-      html: getWarrantyActivationTemplate(order),
-      category: "Warranty Activation",
+      to: [{ email: "info@afkit.ng" }],
+      subject: `⚡ New Order: ${order.orderId} — ₦${order.totalAmount?.toLocaleString()}`,
+      html,
+      category: "Admin Order Alert",
     });
   } catch (error) {
-    handleEmailError(error, "Error sending warranty activation email");
+    handleEmailError(error, "Error sending admin order notification email");
+  }
+};
+
+// ─── Warranty Activation (On Delivery) ───────────────────────────────────────
+// For gift orders: sends warranty email to RECIPIENT + a separate delivery
+// notification to the BUYER so both parties are informed.
+exports.sendWarrantyActivationEmail = async (order) => {
+  const isGift = order.addressInfo?.isGift;
+  const recipientEmail = order.addressInfo?.recipientEmail;
+
+  const warrantyHtml = getWarrantyActivationTemplate(order);
+
+  if (isGift && recipientEmail) {
+    // Send warranty/delivery info to the recipient
+    try {
+      await mailtrapClient.send({
+        from: sender,
+        to: [{ email: recipientEmail }],
+        subject: `🎁 Your Gift Has Arrived! Warranty Now Active.`,
+        html: warrantyHtml,
+        category: "Warranty Activation",
+      });
+    } catch (error) {
+      handleEmailError(error, "Error sending gift warranty email to recipient");
+    }
+  } else {
+    // Personal order — send warranty to the buyer themselves
+    if (!order.payerEmail) return;
+    try {
+      await mailtrapClient.send({
+        from: sender,
+        to: [{ email: order.payerEmail }],
+        subject: `🛡️ Warranty Activated: Your Gadget is Now Insured!`,
+        html: warrantyHtml,
+        category: "Warranty Activation",
+      });
+    } catch (error) {
+      handleEmailError(error, "Error sending warranty activation email");
+    }
   }
 };
 
