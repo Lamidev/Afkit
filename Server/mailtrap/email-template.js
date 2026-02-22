@@ -641,7 +641,19 @@ const getWarrantyActivationTemplate = (order) => {
              }
            </p>
         </div>
-        ` : ''}
+        ` : `
+        <div style="background:#f0fdf4;border-radius:16px;padding:22px;border:1px solid #dcfce7;margin-bottom:32px;">
+           <h3 style="margin:0 0 10px;font-size:13px;color:#166534;text-transform:uppercase;letter-spacing:1px;">
+             ✅ Payment Verified
+           </h3>
+           <p style="margin:0;font-size:13px;color:#15803d;font-weight:600;">
+             ${isPOD 
+               ? `Your Pay on Delivery balance of <strong>₦${Number(order.balanceAmount).toLocaleString()}</strong> was successfully collected.` 
+               : `Your full upfront payment for this order was successfully verified.`
+             }
+           </p>
+        </div>
+        `}
 
         <div style="background:#fefce8;border-radius:16px;padding:22px;border:1px solid #fef3c7;margin-bottom:32px;">
           <h3 style="margin:0 0 10px;font-size:13px;color:#854d0e;text-transform:uppercase;letter-spacing:1px;">
