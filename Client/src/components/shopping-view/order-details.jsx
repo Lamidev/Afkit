@@ -89,7 +89,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                           ? "bg-amber-50 text-amber-700 border border-amber-200"
                           : "bg-slate-100 text-slate-500 border border-slate-200"
                       }`}>
-                        {item.condition === "Brand New" ? "✨" : "🇬🇧"} {item.condition}
+                        {item.condition}
                       </span>
                     )}
                     <div className="flex items-center justify-between text-sm">

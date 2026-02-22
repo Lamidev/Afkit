@@ -151,7 +151,7 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                                 ? "bg-amber-50 text-amber-700 border border-amber-200"
                                 : "bg-slate-100 text-slate-500 border border-slate-200"
                             }`}>
-                              {item.condition === "Brand New" ? "✨" : "🇬🇧"} {item.condition}
+                              {item.condition}
                             </span>
                           )}
                           <p className="text-[10px] font-semibold text-gray-500">{item.quantity} x ₦{item.price.toLocaleString()}</p>

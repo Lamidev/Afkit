@@ -623,7 +623,7 @@ export default function ShoppingProductDetails() {
                       : "bg-slate-100 text-slate-600 border-slate-300"
                   }`}
                 >
-                  {productDetails.condition === "Brand New" ? "✨" : "🇬🇧"} {productDetails.condition}
+                  {productDetails.condition}
                 </span>
               )}
             </div>
@@ -657,54 +657,60 @@ export default function ShoppingProductDetails() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
-            {/* Main Action Buttons in requested order */}
-            <div className="flex flex-col gap-4 pt-4">
-              {/* 1. PAY NOW */}
-              <Button
-                className="h-16 bg-primary hover:bg-primary/90 text-white font-black text-xl rounded-2xl shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-tight"
-                onClick={async () => {
-                  await handleAddToCart(productDetails._id, productDetails.totalStock);
-                  navigate("/shop/checkout", { state: { paymentType: 'full' } });
-                }}
-                disabled={productDetails.totalStock === 0}
-              >
-                PAY NOW
-              </Button>
-
-              {/* 2. PAY ON DELIVERY */}
-              {productDetails.price >= 15000 && (
+            {/* Premium Action Grid */}
+            <div className="flex flex-col gap-3 pt-4">
+              {/* Primary Actions Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* 1. PAY NOW */}
                 <Button
-                  className="h-16 bg-slate-900 hover:bg-slate-800 text-white font-black text-xl rounded-2xl shadow-2xl shadow-slate-900/10 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-tight"
+                  className="h-13 bg-primary hover:bg-primary/90 text-white font-bold text-sm rounded-xl transition-all hover:scale-[1.01] active:scale-95 uppercase tracking-widest"
                   onClick={async () => {
                     await handleAddToCart(productDetails._id, productDetails.totalStock);
-                    navigate("/shop/checkout", { state: { paymentType: 'commitment' } });
+                    navigate("/shop/checkout", { state: { paymentType: 'full' } });
                   }}
                   disabled={productDetails.totalStock === 0}
                 >
-                  PAY ON DELIVERY
+                  Pay Now
                 </Button>
-              )}
 
-              {/* 3. ORDER ON WHATSAPP */}
-              <Button
-                className="h-16 bg-[#25D366] hover:bg-[#22c35e] text-white font-black text-xl rounded-2xl shadow-2xl shadow-green-500/10 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 uppercase tracking-tight"
-                onClick={handleOrderOnWhatsApp}
-              >
-                <MessageCircle className="w-6 h-6" />
-                ORDER ON WHATSAPP
-              </Button>
+                {/* 2. ORDER ON WHATSAPP */}
+                <Button
+                  className="h-13 bg-[#25D366] hover:bg-[#22c35e] text-white font-bold text-sm rounded-xl transition-all hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest"
+                  onClick={handleOrderOnWhatsApp}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Order on WhatsApp
+                </Button>
+              </div>
 
-              <Button
-                variant="outline"
-                className="h-14 border-2 border-slate-200 text-slate-600 hover:bg-slate-50 font-bold text-lg rounded-2xl transition-all"
-                onClick={() => handleAddToCart(productDetails._id, productDetails.totalStock)}
-                disabled={productDetails.totalStock === 0}
-              >
-                ADD TO CART
-              </Button>
+              {/* Secondary Actions Row */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* 3. PAY ON DELIVERY */}
+                {productDetails.price >= 15000 && (
+                  <Button
+                    variant="secondary"
+                    className="h-13 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl transition-all hover:scale-[1.01] active:scale-95 uppercase tracking-widest"
+                    onClick={async () => {
+                      await handleAddToCart(productDetails._id, productDetails.totalStock);
+                      navigate("/shop/checkout", { state: { paymentType: 'commitment' } });
+                    }}
+                    disabled={productDetails.totalStock === 0}
+                  >
+                    Pay on Delivery
+                  </Button>
+                )}
+
+                {/* 4. ADD TO CART */}
+                <Button
+                  variant="outline"
+                  className="h-13 border-2 border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-sm rounded-xl transition-all"
+                  onClick={() => handleAddToCart(productDetails._id, productDetails.totalStock)}
+                  disabled={productDetails.totalStock === 0}
+                >
+                  Add to Cart
+                </Button>
+              </div>
             </div>
-          </div>
 
           <div className="flex items-center justify-center pt-4">
             <button 

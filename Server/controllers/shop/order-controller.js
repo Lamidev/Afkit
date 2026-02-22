@@ -165,18 +165,24 @@ const capturePayment = async (req, res) => {
       // Clear Cart
       await Cart.findOneAndUpdate({ userId: order.userId }, { items: [] });
 
-      await order.save();
+      // ── Send Emails (non-blocking, single send guard) ──
+      // Use isEmailSent flag to prevent duplicate emails if capture fires twice
+      if (!order.isEmailSent) {
+        order.isEmailSent = true;
+        await order.save(); // Save the status immediately to block other concurrent requests
 
-      // ── Send Emails (non-blocking, single send guard already handled above) ──
-      // 1. Buyer confirmation email
-      sendOrderConfirmationEmail(order).catch(err => {
-        console.error("Order email error:", err.message);
-      });
+        // 1. Buyer confirmation email
+        sendOrderConfirmationEmail(order).catch(err => {
+          console.error("Order email error:", err.message);
+        });
 
-      // 2. Admin notification email
-      sendAdminOrderNotificationEmail(order).catch(err => {
-        console.error("Admin order notification email error:", err.message);
-      });
+        // 2. Admin notification email
+        sendAdminOrderNotificationEmail(order).catch(err => {
+          console.error("Admin order notification email error:", err.message);
+        });
+      } else {
+        await order.save();
+      }
 
       res.status(200).json({
         success: true,

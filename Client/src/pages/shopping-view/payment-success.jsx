@@ -80,8 +80,9 @@ function PaymentSuccessPage() {
 
     const cartItemsText = orderDetails.cartItems
       .map((item) => {
-        // WhatsApp link scraper works best with full URLs to show metadata/images
-        const shopUrl = `${window.location.origin}/shop/listing`;
+        // WhatsApp link scraper works best with backend OG routes to show metadata/images
+        const apiBase = import.meta.env.VITE_API_BASE_URL || "";
+        const shopUrl = item.productId ? `${apiBase}/og/product/${item.productId.toString().replace("#", "")}` : `${window.location.origin}/shop/listing`;
         return `${bullet} *${item.title}*\n   _Condition: ${item.condition || "Standard"}_\n   _Qty: ${item.quantity}_\n   🔗 See Item: ${shopUrl}`;
       })
       .join("\n\n");

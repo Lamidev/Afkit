@@ -417,7 +417,7 @@ const getOrderConfirmationTemplate = (order) => {
                 item.condition === 'Brand New'
                   ? 'background:#fef9c3;color:#92400e;border:1px solid #fde68a;'
                   : 'background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;'
-              }">${item.condition === 'Brand New' ? '✨' : '🇬🇧'} ${item.condition}</span>` : ''}
+              }">${item.condition}</span>` : ''}
             </td>
             <td align="right" style="font-size:14px;color:#64748b;">x${item.quantity}</td>
             <td align="right" style="font-size:14px;color:#1e293b;font-weight:700;padding-left:12px;">₦${Number(item.price).toLocaleString()}</td>
@@ -448,8 +448,8 @@ const getOrderConfirmationTemplate = (order) => {
           <span style="color:#1d4ed8;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">🤝 Assisted Order</span>
         </div>
         ` : ''}
-        <h1 style="margin:0 0 12px;font-size:28px;font-weight:900;color:${BRAND_DARK}; line-height: 1.2;">THANK YOU FOR YOUR ORDER</h1>
-        <p style="margin:0;font-size:16px;color:#64748b;">Order Ref: <strong style="color:${BRAND_ORANGE};">ORD-${(order.orderId || order._id).toString().slice(-8).toUpperCase()}</strong></p>
+        <h1 style="margin:0;font-size:28px;font-weight:900;color:${BRAND_DARK}; line-height: 1.2;">THANK YOU FOR YOUR ORDER</h1>
+        <p style="margin:8px 0 0;font-size:16px;color:#64748b;">Order Ref: <strong style="color:${BRAND_ORANGE};">#${order.orderId?.startsWith('ORD-') ? order.orderId : 'ORD-' + (order.orderId || order._id || 'PENDING').toString().slice(-8).toUpperCase()}</strong></p>
       </td>
     </tr>
     <tr>
@@ -512,14 +512,14 @@ const getOrderConfirmationTemplate = (order) => {
           <h3 style="margin:0 0 12px;font-size:12px;color:${BRAND_DARK};text-transform:uppercase;letter-spacing:1px;">Delivery Details</h3>
           <p style="margin:0;font-size:14px;color:#475569;line-height:1.6;">
             <strong>Recipient: ${recipientName}</strong><br/>
-            Address: ${order.addressInfo.address}<br/>
-            City: ${order.addressInfo.city}<br/>
-            Phone: ${order.addressInfo.phone}
+            Address: ${order.addressInfo?.address || 'N/A'}<br/>
+            City: ${order.addressInfo?.city || 'N/A'}<br/>
+            Phone: ${order.addressInfo?.phone || 'N/A'}
           </p>
           ${isGift || isAssisted ? `
           <div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e2e8f0;">
              <p style="margin:0;font-size:12px;color:#6b21a8;"><strong>Order Category:</strong> ${isGift ? 'Gift' : 'Assisted Purchase'}</p>
-             ${order.addressInfo.recipientEmail ? `<p style="margin:4px 0 0;font-size:12px;color:#6b21a8;">Warranty certificate will be sent to: ${order.addressInfo.recipientEmail}</p>` : ''}
+             ${order.addressInfo?.recipientEmail ? `<p style="margin:4px 0 0;font-size:12px;color:#6b21a8;">Warranty certificate will be sent to: ${order.addressInfo.recipientEmail}</p>` : ''}
           </div>
           ` : ''}
         </div>
@@ -555,7 +555,7 @@ const getWarrantyActivationTemplate = (order) => {
       </div>
       <div style="text-align:right;">
         <div style="background:${item.condition === 'Brand New' ? '#fef9c3' : '#f1f5f9'};padding:4px 8px;border-radius:12px;color:${item.condition === 'Brand New' ? '#854d0e' : '#64748b'};font-size:10px;font-weight:800;">
-          ${item.condition === 'Brand New' ? '✨ PREMIUM' : '🇬🇧 UK USED'}
+          ${item.condition === 'Brand New' ? 'PREMIUM' : 'UK USED'}
         </div>
         ${(isAssisted || !isGift) ? `<div style="font-size:12px;font-weight:700;color:${BRAND_DARK};margin-top:4px;">₦${Number(item.price).toLocaleString()}</div>` : ''}
       </div>
@@ -596,7 +596,7 @@ const getWarrantyActivationTemplate = (order) => {
       <td style="padding:0 40px 40px;">
         <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:24px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.05);margin:20px 0 32px;">
           <div style="background:${BRAND_DARK};padding:15px;text-align:center;">
-            <span style="color:#ffffff;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;">Official Warranty Certificate</span>
+            <span style="color:#ffffff;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;">Official Warranty Certificate: #${order.orderId?.startsWith('ORD-') ? order.orderId : 'ORD-' + (order.orderId || order._id || 'PENDING').toString().slice(-8).toUpperCase()}</span>
           </div>
           <div style="padding:24px;">
             <p style="margin:0 0 20px;font-size:14px;color:#475569;line-height:1.6;text-align:center;">
@@ -685,7 +685,7 @@ const getPayerDeliveryConfirmationTemplate = (order) => {
         <div style="background:#f8fafc;border-radius:20px;padding:30px;border:1px solid #e2e8f0;margin-bottom:32px;">
           <h3 style="margin:0 0 15px;font-size:12px;color:${BRAND_DARK};text-transform:uppercase;letter-spacing:1px;">Purchase Details</h3>
           <p style="margin:0;font-size:14px;color:#475569;line-height:1.8;">
-            <strong>Order ID:</strong> ORD-${(order.orderId || order._id).toString().slice(-8).toUpperCase()}<br/>
+            <strong>Order ID:</strong> #${order.orderId?.startsWith('ORD-') ? order.orderId : 'ORD-' + (order.orderId || order._id || 'PENDING').toString().slice(-8).toUpperCase()}<br/>
             <strong>Delivered to:</strong> ${recipientName}<br/>
             <strong>Location:</strong> ${order.addressInfo?.city}<br/>
             <strong>Date:</strong> ${deliveryDate}

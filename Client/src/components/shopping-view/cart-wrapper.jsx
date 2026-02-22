@@ -45,14 +45,26 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const handleCheckout = () => {
     if (cartItems.length === 0) return;
 
-    const message = `🛍️ *NEW ORDER FROM AFKiT*\n--------------------------------\n\n${cartItems
+    const apiBase = import.meta.env.VITE_API_BASE_URL || "";
+    
+    const message = `🛍️ *NEW ORDER FROM AFKiT*
+--------------------------------
+${cartItems
       .map(
         (item, index) =>
-          `✨ *ITEM #${index + 1}*\n*Product:* ${item.title || "Product"}\n*GAD ID:* ${formatAestheticId(item.productId, "GAD")}\n*Qty:* ${item.quantity}\n*Price:* ${formatNaira(item.price)}\n\n🔍 *View Product:* \n${import.meta.env.VITE_API_BASE_URL}/og/product/${item.productId.toString().replace("#", "")}`
+          `✨ *ITEM #${index + 1}*
+*Product:* ${item.title || "Product"}
+*ID:* ${formatAestheticId(item.productId, "GAD")}
+*Qty:* ${item.quantity}
+*Price:* ${formatNaira(item.price)}
+
+🔗 *View Detail:* ${apiBase}/og/product/${item.productId.toString().replace("#", "")}`
       )
-      .join("\n\n--------------------------------\n\n")}\n\n💰 *Total Amount:* ${formatNaira(
-        totalCartAmount
-      )}\n\n✅ *Please confirm availability and send payment instructions. Thank you!*`;
+      .join("\n\n--------------------------------\n\n")}
+
+💰 *Total Amount:* ${formatNaira(totalCartAmount)}
+
+✅ *Please confirm availability and send payment details. Thank you!*`;
 
     const whatsappNumber = "+2348164014304";
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(

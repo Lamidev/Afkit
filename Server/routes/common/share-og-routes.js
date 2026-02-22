@@ -48,15 +48,23 @@ router.get("/product/:id", async (req, res) => {
         const mainImage = product.images?.[0] || product.image || "https://afkit.ng/default-og.png";
         
         // Use aesthetic ID for the redirect URL
-        const aestheticId = `GAD-${product._id.toString().slice(-6).toUpperCase()}`;
+        const aestheticId = product._id.toString().startsWith('GAD-') ? product._id : `GAD-${product._id.toString().slice(-6).toUpperCase()}`;
         
         const frontendUrl = process.env.FRONTEND_URL || "https://afkit.ng";
+        const backendUrl = process.env.BACKEND_URL || "https://api.afkit.ng";
+        
+        // Ensure image is absolute
+        let absoluteImage = mainImage;
+        if (!absoluteImage.startsWith("http")) {
+            absoluteImage = `${backendUrl.replace(/\/+$/, "")}/${absoluteImage.replace(/^\/+/, "")}`;
+        }
+
         const productUrl = `${frontendUrl}/shop/product/${aestheticId}`;
 
         // Escaped values for HTML attributes
         const safeTitle = escapeHtml(product.title);
         const safeDescription = escapeHtml(description);
-        const safeImage = escapeHtml(mainImage);
+        const safeImage = escapeHtml(absoluteImage);
 
         const html = `<!DOCTYPE html>
     <html lang="en">
@@ -72,6 +80,9 @@ router.get("/product/:id", async (req, res) => {
         <meta property="og:title" content="${safeTitle}">
         <meta property="og:description" content="${safeDescription}">
         <meta property="og:image" content="${safeImage}">
+        <meta property="og:image:secure_url" content="${safeImage}">
+        <meta property="og:image:width" content="600">
+        <meta property="og:image:height" content="600">
         <meta property="og:site_name" content="AFKiT">
         <meta property="product:price:amount" content="${product.price}">
         <meta property="product:price:currency" content="NGN">
