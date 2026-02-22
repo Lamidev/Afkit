@@ -43,7 +43,7 @@ function AuthRegister() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-[95%] sm:max-w-md space-y-4 sm:space-y-6 bg-white bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden"
+        className="w-full max-w-[95%] sm:max-w-xl space-y-4 sm:space-y-6 bg-white bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden"
       >
         <div className="p-5 sm:p-8">
           <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center bg-gradient-to-r from-black to-black text-transparent bg-clip-text">

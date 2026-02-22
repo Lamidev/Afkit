@@ -60,7 +60,7 @@ function AuthLogin() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-[95%] sm:max-w-md w-full bg-white bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden mx-auto p-5 sm:p-8 min-h-[400px] flex flex-col justify-center"
+      className="max-w-[95%] sm:max-w-xl w-full bg-white bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden mx-auto p-5 sm:p-8 min-h-[400px] flex flex-col justify-center"
     >
       {isAuthenticated && user ? (
         <div className="flex flex-col items-center justify-center space-y-4 py-10">

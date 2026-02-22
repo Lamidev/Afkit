@@ -105,7 +105,8 @@ ${isPOD ? `*DOOR PAYMENT:* ${recipientName} will pay ₦${parseFloat(orderDetail
 ${divider}
 *📍 DELIVERY DETAILS:*
 *Recipient:* ${recipientName}
-*City:* ${orderDetails.addressInfo?.city || 'N/A'}
+*Address:* ${orderDetails.addressInfo?.address || 'N/A'}
+*Location:* ${orderDetails.addressInfo?.city || 'N/A'}
 *Phone:* ${orderDetails.addressInfo?.phone || 'N/A'}
 ${isGift ? `\n*NOTE:* This is a SURPRISE for ${recipientName}!` : ""}
 
