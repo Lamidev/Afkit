@@ -11,7 +11,7 @@ import {
   updateOrderStatus,
 } from "@/store/admin/order-slice";
 import { toast } from "sonner";
-import { CreditCard, Truck, Gift, AlertTriangle, Package, MapPin, UserCheck, DollarSign } from "lucide-react";
+import { CreditCard, Truck, Gift, AlertTriangle, Package, MapPin, UserCheck, DollarSign, Check } from "lucide-react";
 import { formatAestheticId } from "@/utils/common";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -298,33 +298,45 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                   </div>
                 </div>
 
-                <CommonForm
-                  formControls={[
-                    {
-                      label: "",
-                      name: "status",
-                      placeholder: "Change Pipeline Status",
-                      componentType: "select",
-                      options: [
-                        { id: "pending", label: "Pending" },
-                        { id: "confirmed", label: "Confirmed" },
-                        { id: "shipped", label: "Shipped" },
-                        { id: "delivered", label: "Delivered" },
-                        { id: "cancelled", label: "Cancelled" },
-                      ],
-                    },
-                  ]}
-                  formData={formData}
-                  setFormData={setFormData}
-                  buttonText={isUpdating ? "Processing..." : formData.status === orderDetails?.orderStatus ? "No Change" : "Execute Transition"}
-                  isBtnDisabled={isUpdating || !formData.status || formData.status === orderDetails?.orderStatus}
-                  buttonClassName={`w-full h-11 text-xs uppercase font-bold tracking-widest rounded-xl transition-all ${
-                    isUpdating || !formData.status || formData.status === orderDetails?.orderStatus
-                      ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                      : "bg-slate-900 hover:bg-slate-800 text-white shadow-lg"
-                  }`}
-                  onSubmit={handleUpdateStatus}
-                />
+                {orderDetails?.orderStatus === "delivered" ? (
+                  <div className="bg-emerald-50 border-2 border-emerald-100 p-4 rounded-2xl flex gap-3 items-center">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+                      <Check className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-black text-emerald-900 uppercase tracking-tight">Order Completed</p>
+                      <p className="text-[10px] font-bold text-emerald-700/80 uppercase mt-0.5">This order has been delivered and cannot be changed further.</p>
+                    </div>
+                  </div>
+                ) : (
+                  <CommonForm
+                    formControls={[
+                      {
+                        label: "",
+                        name: "status",
+                        placeholder: "Change Pipeline Status",
+                        componentType: "select",
+                        options: [
+                          { id: "pending", label: "Pending" },
+                          { id: "confirmed", label: "Confirmed" },
+                          { id: "shipped", label: "Shipped" },
+                          { id: "delivered", label: "Delivered" },
+                          { id: "cancelled", label: "Cancelled" },
+                        ],
+                      },
+                    ]}
+                    formData={formData}
+                    setFormData={setFormData}
+                    buttonText={isUpdating ? "Processing..." : formData.status === orderDetails?.orderStatus ? "No Change" : "Execute Transition"}
+                    isBtnDisabled={isUpdating || !formData.status || formData.status === orderDetails?.orderStatus}
+                    buttonClassName={`w-full h-11 text-xs uppercase font-bold tracking-widest rounded-xl transition-all ${
+                      isUpdating || !formData.status || formData.status === orderDetails?.orderStatus
+                        ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                        : "bg-slate-900 hover:bg-slate-800 text-white shadow-lg"
+                    }`}
+                    onSubmit={handleUpdateStatus}
+                  />
+                )}
               </div>
             </TabsContent>
           </div>

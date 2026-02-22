@@ -88,15 +88,9 @@ function NotificationCenter() {
           ref={panelRef}
           className={`
             z-50 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col
-            /* Mobile */
             fixed left-1/2 -translate-x-1/2
-            top-1/2 -translate-y-1/2
-            w-[92vw] max-w-sm
-            /* Desktop override */
-            sm:fixed sm:translate-x-0 sm:translate-y-0 sm:top-auto sm:left-auto
-            sm:right-4 sm:top-16
-            sm:w-96
-            sm:max-h-[80vh]
+            top-[15%]
+            w-[90vw] max-w-[400px]
           `}
           style={{ maxHeight: "80dvh" }}
         >
