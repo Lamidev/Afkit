@@ -20,13 +20,19 @@ const debateRegistrationSchema = new mongoose.Schema(
     },
     tikTokHandle: {
       type: String,
+      required: [true, "TikTok handle is required"],
       trim: true,
-      default: "",
     },
     instagramHandle: {
       type: String,
+      required: [true, "Instagram handle is required"],
       trim: true,
-      default: "",
+    },
+    brandToDefend: {
+      type: String,
+      required: [true, "Please choose a brand to defend"],
+      enum: ["Samsung", "iPhone"],
+      trim: true,
     },
   },
   { timestamps: true }

@@ -85,6 +85,17 @@ const getFilteredProducts = async (req, res) => {
       filters.price = { $lte: Number(maxPrice) };
     }
 
+    if (sortBy === "random") {
+      const products = await Product.aggregate([
+        { $match: filters },
+        { $sample: { size: 100 } }
+      ]);
+      return res.status(200).json({
+        success: true,
+        data: products,
+      });
+    }
+
     let sort = {};
 
     switch (sortBy) {

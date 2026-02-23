@@ -60,6 +60,14 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
+    // Once an order is delivered, it cannot be modified further (Locked state)
+    if (order.orderStatus === "delivered") {
+      return res.status(400).json({
+        success: false,
+        message: "This order has already been delivered and is now locked for modifications.",
+      });
+    }
+
     // Update fields if provided
     if (orderStatus) order.orderStatus = orderStatus;
     if (paymentStatus) order.paymentStatus = paymentStatus;

@@ -25,6 +25,7 @@ const DebatePage = () => {
     email: "",
     tikTokHandle: "",
     instagramHandle: "",
+    brandToDefend: "", // New compulsory field
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
@@ -35,10 +36,10 @@ const DebatePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { fullName, phone, email } = formData;
+    const { fullName, phone, email, tikTokHandle, instagramHandle, brandToDefend } = formData;
 
-    if (!fullName.trim() || !phone.trim() || !email.trim()) {
-      toast.error("Please fill in your name, phone number, and email.");
+    if (!fullName.trim() || !phone.trim() || !email.trim() || !tikTokHandle.trim() || !instagramHandle.trim() || !brandToDefend) {
+      toast.error("Please fill in all fields including social handles and the brand you're defending.");
       return;
     }
 
@@ -100,7 +101,7 @@ const DebatePage = () => {
       type: "text",
       placeholder: "e.g. @yourtiktok",
       icon: AtSign,
-      required: false,
+      required: true,
     },
     {
       name: "instagramHandle",
@@ -108,7 +109,7 @@ const DebatePage = () => {
       type: "text",
       placeholder: "e.g. @yourinstagram",
       icon: AtSign,
-      required: false,
+      required: true,
     },
   ];
 
@@ -158,24 +159,18 @@ const DebatePage = () => {
                 CHALLENGE
               </h1>
               <p className="text-slate-400 text-lg sm:text-xl max-w-lg leading-relaxed font-medium">
-                Join the biggest tech debate in Nigeria. Showcase your passion, 
-                defend your brand, and win amazing prizes!
+                This is a live TikTok debate challenge.
+
+Register to stand your ground in a head to head battle: 
+
+IPHONE vs SAMSUNG
+
+Two participants will be selected to compete live. Choose your side and defend it
               </p>
             </div>
 
             <div className="space-y-6">
-              <div className="flex gap-4 items-start">
-                <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
-                  <ShieldCheck className="w-6 h-6 text-orange-500" />
-                </div>
-                <div>
-                  <h3 className="text-white font-bold text-lg">Powered by Afkit.ng</h3>
-                  <p className="text-slate-500 text-sm leading-relaxed">
-                    Nigeria's No.1 Online Store for Premium UK-Used Gadgets. 
-                    We sell integrity and value for your money.
-                  </p>
-                </div>
-              </div>
+             
 
               <div className="p-6 bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-3xl space-y-4">
                 <p className="text-slate-300 font-bold italic">
@@ -192,6 +187,15 @@ const DebatePage = () => {
                 </Button>
               </div>
             </div>
+
+             <div className="flex gap-4 items-start">
+                <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
+                  <ShieldCheck className="w-6 h-6 text-orange-500" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg">Powered by Afkit.ng</h3>
+                </div>
+              </div>
           </motion.div>
 
           {/* Right Column: Registration Form */}
@@ -274,6 +278,40 @@ const DebatePage = () => {
                           </div>
                         );
                       })}
+                    </div>
+
+                    <div className="pt-2">
+                      <Label className="text-slate-400 text-xs font-black uppercase tracking-widest mb-4 block">
+                        Brand to Defend <span className="text-orange-500">*</span>
+                      </Label>
+                      <div className="grid grid-cols-2 gap-4">
+                         {["Samsung", "iPhone"].map((brand) => (
+                           <button
+                             key={brand}
+                             type="button"
+                             onClick={() => setFormData(prev => ({ ...prev, brandToDefend: brand }))}
+                             className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 group relative ${
+                               formData.brandToDefend === brand 
+                               ? 'border-orange-500 bg-orange-500/10' 
+                               : 'border-white/10 bg-white/5 hover:border-white/20'
+                             }`}
+                           >
+                              <span className={`text-base font-black tracking-widest uppercase ${
+                                formData.brandToDefend === brand ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'
+                              }`}>
+                                {brand}
+                              </span>
+                              {formData.brandToDefend === brand && (
+                                <motion.div 
+                                  layoutId="brand-check"
+                                  className="absolute -top-2 -right-2 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center border-2 border-[#0d1b2a]"
+                                >
+                                   <CheckCircle2 className="w-4 h-4 text-white" />
+                                </motion.div>
+                              )}
+                           </button>
+                         ))}
+                      </div>
                     </div>
 
                     <Button

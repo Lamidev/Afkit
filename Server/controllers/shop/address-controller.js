@@ -2,9 +2,11 @@ const Address = require("../../models/address");
 
 const addAddress = async (req, res) => {
   try {
-    const { userId, fullName, email, address, city, phone, notes, addressType } = req.body;
-    const requiredFields = { userId, fullName, email, address, city, phone };
-    const missingFields = Object.keys(requiredFields).filter(key => !requiredFields[key] || requiredFields[key] === "undefined");
+    const { userId, fullName, email, address, city, region, phone, backupPhone, notes, addressType } = req.body;
+    const requiredFields = { userId, fullName, email, address, city, region, phone };
+    const missingFields = Object.keys(requiredFields).filter(key => 
+      !requiredFields[key] || requiredFields[key] === "undefined" || (typeof requiredFields[key] === 'string' && !requiredFields[key].trim())
+    );
 
     if (missingFields.length > 0) {
       return res.status(400).json({
@@ -24,7 +26,9 @@ const addAddress = async (req, res) => {
       email,
       address,
       city,
+      region,
       phone,
+      backupPhone,
       notes,
       addressType: addressType || "personal",
       isLastUsed: addressType !== "recipient",

@@ -19,12 +19,20 @@ const initialAddressFormData = {
   email: "",
   address: "",
   city: "",
+  region: "",
   phone: "",
+  backupPhone: "",
   notes: "",
   addressType: "personal",
 };
 
-function Address({ setCurrentSelectedAddress, selectedId, filterType }) {
+function Address({ 
+  setCurrentSelectedAddress, 
+  selectedId, 
+  filterType, 
+  isCheckoutPage = false,
+  hideHeader = false 
+}) {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { addressList } = useSelector((state) => state.shopAddress);
@@ -36,9 +44,25 @@ function Address({ setCurrentSelectedAddress, selectedId, filterType }) {
     ? addressList.filter((item) => item.addressType === filterType)
     : addressList;
 
-  const formControls = filterType
-    ? addressFormControls.filter((c) => c.name !== "addressType")
-    : addressFormControls;
+  // Enhance form controls with validation and conditional logic
+  const formControls = addressFormControls
+    .filter((control) => {
+      // 1. Hide addressType if we are on checkout (filterType exists)
+      if (filterType && control.name === "addressType") return false;
+      // 2. Hide email for personal orders (using account email instead)
+      if (filterType === "personal" && control.name === "email") return false;
+      return true;
+    })
+    .map((control) => {
+      // Mark compulsory fields
+      const compulsoryFields = ["fullName", "phone", "address", "city", "region"];
+      if (filterType === "recipient") compulsoryFields.push("email");
+      
+      return {
+        ...control,
+        required: compulsoryFields.includes(control.name),
+      };
+    });
 
   const [formData, setFormData] = useState({
     ...initialAddressFormData,
@@ -66,9 +90,10 @@ function Address({ setCurrentSelectedAddress, selectedId, filterType }) {
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
+      email: filterType === "personal" ? (user?.email || "") : "",
       addressType: filterType || prev.addressType,
     }));
-  }, [filterType]);
+  }, [filterType, user?.email]);
 
   // Auto-select first matching address when the list loads
   useEffect(() => {
@@ -77,7 +102,12 @@ function Address({ setCurrentSelectedAddress, selectedId, filterType }) {
         (a) => a._id === selectedId?._id
       );
       if (!alreadySelected) {
-        setCurrentSelectedAddress(filteredAddressList[0]);
+        // Preference for last-used
+        const preference = filteredAddressList.find(a => 
+          filterType === 'personal' ? a.isLastUsed : a.isLastUsedRecipient
+        ) || filteredAddressList[0];
+        
+        setCurrentSelectedAddress(preference);
       }
     }
   }, [filteredAddressList]); // eslint-disable-line
@@ -101,6 +131,8 @@ function Address({ setCurrentSelectedAddress, selectedId, filterType }) {
       addressType: resolvedType,
       isLastUsed: resolvedType === "personal",
       isLastUsedRecipient: resolvedType === "recipient",
+      // If personal, ensure we use the account email if field was hidden
+      email: (resolvedType === "personal" && !formData.email) ? user?.email : formData.email
     };
 
     setIsSaving(true);
@@ -114,7 +146,7 @@ function Address({ setCurrentSelectedAddress, selectedId, filterType }) {
             setCurrentEditedId(null);
             setFormData({ ...initialAddressFormData, addressType: resolvedType });
             setShowForm(false);
-            toast.success("Address updated!");
+            toast.success("Details updated!");
           }
         }
       );
@@ -129,10 +161,7 @@ function Address({ setCurrentSelectedAddress, selectedId, filterType }) {
           });
           setFormData({ ...initialAddressFormData, addressType: resolvedType });
           setShowForm(false);
-          const msg = filterType
-            ? "Details saved!"
-            : "Address added!";
-          toast.success(msg);
+          toast.success("Details saved!");
         }
       });
     }
@@ -145,7 +174,9 @@ function Address({ setCurrentSelectedAddress, selectedId, filterType }) {
       email: addr?.email || "",
       address: addr?.address || "",
       city: addr?.city || "",
+      region: addr?.region || "",
       phone: addr?.phone || "",
+      backupPhone: addr?.backupPhone || "",
       notes: addr?.notes || "",
       addressType: addr?.addressType || filterType || "personal",
     });
@@ -165,7 +196,10 @@ function Address({ setCurrentSelectedAddress, selectedId, filterType }) {
   }
 
   function isFormValid() {
-    return ["fullName", "email", "address", "city", "phone"].every((f) => {
+    const required = ["fullName", "phone", "address", "city", "region"];
+    if (filterType === "recipient") required.push("email");
+    
+    return required.every((f) => {
       const v = formData[f];
       return v && typeof v === "string" && v.trim().length > 0;
     });
@@ -173,11 +207,11 @@ function Address({ setCurrentSelectedAddress, selectedId, filterType }) {
 
   // Label copy differs between account page and checkout
   const formTitle = currentEditedId
-    ? "Edit Address"
+    ? "Edit Details"
     : filterType === "recipient"
     ? "Recipient Details"
     : filterType === "personal"
-    ? "Your Delivery Address"
+    ? "Delivery Information"
     : "New Address";
 
   const btnLabel = isSaving
@@ -226,37 +260,39 @@ function Address({ setCurrentSelectedAddress, selectedId, filterType }) {
       {/* ── New / Edit Form ── */}
       {showForm && (
         <Card className="border-2 border-primary/20 shadow-lg overflow-hidden animate-in slide-in-from-top duration-300">
-          <CardHeader className="bg-slate-50 border-b p-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="font-black text-slate-900 uppercase text-sm tracking-tight">
-                  {formTitle}
-                </h3>
-                {filterType && (
-                  <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">
-                    {filterType === "recipient"
-                      ? "Who should we deliver to?"
-                      : "Where should we deliver?"}
-                  </p>
+          {!hideHeader && (
+            <CardHeader className="bg-slate-50 border-b p-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="font-black text-slate-900 uppercase text-sm tracking-tight">
+                    {formTitle}
+                  </h3>
+                  {filterType && (
+                    <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">
+                      {filterType === "recipient"
+                        ? "Who should we deliver to?"
+                        : "Where should we deliver?"}
+                    </p>
+                  )}
+                </div>
+                {/* Only show Cancel if there are already cards to go back to */}
+                {filteredAddressList.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowForm(false);
+                      setCurrentEditedId(null);
+                      setFormData({ ...initialAddressFormData, addressType: filterType || "personal" });
+                    }}
+                    className="text-slate-400 hover:text-red-500 text-xs"
+                  >
+                    Cancel
+                  </Button>
                 )}
               </div>
-              {/* Only show Cancel if there are already cards to go back to */}
-              {filteredAddressList.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setShowForm(false);
-                    setCurrentEditedId(null);
-                    setFormData({ ...initialAddressFormData, addressType: filterType || "personal" });
-                  }}
-                  className="text-slate-400 hover:text-red-500 text-xs"
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </CardHeader>
+            </CardHeader>
+          )}
           <CardContent className="p-5">
             <CommonForm
               formControls={formControls}
