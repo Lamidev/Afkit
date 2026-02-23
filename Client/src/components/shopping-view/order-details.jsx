@@ -3,9 +3,25 @@ import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useSelector } from "react-redux";
-
 import { formatAestheticId } from "@/utils/common";
-import { Gift } from "lucide-react";
+import { Gift, MapPin, Truck } from "lucide-react";
+
+const REGION_MAPPING = {
+  "Lagos": "lagos",
+  "Oyo": "south-west", "Ogun": "south-west", "Osun": "south-west", "Ondo": "south-west", "Ekiti": "south-west",
+  "Abia": "south-east-south", "Anambra": "south-east-south", "Ebonyi": "south-east-south", "Enugu": "south-east-south", "Imo": "south-east-south",
+  "Akwa Ibom": "south-east-south", "Bayelsa": "south-east-south", "Cross River": "south-east-south", "Delta": "south-east-south", "Edo": "south-east-south", "Rivers": "south-east-south",
+  "FCT": "north", "Adamawa": "north", "Bauchi": "north", "Benue": "north", "Borno": "north", "Gombe": "north", "Jigawa": "north", "Kaduna": "north",
+  "Kano": "north", "Katsina": "north", "Kebbi": "north", "Kogi": "north", "Kwara": "north", "Nasarawa": "north", "Niger": "north", "Plateau": "north",
+  "Sokoto": "north", "Taraba": "north", "Yobe": "north", "Zamfara": "north"
+};
+
+const ROUTE_LABELS = {
+  "lagos": "Lagos Doorstep Delivery",
+  "south-west": "South-West Regional Hub",
+  "south-east-south": "Eastern/Southern Hub",
+  "north": "Northern/Abuja Hub"
+};
 
 function ShoppingOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth);
@@ -103,23 +119,52 @@ function ShoppingOrderDetailsView({ orderDetails }) {
         </div>
         
         <Separator />
-        
+
         <div className="grid gap-4">
           <div className="font-semibold text-lg">Delivery Information</div>
-          <div className="grid gap-1 bg-slate-50 p-4 rounded-lg text-slate-600">
-            <span className="font-bold text-slate-900">Recipient: {orderDetails?.addressInfo?.fullName}</span>
-            {orderDetails?.addressInfo?.isGift && (
-              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded w-fit mb-1 mt-1">
-                Receipt Owner: {orderDetails?.addressInfo?.receiptName}
+          <div className="grid gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Recipient</span>
+              <span className="font-bold text-slate-900">{orderDetails?.addressInfo?.fullName}</span>
+              {orderDetails?.addressInfo?.isGift && (
+                <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded block w-fit mt-1">
+                  Receipt Owner: {orderDetails?.addressInfo?.receiptName}
+                </span>
+              )}
+            </div>
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Delivery Address</span>
+              <span className="text-sm text-slate-700 font-medium">
+                {orderDetails?.addressInfo?.address}
+                {orderDetails?.addressInfo?.city && !['Included','N/A',''].includes(orderDetails.addressInfo.city)
+                  ? `, ${orderDetails.addressInfo.city}` : ""}
               </span>
-            )}
-            <span>{orderDetails?.addressInfo?.address}</span>
-            <span>{orderDetails?.addressInfo?.city}</span>
-            <span>Phone: {orderDetails?.addressInfo?.phone}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">State</span>
+                <span className="text-sm font-bold text-slate-900">{orderDetails?.addressInfo?.region || "Lagos"}</span>
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Logistics Route</span>
+                <span className="text-[10px] font-black text-blue-700 bg-blue-50 px-2 py-1 rounded border border-blue-100 block w-fit">
+                  {ROUTE_LABELS[orderDetails?.addressInfo?.logisticsRoute] ||
+                   ROUTE_LABELS[REGION_MAPPING[orderDetails?.addressInfo?.region]] ||
+                   "Lagos Doorstep Delivery"}
+                </span>
+              </div>
+            </div>
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Phone</span>
+              <span className="text-sm font-bold text-slate-900 font-mono">{orderDetails?.addressInfo?.phone}</span>
+            </div>
             {orderDetails?.addressInfo?.notes && (
-               <span className="italic mt-2 text-sm text-slate-400">
-                 Note: {orderDetails?.addressInfo?.notes.replace(/<\/?[^>]+(>|$)/g, "")}
-               </span>
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Notes</span>
+                <span className="italic text-sm text-slate-400">
+                  {orderDetails?.addressInfo?.notes.replace(/<\/?[^>]+(>|$)/g, "")}
+                </span>
+              </div>
             )}
           </div>
         </div>

@@ -23,6 +23,13 @@ const REGION_MAPPING = {
   "Kano": "north", "Katsina": "north", "Kebbi": "north", "Kogi": "north", "Kwara": "north", "Nasarawa": "north", "Niger": "north", "Plateau": "north", 
   "Sokoto": "north", "Taraba": "north", "Yobe": "north", "Zamfara": "north"
 };
+
+const ROUTE_LABELS = {
+  "lagos": "Lagos Doorstep",
+  "south-west": "South-West Regional Hub",
+  "south-east-south": "Eastern/Southern Hub",
+  "north": "Northern/Abuja Hub"
+};
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -187,9 +194,11 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Destination</span>
-                        <p className="text-xs font-bold text-gray-900 leading-relaxed capitalize">
+                        <p className="text-xs font-bold text-gray-900 leading-relaxed">
                           {orderDetails?.addressInfo?.fullName}<br/>
-                          {orderDetails?.addressInfo?.address}, {orderDetails?.addressInfo?.city}
+                          {orderDetails?.addressInfo?.address}
+                          {orderDetails?.addressInfo?.city && !['Included','N/A',''].includes(orderDetails.addressInfo.city)
+                            ? `, ${orderDetails.addressInfo.city}` : ""}
                         </p>
                       </div>
                       <div>
@@ -199,7 +208,9 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                             {orderDetails?.addressInfo?.region || 'Lagos'} State
                           </p>
                           <p className="text-[9px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 w-fit px-2 py-0.5 rounded border border-blue-100 italic">
-                            {REGION_MAPPING[orderDetails?.addressInfo?.region] || 'lagos'} Route
+                            {ROUTE_LABELS[orderDetails?.addressInfo?.logisticsRoute] ||
+                             ROUTE_LABELS[REGION_MAPPING[orderDetails?.addressInfo?.region]] ||
+                             'Lagos Doorstep'}
                           </p>
                         </div>
                         <Badge className={`mt-2 text-[8px] font-bold uppercase tracking-widest ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-500 text-white' : 'bg-slate-200 text-slate-700'}`}>

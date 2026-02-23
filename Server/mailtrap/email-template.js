@@ -1,7 +1,17 @@
-// ─── AFKIT BRAND TOKENS ───────────────────────────────────────────────────────
 const BRAND_ORANGE = "#f97316";
 const BRAND_DARK   = "#0d1b2a";
 const BRAND_LIGHT  = "#fff7ed";
+
+// Helper: maps a logisticsRoute code to a human label
+const getRouteLabel = (routeCode) => {
+  const labels = {
+    "lagos": "Lagos Doorstep Delivery",
+    "south-west": "South-West Regional Hub",
+    "south-east-south": "Eastern/Southern Hub",
+    "north": "Northern/Abuja Hub",
+  };
+  return labels[routeCode] || "Lagos Doorstep Delivery";
+};
 
 
 const HEADER_ROW = `
@@ -513,7 +523,7 @@ const getOrderConfirmationTemplate = (order) => {
           <p style="margin:0;font-size:14px;color:#475569;line-height:1.6;">
             <strong>Recipient: ${recipientName}</strong><br/>
             Address: ${order.addressInfo?.address || 'N/A'}<br/>
-            City: ${order.addressInfo?.city || 'N/A'}<br/>
+            State: ${order.addressInfo?.region || 'Lagos'}<br/>
             Phone: ${order.addressInfo?.phone || 'N/A'}
           </p>
           ${isGift || isAssisted ? `
@@ -704,7 +714,8 @@ const getPayerDeliveryConfirmationTemplate = (order) => {
           <p style="margin:0;font-size:14px;color:#475569;line-height:1.8;">
             <strong>Order ID:</strong> #${order.orderId?.startsWith('ORD-') ? order.orderId : 'ORD-' + (order.orderId || order._id || 'PENDING').toString().slice(-8).toUpperCase()}<br/>
             <strong>Delivered to:</strong> ${recipientName}<br/>
-            <strong>Location:</strong> ${order.addressInfo?.city}<br/>
+            <strong>Address:</strong> ${order.addressInfo?.address || 'N/A'}<br/>
+            <strong>State:</strong> ${order.addressInfo?.region || 'Lagos'}<br/>
             <strong>Date:</strong> ${deliveryDate}<br/>
             <strong>Verification:</strong> Proof of Delivery (POD) Recorded ✓
           </p>

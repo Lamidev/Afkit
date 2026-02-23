@@ -26,7 +26,13 @@ const AddressSchema = new mongoose.Schema(
     },
     city: {
       type: String,
-      required: true,
+      required: false,
+      default: "",
+    },
+    logisticsRoute: {
+      type: String,
+      required: false,
+      default: "lagos",
     },
     phone: {
       type: String,

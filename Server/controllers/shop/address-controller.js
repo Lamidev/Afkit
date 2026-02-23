@@ -1,10 +1,29 @@
 const Address = require("../../models/address");
 
+// Maps Nigerian state names to logistics route codes
+const REGION_MAPPING = {
+  "Lagos": "lagos",
+  "Oyo": "south-west", "Ogun": "south-west", "Osun": "south-west", "Ondo": "south-west", "Ekiti": "south-west",
+  "Abia": "south-east-south", "Anambra": "south-east-south", "Ebonyi": "south-east-south", "Enugu": "south-east-south", "Imo": "south-east-south",
+  "Akwa Ibom": "south-east-south", "Bayelsa": "south-east-south", "Cross River": "south-east-south", "Delta": "south-east-south", "Edo": "south-east-south", "Rivers": "south-east-south",
+  "FCT": "north", "Adamawa": "north", "Bauchi": "north", "Benue": "north", "Borno": "north", "Gombe": "north", "Jigawa": "north", "Kaduna": "north",
+  "Kano": "north", "Katsina": "north", "Kebbi": "north", "Kogi": "north", "Kwara": "north", "Nasarawa": "north", "Niger": "north", "Plateau": "north",
+  "Sokoto": "north", "Taraba": "north", "Yobe": "north", "Zamfara": "north"
+};
+
+const ROUTE_LABELS = {
+  "lagos": "Lagos Doorstep",
+  "south-west": "South-West Hub",
+  "south-east-south": "Eastern/Southern Hub",
+  "north": "Northern/Abuja Hub"
+};
+
 const addAddress = async (req, res) => {
   try {
     const { userId, fullName, email, address, city, region, phone, backupPhone, notes, addressType } = req.body;
-    const requiredFields = { userId, fullName, email, address, city, region, phone };
-    const missingFields = Object.keys(requiredFields).filter(key => 
+    // city is now optional — users may include it in the address string
+    const requiredFields = { userId, fullName, email, address, region, phone };
+    const missingFields = Object.keys(requiredFields).filter(key =>
       !requiredFields[key] || requiredFields[key] === "undefined" || (typeof requiredFields[key] === 'string' && !requiredFields[key].trim())
     );
 
@@ -14,6 +33,9 @@ const addAddress = async (req, res) => {
         message: `Missing or invalid fields: ${missingFields.join(", ")}`,
       });
     }
+
+    // Derive logistics route from state name
+    const logisticsRoute = REGION_MAPPING[region] || "lagos";
 
     // Clear other last used flags for this user and type
     const flagToClear = addressType === "recipient" ? { isLastUsedRecipient: true } : { isLastUsed: true };
@@ -25,8 +47,9 @@ const addAddress = async (req, res) => {
       fullName,
       email,
       address,
-      city,
-      region,
+      city: city && !['Included', 'N/A', ''].includes(city.trim()) ? city.trim() : "",
+      region,          // stores the human state name, e.g. "Lagos"
+      logisticsRoute,  // stores the internal route key, e.g. "lagos"
       phone,
       backupPhone,
       notes,
