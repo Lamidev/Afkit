@@ -81,15 +81,15 @@ function NotificationCenter() {
       )}
 
       {/* ── Notification Panel ──
-           Mobile  : fixed, centered, bottom-sheet style
-           Desktop : absolute, anchored top-right of trigger           */}
+           Mobile  : fixed, centered, middle of screen
+           Desktop : absolute, anchored to bell icon           */}
       {open && (
         <div
           ref={panelRef}
           className={`
             z-50 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col
-            fixed left-1/2 -translate-x-1/2
-            top-[15%]
+            fixed sm:absolute left-1/2 sm:left-auto -translate-x-1/2 sm:translate-x-0
+            top-[15%] sm:top-full sm:right-0 sm:mt-3
             w-[90vw] max-w-[400px]
           `}
           style={{ maxHeight: "80dvh" }}

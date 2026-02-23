@@ -174,24 +174,46 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                   <MapPin className="w-4 h-4" /> Shipping Address
                 </h3>
                 <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4">
-                  <div>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Destination</span>
-                    <p className="text-xs font-bold text-gray-900 leading-relaxed">
-                      {orderDetails?.addressInfo?.fullName}<br/>
-                      {orderDetails?.addressInfo?.address}, {orderDetails?.addressInfo?.city}
-                    </p>
-                    <p className="text-xs font-semibold text-blue-600 mt-2">{orderDetails?.addressInfo?.phone}</p>
-                    {orderDetails?.addressInfo?.shippingInfo?.backupPhone && (
-                      <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">Backup: {orderDetails?.addressInfo?.shippingInfo?.backupPhone}</p>
-                    )}
-                  </div>
-                  
-                  {orderDetails?.addressInfo?.notes && (
-                    <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">
-                      <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Courier Notes</span>
-                      <div className="text-[11px] font-semibold text-amber-900 mt-1" dangerouslySetInnerHTML={{ __html: orderDetails?.addressInfo?.notes }} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Destination</span>
+                        <p className="text-xs font-bold text-gray-900 leading-relaxed capitalize">
+                          {orderDetails?.addressInfo?.fullName}<br/>
+                          {orderDetails?.addressInfo?.address}, {orderDetails?.addressInfo?.city}
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Region & Route</span>
+                        <p className="text-xs font-bold text-blue-600 leading-relaxed uppercase">
+                          {orderDetails?.addressInfo?.region?.replace('-', ' ') || 'Lagos'}
+                        </p>
+                        <Badge className={`mt-1 text-[8px] font-bold uppercase tracking-widest ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-500 text-white' : 'bg-slate-200 text-slate-700'}`}>
+                           {orderDetails?.addressInfo?.deliveryPreference || 'Hub'} Pickup
+                        </Badge>
+                      </div>
                     </div>
-                  )}
+                    
+                    <div className="flex flex-wrap gap-4 pt-4 border-t border-slate-100">
+                      <div>
+                        <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Primary Phone</span>
+                        <p className="text-xs font-bold text-gray-900">{orderDetails?.addressInfo?.phone}</p>
+                      </div>
+                      {orderDetails?.addressInfo?.backupPhone && (
+                        <div>
+                          <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Backup Contact</span>
+                          <p className="text-xs font-bold text-orange-600">{orderDetails?.addressInfo?.backupPhone}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {orderDetails?.addressInfo?.notes && (
+                      <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-100/50">
+                        <span className="text-[10px] font-bold text-amber-600 uppercase tracking-widest">Courier Notes</span>
+                        <div className="text-[11px] font-semibold text-amber-900 mt-1 whitespace-pre-wrap overflow-hidden">
+                           {orderDetails?.addressInfo?.notes.replace(/<[^>]*>?/gm, "")}
+                        </div>
+                      </div>
+                    )}
                 </div>
               </div>
 

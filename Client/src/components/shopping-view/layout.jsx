@@ -95,6 +95,20 @@ const ShoppingLayout = () => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem
+              value="free-delivery"
+              className="border-b border-gray-200 last:border-b-0"
+            >
+              <AccordionTrigger className="text-base font-semibold text-primary hover:text-blue-700 data-[state=open]:text-blue-800 data-[state=open]:bg-gray-100 px-4 py-3 text-left">
+                What are your FREE Delivery conditions?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground text-base p-4 bg-white leading-relaxed">
+                We offer free delivery nationwide with specific regional pickup points:
+                Lagos (Doorstep), South-West (Major Car Parks), and East/North (Nearest
+                Airport or Logistics Hub). Doorstep delivery outside Lagos is 
+                available as a paid upgrade during checkout.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem
               value="delivery-time"
               className="border-b border-gray-200 last:border-b-0"
             >

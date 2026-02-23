@@ -19,6 +19,11 @@ const AddressSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    region: {
+      type: String,
+      required: true,
+      default: 'lagos'
+    },
     city: {
       type: String,
       required: true,
@@ -26,6 +31,10 @@ const AddressSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: true,
+    },
+    backupPhone: {
+      type: String,
+      required: false,
     },
     notes: {
       type: String,

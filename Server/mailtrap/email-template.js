@@ -624,6 +624,11 @@ const getWarrantyActivationTemplate = (order) => {
                   <strong style="font-size:16px;color:${BRAND_DARK};">${deliveryDate}</strong>
                 </td>
               </tr>
+              <tr>
+                <td colspan="2" style="padding:12px 0 0; text-align:center; border-top:1px solid #f1f5f9;">
+                   <span style="font-size:10px; color:#94a3b8; font-weight:700; text-transform:uppercase; letter-spacing:1.5px;">Verified via Proof of Delivery (POD) Protocols ✓</span>
+                </td>
+              </tr>
             </table>
           </div>
         </div>
@@ -700,7 +705,8 @@ const getPayerDeliveryConfirmationTemplate = (order) => {
             <strong>Order ID:</strong> #${order.orderId?.startsWith('ORD-') ? order.orderId : 'ORD-' + (order.orderId || order._id || 'PENDING').toString().slice(-8).toUpperCase()}<br/>
             <strong>Delivered to:</strong> ${recipientName}<br/>
             <strong>Location:</strong> ${order.addressInfo?.city}<br/>
-            <strong>Date:</strong> ${deliveryDate}
+            <strong>Date:</strong> ${deliveryDate}<br/>
+            <strong>Verification:</strong> Proof of Delivery (POD) Recorded ✓
           </p>
         </div>
 

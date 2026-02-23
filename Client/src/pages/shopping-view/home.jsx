@@ -11,6 +11,8 @@ import {
   ShieldCheck,
   MessageCircle,
   ChevronRight,
+  MapPin,
+  Plane,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
@@ -37,25 +39,25 @@ const supportFeatures = [
     icon: FaShieldAlt,
     title: "6-MONTH WARRANTY",
     description:
-      "We repair or replace at no cost if your uk-used gadget develops a fault within 6 months, even after months of use.",
+      "Full coverage for hardware faults. We repair or replace at no cost within 6 months of purchase.",
   },
   {
     icon: FaTruck,
-    title: "FREE NATIONWIDE DELIVERY",
+    title: "FREE DELIVERY",
     description:
-      "No matter where you are in Nigeria, we deliver to your city for FREE.",
+      "Nationwide: Lagos (Doorstep), SW (Car Parks), East/North (Airports).",
   },
   {
     icon: FaCreditCard,
     title: "PAYMENT ON DELIVERY",
     description:
-      "You pay only after you receive and check your item. No Risk, no Worries. You're in control.",
+      "Secure your gadget with just ₦10k and pay the balance only after inspection on arrival.",
   },
   {
     icon: FaHeadset,
-    title: "FREE ONLINE TECH SUPPORT",
+    title: "LIFETIME TECH SUPPORT",
     description:
-      "We're always here to help with any questions or issues you have with your gadget.",
+      "Get free assistance with setup, software, or troubleshooting for any gadget bought from Afkit.",
   },
 ];
 
@@ -123,13 +125,13 @@ function ShoppingHome() {
     sessionStorage.removeItem("filters");
 
     if (item.id === "all-products") {
-      navigate(`/shop/listing?sort=latest-arrival`);
+      navigate(`/shop/listing?sort=random`);
     } else {
       const currentFilter = { [section]: [item.id] };
       sessionStorage.setItem("filters", JSON.stringify(currentFilter));
       const queryParams = new URLSearchParams();
       queryParams.set(section, item.id);
-      queryParams.set("sort", "latest-arrival");
+      queryParams.set("sort", "random");
       navigate(`/shop/listing?${queryParams.toString()}`);
     }
   };
@@ -283,11 +285,11 @@ function ShoppingHome() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
-              className="pt-8 flex flex-col items-center gap-6"
+              className="pt-2 flex flex-col items-center gap-12"
             >
               <Button
-                size="lg"
-                className="h-12 sm:h-14 px-8 sm:px-10 rounded-2xl text-sm sm:text-lg font-bold shadow-xl shadow-primary/25 group-hover:scale-105 transition-all uppercase tracking-tight"
+                size="md"
+                className="h-11 sm:h-12 px-8 sm:px-10 rounded-xl text-xs sm:text-sm font-black shadow-xl shadow-primary/25 group-hover:scale-105 transition-all uppercase tracking-[0.2em]"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleNavigateToListingPage({ id: "all-products" }, null);
@@ -482,6 +484,80 @@ function ShoppingHome() {
             );
           })}
         </div>
+      </section>
+
+      {/* Regional Logistics Section */}
+      <section className="bg-slate-50 border-y border-slate-100 py-12 sm:py-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+         <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col items-center text-center mb-12 sm:mb-16">
+               <span className="text-[10px] sm:text-[12px] font-bold text-blue-600 uppercase tracking-[0.3em] mb-4">
+                 Our Logistics Network
+               </span>
+               <h2 className="text-2xl sm:text-4xl font-bold text-slate-900 leading-tight">
+                 Reliable Regional Delivery
+               </h2>
+               <div className="w-12 h-1 bg-orange-500 rounded-full mt-4" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+               {/* Lagos Card */}
+               <motion.div 
+                 whileHover={{ y: -5 }}
+                 className="bg-white p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col items-center text-center"
+               >
+                  <div className="w-16 h-16 bg-orange-500/10 rounded-2xl flex items-center justify-center mb-6">
+                    <FaTruck className="w-8 h-8 text-orange-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2 uppercase tracking-tight">Lagos State</h3>
+                  <div className="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase mb-4">
+                    Doorstep Delivery
+                  </div>
+                  <p className="text-slate-500 text-sm font-semibold leading-relaxed">
+                    Enjoy FREE delivery straight to your home or office anywhere in Lagos.
+                  </p>
+               </motion.div>
+
+               {/* South West Card */}
+               <motion.div 
+                 whileHover={{ y: -5 }}
+                 className="bg-white p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col items-center text-center"
+               >
+                  <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6">
+                    <MapPin className="w-8 h-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2 uppercase tracking-tight">South-West</h3>
+                  <div className="bg-blue-100 text-blue-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase mb-4">
+                    Car Park Pickup
+                  </div>
+                  <p className="text-slate-500 text-sm font-semibold leading-relaxed">
+                    FREE delivery to major car parks in all South-Western states.
+                  </p>
+               </motion.div>
+
+               {/* East/North Card */}
+               <motion.div 
+                 whileHover={{ y: -5 }}
+                 className="bg-white p-8 rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col items-center text-center"
+               >
+                  <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-6">
+                    <Plane className="w-8 h-8 text-slate-700" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2 uppercase tracking-tight">East & North</h3>
+                  <div className="bg-slate-100 text-slate-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase mb-4">
+                    Airport/Hub Pickup
+                  </div>
+                  <p className="text-slate-500 text-sm font-semibold leading-relaxed">
+                    FREE delivery to the nearest Airport or Major Logistics Hub in your city.
+                  </p>
+               </motion.div>
+            </div>
+
+            <div className="mt-12 text-center">
+               <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed max-w-xl mx-auto">
+                 * Doorstep delivery outside Lagos is available as a paid upgrade during checkout for your convenience.
+               </p>
+            </div>
+         </div>
       </section>
 
       <CustomerReviews />

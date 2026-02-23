@@ -200,15 +200,14 @@ function CommonForm({
             </SelectTrigger>
             <SelectContent 
               className="z-[100] bg-white border-slate-200 rounded-2xl shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-200"
-              onPointerDownOutside={(e) => e.preventDefault()}
             >
               {control.options?.map((option) => (
                 <SelectItem 
                   key={option.id} 
                   value={option.id}
-                  className="rounded-xl py-3 px-4 focus:bg-slate-900 focus:text-white cursor-pointer transition-colors mb-1 last:mb-0"
+                  className="rounded-xl py-3 px-4 focus:bg-primary focus:text-white cursor-pointer transition-colors mb-1 last:mb-0"
                 >
-                  <span className="text-xs font-black uppercase tracking-widest">{option.label}</span>
+                  <span className="text-xs font-bold uppercase tracking-widest">{option.label}</span>
                 </SelectItem>
               ))}
             </SelectContent>

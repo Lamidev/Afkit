@@ -7,13 +7,13 @@ const {
 // ─── Register for Debate Campaign ────────────────────────────────────────────
 exports.registerForDebate = async (req, res) => {
   try {
-    const { fullName, phone, email, tikTokHandle, instagramHandle } = req.body;
+    const { fullName, phone, email, tikTokHandle, instagramHandle, brandToDefend } = req.body;
 
     // Basic validation
-    if (!fullName || !phone || !email) {
+    if (!fullName || !phone || !email || !tikTokHandle || !instagramHandle || !brandToDefend) {
       return res.status(400).json({
         success: false,
-        message: "Full name, phone number, and email are required.",
+        message: "All fields are required to participate.",
       });
     }
 
@@ -34,8 +34,9 @@ exports.registerForDebate = async (req, res) => {
       fullName,
       phone,
       email: email.toLowerCase(),
-      tikTokHandle: tikTokHandle || "",
-      instagramHandle: instagramHandle || "",
+      tikTokHandle,
+      instagramHandle,
+      brandToDefend,
     });
 
     // Send thank-you email to the participant (non-blocking)
