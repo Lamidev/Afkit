@@ -790,10 +790,13 @@ const addProduct = async (req, res) => {
       });
     }
 
-    const newlyCreatedProduct = new Product(cleanedData);
-    // Generate manual aesthetic ID
-    const shortId = newlyCreatedProduct._id.toString().slice(-6).toUpperCase();
-    newlyCreatedProduct._id = `GAD-${shortId}`;
+    // Generate aesthetic ID BEFORE instantiating so Mongoose has the right type from the start
+    const mongoose = require("mongoose");
+    const rawId = new mongoose.Types.ObjectId();
+    const shortId = rawId.toString().slice(-6).toUpperCase();
+    const aestheticId = `GAD-${shortId}`;
+
+    const newlyCreatedProduct = new Product({ ...cleanedData, _id: aestheticId });
     await newlyCreatedProduct.save();
 
     res.status(201).json({

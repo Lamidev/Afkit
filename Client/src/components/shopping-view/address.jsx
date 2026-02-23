@@ -119,7 +119,7 @@ function Address({
     addressType: filterType || "personal",
   });
   const [currentEditedId, setCurrentEditedId] = useState(null);
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState(false); // always start on card list; useEffect opens form when needed
   const [isSaving, setIsSaving] = useState(false);
 
   // Fetch addresses on mount
@@ -129,12 +129,18 @@ function Address({
     }
   }, [dispatch, userId]);
 
-  // If no addresses exist for this type, open form automatically
+  // Only auto-open the new address form if:
+  //  a) We're on checkout (filterType is set), AND
+  //  b) There are truly no saved addresses of that type
   useEffect(() => {
-    if (filteredAddressList.length === 0 && !showForm) {
+    if (filterType && filteredAddressList.length === 0 && !showForm) {
       setShowForm(true);
     }
-  }, [filteredAddressList.length]); // eslint-disable-line
+    // If we're on the account page (no filterType), always default to showing cards
+    if (!filterType && filteredAddressList.length > 0 && showForm && currentEditedId === null) {
+      setShowForm(false);
+    }
+  }, [filteredAddressList.length, filterType]); // eslint-disable-line
 
   // When filterType changes (intent switch), reset form and re-sync addressType
   useEffect(() => {
@@ -176,13 +182,14 @@ function Address({
 
     // Always use the correct type: filterType overrides whatever is in formData
     const resolvedType = filterType || formData.addressType;
+    const logisticsRoute = REGION_MAPPING[formData.region] || "lagos";
     const payload = {
       ...formData,
-      city: formData.city || "Included", // Ensure backend required field is met
+      city: formData.city && !['Included', 'N/A'].includes(formData.city.trim()) ? formData.city.trim() : "",
+      logisticsRoute,
       addressType: resolvedType,
       isLastUsed: resolvedType === "personal",
       isLastUsedRecipient: resolvedType === "recipient",
-      // If personal, ensure we use the account email if field was hidden
       email: (resolvedType === "personal" && !formData.email) ? user?.email : formData.email
     };
 
@@ -224,7 +231,7 @@ function Address({
       fullName: addr?.fullName || "",
       email: addr?.email || "",
       address: addr?.address || "",
-      city: addr?.city || "",
+      city: (addr?.city && !['Included', 'N/A'].includes(addr.city)) ? addr.city : "",
       region: addr?.region || "",
       phone: addr?.phone || "",
       backupPhone: addr?.backupPhone || "",
@@ -289,7 +296,7 @@ function Address({
                  setShowForm(true);
                  window.scrollTo({ top: 0, behavior: "smooth" });
                }}
-               className="rounded-full border-blue-200 text-blue-600 hover:bg-blue-50 text-[10px] uppercase font-bold px-4"
+               className="rounded-full border-primary/30 text-primary hover:bg-primary hover:text-white transition-all text-[10px] uppercase font-bold px-4"
              >
                + New {filterType === "recipient" ? "Recipient" : "Address"}
              </Button>
@@ -323,7 +330,7 @@ function Address({
                   setShowForm(true);
                   window.scrollTo({ top: 0, behavior: "smooth" });
                }}
-               className="text-blue-600 font-bold text-xs uppercase"
+               className="text-primary font-bold text-xs uppercase"
             >
               Add your first one &rarr;
             </Button>

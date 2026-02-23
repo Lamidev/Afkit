@@ -59,8 +59,11 @@ function ShoppingCheckout() {
   const canUsePOD = purchaseIntent === "personal" && totalCartAmount >= 15000 && hasMajorGadget;
 
   // Delivery Logic derived from region mapping
-  const selectedState = currentSelectedAddress?.region; // Stores the state name now
-  const selectedRegion = REGION_MAPPING[selectedState] || 'lagos';
+  // selectedState is the human name (e.g. "FCT"), selectedRegion is the route key (e.g. "north")
+  // Both are null when no address is selected — prevents wrong checklist from showing
+  const selectedState = currentSelectedAddress?.region || null;
+  const selectedRegion = selectedState ? (REGION_MAPPING[selectedState] || 'lagos') : null;
+
   let deliveryMethodText = "Free Nationwide Delivery";
   let deliveryChargeText = "FREE";
   
@@ -88,10 +91,14 @@ function ShoppingCheckout() {
     }
   }, [canUsePOD, paymentType, location.state?.paymentType, cartItems?.items?.length]);
 
-  // Reset doorstep preference when region changes
+  // Reset doorstep preference whenever the selected address changes
   useEffect(() => {
-    if (selectedRegion === 'lagos') setPreferDoorstep(true);
-    else setPreferDoorstep(false);
+    if (selectedRegion === 'lagos') {
+      setPreferDoorstep(true);  // Lagos = always doorstep (free)
+    } else if (selectedRegion) {
+      setPreferDoorstep(false); // Non-Lagos = default to hub pickup
+    }
+    // If no address yet (selectedRegion is null), don't touch preferDoorstep
   }, [selectedRegion]);
 
   // When intent changes, fetch the last-used address for that intent
@@ -322,12 +329,17 @@ function ShoppingCheckout() {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                   <p className="text-[9px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
-                      {selectedState}
+                   <p className="text-[9px] font-bold text-primary uppercase tracking-wider bg-primary/5 px-2 py-0.5 rounded-md border border-primary/20">
+                      {selectedState || "–"} State
                    </p>
-                   {selectedRegion !== 'lagos' && (
-                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-white px-2 py-0.5 rounded-md border border-slate-100">
-                        {selectedRegion === 'south-west' ? 'South-West Route' : selectedRegion === 'north' ? 'North/Abuja Route' : 'East/South Route'}
+                   {selectedRegion && selectedRegion !== 'lagos' && (
+                     <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider bg-white px-2 py-0.5 rounded-md border border-slate-100">
+                        {selectedRegion === 'south-west' ? 'South-West Hub' : selectedRegion === 'north' ? 'North/Abuja Hub' : 'East/South Hub'}
+                     </p>
+                   )}
+                   {selectedRegion === 'lagos' && (
+                     <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                        Lagos Doorstep
                      </p>
                    )}
                 </div>
@@ -405,12 +417,14 @@ function ShoppingCheckout() {
                     selectedRegion === 'lagos' ? 'bg-emerald-50 border-emerald-100' : 'bg-blue-50 border-blue-100'
                   }`}>
                     <div className="flex items-start gap-3">
-                      <div className={`p-2 rounded-xl ${selectedRegion === 'lagos' ? 'bg-emerald-500/10' : 'bg-blue-500/10'}`}>
-                        <Truck className={`w-4 h-4 ${selectedRegion === 'lagos' ? 'text-emerald-600' : 'text-blue-600'}`} />
+                      <div className={`p-2 rounded-xl ${selectedRegion === 'lagos' ? 'bg-emerald-500/10' : 'bg-primary/10'}`}>
+                        <Truck className={`w-4 h-4 ${selectedRegion === 'lagos' ? 'text-emerald-600' : 'text-primary'}`} />
                       </div>
                       <div className="flex-1">
-                        <p className={`text-[10px] font-bold uppercase tracking-wider ${selectedRegion === 'lagos' ? 'text-emerald-600' : 'text-blue-600'}`}>
-                          Delivery: {selectedRegion?.replace('-', ' ')}
+                        <p className={`text-[10px] font-bold uppercase tracking-wider ${selectedRegion === 'lagos' ? 'text-emerald-600' : 'text-primary'}`}>
+                          {selectedRegion === 'lagos' ? 'Lagos Doorstep' :
+                           selectedRegion === 'south-west' ? 'South-West Regional Hub' :
+                           selectedRegion === 'north' ? 'Northern/Abuja Hub' : 'Eastern/Southern Hub'}
                         </p>
                         <p className="text-xs font-bold text-slate-700 mt-1 leading-relaxed">
                           {selectedRegion === 'lagos' 
@@ -425,7 +439,7 @@ function ShoppingCheckout() {
 
                     {/* Doorstep Toggle for non-Lagos */}
                     {selectedRegion !== 'lagos' && (
-                      <div className="mt-4 pt-4 border-t border-blue-200/50 flex items-center justify-between">
+                      <div className="mt-4 pt-4 border-t border-primary/20 flex items-center justify-between">
                          <div className="flex flex-col">
                             <span className="text-[10px] font-bold text-slate-800 uppercase">Need Doorstep Delivery?</span>
                             <span className="text-[9px] font-medium text-slate-400 uppercase italic">Paid directly to the rider on arrival</span>
@@ -433,7 +447,7 @@ function ShoppingCheckout() {
                          <button
                            onClick={() => setPreferDoorstep(!preferDoorstep)}
                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                             preferDoorstep ? 'bg-blue-600' : 'bg-slate-300'
+                             preferDoorstep ? 'bg-primary' : 'bg-slate-300'
                            }`}
                          >
                            <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${

@@ -34,7 +34,7 @@ function AddressCard({
               <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md uppercase tracking-widest border ${
                 addressInfo?.addressType === 'recipient' 
                   ? 'bg-purple-50 text-purple-600 border-purple-100' 
-                  : 'bg-blue-50 text-blue-600 border-blue-100'
+                  : 'bg-primary/10 text-primary border-primary/20'
               }`}>
                 {addressInfo?.addressType === 'recipient' ? 'Recipient' : 'Personal'}
               </span>
@@ -52,7 +52,7 @@ function AddressCard({
             <p className="text-sm sm:text-base font-bold text-slate-800 leading-snug uppercase">
               {addressInfo?.address}{addressInfo?.city && !["Included", "N/A"].includes(addressInfo.city) ? `, ${addressInfo.city}` : ""}
             </p>
-            <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider flex items-center gap-1.5 opacity-80">
+            <p className="text-[10px] font-bold text-primary uppercase tracking-wider flex items-center gap-1.5 opacity-80">
               <MapPin className="w-3 h-3" /> {addressInfo?.region || 'Lagos State'}
             </p>
           </div>
@@ -82,7 +82,7 @@ function AddressCard({
       <CardFooter className="p-4 flex gap-3 pt-0">
         <Button 
           variant="outline"
-          className="flex-1 bg-white border-slate-200 text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all font-bold text-[10px] uppercase h-9 rounded-xl"
+          className="flex-1 bg-white border-primary/20 text-primary hover:bg-primary hover:text-white hover:border-primary transition-all font-bold text-[10px] uppercase h-9 rounded-xl"
           onClick={(e) => { e.stopPropagation(); handleEditAddress(addressInfo); }}
         >
           Edit
