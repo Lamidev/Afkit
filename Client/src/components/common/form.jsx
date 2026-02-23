@@ -158,6 +158,9 @@ function CommonForm({
     const showField = isPasswordField ? showPassword : showConfirmPassword;
 
     switch (control.componentType) {
+      case "custom":
+        element = control.render ? control.render() : null;
+        break;
       case "input":
         element = (
           <div className="flex items-center gap-2 relative">
@@ -254,18 +257,20 @@ function CommonForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
-      <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {formControls.map((control) => {
           if (!shouldShowControl(control)) return null;
           return (
-            <div className="grid w-full gap-2" key={control.name}>
-              <Label htmlFor={control.name} className="text-sm font-semibold">
-                {control.label}
-                {control.required && <span className="text-destructive ml-1">*</span>}
-              </Label>
+            <div className={`grid w-full gap-2 ${control.componentType === 'textarea' || control.fullWidth ? 'md:col-span-2' : ''}`} key={control.name}>
+              {control.label && (
+                <Label htmlFor={control.name} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  {control.label}
+                  {control.required && <span className="text-destructive ml-1">*</span>}
+                </Label>
+              )}
               {renderInputsByComponentType(control)}
               {control.helperText && (
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-[10px] font-medium text-slate-400 mt-1">
                   {control.helperText}
                 </p>
               )}

@@ -13,6 +13,18 @@ import AddressCard from "./address-card";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { Button } from "../ui/button";
+import { Truck, MapPin, Check } from "lucide-react";
+
+// --- Region Mapping ---
+const REGION_MAPPING = {
+  "Lagos": "lagos",
+  "Oyo": "south-west", "Ogun": "south-west", "Osun": "south-west", "Ondo": "south-west", "Ekiti": "south-west",
+  "Abia": "south-east-south", "Anambra": "south-east-south", "Ebonyi": "south-east-south", "Enugu": "south-east-south", "Imo": "south-east-south",
+  "Akwa Ibom": "south-east-south", "Bayelsa": "south-east-south", "Cross River": "south-east-south", "Delta": "south-east-south", "Edo": "south-east-south", "Rivers": "south-east-south",
+  "FCT": "north", "Adamawa": "north", "Bauchi": "north", "Benue": "north", "Borno": "north", "Gombe": "north", "Jigawa": "north", "Kaduna": "north", 
+  "Kano": "north", "Katsina": "north", "Kebbi": "north", "Kogi": "north", "Kwara": "north", "Nasarawa": "north", "Niger": "north", "Plateau": "north", 
+  "Sokoto": "north", "Taraba": "north", "Yobe": "north", "Zamfara": "north"
+};
 
 const initialAddressFormData = {
   fullName: "",
@@ -51,18 +63,56 @@ function Address({
       if (filterType && control.name === "addressType") return false;
       // 2. Hide email for personal orders (using account email instead)
       if (filterType === "personal" && control.name === "email") return false;
+      // 3. Hide city if it's merged into address
+      if (control.name === "city") return false;
       return true;
     })
-    .map((control) => {
+    .reduce((acc, control) => {
       // Mark compulsory fields
-      const compulsoryFields = ["fullName", "phone", "address", "city", "region"];
+      const compulsoryFields = ["fullName", "phone", "address", "region"];
       if (filterType === "recipient") compulsoryFields.push("email");
       
-      return {
+      const enhancedControl = {
         ...control,
         required: compulsoryFields.includes(control.name),
+        fullWidth: ["fullName", "address", "notes"].includes(control.name),
       };
-    });
+
+      acc.push(enhancedControl);
+
+      // Inject custom route preview after the 'region' (State) select
+      if (control.name === "region") {
+        acc.push({
+          name: "logisticsPreview",
+          componentType: "custom",
+          fullWidth: true,
+          visibleIf: { field: "region", value: Object.keys(REGION_MAPPING) },
+          render: () => (
+            <div className="p-3 sm:p-4 rounded-xl border border-blue-100 bg-blue-50/30 animate-in fade-in slide-in-from-top-2">
+              <div className="flex items-center justify-between mb-2">
+                 <div className="flex items-center gap-2">
+                    <Truck className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Auto-Assigned Route</span>
+                 </div>
+                 <div className="flex items-center gap-1 px-1.5 py-0.5 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+                    <Check className="w-2 h-2 text-emerald-600" />
+                    <span className="text-[7px] font-black text-emerald-600 uppercase">Verified</span>
+                 </div>
+              </div>
+              <div className="flex items-center justify-between">
+                 <span className="text-[11px] font-black text-slate-900 uppercase tracking-tight">
+                    {REGION_MAPPING[formData.region] === 'lagos' ? 'Lagos Doorstep Delivery' : 
+                     REGION_MAPPING[formData.region] === 'south-west' ? 'South-West Regional Hub' :
+                     REGION_MAPPING[formData.region] === 'north' ? 'Northern/Abuja Hub' : 'Eastern/Southern Hub'}
+                 </span>
+                 <span className="text-[8px] font-bold text-slate-300 uppercase italic">Free Nationwide</span>
+              </div>
+            </div>
+          )
+        });
+      }
+      return acc;
+    }, []);
 
   const [formData, setFormData] = useState({
     ...initialAddressFormData,
@@ -128,6 +178,7 @@ function Address({
     const resolvedType = filterType || formData.addressType;
     const payload = {
       ...formData,
+      city: formData.city || "Included", // Ensure backend required field is met
       addressType: resolvedType,
       isLastUsed: resolvedType === "personal",
       isLastUsedRecipient: resolvedType === "recipient",
@@ -196,12 +247,12 @@ function Address({
   }
 
   function isFormValid() {
-    const required = ["fullName", "phone", "address", "city", "region"];
+    const required = ["fullName", "phone", "address", "region"];
     if (filterType === "recipient") required.push("email");
     
     return required.every((f) => {
       const v = formData[f];
-      return v && typeof v === "string" && v.trim().length > 0;
+      return v && typeof v === "string" && v?.trim()?.length > 0;
     });
   }
 
@@ -224,8 +275,30 @@ function Address({
 
   return (
     <div className="flex flex-col gap-5">
-      {/* ── Address Cards ── */}
-      {filteredAddressList.length > 0 && (
+      {/* ── 1. Header (Only if not hidden) ── */}
+      {!hideHeader && !showForm && (
+        <div className="flex items-center justify-between px-1">
+           <h3 className="font-bold text-slate-900 uppercase text-sm tracking-tight">{formTitle}</h3>
+           {filteredAddressList.length < 3 && (
+             <Button
+               variant="outline"
+               size="sm"
+               onClick={() => {
+                 setCurrentEditedId(null);
+                 setFormData({ ...initialAddressFormData, addressType: filterType || "personal" });
+                 setShowForm(true);
+                 window.scrollTo({ top: 0, behavior: "smooth" });
+               }}
+               className="rounded-full border-blue-200 text-blue-600 hover:bg-blue-50 text-[10px] uppercase font-bold px-4"
+             >
+               + New {filterType === "recipient" ? "Recipient" : "Address"}
+             </Button>
+           )}
+        </div>
+      )}
+
+      {/* ── 2. Address Cards List (Hidden when form is open to focus) ── */}
+      {!showForm && filteredAddressList.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {filteredAddressList.map((addr) => (
             <AddressCard
@@ -233,76 +306,71 @@ function Address({
               selectedId={selectedId}
               handleDeleteAddress={handleDeleteAddress}
               addressInfo={addr}
-              handleEditAddress={handleEditAddress}
+              handleEditAddress={(a) => {
+                handleEditAddress(a);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
               setCurrentSelectedAddress={setCurrentSelectedAddress}
             />
           ))}
-
-          {/* Add another address card — only shown if < 3 saved and form isn't open */}
-          {!showForm && addressList.length < 3 && (
-            <div
-              className="border-dashed border-2 border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all flex flex-col items-center justify-center p-6 min-h-[120px] group"
-              onClick={() => {
-                setCurrentEditedId(null);
-                setFormData({ ...initialAddressFormData, addressType: filterType || "personal" });
-                setShowForm(true);
-              }}
-            >
-              <Plus className="w-7 h-7 text-blue-300 group-hover:text-blue-600 transition-colors mb-1.5" />
-              <p className="font-bold text-blue-400 group-hover:text-blue-600 transition-colors text-sm">
-                Add {filterType === "recipient" ? "Recipient" : "Address"}
-              </p>
-            </div>
-          )}
         </div>
-      )}
+      ) : !showForm && filteredAddressList.length === 0 ? (
+        <div className="text-center py-10 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No addresses saved yet</p>
+           <Button
+               variant="link"
+               onClick={() => {
+                  setShowForm(true);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+               }}
+               className="text-blue-600 font-bold text-xs uppercase"
+            >
+              Add your first one &rarr;
+            </Button>
+        </div>
+      ) : null}
 
-      {/* ── New / Edit Form ── */}
+      {/* ── 3. New / Edit Form (Full view focus) ── */}
       {showForm && (
         <Card className="border-2 border-primary/20 shadow-lg overflow-hidden animate-in slide-in-from-top duration-300">
-          {!hideHeader && (
-            <CardHeader className="bg-slate-50 border-b p-4">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="font-black text-slate-900 uppercase text-sm tracking-tight">
-                    {formTitle}
-                  </h3>
-                  {filterType && (
-                    <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">
-                      {filterType === "recipient"
-                        ? "Who should we deliver to?"
-                        : "Where should we deliver?"}
-                    </p>
-                  )}
-                </div>
-                {/* Only show Cancel if there are already cards to go back to */}
-                {filteredAddressList.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setShowForm(false);
-                      setCurrentEditedId(null);
-                      setFormData({ ...initialAddressFormData, addressType: filterType || "personal" });
-                    }}
-                    className="text-slate-400 hover:text-red-500 text-xs"
-                  >
-                    Cancel
-                  </Button>
+          <CardHeader className="bg-slate-50 border-b p-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-black text-slate-900 uppercase text-sm tracking-tight">
+                  {currentEditedId ? "Update Details" : "Enter Details"}
+                </h3>
+                {filterType && (
+                  <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">
+                    {filterType === "recipient"
+                      ? "Shipping details for the receiver"
+                      : "Your shipping information"}
+                  </p>
                 )}
               </div>
-            </CardHeader>
-          )}
-          <CardContent className="p-5">
-            <CommonForm
-              formControls={formControls}
-              formData={formData}
-              setFormData={setFormData}
-              buttonText={btnLabel}
-              onSubmit={handleManageAddress}
-              isBtnDisabled={!isFormValid() || isSaving}
-            />
-          </CardContent>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setShowForm(false);
+                  setCurrentEditedId(null);
+                  setFormData({ ...initialAddressFormData, addressType: filterType || "personal" });
+                }}
+                className="text-slate-400 hover:text-red-500 text-xs font-bold uppercase"
+              >
+                {filteredAddressList.length > 0 ? "Cancel" : "Back"}
+              </Button>
+            </div>
+          </CardHeader>
+            <CardContent className="p-5 sm:p-6">
+              <CommonForm
+                formControls={formControls}
+                formData={formData}
+                setFormData={setFormData}
+                onSubmit={handleManageAddress}
+                buttonText={btnLabel}
+                isBtnDisabled={!isFormValid() || isSaving}
+              />
+            </CardContent>
         </Card>
       )}
     </div>
