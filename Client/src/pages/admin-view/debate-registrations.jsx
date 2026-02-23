@@ -176,8 +176,12 @@ function AdminDebateRegistrations() {
                       <div className="flex justify-between items-start mb-3">
                         <p className="font-bold text-gray-900 text-base">{reg.fullName}</p>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] bg-orange-50 text-orange-600 font-bold px-2 py-1 rounded-full uppercase border border-orange-100">
-                            Joined
+                          <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase border ${
+                            reg.brandToDefend === 'iPhone' 
+                            ? 'bg-slate-900 text-white border-slate-800' 
+                            : 'bg-blue-600 text-white border-blue-500'
+                          }`}>
+                            {reg.brandToDefend || 'Contestant'}
                           </span>
                           <button
                             onClick={() => handleDeleteClick(reg._id)}
@@ -239,6 +243,9 @@ function AdminDebateRegistrations() {
                           Instagram
                         </th>
                         <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">
+                          Defending
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest">
                           Date
                         </th>
                         <th className="px-6 py-4 text-center text-xs font-bold text-gray-400 uppercase tracking-widest">
@@ -280,6 +287,15 @@ function AdminDebateRegistrations() {
                               {reg.instagramHandle || "—"}
                             </span>
                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap">
+                             <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border ${
+                               reg.brandToDefend === 'iPhone'
+                               ? 'bg-slate-900 text-white border-slate-800 shadow-sm'
+                               : 'bg-blue-600 text-white border-blue-500 shadow-sm'
+                             }`}>
+                               {reg.brandToDefend || "N/A"}
+                             </span>
+                           </td>
                            <td className="px-6 py-4 whitespace-nowrap">
                             <span className="text-xs text-gray-400">
                               {formatDate(reg.createdAt)}

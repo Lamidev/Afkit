@@ -88,6 +88,11 @@ const addressSlice = createSlice({
       .addCase(fetchAllAddresses.rejected, (state) => {
         state.isLoading = false;
         state.addressList = [];
+      })
+      .addCase(deleteAddress.fulfilled, (state, action) => {
+        // Optimistically remove the address from the list if the server succeeded
+        const deletedId = action.meta.arg.addressId;
+        state.addressList = state.addressList.filter(item => item._id !== deletedId);
       });
   },
 });

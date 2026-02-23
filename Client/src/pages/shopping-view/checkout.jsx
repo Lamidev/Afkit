@@ -9,6 +9,21 @@ import { fetchLastUsedAddress } from "@/store/shop/address-slice";
 import { CreditCard, Truck, Check, AlertCircle, Gift, User, ChevronLeft, Loader2, MapPin } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+// --- Region Mapping ---
+const REGION_MAPPING = {
+  // Lagos
+  "Lagos": "lagos",
+  // South West
+  "Oyo": "south-west", "Ogun": "south-west", "Osun": "south-west", "Ondo": "south-west", "Ekiti": "south-west",
+  // South East / South South
+  "Abia": "south-east-south", "Anambra": "south-east-south", "Ebonyi": "south-east-south", "Enugu": "south-east-south", "Imo": "south-east-south",
+  "Akwa Ibom": "south-east-south", "Bayelsa": "south-east-south", "Cross River": "south-east-south", "Delta": "south-east-south", "Edo": "south-east-south", "Rivers": "south-east-south",
+  // North / Abuja
+  "FCT": "north", "Adamawa": "north", "Bauchi": "north", "Benue": "north", "Borno": "north", "Gombe": "north", "Jigawa": "north", "Kaduna": "north", 
+  "Kano": "north", "Katsina": "north", "Kebbi": "north", "Kogi": "north", "Kwara": "north", "Nasarawa": "north", "Niger": "north", "Plateau": "north", 
+  "Sokoto": "north", "Taraba": "north", "Yobe": "north", "Zamfara": "north"
+};
+
 function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart);
   const { user } = useSelector((state) => state.auth);
@@ -43,8 +58,9 @@ function ShoppingCheckout() {
 
   const canUsePOD = purchaseIntent === "personal" && totalCartAmount >= 15000 && hasMajorGadget;
 
-  // Delivery Logic derived from region
-  const selectedRegion = currentSelectedAddress?.region;
+  // Delivery Logic derived from region mapping
+  const selectedState = currentSelectedAddress?.region; // Stores the state name now
+  const selectedRegion = REGION_MAPPING[selectedState] || 'lagos';
   let deliveryMethodText = "Free Nationwide Delivery";
   let deliveryChargeText = "FREE";
   
@@ -108,6 +124,7 @@ function ShoppingCheckout() {
     setCurrentSelectedAddress(addr);
     setIsAddressConfirmed(false); // Always force manual confirm after a selection
     setShowAddressSummary(true);  // Collapse to summary view
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function handleInitiatePaystackPayment() {
@@ -288,26 +305,38 @@ function ShoppingCheckout() {
 
             {showAddressSummary && currentSelectedAddress ? (
               /* ── Summary Card ── */
-              <div className="p-5 rounded-2xl border-2 border-orange-400 bg-orange-50/20 relative">
-                <div className="flex items-center gap-2 mb-3">
-                  <MapPin className="w-4 h-4 text-orange-500" />
-                  <span className="text-[10px] font-bold text-orange-600 uppercase tracking-widest">
-                    {purchaseIntent === "personal" ? "Delivery Address" : "Recipient Info"}
+              <div className="p-4 sm:p-5 rounded-2xl border border-slate-200 bg-slate-50/50 relative">
+                <div className="flex items-center gap-2 mb-2.5">
+                  <div className="p-1.5 bg-white rounded-lg border border-slate-100 shadow-sm">
+                    <MapPin className="w-3.5 h-3.5 text-orange-500" />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    {purchaseIntent === "personal" ? "Selected Address" : "Recipient Info"}
                   </span>
                   {isAddressConfirmed && (
-                    <div className="ml-auto flex items-center gap-1 px-2 py-0.5 bg-emerald-100 rounded-full">
-                      <Check className="w-2.5 h-2.5 text-emerald-600" />
-                      <span className="text-[8px] font-bold text-emerald-600 uppercase">Confirmed</span>
+                    <div className="ml-auto flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100">
+                      <Check className="w-2.5 h-2.5" />
+                      <span className="text-[8px] font-bold uppercase">Ready</span>
                     </div>
                   )}
                 </div>
 
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                   <p className="text-[9px] font-bold text-blue-600 uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
+                      {selectedState}
+                   </p>
+                   {selectedRegion !== 'lagos' && (
+                     <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider bg-white px-2 py-0.5 rounded-md border border-slate-100">
+                        {selectedRegion === 'south-west' ? 'South-West Route' : selectedRegion === 'north' ? 'North/Abuja Route' : 'East/South Route'}
+                     </p>
+                   )}
+                </div>
                 <p className="text-sm font-bold text-slate-900 uppercase">{currentSelectedAddress.fullName}</p>
                 <p className="text-xs font-semibold text-slate-500 mt-0.5 uppercase leading-relaxed">
-                  {currentSelectedAddress.address}, {currentSelectedAddress.city}
+                  {currentSelectedAddress.address}{currentSelectedAddress.city && !["Included", "N/A"].includes(currentSelectedAddress.city) ? `, ${currentSelectedAddress.city}` : ""}
                 </p>
                 <p className="text-xs font-bold text-slate-700 mt-2 flex items-center gap-1.5 font-mono whitespace-nowrap">
-                  <span>📞</span> {currentSelectedAddress.phone}
+                  <span>📞</span> <span className="tracking-tighter">{currentSelectedAddress.phone}</span>
                 </p>
                  {currentSelectedAddress.email && (
                    <p className="text-[10px] font-semibold text-slate-400 mt-1">
@@ -329,12 +358,12 @@ function ShoppingCheckout() {
                   onClick={() => setIsAddressConfirmed((prev) => !prev)}
                   className={`mt-4 w-full h-11 rounded-xl border-2 transition-all flex items-center justify-center gap-2 font-bold text-[11px] uppercase tracking-widest ${
                     isAddressConfirmed
-                      ? "bg-emerald-500 border-emerald-500 text-white"
-                      : "border-orange-300 text-orange-600 hover:bg-orange-50"
+                      ? "bg-slate-900 border-slate-900 text-white"
+                      : "border-orange-500 text-orange-600 hover:bg-orange-50 shadow-lg shadow-orange-500/10"
                   }`}
                 >
-                  {isAddressConfirmed ? <Check className="w-4 h-4" /> : null}
-                  {isAddressConfirmed ? "✓ Information Confirmed" : "Tap to Confirm This Info"}
+                  {isAddressConfirmed ? <Check className="w-4 h-4 text-emerald-400" /> : null}
+                  {isAddressConfirmed ? "Information Confirmed" : "Confirm This Information"}
                 </button>
 
                 {/* Change link */}
@@ -380,8 +409,8 @@ function ShoppingCheckout() {
                         <Truck className={`w-4 h-4 ${selectedRegion === 'lagos' ? 'text-emerald-600' : 'text-blue-600'}`} />
                       </div>
                       <div className="flex-1">
-                        <p className={`text-[10px] font-bold uppercase tracking-widest ${selectedRegion === 'lagos' ? 'text-emerald-600' : 'text-blue-600'}`}>
-                          Delivery Method: {selectedRegion?.replace('-', ' ')}
+                        <p className={`text-[10px] font-bold uppercase tracking-wider ${selectedRegion === 'lagos' ? 'text-emerald-600' : 'text-blue-600'}`}>
+                          Delivery: {selectedRegion?.replace('-', ' ')}
                         </p>
                         <p className="text-xs font-bold text-slate-700 mt-1 leading-relaxed">
                           {selectedRegion === 'lagos' 
@@ -417,35 +446,47 @@ function ShoppingCheckout() {
 
                   {/* Delivery Conditions Checklist */}
                   <div className="bg-slate-900 rounded-2xl p-5 shadow-xl border border-slate-800">
-                    <h3 className="text-[10px] font-bold text-blue-400 uppercase tracking-[0.2em] mb-4">Condition for Delivery</h3>
-                    <div className="space-y-3">
-                       <div className="flex items-start gap-3">
-                          <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mt-0.5 shrink-0">
-                             <Check className="w-2.5 h-2.5 text-emerald-500" />
+                    <h3 className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-4">Condition for Delivery</h3>
+                     <div className="space-y-3">
+                        <div className="flex items-start gap-3">
+                           <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mt-0.5 shrink-0">
+                              <Check className="w-2.5 h-2.5 text-emerald-500" />
+                           </div>
+                           <p className="text-[10px] sm:text-xs font-semibold text-slate-300 leading-normal">
+                              Items are UK-Used/Brand New as described. No returns after confirmation on delivery.
+                           </p>
+                        </div>
+                        <div className="flex items-start gap-3">
+                           <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mt-0.5 shrink-0">
+                              <Check className="w-2.5 h-2.5 text-emerald-500" />
+                           </div>
+                           <p className="text-[10px] sm:text-xs font-semibold text-slate-300 leading-normal">
+                              {selectedRegion === 'lagos' 
+                                ? "Free Doorstep Delivery included. Arrives within 24-48 hours."
+                                : preferDoorstep 
+                                  ? "Doorstep delivery selected. Pay the secondary rider fee on arrival."
+                                  : "Free Hub/Park delivery selected. Collect at the designated station."}
+                           </p>
+                        </div>
+                        {selectedRegion !== 'lagos' && (
+                          <div className="flex items-start gap-3">
+                             <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mt-0.5 shrink-0">
+                                <Check className="w-2.5 h-2.5 text-emerald-500" />
+                             </div>
+                             <p className="text-[10px] sm:text-xs font-semibold text-slate-300 leading-normal">
+                                Regional orders arrive at the route hub within 2-3 business days.
+                             </p>
                           </div>
-                          <p className="text-[10px] sm:text-xs font-medium text-slate-300 leading-normal">
-                             Items are UK-Used/Brand New as described. No returns after confirmation on delivery.
-                          </p>
-                       </div>
-                       <div className="flex items-start gap-3">
-                          <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mt-0.5 shrink-0">
-                             <Check className="w-2.5 h-2.5 text-emerald-500" />
-                          </div>
-                          <p className="text-[10px] sm:text-xs font-medium text-slate-300 leading-normal">
-                             {selectedRegion === 'lagos' 
-                               ? "Orders confirmed today arrive within 24-48 hours."
-                               : "Regional orders arrive at the hub/park within 2-3 business days."}
-                          </p>
-                       </div>
-                       <div className="flex items-start gap-3">
-                          <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mt-0.5 shrink-0">
-                             <Check className="w-2.5 h-2.5 text-emerald-500" />
-                          </div>
-                          <p className="text-[10px] sm:text-xs font-medium text-slate-300 leading-normal italic">
-                             * By paying, you agree to these delivery terms.
-                          </p>
-                       </div>
-                    </div>
+                        )}
+                        <div className="flex items-start gap-3 pt-1">
+                           <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mt-0.5 shrink-0">
+                              <Check className="w-2.5 h-2.5 text-emerald-500" />
+                           </div>
+                           <p className="text-[10px] sm:text-xs font-semibold text-slate-300 leading-normal italic">
+                              * By paying, you agree to these delivery terms.
+                           </p>
+                        </div>
+                     </div>
                   </div>
                </div>
             )}
