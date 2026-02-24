@@ -169,7 +169,8 @@ exports.sendAdminOrderNotificationEmail = async (order) => {
       <table style="width:100%; border-collapse: collapse; font-size:13px;">
         <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Buyer Email</td><td style="padding:8px 0;">${order.payerEmail}</td></tr>
         <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Ship To</td><td style="padding:8px 0;">${order.addressInfo?.fullName} — ${order.addressInfo?.address}</td></tr>
-        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">State</td><td style="padding:8px 0;">${order.addressInfo?.region || 'Lagos'}</td></tr>
+        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">State</td><td style="padding:8px 0;">${order.addressInfo?.region || 'N/A'}</td></tr>
+        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Preference</td><td style="padding:8px 0; font-weight:bold; color:${order.addressInfo?.deliveryPreference === 'doorstep' ? '#ea580c' : '#475569'};">${order.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Doorstep Delivery' : '🏢 Hub Pickup'}</td></tr>
         <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Phone</td><td style="padding:8px 0;">${order.addressInfo?.phone}</td></tr>
         <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Order Type</td><td style="padding:8px 0;">${isGift ? '🎁 GIFT / SOMEONE ELSE' : '📦 Personal Order'}</td></tr>
         <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Items</td><td style="padding:8px 0;">${items}</td></tr>

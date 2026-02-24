@@ -45,3 +45,35 @@ export const createSlug = (text) => {
     .replace(/[^\w-]+/g, "") // Remove all non-word chars
     .replace(/--+/g, "-"); // Replace multiple - with single -
 };
+/**
+ * Logistics & Region Mapping
+ */
+export const REGION_MAPPING = {
+  "Lagos": "lagos",
+  "Oyo": "south-west", "Ogun": "south-west", "Osun": "south-west", "Ondo": "south-west", "Ekiti": "south-west",
+  "Abia": "south-east-south", "Anambra": "south-east-south", "Ebonyi": "south-east-south", "Enugu": "south-east-south", "Imo": "south-east-south",
+  "Akwa Ibom": "south-east-south", "Bayelsa": "south-east-south", "Cross River": "south-east-south", "Delta": "south-east-south", "Edo": "south-east-south", "Rivers": "south-east-south",
+  "FCT": "north", "Adamawa": "north", "Bauchi": "north", "Benue": "north", "Borno": "north", "Gombe": "north", "Jigawa": "north", "Kaduna": "north",
+  "Kano": "north", "Katsina": "north", "Kebbi": "north", "Kogi": "north", "Kwara": "north", "Nasarawa": "north", "Niger": "north", "Plateau": "north",
+  "Sokoto": "north", "Taraba": "north", "Yobe": "north", "Zamfara": "north"
+};
+
+/**
+ * Returns the logistics route key for a given state/region name
+ * Case-insensitive and handles trimming to prevent falling back to 'lagos' incorrectly.
+ * @param {string} region - State name
+ * @returns {string} - Route key ('lagos', 'south-west', 'south-east-south', 'north')
+ */
+export const getRouteFromRegion = (region) => {
+  if (!region) return "lagos";
+  const normalized = region.toString().trim();
+  
+  // Direct match
+  if (REGION_MAPPING[normalized]) return REGION_MAPPING[normalized];
+  
+  // Case-insensitive match
+  const lowerRegion = normalized.toLowerCase();
+  const match = Object.keys(REGION_MAPPING).find(key => key.toLowerCase() === lowerRegion);
+  
+  return match ? REGION_MAPPING[match] : "lagos";
+};

@@ -50,10 +50,10 @@ function AddressCard({
         <div className="space-y-3">
           <div className="space-y-1">
             <p className="text-sm sm:text-base font-bold text-slate-800 leading-snug uppercase">
-              {addressInfo?.address}{addressInfo?.city && !["Included", "N/A"].includes(addressInfo.city) ? `, ${addressInfo.city}` : ""}
+              {addressInfo?.address}
             </p>
             <p className="text-[10px] font-bold text-primary uppercase tracking-wider flex items-center gap-1.5 opacity-80">
-              <MapPin className="w-3 h-3" /> {addressInfo?.region || 'Lagos State'}
+              <MapPin className="w-3 h-3" /> {addressInfo?.region}
             </p>
           </div>
 
