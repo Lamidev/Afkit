@@ -18,6 +18,25 @@ const ROUTE_LABELS = {
   "north": "Northern/Abuja Hub"
 };
 
+/**
+ * Returns the logistics route key for a given state/region name
+ * Case-insensitive and handles trimming to prevent falling back to 'lagos' incorrectly.
+ */
+const getRouteFromRegion = (region) => {
+  if (!region) return "lagos";
+  const normalized = region.toString().trim();
+  
+  // Direct match
+  if (REGION_MAPPING[normalized]) return REGION_MAPPING[normalized];
+  
+  // Case-insensitive match
+  const lowerRegion = normalized.toLowerCase();
+  const match = Object.keys(REGION_MAPPING).find(key => key.toLowerCase() === lowerRegion);
+  
+  return match ? REGION_MAPPING[match] : "lagos";
+};
+
+
 const addAddress = async (req, res) => {
   try {
     const { userId, fullName, email, address, city, region, phone, backupPhone, notes, addressType } = req.body;
@@ -35,7 +54,7 @@ const addAddress = async (req, res) => {
     }
 
     // Derive logistics route from state name
-    const logisticsRoute = REGION_MAPPING[region] || "lagos";
+    const logisticsRoute = getRouteFromRegion(region);
 
     // Clear other last used flags for this user and type
     const flagToClear = addressType === "recipient" ? { isLastUsedRecipient: true } : { isLastUsed: true };

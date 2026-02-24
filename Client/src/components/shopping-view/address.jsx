@@ -14,17 +14,8 @@ import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { Button } from "../ui/button";
 import { Truck, MapPin, Check } from "lucide-react";
+import { getRouteFromRegion, REGION_MAPPING } from "@/utils/common";
 
-// --- Region Mapping ---
-const REGION_MAPPING = {
-  "Lagos": "lagos",
-  "Oyo": "south-west", "Ogun": "south-west", "Osun": "south-west", "Ondo": "south-west", "Ekiti": "south-west",
-  "Abia": "south-east-south", "Anambra": "south-east-south", "Ebonyi": "south-east-south", "Enugu": "south-east-south", "Imo": "south-east-south",
-  "Akwa Ibom": "south-east-south", "Bayelsa": "south-east-south", "Cross River": "south-east-south", "Delta": "south-east-south", "Edo": "south-east-south", "Rivers": "south-east-south",
-  "FCT": "north", "Adamawa": "north", "Bauchi": "north", "Benue": "north", "Borno": "north", "Gombe": "north", "Jigawa": "north", "Kaduna": "north", 
-  "Kano": "north", "Katsina": "north", "Kebbi": "north", "Kogi": "north", "Kwara": "north", "Nasarawa": "north", "Niger": "north", "Plateau": "north", 
-  "Sokoto": "north", "Taraba": "north", "Yobe": "north", "Zamfara": "north"
-};
 
 const initialAddressFormData = {
   fullName: "",
@@ -86,7 +77,7 @@ function Address({
           name: "logisticsPreview",
           componentType: "custom",
           fullWidth: true,
-          visibleIf: { field: "region", value: Object.keys(REGION_MAPPING) },
+          visibleIf: { field: "region", value: Object.keys(REGION_MAPPING || {}) },
           render: () => (
             <div className="p-3 sm:p-4 rounded-xl border border-blue-100 bg-blue-50/30 animate-in fade-in slide-in-from-top-2">
               <div className="flex items-center justify-between mb-2">
@@ -101,9 +92,9 @@ function Address({
               </div>
               <div className="flex items-center justify-between">
                  <span className="text-[11px] font-black text-slate-900 uppercase tracking-tight">
-                    {REGION_MAPPING[formData.region] === 'lagos' ? 'Lagos Doorstep Delivery' : 
-                     REGION_MAPPING[formData.region] === 'south-west' ? 'South-West Regional Hub' :
-                     REGION_MAPPING[formData.region] === 'north' ? 'Northern/Abuja Hub' : 'Eastern/Southern Hub'}
+                    {getRouteFromRegion(formData.region) === 'lagos' ? 'Lagos Doorstep Delivery' : 
+                     getRouteFromRegion(formData.region) === 'south-west' ? 'South-West Regional Hub' :
+                     getRouteFromRegion(formData.region) === 'north' ? 'Northern/Abuja Hub' : 'Eastern/Southern Hub'}
                  </span>
                  <span className="text-[8px] font-bold text-slate-300 uppercase italic">Free Nationwide</span>
               </div>
@@ -182,7 +173,7 @@ function Address({
 
     // Always use the correct type: filterType overrides whatever is in formData
     const resolvedType = filterType || formData.addressType;
-    const logisticsRoute = REGION_MAPPING[formData.region] || "lagos";
+    const logisticsRoute = getRouteFromRegion(formData.region);
     const payload = {
       ...formData,
       city: formData.city && !['Included', 'N/A'].includes(formData.city.trim()) ? formData.city.trim() : "",

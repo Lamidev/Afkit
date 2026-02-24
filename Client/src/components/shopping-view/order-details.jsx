@@ -5,16 +5,8 @@ import { Separator } from "@/components/ui/separator";
 import { useSelector } from "react-redux";
 import { formatAestheticId } from "@/utils/common";
 import { Gift, MapPin, Truck } from "lucide-react";
+import { getRouteFromRegion } from "@/utils/common";
 
-const REGION_MAPPING = {
-  "Lagos": "lagos",
-  "Oyo": "south-west", "Ogun": "south-west", "Osun": "south-west", "Ondo": "south-west", "Ekiti": "south-west",
-  "Abia": "south-east-south", "Anambra": "south-east-south", "Ebonyi": "south-east-south", "Enugu": "south-east-south", "Imo": "south-east-south",
-  "Akwa Ibom": "south-east-south", "Bayelsa": "south-east-south", "Cross River": "south-east-south", "Delta": "south-east-south", "Edo": "south-east-south", "Rivers": "south-east-south",
-  "FCT": "north", "Adamawa": "north", "Bauchi": "north", "Benue": "north", "Borno": "north", "Gombe": "north", "Jigawa": "north", "Kaduna": "north",
-  "Kano": "north", "Katsina": "north", "Kebbi": "north", "Kogi": "north", "Kwara": "north", "Nasarawa": "north", "Niger": "north", "Plateau": "north",
-  "Sokoto": "north", "Taraba": "north", "Yobe": "north", "Zamfara": "north"
-};
 
 const ROUTE_LABELS = {
   "lagos": "Lagos Doorstep Delivery",
@@ -136,27 +128,37 @@ function ShoppingOrderDetailsView({ orderDetails }) {
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Delivery Address</span>
               <span className="text-sm text-slate-700 font-medium">
                 {orderDetails?.addressInfo?.address}
-                {orderDetails?.addressInfo?.city && !['Included','N/A',''].includes(orderDetails.addressInfo.city)
-                  ? `, ${orderDetails.addressInfo.city}` : ""}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">State</span>
-                <span className="text-sm font-bold text-slate-900">{orderDetails?.addressInfo?.region || "Lagos"}</span>
+                <span className="text-sm font-bold text-slate-900">{orderDetails?.addressInfo?.region || "N/A"}</span>
               </div>
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Logistics Route</span>
                 <span className="text-[10px] font-black text-blue-700 bg-blue-50 px-2 py-1 rounded border border-blue-100 block w-fit">
                   {ROUTE_LABELS[orderDetails?.addressInfo?.logisticsRoute] ||
-                   ROUTE_LABELS[REGION_MAPPING[orderDetails?.addressInfo?.region]] ||
-                   "Lagos Doorstep Delivery"}
+                   (orderDetails?.addressInfo?.region ? ROUTE_LABELS[getRouteFromRegion(orderDetails?.addressInfo?.region)] : "N/A")}
                 </span>
+                {orderDetails?.addressInfo?.deliveryPreference && (
+                  <Badge className={`mt-2 text-[8px] font-bold uppercase tracking-widest ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-600 text-white border-0' : 'bg-slate-200 text-slate-700 border-0'}`}>
+                    {orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Doorstep Delivery' : '🏢 Hub Pickup'}
+                  </Badge>
+                )}
               </div>
             </div>
-            <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Phone</span>
-              <span className="text-sm font-bold text-slate-900 font-mono">{orderDetails?.addressInfo?.phone}</span>
+            <div className="flex flex-wrap gap-4">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Phone</span>
+                <span className="text-sm font-bold text-slate-900 font-mono">{orderDetails?.addressInfo?.phone}</span>
+              </div>
+              {orderDetails?.addressInfo?.backupPhone && (
+                <div>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Backup Phone</span>
+                  <span className="text-sm font-bold text-orange-600 font-mono">{orderDetails?.addressInfo?.backupPhone}</span>
+                </div>
+              )}
             </div>
             {orderDetails?.addressInfo?.notes && (
               <div>

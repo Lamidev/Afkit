@@ -163,7 +163,7 @@ ${cartItems
               >
                 <Button
                   onClick={() => {
-                    navigate("/shop/listing");
+                    navigate("/shop/listing?sort=random");
                     setOpenCartSheet(false);
                   }}
                   className="w-full max-w-xs"

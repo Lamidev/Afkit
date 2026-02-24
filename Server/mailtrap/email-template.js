@@ -523,7 +523,8 @@ const getOrderConfirmationTemplate = (order) => {
           <p style="margin:0;font-size:14px;color:#475569;line-height:1.6;">
             <strong>Recipient: ${recipientName}</strong><br/>
             Address: ${order.addressInfo?.address || 'N/A'}<br/>
-            State: ${order.addressInfo?.region || 'Lagos'}<br/>
+            State: ${order.addressInfo?.region || 'N/A'}<br/>
+            Route: <strong style="color:${BRAND_ORANGE}; text-transform:uppercase;">${getRouteLabel(order.addressInfo?.logisticsRoute || 'lagos')}</strong><br/>
             Phone: ${order.addressInfo?.phone || 'N/A'}
           </p>
           ${isGift || isAssisted ? `
@@ -715,7 +716,8 @@ const getPayerDeliveryConfirmationTemplate = (order) => {
             <strong>Order ID:</strong> #${order.orderId?.startsWith('ORD-') ? order.orderId : 'ORD-' + (order.orderId || order._id || 'PENDING').toString().slice(-8).toUpperCase()}<br/>
             <strong>Delivered to:</strong> ${recipientName}<br/>
             <strong>Address:</strong> ${order.addressInfo?.address || 'N/A'}<br/>
-            <strong>State:</strong> ${order.addressInfo?.region || 'Lagos'}<br/>
+            <strong>State:</strong> ${order.addressInfo?.region || 'N/A'}<br/>
+            <strong>Route:</strong> ${getRouteLabel(order.addressInfo?.logisticsRoute || 'lagos')}<br/>
             <strong>Date:</strong> ${deliveryDate}<br/>
             <strong>Verification:</strong> Proof of Delivery (POD) Recorded ✓
           </p>

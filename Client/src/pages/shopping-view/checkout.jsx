@@ -8,21 +8,8 @@ import { createNewOrder } from "@/store/shop/order-slice";
 import { fetchLastUsedAddress } from "@/store/shop/address-slice";
 import { CreditCard, Truck, Check, AlertCircle, Gift, User, ChevronLeft, Loader2, MapPin } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { getRouteFromRegion } from "@/utils/common";
 
-// --- Region Mapping ---
-const REGION_MAPPING = {
-  // Lagos
-  "Lagos": "lagos",
-  // South West
-  "Oyo": "south-west", "Ogun": "south-west", "Osun": "south-west", "Ondo": "south-west", "Ekiti": "south-west",
-  // South East / South South
-  "Abia": "south-east-south", "Anambra": "south-east-south", "Ebonyi": "south-east-south", "Enugu": "south-east-south", "Imo": "south-east-south",
-  "Akwa Ibom": "south-east-south", "Bayelsa": "south-east-south", "Cross River": "south-east-south", "Delta": "south-east-south", "Edo": "south-east-south", "Rivers": "south-east-south",
-  // North / Abuja
-  "FCT": "north", "Adamawa": "north", "Bauchi": "north", "Benue": "north", "Borno": "north", "Gombe": "north", "Jigawa": "north", "Kaduna": "north", 
-  "Kano": "north", "Katsina": "north", "Kebbi": "north", "Kogi": "north", "Kwara": "north", "Nasarawa": "north", "Niger": "north", "Plateau": "north", 
-  "Sokoto": "north", "Taraba": "north", "Yobe": "north", "Zamfara": "north"
-};
 
 function ShoppingCheckout() {
   const { cartItems } = useSelector((state) => state.shopCart);
@@ -62,7 +49,7 @@ function ShoppingCheckout() {
   // selectedState is the human name (e.g. "FCT"), selectedRegion is the route key (e.g. "north")
   // Both are null when no address is selected — prevents wrong checklist from showing
   const selectedState = currentSelectedAddress?.region || null;
-  const selectedRegion = selectedState ? (REGION_MAPPING[selectedState] || 'lagos') : null;
+  const selectedRegion = selectedState ? getRouteFromRegion(selectedState) : null;
 
   let deliveryMethodText = "Free Nationwide Delivery";
   let deliveryChargeText = "FREE";
@@ -166,6 +153,7 @@ function ShoppingCheckout() {
         address: currentSelectedAddress?.address,
         city: currentSelectedAddress?.city,
         region: currentSelectedAddress?.region,
+        logisticsRoute: currentSelectedAddress?.logisticsRoute || getRouteFromRegion(currentSelectedAddress?.region),
         phone: currentSelectedAddress?.phone,
         backupPhone: currentSelectedAddress?.backupPhone,
         notes: currentSelectedAddress?.notes,
@@ -345,7 +333,7 @@ function ShoppingCheckout() {
                 </div>
                 <p className="text-sm font-bold text-slate-900 uppercase">{currentSelectedAddress.fullName}</p>
                 <p className="text-xs font-semibold text-slate-500 mt-0.5 uppercase leading-relaxed">
-                  {currentSelectedAddress.address}{currentSelectedAddress.city && !["Included", "N/A"].includes(currentSelectedAddress.city) ? `, ${currentSelectedAddress.city}` : ""}
+                  {currentSelectedAddress.address}
                 </p>
                 <p className="text-xs font-bold text-slate-700 mt-2 flex items-center gap-1.5 font-mono whitespace-nowrap">
                   <span>📞</span> <span className="tracking-tighter">{currentSelectedAddress.phone}</span>
@@ -461,13 +449,21 @@ function ShoppingCheckout() {
                   {/* Delivery Conditions Checklist */}
                   <div className="bg-slate-900 rounded-2xl p-5 shadow-xl border border-slate-800">
                     <h3 className="text-[10px] font-bold text-blue-400 uppercase tracking-wider mb-4">Condition for Delivery</h3>
-                     <div className="space-y-3">
+                     <div className="space-y-4">
                         <div className="flex items-start gap-3">
                            <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mt-0.5 shrink-0">
                               <Check className="w-2.5 h-2.5 text-emerald-500" />
                            </div>
                            <p className="text-[10px] sm:text-xs font-semibold text-slate-300 leading-normal">
-                              Items are UK-Used/Brand New as described. No returns after confirmation on delivery.
+                              Items are premium UK-Used/Brand New as described. Complete inspection is allowed before final payment.
+                           </p>
+                        </div>
+                        <div className="flex items-start gap-3">
+                           <div className="w-4 h-4 rounded bg-amber-500/20 border border-amber-500/50 flex items-center justify-center mt-0.5 shrink-0">
+                              <Check className="w-2.5 h-2.5 text-amber-500" />
+                           </div>
+                           <p className="text-[10px] sm:text-xs font-bold text-slate-300 leading-normal">
+                              The ₦10,000 commitment fee is <span className="text-amber-400 underline decoration-amber-400/30 underline-offset-4 font-black italic">FULLY REFUNDABLE</span> instantly if the product does not meet your expectations upon delivery.
                            </p>
                         </div>
                         <div className="flex items-start gap-3">
@@ -482,22 +478,12 @@ function ShoppingCheckout() {
                                   : "Free Hub/Park delivery selected. Collect at the designated station."}
                            </p>
                         </div>
-                        {selectedRegion !== 'lagos' && (
-                          <div className="flex items-start gap-3">
-                             <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mt-0.5 shrink-0">
-                                <Check className="w-2.5 h-2.5 text-emerald-500" />
-                             </div>
-                             <p className="text-[10px] sm:text-xs font-semibold text-slate-300 leading-normal">
-                                Regional orders arrive at the route hub within 2-3 business days.
-                             </p>
-                          </div>
-                        )}
                         <div className="flex items-start gap-3 pt-1">
-                           <div className="w-4 h-4 rounded bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center mt-0.5 shrink-0">
-                              <Check className="w-2.5 h-2.5 text-emerald-500" />
+                           <div className="w-4 h-4 rounded bg-blue-500/20 border border-blue-500/50 flex items-center justify-center mt-0.5 shrink-0">
+                              <Check className="w-2.5 h-2.5 text-blue-500" />
                            </div>
-                           <p className="text-[10px] sm:text-xs font-semibold text-slate-300 leading-normal italic">
-                              * By paying, you agree to these delivery terms.
+                           <p className="text-[10px] sm:text-xs font-semibold text-slate-400 leading-normal italic">
+                               By paying, you agree to these transparent delivery and return terms.
                            </p>
                         </div>
                      </div>
@@ -696,7 +682,7 @@ function ShoppingCheckout() {
                       {currentSelectedAddress.fullName}
                     </p>
                     <p className="text-[9px] font-semibold text-slate-400 uppercase mt-0.5">
-                      {currentSelectedAddress.address}, {currentSelectedAddress.city}
+                      {currentSelectedAddress.address}
                     </p>
                   </div>
                 </div>

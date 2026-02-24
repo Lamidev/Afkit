@@ -12,17 +12,8 @@ import {
 } from "@/store/admin/order-slice";
 import { toast } from "sonner";
 import { CreditCard, Truck, Gift, AlertTriangle, Package, MapPin, UserCheck, DollarSign, Check } from "lucide-react";
-import { formatAestheticId } from "@/utils/common";
+import { formatAestheticId, getRouteFromRegion } from "@/utils/common";
 
-const REGION_MAPPING = {
-  "Lagos": "lagos",
-  "Oyo": "south-west", "Ogun": "south-west", "Osun": "south-west", "Ondo": "south-west", "Ekiti": "south-west",
-  "Abia": "south-east-south", "Anambra": "south-east-south", "Ebonyi": "south-east-south", "Enugu": "south-east-south", "Imo": "south-east-south",
-  "Akwa Ibom": "south-east-south", "Bayelsa": "south-east-south", "Cross River": "south-east-south", "Delta": "south-east-south", "Edo": "south-east-south", "Rivers": "south-east-south",
-  "FCT": "north", "Adamawa": "north", "Bauchi": "north", "Benue": "north", "Borno": "north", "Gombe": "north", "Jigawa": "north", "Kaduna": "north", 
-  "Kano": "north", "Katsina": "north", "Kebbi": "north", "Kogi": "north", "Kwara": "north", "Nasarawa": "north", "Niger": "north", "Plateau": "north", 
-  "Sokoto": "north", "Taraba": "north", "Yobe": "north", "Zamfara": "north"
-};
 
 const ROUTE_LABELS = {
   "lagos": "Lagos Doorstep",
@@ -197,24 +188,21 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                         <p className="text-xs font-bold text-gray-900 leading-relaxed">
                           {orderDetails?.addressInfo?.fullName}<br/>
                           {orderDetails?.addressInfo?.address}
-                          {orderDetails?.addressInfo?.city && !['Included','N/A',''].includes(orderDetails.addressInfo.city)
-                            ? `, ${orderDetails.addressInfo.city}` : ""}
                         </p>
                       </div>
                       <div>
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">State & Route</span>
                         <div className="space-y-1">
                           <p className="text-xs font-bold text-gray-900 uppercase">
-                            {orderDetails?.addressInfo?.region || 'Lagos'} State
+                            {orderDetails?.addressInfo?.region || "N/A"} State
                           </p>
                           <p className="text-[9px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 w-fit px-2 py-0.5 rounded border border-blue-100 italic">
                             {ROUTE_LABELS[orderDetails?.addressInfo?.logisticsRoute] ||
-                             ROUTE_LABELS[REGION_MAPPING[orderDetails?.addressInfo?.region]] ||
-                             'Lagos Doorstep'}
+                             (orderDetails?.addressInfo?.region ? ROUTE_LABELS[getRouteFromRegion(orderDetails?.addressInfo?.region)] : "N/A")}
                           </p>
                         </div>
-                        <Badge className={`mt-2 text-[8px] font-bold uppercase tracking-widest ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-500 text-white' : 'bg-slate-200 text-slate-700'}`}>
-                           {orderDetails?.addressInfo?.deliveryPreference || 'Hub'} Pickup
+                        <Badge className={`mt-2 text-[8px] font-bold uppercase tracking-widest ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-600 text-white' : 'bg-slate-200 text-slate-700'}`}>
+                           {orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Doorstep Delivery' : '🏢 Hub Pickup'}
                         </Badge>
                       </div>
                     </div>
