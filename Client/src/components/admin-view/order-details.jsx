@@ -12,14 +12,14 @@ import {
 } from "@/store/admin/order-slice";
 import { toast } from "sonner";
 import { CreditCard, Truck, Gift, AlertTriangle, Package, MapPin, UserCheck, DollarSign, Check } from "lucide-react";
-import { formatAestheticId, getRouteFromRegion } from "@/utils/common";
+import { formatAestheticId, getRouteFromRegion, REGION_MAPPING } from "@/utils/common";
 
 
 const ROUTE_LABELS = {
   "lagos": "Lagos Doorstep",
-  "south-west": "South-West Regional Hub",
-  "south-east-south": "Eastern/Southern Hub",
-  "north": "Northern/Abuja Hub"
+  "south-west": "South-West (Park Pickup)",
+  "south-east-south": "Eastern Hub (Airport)",
+  "north": "Northern Hub (Airport)"
 };
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -131,6 +131,12 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                       <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest block mb-1">Balance Due</span>
                       <span className="text-2xl font-bold text-white leading-none">₦{orderDetails?.balanceAmount.toLocaleString()}</span>
                     </div>
+                    <div className="text-right">
+                      <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest block mb-1">Mode of Payment</span>
+                      <span className={`text-xs font-bold ${orderDetails?.paymentType === 'commitment' ? 'text-amber-400' : 'text-emerald-400'}`}>
+                        {orderDetails?.paymentType === 'commitment' ? 'Pay on Delivery' : 'Full Payment'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -201,10 +207,23 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                              (orderDetails?.addressInfo?.region ? ROUTE_LABELS[getRouteFromRegion(orderDetails?.addressInfo?.region)] : "N/A")}
                           </p>
                         </div>
-                        <Badge className={`mt-2 text-[8px] font-bold uppercase tracking-widest ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-600 text-white' : 'bg-slate-200 text-slate-700'}`}>
-                           {orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Doorstep Delivery' : '🏢 Hub Pickup'}
-                        </Badge>
+                         <Badge className={`mt-2 text-[8px] font-bold uppercase tracking-widest ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-600 text-white' : 'bg-blue-600 text-white'}`}>
+                            {orderDetails?.addressInfo?.region === 'Lagos' ? '🏠 Free Home Delivery' :
+                             orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Home Delivery (Pay Rider)' :
+                             REGION_MAPPING[orderDetails?.addressInfo?.region] === 'park' ? '🏢 Free Park Pickup' : '✈️ Free Airport Pickup'}
+                         </Badge>
                       </div>
+                     
+                     <div className="pt-4 border-t border-slate-100">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Condition for Delivery</span>
+                        <div className={`p-3 rounded-xl border-l-4 ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' && orderDetails?.addressInfo?.region !== 'Lagos' ? 'bg-orange-50 border-orange-500' : 'bg-emerald-50 border-emerald-500'}`}>
+                           <p className={`text-[11px] font-bold uppercase tracking-tight ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' && orderDetails?.addressInfo?.region !== 'Lagos' ? 'text-orange-800' : 'text-emerald-800'}`}>
+                             {orderDetails?.addressInfo?.region === 'Lagos' ? 'Free Home Delivery (No rider fee)' :
+                              orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'Customer pays local rider fee on delivery' :
+                              'Free Hub/Park Pickup'}
+                           </p>
+                        </div>
+                     </div>
                     </div>
                     
                     <div className="flex flex-wrap gap-4 pt-4 border-t border-slate-100">

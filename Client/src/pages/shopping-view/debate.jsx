@@ -38,10 +38,21 @@ const DebatePage = () => {
     e.preventDefault();
     const { fullName, phone, email, tikTokHandle, instagramHandle, brandToDefend } = formData;
 
-    if (!fullName.trim() || !phone.trim() || !email.trim() || !tikTokHandle.trim() || !instagramHandle.trim() || !brandToDefend) {
-      toast.error("Please fill in all fields including social handles and the brand you're defending.");
+    if (!fullName.trim() || !phone.trim() || !email.trim() || !brandToDefend) {
+      toast.error("Please fill in all basic fields and the brand you're defending.");
       return;
     }
+
+    if (!tikTokHandle.trim() && !instagramHandle.trim()) {
+      toast.error("Please provide at least one social media handle (TikTok or Instagram).");
+      return;
+    }
+
+    const submissionData = {
+      ...formData,
+      tikTokHandle: tikTokHandle.trim() || "NIL",
+      instagramHandle: instagramHandle.trim() || "NIL",
+    };
 
     setIsSubmitting(true);
     try {
@@ -50,7 +61,7 @@ const DebatePage = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(submissionData),
         }
       );
 
@@ -101,7 +112,7 @@ const DebatePage = () => {
       type: "text",
       placeholder: "e.g. @yourtiktok",
       icon: AtSign,
-      required: true,
+      required: false,
     },
     {
       name: "instagramHandle",
@@ -109,7 +120,7 @@ const DebatePage = () => {
       type: "text",
       placeholder: "e.g. @yourinstagram",
       icon: AtSign,
-      required: true,
+      required: false,
     },
   ];
 
@@ -170,7 +181,14 @@ Two participants will be selected to compete live. Choose your side and defend i
             </div>
 
             <div className="space-y-6">
-             
+             <div className="flex gap-4 items-start">
+                <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
+                  <ShieldCheck className="w-6 h-6 text-orange-500" />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg">Powered by Afkit.ng</h3>
+                </div>
+              </div>
 
               <div className="p-6 bg-gradient-to-br from-white/5 to-transparent border border-white/10 rounded-3xl space-y-4">
                 <p className="text-slate-300 font-bold italic">
@@ -188,14 +206,7 @@ Two participants will be selected to compete live. Choose your side and defend i
               </div>
             </div>
 
-             <div className="flex gap-4 items-start">
-                <div className="p-3 bg-white/5 rounded-2xl border border-white/10">
-                  <ShieldCheck className="w-6 h-6 text-orange-500" />
-                </div>
-                <div>
-                  <h3 className="text-white font-bold text-lg">Powered by Afkit.ng</h3>
-                </div>
-              </div>
+             
           </motion.div>
 
           {/* Right Column: Registration Form */}

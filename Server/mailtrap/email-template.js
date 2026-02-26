@@ -5,12 +5,12 @@ const BRAND_LIGHT  = "#fff7ed";
 // Helper: maps a logisticsRoute code to a human label
 const getRouteLabel = (routeCode) => {
   const labels = {
-    "lagos": "Lagos Doorstep Delivery",
-    "south-west": "South-West Regional Hub",
-    "south-east-south": "Eastern/Southern Hub",
-    "north": "Northern/Abuja Hub",
+    "lagos": "Lagos Doorstep",
+    "south-west": "South-West Region",
+    "south-east-south": "Eastern Region",
+    "north": "Northern Region",
   };
-  return labels[routeCode] || "Lagos Doorstep Delivery";
+  return labels[routeCode] || "Lagos Doorstep";
 };
 
 
@@ -525,6 +525,11 @@ const getOrderConfirmationTemplate = (order) => {
             Address: ${order.addressInfo?.address || 'N/A'}<br/>
             State: ${order.addressInfo?.region || 'N/A'}<br/>
             Route: <strong style="color:${BRAND_ORANGE}; text-transform:uppercase;">${getRouteLabel(order.addressInfo?.logisticsRoute || 'lagos')}</strong><br/>
+            Method: <strong style="color:${BRAND_ORANGE}; text-transform:uppercase;">
+              ${order.addressInfo?.region === 'Lagos' ? 'Free Home Delivery' :
+                order.addressInfo?.deliveryPreference === 'doorstep' ? 'Home Delivery (Pay Rider)' :
+                ['Oyo', 'Ogun', 'Osun', 'Ondo', 'Ekiti'].includes(order.addressInfo?.region) ? 'Free Park Pickup' : 'Free Airport Pickup'}
+            </strong><br/>
             Phone: ${order.addressInfo?.phone || 'N/A'}
           </p>
           ${isGift || isAssisted ? `
@@ -554,8 +559,8 @@ const getWarrantyActivationTemplate = (order) => {
   const isGift = order.addressInfo?.isGift;
   const isAssisted = order.addressInfo?.isAssisted;
   const isPOD = order.paymentType === "commitment";
-  const recipientName = order.addressInfo?.receiptName || order.addressInfo?.fullName;
-  const buyerName = order.addressInfo?.fullName;
+  const recipientName = order.addressInfo?.shippingInfo?.name || order.addressInfo?.fullName || "Valued Customer";
+  const buyerName = order.addressInfo?.receiptInfo?.name || order.addressInfo?.receiptName || order.addressInfo?.fullName || "Valued Customer";
   const deliveryDate = new Date().toLocaleDateString("en-NG", { dateStyle: "long" });
   
   const itemsList = order.cartItems.map(item => `
@@ -695,7 +700,7 @@ const getWarrantyActivationTemplate = (order) => {
 const getPayerDeliveryConfirmationTemplate = (order) => {
   const isGift = order.addressInfo?.isGift;
   const isAssisted = order.addressInfo?.isAssisted;
-  const recipientName = order.addressInfo?.receiptName || order.addressInfo?.fullName;
+  const recipientName = order.addressInfo?.shippingInfo?.name || order.addressInfo?.receiptName || order.addressInfo?.fullName || "Valued Customer";
   const deliveryDate = new Date().toLocaleDateString("en-NG", { dateStyle: "long" });
 
   return wrap(`
@@ -717,7 +722,6 @@ const getPayerDeliveryConfirmationTemplate = (order) => {
             <strong>Delivered to:</strong> ${recipientName}<br/>
             <strong>Address:</strong> ${order.addressInfo?.address || 'N/A'}<br/>
             <strong>State:</strong> ${order.addressInfo?.region || 'N/A'}<br/>
-            <strong>Route:</strong> ${getRouteLabel(order.addressInfo?.logisticsRoute || 'lagos')}<br/>
             <strong>Date:</strong> ${deliveryDate}<br/>
             <strong>Verification:</strong> Proof of Delivery (POD) Recorded ✓
           </p>

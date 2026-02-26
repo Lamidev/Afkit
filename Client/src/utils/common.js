@@ -46,34 +46,69 @@ export const createSlug = (text) => {
     .replace(/--+/g, "-"); // Replace multiple - with single -
 };
 /**
- * Logistics & Region Mapping
+ * Logistics & Region Mapping - Standardized by Afkit Management
+ * 1. Lagos: Free Home Delivery
+ * 2. South-West: Free Car Park Delivery
+ * 3. North/East/South-South: Free Airport Delivery
  */
 export const REGION_MAPPING = {
+  // LAGOS ZONE
   "Lagos": "lagos",
-  "Oyo": "south-west", "Ogun": "south-west", "Osun": "south-west", "Ondo": "south-west", "Ekiti": "south-west",
-  "Abia": "south-east-south", "Anambra": "south-east-south", "Ebonyi": "south-east-south", "Enugu": "south-east-south", "Imo": "south-east-south",
-  "Akwa Ibom": "south-east-south", "Bayelsa": "south-east-south", "Cross River": "south-east-south", "Delta": "south-east-south", "Edo": "south-east-south", "Rivers": "south-east-south",
-  "FCT": "north", "Adamawa": "north", "Bauchi": "north", "Benue": "north", "Borno": "north", "Gombe": "north", "Jigawa": "north", "Kaduna": "north",
-  "Kano": "north", "Katsina": "north", "Kebbi": "north", "Kogi": "north", "Kwara": "north", "Nasarawa": "north", "Niger": "north", "Plateau": "north",
-  "Sokoto": "north", "Taraba": "north", "Yobe": "north", "Zamfara": "north"
+  
+  // PARK ZONE (SOUTH-WEST / YORUBALAND)
+  "Oyo": "park", "Ogun": "park", "Osun": "park", "Ondo": "park", "Ekiti": "park",
+  
+  // AIRPORT ZONE (NORTH / EAST / SOUTH-SOUTH)
+  "Abia": "airport", "Anambra": "airport", "Ebonyi": "airport", "Enugu": "airport", "Imo": "airport",
+  "Akwa Ibom": "airport", "Bayelsa": "airport", "Cross River": "airport", "Delta": "airport", "Edo": "airport", "Rivers": "airport",
+  "FCT": "airport", "Adamawa": "airport", "Bauchi": "airport", "Benue": "airport", "Borno": "airport", "Gombe": "airport", "Jigawa": "airport", "Kaduna": "airport",
+  "Kano": "airport", "Katsina": "airport", "Kebbi": "airport", "Kogi": "airport", "Kwara": "airport", "Nasarawa": "airport", "Niger": "airport", "Plateau": "airport",
+  "Sokoto": "airport", "Taraba": "airport", "Yobe": "airport", "Zamfara": "airport"
 };
 
 /**
- * Returns the logistics route key for a given state/region name
- * Case-insensitive and handles trimming to prevent falling back to 'lagos' incorrectly.
- * @param {string} region - State name
- * @returns {string} - Route key ('lagos', 'south-west', 'south-east-south', 'north')
+ * Returns simple, plain-English instructions for delivery based on state and preference.
+ * Designed to be understood by everyone (10-70 years old).
  */
+export const getDeliveryPolicy = (state, preference) => {
+  if (!state) return null;
+  const zone = REGION_MAPPING[state] || "airport";
+
+  if (state === "Lagos") {
+    return {
+      title: "Free Home Delivery",
+      description: "We will bring your gadget directly to your house for FREE.",
+      feeLabel: "FREE",
+      isFree: true
+    };
+  }
+
+  const isHome = preference === "doorstep";
+
+  if (zone === "park") {
+    return {
+      title: isHome ? "Deliver to My House" : "Pick up at the Park",
+      description: isHome 
+        ? "We send it to the nearest main motor park, then a local rider brings it to your house. Note: You will pay the rider for the local delivery." 
+        : "We send it to the nearest main motor park for FREE. You go there to pick it up.",
+      feeLabel: isHome ? "Pay Rider" : "FREE",
+      isFree: !isHome
+    };
+  }
+
+  // Airport Zone (Default for everything else)
+  return {
+    title: isHome ? "Deliver to My House" : "Pick up at the Airport",
+    description: isHome 
+      ? "We send it to the nearest airport hub, then a local rider brings it to your house. Note: You will pay the rider for the local delivery." 
+      : "We send it to the nearest airport hub for FREE. You go there to pick it up.",
+    feeLabel: isHome ? "Pay Rider" : "FREE",
+    isFree: !isHome
+  };
+};
+
 export const getRouteFromRegion = (region) => {
   if (!region) return "lagos";
   const normalized = region.toString().trim();
-  
-  // Direct match
-  if (REGION_MAPPING[normalized]) return REGION_MAPPING[normalized];
-  
-  // Case-insensitive match
-  const lowerRegion = normalized.toLowerCase();
-  const match = Object.keys(REGION_MAPPING).find(key => key.toLowerCase() === lowerRegion);
-  
-  return match ? REGION_MAPPING[match] : "lagos";
+  return REGION_MAPPING[normalized] || "airport";
 };

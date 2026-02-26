@@ -286,15 +286,6 @@ export const addressFormControls = [
     componentType: "textarea",
     placeholder: "Describe landmarks or special delivery instructions (Optional)",
   },
-  {
-    label: "Address Category",
-    name: "addressType",
-    componentType: "select",
-    options: [
-      { id: "personal", label: "📦 Personal (For Me)" },
-      { id: "recipient", label: "🎁 Recipient (Someone Else / Gift)" },
-    ],
-  },
 ];
 
 export const shoppingViewHeaderMenuItems = [

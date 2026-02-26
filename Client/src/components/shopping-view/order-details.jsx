@@ -3,16 +3,15 @@ import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useSelector } from "react-redux";
-import { formatAestheticId } from "@/utils/common";
+import { formatAestheticId, REGION_MAPPING, getRouteFromRegion } from "@/utils/common";
 import { Gift, MapPin, Truck } from "lucide-react";
-import { getRouteFromRegion } from "@/utils/common";
 
 
 const ROUTE_LABELS = {
-  "lagos": "Lagos Doorstep Delivery",
-  "south-west": "South-West Regional Hub",
-  "south-east-south": "Eastern/Southern Hub",
-  "north": "Northern/Abuja Hub"
+  "lagos": "Lagos Doorstep",
+  "south-west": "South-West (Park Pickup)",
+  "south-east-south": "Eastern Hub (Airport)",
+  "north": "Northern Hub (Airport)"
 };
 
 function ShoppingOrderDetailsView({ orderDetails }) {
@@ -142,8 +141,10 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                    (orderDetails?.addressInfo?.region ? ROUTE_LABELS[getRouteFromRegion(orderDetails?.addressInfo?.region)] : "N/A")}
                 </span>
                 {orderDetails?.addressInfo?.deliveryPreference && (
-                  <Badge className={`mt-2 text-[8px] font-bold uppercase tracking-widest ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-600 text-white border-0' : 'bg-slate-200 text-slate-700 border-0'}`}>
-                    {orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Doorstep Delivery' : '🏢 Hub Pickup'}
+                  <Badge className={`mt-2 text-[8px] font-bold uppercase tracking-widest ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-600 text-white border-0' : 'bg-blue-600 text-white border-0'}`}>
+                    {orderDetails?.addressInfo?.region === 'Lagos' ? '🏠 Free Home Delivery' :
+                     orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Home Delivery (Pay Rider)' :
+                     REGION_MAPPING[orderDetails?.addressInfo?.region] === 'park' ? '🏢 Free Park Pickup' : '✈️ Free Airport Pickup'}
                   </Badge>
                 )}
               </div>
