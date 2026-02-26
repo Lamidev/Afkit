@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CommonForm from "../common/form";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { addressFormControls } from "@/config";
@@ -11,22 +11,22 @@ import {
 } from "@/store/shop/address-slice";
 import AddressCard from "./address-card";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
 import { Button } from "../ui/button";
-import { Truck, MapPin, Check } from "lucide-react";
-import { getRouteFromRegion, REGION_MAPPING } from "@/utils/common";
+import { Truck, MapPin, Check, Info } from "lucide-react";
+import { getRouteFromRegion, REGION_MAPPING, getDeliveryPolicy } from "@/utils/common";
 
 
 const initialAddressFormData = {
   fullName: "",
   email: "",
   address: "",
-  city: "",
   region: "",
   phone: "",
   backupPhone: "",
   notes: "",
   addressType: "personal",
+  deliveryPreference: "hub", // default to free pickup
+  doorstepAgreement: false
 };
 
 function Address({ 
@@ -40,6 +40,14 @@ function Address({
   const { user } = useSelector((state) => state.auth);
   const { addressList } = useSelector((state) => state.shopAddress);
 
+  const [formData, setFormData] = useState({
+    ...initialAddressFormData,
+    addressType: filterType || "personal",
+  });
+  const [currentEditedId, setCurrentEditedId] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
   const userId = user?.id;
 
   // Filter addresses to only those matching the intent
@@ -47,109 +55,218 @@ function Address({
     ? addressList.filter((item) => item.addressType === filterType)
     : addressList;
 
-  // Enhance form controls with validation and conditional logic
+  // Enhance form controls with validation and simplified logic
   const formControls = addressFormControls
     .filter((control) => {
-      // 1. Hide addressType if we are on checkout (filterType exists)
+      // In checkout, we already filter by filterType in the outer tabs
+      // But if we want the form to be smart (e.g. in My Account), we show addressType
       if (filterType && control.name === "addressType") return false;
-      // 2. Hide email for personal orders (using account email instead)
-      if (filterType === "personal" && control.name === "email") return false;
-      // 3. Hide city if it's merged into address
+      
+      // Email only shows for recipient/gift
+      if (control.name === "email") {
+         const type = filterType || formData.addressType;
+         return type === "recipient";
+      }
+      
       if (control.name === "city") return false;
       return true;
     })
     .reduce((acc, control) => {
-      // Mark compulsory fields
+      const currentAddressType = filterType || formData.addressType;
       const compulsoryFields = ["fullName", "phone", "address", "region"];
-      if (filterType === "recipient") compulsoryFields.push("email");
+      if (currentAddressType === "recipient") compulsoryFields.push("email");
       
       const enhancedControl = {
         ...control,
+        label: (control.name === "fullName" && currentAddressType === "recipient") ? "Recipient Name" : control.label,
         required: compulsoryFields.includes(control.name),
         fullWidth: ["fullName", "address", "notes"].includes(control.name),
       };
 
       acc.push(enhancedControl);
 
-      // Inject custom route preview after the 'region' (State) select
+      // ── 1. AFTER STATE: Category Choice (if not filtered) ──
+      if (control.name === "region" && !filterType) {
+         acc.push({
+           label: "Who is this for?",
+           name: "addressType",
+           componentType: "select",
+           fullWidth: true,
+           options: [
+             { id: "personal", label: "📦 Personal (For Me)" },
+             { id: "recipient", label: "🎁 Recipient (Someone Else / Gift)" },
+           ]
+         });
+      }
+
+      // ── 2. AFTER STATE: Simplified Delivery Choice ──
       if (control.name === "region") {
         acc.push({
-          name: "logisticsPreview",
+          name: "deliveryChoice",
           componentType: "custom",
           fullWidth: true,
           visibleIf: { field: "region", value: Object.keys(REGION_MAPPING || {}) },
-          render: () => (
-            <div className="p-3 sm:p-4 rounded-xl border border-blue-100 bg-blue-50/30 animate-in fade-in slide-in-from-top-2">
-              <div className="flex items-center justify-between mb-2">
-                 <div className="flex items-center gap-2">
-                    <Truck className="w-3.5 h-3.5 text-blue-600" />
-                    <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest">Auto-Assigned Route</span>
-                 </div>
-                 <div className="flex items-center gap-1 px-1.5 py-0.5 bg-emerald-500/10 rounded-full border border-emerald-500/20">
-                    <Check className="w-2 h-2 text-emerald-600" />
-                    <span className="text-[7px] font-black text-emerald-600 uppercase">Verified</span>
-                 </div>
+          render: () => {
+            return (
+              <div className="space-y-3 mt-1 animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-center gap-1.5 px-1 py-1">
+                   <Info className="w-3 h-3 text-primary" />
+                   <span className="text-[10px] font-black text-slate-800 uppercase tracking-tighter">Choose Your Delivery Method</span>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-2">
+                   {/* Option A: Pickup (Always Free) */}
+                   <button
+                     type="button"
+                     onClick={() => setFormData(prev => ({ ...prev, deliveryPreference: 'hub' }))}
+                     className={`flex flex-col p-3 rounded-xl border-2 text-left transition-all ${
+                        formData.deliveryPreference === 'hub' 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-slate-100 bg-white hover:border-slate-200'
+                     }`}
+                   >
+                     <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-black uppercase text-slate-900">
+                          {formData.region === 'Lagos' ? 'Free Home Delivery' : 
+                           REGION_MAPPING[formData.region] === 'park' ? 'Free Park Pickup' : 'Free Airport Pickup'}
+                        </span>
+                        <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${formData.deliveryPreference === 'hub' ? 'bg-primary border-primary' : 'border-slate-300'}`}>
+                           {formData.deliveryPreference === 'hub' && <Check className="w-3 h-3 text-white" />}
+                        </div>
+                     </div>
+                     <p className="text-[10px] font-medium text-slate-500 leading-snug">
+                       {formData.region === 'Lagos' ? 'We bring it to your door for free.' : 
+                        REGION_MAPPING[formData.region] === 'park' ? 'Collect it at the nearest main motor park for FREE.' : 'Collect it at the nearest airport hub for FREE.'}
+                     </p>
+                   </button>
+
+                   {/* Option B: Doorstep (Paid to Rider) - Hide for Lagos as Lagos is already doorstep */}
+                   {formData.region !== 'Lagos' && (
+                     <div className="space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, deliveryPreference: 'doorstep' }))}
+                          className={`flex flex-col p-3 rounded-xl border-2 text-left transition-all ${
+                             formData.deliveryPreference === 'doorstep' 
+                             ? 'border-orange-500 bg-orange-50' 
+                             : 'border-slate-100 bg-white hover:border-slate-200'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                             <span className="text-[11px] font-black uppercase text-slate-900">Bring it to my House</span>
+                             <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${formData.deliveryPreference === 'doorstep' ? 'bg-orange-500 border-orange-500' : 'border-slate-300'}`}>
+                                {formData.deliveryPreference === 'doorstep' && <Check className="w-3 h-3 text-white" />}
+                             </div>
+                          </div>
+                          <p className="text-[10px] font-medium text-slate-500 leading-snug">
+                            We send it to the nearest hub, then a local rider brings it to you. <strong>You will pay the rider for the local trip.</strong>
+                          </p>
+                        </button>
+
+                        {/* Agreement Mandatory Checkbox for non-Lagos Doorstep */}
+                        {formData.deliveryPreference === 'doorstep' && (
+                           <div 
+                             onClick={() => setFormData(prev => ({ ...prev, doorstepAgreement: !prev.doorstepAgreement }))}
+                             className={`p-3 rounded-lg border-2 cursor-pointer transition-all flex items-start gap-3 ${
+                               formData.doorstepAgreement ? 'bg-emerald-50 border-emerald-500' : 'bg-orange-100 border-orange-300 animate-pulse'
+                             }`}
+                           >
+                             <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 ${formData.doorstepAgreement ? 'bg-emerald-500 border-emerald-500' : 'bg-white border-orange-400'}`}>
+                                {formData.doorstepAgreement && <Check className="w-2.5 h-2.5 text-white" />}
+                             </div>
+                             <p className={`text-[9px] font-bold uppercase leading-tight ${formData.doorstepAgreement ? 'text-emerald-700' : 'text-orange-700'}`}>
+                                I understand that I am responsible for paying the local rider fee for home delivery outside Lagos.
+                             </p>
+                           </div>
+                        )}
+                     </div>
+                   )}
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                 <span className="text-[11px] font-black text-slate-900 uppercase tracking-tight">
-                    {getRouteFromRegion(formData.region) === 'lagos' ? 'Lagos Doorstep Delivery' : 
-                     getRouteFromRegion(formData.region) === 'south-west' ? 'South-West Regional Hub' :
-                     getRouteFromRegion(formData.region) === 'north' ? 'Northern/Abuja Hub' : 'Eastern/Southern Hub'}
-                 </span>
-                 <span className="text-[8px] font-bold text-slate-300 uppercase italic">Free Nationwide</span>
-              </div>
-            </div>
-          )
+            );
+          }
         });
       }
       return acc;
     }, []);
 
-  const [formData, setFormData] = useState({
-    ...initialAddressFormData,
-    addressType: filterType || "personal",
-  });
-  const [currentEditedId, setCurrentEditedId] = useState(null);
-  const [showForm, setShowForm] = useState(false); // always start on card list; useEffect opens form when needed
-  const [isSaving, setIsSaving] = useState(false);
-
-  // Fetch addresses on mount
   useEffect(() => {
     if (userId) {
       dispatch(fetchAllAddresses(userId));
     }
   }, [dispatch, userId]);
 
-  // Only auto-open the new address form if:
-  //  a) We're on checkout (filterType is set), AND
-  //  b) There are truly no saved addresses of that type
+  const checkoutInitDone = useRef(false);
+  const prevRegionRef = useRef("");
+
   useEffect(() => {
+    // Show form immediately if no addresses and filterType is set (checkout first-time)
     if (filterType && filteredAddressList.length === 0 && !showForm) {
       setShowForm(true);
     }
-    // If we're on the account page (no filterType), always default to showing cards
-    if (!filterType && filteredAddressList.length > 0 && showForm && currentEditedId === null) {
+    // Non-checkout: collapse list after save
+    if (!filterType && !isCheckoutPage && filteredAddressList.length > 0 && showForm && currentEditedId === null) {
       setShowForm(false);
     }
-  }, [filteredAddressList.length, filterType]); // eslint-disable-line
+  }, [filteredAddressList.length, filterType, isCheckoutPage]); // eslint-disable-line
 
-  // When filterType changes (intent switch), reset form and re-sync addressType
+  // Checkout only: once on mount (or when filterType changes), if an address exists pre-load it for editing
+  useEffect(() => {
+    if (!isCheckoutPage) return;
+    checkoutInitDone.current = false;
+  }, [filterType]);
+
+  useEffect(() => {
+    if (!isCheckoutPage || checkoutInitDone.current) return;
+    if (filteredAddressList.length > 0) {
+      checkoutInitDone.current = true;
+      const addr = filteredAddressList[0];
+      setCurrentEditedId(addr._id);
+      setFormData({
+        fullName: addr.fullName || "",
+        email: addr.email || "",
+        address: addr.address || "",
+        region: addr.region || "",
+        phone: addr.phone || "",
+        backupPhone: addr.backupPhone || "",
+        notes: addr.notes || "",
+        addressType: addr.addressType || filterType || "personal",
+        deliveryPreference: addr.deliveryPreference || "hub",
+        doorstepAgreement: addr.deliveryPreference === 'doorstep',
+      });
+      setShowForm(true);
+    }
+  }, [isCheckoutPage, filteredAddressList, filterType]); // eslint-disable-line
+
   useEffect(() => {
     setFormData((prev) => ({
       ...prev,
-      email: filterType === "personal" ? (user?.email || "") : "",
+      email: filterType === "personal" ? (user?.email || "") : (currentEditedId ? prev.email : ""),
       addressType: filterType || prev.addressType,
     }));
-  }, [filterType, user?.email]);
+  }, [filterType, user?.email, currentEditedId]);
 
-  // Auto-select first matching address when the list loads
+  // Reset delivery preference if region changes
+  // Reset delivery preference ONLY when the user genuinely changes the region
+  useEffect(() => {
+    const prevRegion = prevRegionRef.current;
+    if (prevRegion && prevRegion !== formData.region) {
+      setFormData(prev => ({
+        ...prev,
+        deliveryPreference: 'hub',
+        doorstepAgreement: false
+      }));
+    }
+    prevRegionRef.current = formData.region;
+  }, [formData.region]);
+
+  // Auto-select first matching address
   useEffect(() => {
     if (filteredAddressList.length > 0 && typeof setCurrentSelectedAddress === "function") {
       const alreadySelected = filteredAddressList.find(
         (a) => a._id === selectedId?._id
       );
       if (!alreadySelected) {
-        // Preference for last-used
         const preference = filteredAddressList.find(a => 
           filterType === 'personal' ? a.isLastUsed : a.isLastUsedRecipient
         ) || filteredAddressList[0];
@@ -166,17 +283,12 @@ function Address({
       toast.error("Maximum 3 addresses allowed.");
       return;
     }
-    if (!userId) {
-      toast.error("Session error. Please log in again.");
-      return;
-    }
+    if (!userId) return;
 
-    // Always use the correct type: filterType overrides whatever is in formData
     const resolvedType = filterType || formData.addressType;
     const logisticsRoute = getRouteFromRegion(formData.region);
     const payload = {
       ...formData,
-      city: formData.city && !['Included', 'N/A'].includes(formData.city.trim()) ? formData.city.trim() : "",
       logisticsRoute,
       addressType: resolvedType,
       isLastUsed: resolvedType === "personal",
@@ -191,7 +303,12 @@ function Address({
         (data) => {
           setIsSaving(false);
           if (data?.payload?.success) {
-            dispatch(fetchAllAddresses(userId));
+            dispatch(fetchAllAddresses(userId)).then(() => {
+               // After editing, auto-select this address to refresh the checkout summary
+               if (typeof setCurrentSelectedAddress === "function") {
+                 setCurrentSelectedAddress({ ...payload, _id: currentEditedId });
+               }
+            });
             setCurrentEditedId(null);
             setFormData({ ...initialAddressFormData, addressType: resolvedType });
             setShowForm(false);
@@ -217,17 +334,19 @@ function Address({
   }
 
   function handleEditAddress(addr) {
+    checkoutInitDone.current = true; // prevent re-init on re-render
     setCurrentEditedId(addr?._id);
     setFormData({
       fullName: addr?.fullName || "",
       email: addr?.email || "",
       address: addr?.address || "",
-      city: (addr?.city && !['Included', 'N/A'].includes(addr.city)) ? addr.city : "",
       region: addr?.region || "",
       phone: addr?.phone || "",
       backupPhone: addr?.backupPhone || "",
       notes: addr?.notes || "",
       addressType: addr?.addressType || filterType || "personal",
+      deliveryPreference: addr?.deliveryPreference || "hub",
+      doorstepAgreement: addr?.deliveryPreference === 'doorstep',
     });
     setShowForm(true);
   }
@@ -246,38 +365,30 @@ function Address({
 
   function isFormValid() {
     const required = ["fullName", "phone", "address", "region"];
-    if (filterType === "recipient") required.push("email");
+    const type = filterType || formData.addressType;
+    if (type === "recipient") required.push("email");
     
-    return required.every((f) => {
-      const v = formData[f];
-      return v && typeof v === "string" && v?.trim()?.length > 0;
-    });
+    const basicValid = required.every((f) => formData[f]?.trim()?.length > 0);
+    if (!basicValid) return false;
+
+    // Check doorstep agreement if outside lagos
+    if (formData.region !== 'Lagos' && formData.deliveryPreference === 'doorstep' && !formData.doorstepAgreement) {
+       return false;
+    }
+
+    return true;
   }
 
-  // Label copy differs between account page and checkout
-  const formTitle = currentEditedId
-    ? "Edit Details"
-    : filterType === "recipient"
-    ? "Recipient Details"
-    : filterType === "personal"
-    ? "Delivery Information"
-    : "New Address";
-
-  const btnLabel = isSaving
-    ? "Saving..."
-    : currentEditedId
-    ? "Update Address"
-    : filterType
-    ? "Save & Continue →"
-    : "Save Address";
+  const formTitle = currentEditedId ? "Edit Details" : (filterType || formData.addressType) === "recipient" ? "Recipient Details" : "Delivery Details";
+  const btnLabel = isSaving ? "Saving..." : currentEditedId ? "Save Changes" : "Save & Continue →";
 
   return (
     <div className="flex flex-col gap-5">
-      {/* ── 1. Header (Only if not hidden) ── */}
+      {/* ── 1. Header ── */}
       {!hideHeader && !showForm && (
         <div className="flex items-center justify-between px-1">
-           <h3 className="font-bold text-slate-900 uppercase text-sm tracking-tight">{formTitle}</h3>
-           {filteredAddressList.length < 3 && (
+           <h3 className="font-bold text-slate-900 uppercase text-xs tracking-tight">{formTitle}</h3>
+           {filteredAddressList.length < 1 && (
              <Button
                variant="outline"
                size="sm"
@@ -287,7 +398,7 @@ function Address({
                  setShowForm(true);
                  window.scrollTo({ top: 0, behavior: "smooth" });
                }}
-               className="rounded-full border-primary/30 text-primary hover:bg-primary hover:text-white transition-all text-[10px] uppercase font-bold px-4"
+               className="rounded-full border-primary/30 text-primary hover:bg-primary hover:text-white transition-all text-[9px] uppercase font-bold px-4 h-7"
              >
                + New {filterType === "recipient" ? "Recipient" : "Address"}
              </Button>
@@ -295,13 +406,14 @@ function Address({
         </div>
       )}
 
-      {/* ── 2. Address Cards List (Hidden when form is open to focus) ── */}
-      {!showForm && filteredAddressList.length > 0 ? (
+      {/* ── 2. List (Hide while form is open or in checkout with existing address) ── */}
+      {!showForm && !isCheckoutPage && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {filteredAddressList.map((addr) => (
             <AddressCard
               key={addr._id}
               selectedId={selectedId}
+              isCheckoutPage={isCheckoutPage}
               handleDeleteAddress={handleDeleteAddress}
               addressInfo={addr}
               handleEditAddress={(a) => {
@@ -311,39 +423,26 @@ function Address({
               setCurrentSelectedAddress={setCurrentSelectedAddress}
             />
           ))}
+          {filteredAddressList.length === 0 && (
+            <div className="col-span-full text-center py-10 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">No matching addresses</p>
+               <Button variant="link" onClick={() => setShowForm(true)} className="text-primary font-bold text-[10px] uppercase">
+                 Add One &rarr;
+               </Button>
+            </div>
+          )}
         </div>
-      ) : !showForm && filteredAddressList.length === 0 ? (
-        <div className="text-center py-10 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
-           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No addresses saved yet</p>
-           <Button
-               variant="link"
-               onClick={() => {
-                  setShowForm(true);
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-               }}
-               className="text-primary font-bold text-xs uppercase"
-            >
-              Add your first one &rarr;
-            </Button>
-        </div>
-      ) : null}
+      )}
 
-      {/* ── 3. New / Edit Form (Full view focus) ── */}
+      {/* ── 3. Form ── */}
       {showForm && (
-        <Card className="border-2 border-primary/20 shadow-lg overflow-hidden animate-in slide-in-from-top duration-300">
-          <CardHeader className="bg-slate-50 border-b p-4">
+        <Card className="border-0 bg-transparent shadow-none animate-in slide-in-from-top duration-300">
+          <CardHeader className="p-0 mb-6">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="font-black text-slate-900 uppercase text-sm tracking-tight">
-                  {currentEditedId ? "Update Details" : "Enter Details"}
-                </h3>
-                {filterType && (
-                  <p className="text-[10px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest">
-                    {filterType === "recipient"
-                      ? "Shipping details for the receiver"
-                      : "Your shipping information"}
-                  </p>
-                )}
+                <p className="text-[9px] font-semibold text-slate-400 mt-0.5 uppercase tracking-widest leading-none">
+                  Fill in where the gadget should be sent
+                </p>
               </div>
               <Button
                 variant="ghost"
@@ -353,22 +452,22 @@ function Address({
                   setCurrentEditedId(null);
                   setFormData({ ...initialAddressFormData, addressType: filterType || "personal" });
                 }}
-                className="text-slate-400 hover:text-red-500 text-xs font-bold uppercase"
+                className="text-slate-400 hover:text-red-500 text-[10px] font-bold uppercase h-6"
               >
-                {filteredAddressList.length > 0 ? "Cancel" : "Back"}
+                Cancel
               </Button>
             </div>
           </CardHeader>
-            <CardContent className="p-5 sm:p-6">
-              <CommonForm
-                formControls={formControls}
-                formData={formData}
-                setFormData={setFormData}
-                onSubmit={handleManageAddress}
-                buttonText={btnLabel}
-                isBtnDisabled={!isFormValid() || isSaving}
-              />
-            </CardContent>
+          <CardContent className="p-0">
+            <CommonForm
+              formControls={formControls}
+              formData={formData}
+              setFormData={setFormData}
+              onSubmit={handleManageAddress}
+              buttonText={btnLabel}
+              isBtnDisabled={!isFormValid() || isSaving}
+            />
+          </CardContent>
         </Card>
       )}
     </div>

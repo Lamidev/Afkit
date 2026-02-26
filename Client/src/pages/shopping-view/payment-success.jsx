@@ -62,9 +62,9 @@ function PaymentSuccessPage() {
     const orderDetails = orderData;
     const isGift = orderDetails?.addressInfo?.isGift;
     const isAssisted = orderDetails?.addressInfo?.isAssisted;
-    const recipientName = orderDetails?.addressInfo?.receiptName || orderDetails?.addressInfo?.fullName;
+    const recipientName = orderDetails?.addressInfo?.shippingInfo?.name || orderDetails?.addressInfo?.receiptName || orderDetails?.addressInfo?.fullName || "Valued Customer";
     // Buyer is strictly the Account Owner (the payer)
-    const buyerName = user?.fullName || "AFKiT Customer";
+    const buyerName = orderDetails?.addressInfo?.receiptInfo?.name || user?.userName || user?.fullName || "AFKiT Customer";
     const aestheticOrderId = orderDetails?.orderId || (orderDetails?._id ? formatAestheticId(orderDetails._id, "ORD") : "PENDING");
     
     // Premium Design Tokens
@@ -110,9 +110,9 @@ ${isPOD ? `*DOOR PAYMENT:* ${recipientName} will pay ₦${parseFloat(orderDetail
 ${divider}
 *📍 DELIVERY DETAILS:*
 *Recipient:* ${recipientName}
-*Address:* ${orderDetails.addressInfo?.address || 'N/A'}
-*Location:* ${orderDetails.addressInfo?.city || 'N/A'}
-*Phone:* ${orderDetails.addressInfo?.phone || 'N/A'}
+*Address:* ${orderDetails.addressInfo?.shippingInfo?.location || orderDetails.addressInfo?.address || 'N/A'}
+*State:* ${orderDetails.addressInfo?.region || 'N/A'}
+*Phone:* ${orderDetails.addressInfo?.shippingInfo?.phone || orderDetails.addressInfo?.phone || 'N/A'}
 ${isGift ? `\n*NOTE:* This is a SURPRISE for ${recipientName}!` : ""}
 
 ${divider}

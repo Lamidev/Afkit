@@ -24,15 +24,15 @@ const ShoppingLayout = () => {
       {/* Fixed Header Section */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
         <ShoppingHeader />
-        <div className="py-3 px-4 sm:px-6 lg:px-8 bg-gray-50 border-b border-gray-200">
+        <div className="py-2 sm:py-3 px-4 sm:px-6 lg:px-8 bg-gray-50 border-b border-gray-200">
           <SearchMenu />
         </div>
       </div>
 
       {/* Scrollable Content */}
-      <div className="pt-[160px] bg-slate-50/50"> 
+      <div className="pt-[145px] sm:pt-[170px] bg-slate-50/50 min-h-[calc(100vh-80px)]"> 
         <Breadcrumbs />
-        <main className="flex-grow w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <main className="flex-grow w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-10">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
