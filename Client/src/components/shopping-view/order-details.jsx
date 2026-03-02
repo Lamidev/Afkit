@@ -3,16 +3,11 @@ import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useSelector } from "react-redux";
-import { formatAestheticId, REGION_MAPPING, getRouteFromRegion } from "@/utils/common";
+import { formatAestheticId, REGION_MAPPING } from "@/utils/common";
 import { Gift, MapPin, Truck } from "lucide-react";
 
 
-const ROUTE_LABELS = {
-  "lagos": "Lagos Doorstep",
-  "south-west": "South-West (Park Pickup)",
-  "south-east-south": "Eastern Hub (Airport)",
-  "north": "Northern Hub (Airport)"
-};
+
 
 function ShoppingOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth);
@@ -118,9 +113,14 @@ function ShoppingOrderDetailsView({ orderDetails }) {
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Recipient</span>
               <span className="font-bold text-slate-900">{orderDetails?.addressInfo?.fullName}</span>
               {orderDetails?.addressInfo?.isGift && (
-                <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded block w-fit mt-1">
-                  Receipt Owner: {orderDetails?.addressInfo?.receiptName}
-                </span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase tracking-tighter">
+                     Receipt: {orderDetails?.addressInfo?.receiptInfo?.name || orderDetails?.addressInfo?.fullName}
+                  </span>
+                  <Badge className={`px-1.5 py-0 rounded text-[7px] border-0 uppercase font-bold tracking-tighter ${orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'bg-blue-500 text-white' : 'bg-orange-500 text-white'}`}>
+                    {orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'Account Owner' : 'Recipient'}
+                  </Badge>
+                </div>
               )}
             </div>
             <div>
@@ -129,22 +129,18 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                 {orderDetails?.addressInfo?.address}
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 pb-3 border-b border-slate-100">
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">State</span>
                 <span className="text-sm font-bold text-slate-900">{orderDetails?.addressInfo?.region || "N/A"}</span>
               </div>
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Logistics Route</span>
-                <span className="text-[10px] font-black text-blue-700 bg-blue-50 px-2 py-1 rounded border border-blue-100 block w-fit">
-                  {ROUTE_LABELS[orderDetails?.addressInfo?.logisticsRoute] ||
-                   (orderDetails?.addressInfo?.region ? ROUTE_LABELS[getRouteFromRegion(orderDetails?.addressInfo?.region)] : "N/A")}
-                </span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Method</span>
                 {orderDetails?.addressInfo?.deliveryPreference && (
-                  <Badge className={`mt-2 text-[8px] font-bold uppercase tracking-widest ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-600 text-white border-0' : 'bg-blue-600 text-white border-0'}`}>
+                  <Badge className={`text-[8px] font-bold uppercase tracking-widest w-fit py-0.5 ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-600 text-white border-0' : 'bg-blue-600 text-white border-0'}`}>
                     {orderDetails?.addressInfo?.region === 'Lagos' ? '🏠 Free Home Delivery' :
                      orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Home Delivery (Pay Rider)' :
-                     REGION_MAPPING[orderDetails?.addressInfo?.region] === 'park' ? '🏢 Free Park Pickup' : '✈️ Free Airport Pickup'}
+                     REGION_MAPPING[orderDetails?.addressInfo?.region] === 'park' ? '🏢 Free Park Pickup' : '✈️ Free Airport Station'}
                   </Badge>
                 )}
               </div>

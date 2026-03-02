@@ -100,8 +100,8 @@ export const getDeliveryPolicy = (state, preference) => {
   return {
     title: isHome ? "Deliver to My House" : "Pick up at the Airport",
     description: isHome 
-      ? "We send it to the nearest airport hub, then a local rider brings it to your house. Note: You will pay the rider for the local delivery." 
-      : "We send it to the nearest airport hub for FREE. You go there to pick it up.",
+      ? "We send it to the nearest airport station, then a local rider brings it to your house. Note: You will pay the rider for the local delivery." 
+      : "We send it to the nearest airport station for FREE. You go there to pick it up.",
     feeLabel: isHome ? "Pay Rider" : "FREE",
     isFree: !isHome
   };

@@ -6,7 +6,7 @@ import UserCartItemsContent from "@/components/shopping-view/cart-items-content"
 import Address from "@/components/shopping-view/address";
 import { createNewOrder } from "@/store/shop/order-slice";
 import { fetchLastUsedAddress } from "@/store/shop/address-slice";
-import { CreditCard, Truck, Check, AlertCircle, Gift, User, ChevronLeft, Loader2, MapPin } from "lucide-react";
+import { CreditCard, Truck, Check, AlertCircle, Gift, User, ChevronLeft, Loader2, MapPin, Shield } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getRouteFromRegion, REGION_MAPPING } from "@/utils/common";
 
@@ -22,6 +22,9 @@ function ShoppingCheckout() {
   const [paymentType, setPaymentType] = useState(location.state?.paymentType || "full");
   const [purchaseIntent, setPurchaseIntent] = useState("personal");
   const [isPodConfirmed, setIsPodConfirmed] = useState(false);
+  const [receiptOwner, setReceiptOwner] = useState("me"); // "me", "recipient", "other"
+  const [customReceiptName, setCustomReceiptName] = useState("");
+  const [customReceiptEmail, setCustomReceiptEmail] = useState("");
 
   // --- Address UI State ---
   // true = show summary card, false = show address list/form
@@ -139,16 +142,19 @@ function ShoppingCheckout() {
         recipientEmail: purchaseIntent !== "personal" ? currentSelectedAddress?.email : null,
         deliveryPreference: currentSelectedAddress?.deliveryPreference || "hub",
         // Admin View Sync logic
-        receiptInfo: purchaseIntent !== "personal" ? {
-          name: user?.userName || "Registered User",
-          email: user?.email,
-        } : null,
-        shippingInfo: purchaseIntent !== "personal" ? {
+        receiptInfo: {
+          name: receiptOwner === 'me' ? (user?.userName || "Registered User") : currentSelectedAddress?.fullName,
+          email: receiptOwner === 'me' ? user?.email : (currentSelectedAddress?.email || ""),
+          phone: receiptOwner === 'me' ? (user?.phone || "") : (currentSelectedAddress?.phone || ""),
+          address: receiptOwner === 'me' ? "" : (currentSelectedAddress?.address || ""),
+          ownerType: receiptOwner
+        },
+        shippingInfo: {
           name: currentSelectedAddress?.fullName,
           phone: currentSelectedAddress?.phone,
           backupPhone: currentSelectedAddress?.backupPhone,
           location: currentSelectedAddress?.address,
-        } : null,
+        },
       },
       orderStatus: "pending",
       paymentMethod: "Paystack",
@@ -236,28 +242,33 @@ function ShoppingCheckout() {
         {/* ── LEFT COLUMN ── */}
         <div className="lg:col-span-7 space-y-5">
 
-          {/* 1. Purchase Intent */}
+          {/* 1. Who is receiving? (Purchaser vs Gift) */}
           <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
             <h2 className="text-sm sm:text-base font-bold flex items-center gap-3 text-slate-800 uppercase tracking-tight mb-5">
-              <div className="p-2 bg-orange-500/10 rounded-lg">
-                <Gift className="w-4 h-4 text-orange-500" />
+              <div className="p-2 bg-blue-600/10 rounded-lg">
+                <Gift className="w-4 h-4 text-blue-600" />
               </div>
-              Who is this for?
+              Who is this order for?
             </h2>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Myself */}
               <button
                 onClick={() => { setPurchaseIntent("personal"); setIsPodConfirmed(false); }}
-                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center gap-2 text-center relative focus:outline-none ${
+                className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 text-left relative focus:outline-none ${
                   purchaseIntent === "personal"
-                    ? "border-orange-500 bg-orange-50/50"
-                    : "border-slate-100 bg-slate-50/50 hover:border-orange-200"
+                    ? "border-orange-500 bg-orange-50/30"
+                    : "border-slate-50 bg-slate-50/50 hover:border-orange-200"
                 }`}
               >
-                <User className={`w-6 h-6 ${purchaseIntent === "personal" ? "text-orange-500" : "text-slate-400"}`} />
-                <span className="font-bold text-[10px] text-slate-900 uppercase tracking-widest leading-none">Myself</span>
+                <div className={`p-3 rounded-xl transition-colors ${purchaseIntent === "personal" ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "bg-white text-slate-400 border border-slate-100"}`}>
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="font-black text-xs text-slate-900 uppercase tracking-widest block leading-none">For Myself</span>
+                  <span className="text-[10px] font-medium text-slate-400 uppercase mt-1.5 block">I am collecting it personally</span>
+                </div>
                 {purchaseIntent === "personal" && (
-                  <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center border-2 border-white">
+                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center border-2 border-white">
                     <Check className="w-3 h-3 text-white" />
                   </div>
                 )}
@@ -266,16 +277,21 @@ function ShoppingCheckout() {
               {/* Someone Else */}
               <button
                 onClick={() => setPurchaseIntent("gift")}
-                className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center gap-2 text-center relative focus:outline-none ${
+                className={`p-5 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-4 text-left relative focus:outline-none ${
                   purchaseIntent !== "personal"
-                    ? "border-orange-500 bg-orange-50/50"
-                    : "border-slate-100 bg-slate-50/50 hover:border-orange-200"
+                    ? "border-orange-500 bg-orange-50/30"
+                    : "border-slate-50 bg-slate-50/50 hover:border-orange-200"
                 }`}
               >
-                <Truck className={`w-6 h-6 ${purchaseIntent !== "personal" ? "text-orange-500" : "text-slate-400"}`} />
-                <span className="font-bold text-[10px] text-slate-900 uppercase tracking-widest leading-none">Someone Else</span>
+                <div className={`p-3 rounded-xl transition-colors ${purchaseIntent !== "personal" ? "bg-orange-500 text-white shadow-lg shadow-orange-500/20" : "bg-white text-slate-400 border border-slate-100"}`}>
+                  <Truck className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="font-black text-xs text-slate-900 uppercase tracking-widest block leading-none">Gift Mode</span>
+                  <span className="text-[10px] font-medium text-slate-400 uppercase mt-1.5 block">Buying for someone else</span>
+                </div>
                 {purchaseIntent !== "personal" && (
-                  <div className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center border-2 border-white">
+                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center border-2 border-white">
                     <Check className="w-3 h-3 text-white" />
                   </div>
                 )}
@@ -283,14 +299,35 @@ function ShoppingCheckout() {
             </div>
           </div>
 
-          {/* 2. Delivery / Recipient Address */}
-          <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h2 className="text-lg sm:text-xl font-bold flex items-center gap-4 text-slate-900 uppercase">
-              <div className="p-3 bg-orange-500 rounded-2xl shadow-lg shadow-orange-500/20">
-                <Truck className="w-5 h-5 text-white" />
-              </div>
-              Step 1: {purchaseIntent === "personal" ? "Delivery Location" : "Recipient Details"}
-            </h2>
+          {/* 2. DELIVERY LOCATION */}
+          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+              <h2 className="text-lg sm:text-xl font-black flex items-center gap-4 text-slate-900 uppercase">
+                <div className="p-3 bg-blue-600 rounded-2xl shadow-lg shadow-blue-600/20">
+                  <Truck className="w-5 h-5 text-white" />
+                </div>
+                DELIVERY
+              </h2>
+              
+              {/* Dynamic Delivery Days Badge */}
+              {currentSelectedAddress && (
+                <div className={`flex items-center gap-2 px-4 py-2 rounded-2xl border-2 animate-in slide-in-from-right-4 duration-500 ${
+                  ["Lagos", "Oyo", "Ogun", "Osun", "Ondo", "Ekiti"].includes(currentSelectedAddress.region)
+                    ? "bg-emerald-50 border-emerald-100 text-emerald-700"
+                    : "bg-amber-50 border-amber-100 text-amber-700"
+                }`}>
+                  <span className="text-xl">🚚</span>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-0.5">Estimated Arrival</span>
+                    <span className="text-xs font-black uppercase">
+                      {["Lagos", "Oyo", "Ogun", "Osun", "Ondo", "Ekiti"].includes(currentSelectedAddress.region) 
+                        ? "2 - 3 WORKING DAYS" 
+                        : "3 - 5 WORKING DAYS"}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {showAddressSummary && currentSelectedAddress ? (
               /* ── Summary Card ── */
@@ -299,18 +336,15 @@ function ShoppingCheckout() {
                   ? "border-orange-500 bg-orange-50/20 shadow-sm"
                   : "border-slate-200 bg-slate-50/50"
               }`}>
-                <div className="flex items-center gap-2 mb-2.5">
-                  <div className="p-1.5 bg-white rounded-lg border border-slate-100 shadow-sm">
-                    <MapPin className="w-3.5 h-3.5 text-orange-500" />
+                <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-3 h-3 text-orange-500" />
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                      {purchaseIntent === "personal" ? "Selected Address" : "Recipient Info"}
+                    </span>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    {purchaseIntent === "personal" ? "Selected Address" : "Recipient Info"}
-                  </span>
                   {isAddressConfirmed && (
-                    <div className="ml-auto flex items-center gap-1 px-2 py-0.5 bg-orange-50 text-orange-600 rounded-full border border-orange-100">
-                      <Check className="w-2.5 h-2.5" />
-                      <span className="text-[8px] font-bold uppercase">Ready</span>
-                    </div>
+                    <span className="text-[7px] font-black uppercase text-orange-500 tracking-widest bg-orange-50 px-2 py-0.5 rounded">Verified</span>
                   )}
                 </div>
 
@@ -329,7 +363,7 @@ function ShoppingCheckout() {
                         : 'text-blue-600 bg-blue-50 border-blue-100'
                      }`}>
                         {currentSelectedAddress.deliveryPreference === 'doorstep' ? '🏠 Home Delivery (Pay Rider)' : 
-                          REGION_MAPPING[currentSelectedAddress.region] === 'park' ? '🏢 Free Park Pickup' : '✈️ Free Airport Pickup'}
+                          REGION_MAPPING[currentSelectedAddress.region] === 'park' ? '🏢 Free Park Pickup' : '✈️ Free Airport Station'}
                      </p>
                    )}
                 </div>
@@ -368,7 +402,7 @@ function ShoppingCheckout() {
                         </div>
                         <div className="flex-1 cursor-pointer" onClick={() => setIsDoorstepConfirmed(!isDoorstepConfirmed)}>
                            <p className="text-[10px] font-bold text-slate-700 uppercase tracking-tight leading-normal">
-                             I agree to pay the local rider for my doorstep delivery (from the hub to my house).
+                             I agree to pay the local rider for my doorstep delivery (from the station to my house).
                            </p>
                            <p className="text-[9px] font-medium text-slate-500 uppercase mt-1">
                              I understand this is separate from my product payment.
@@ -416,163 +450,177 @@ function ShoppingCheckout() {
               </div>
             )}
 
-            {/* ── Contextual Delivery Info & Conditions ── */}
+            {/* ── Contextual Delivery Info & Service Standards ── */}
             {currentSelectedAddress && isAddressConfirmed && (
                <div className="mt-6 space-y-4 animate-in fade-in slide-in-from-bottom-2">
-                  {/* Policy Card */}
-                  <div className={`p-4 rounded-2xl border-2 shadow-sm ${
-                    currentSelectedAddress.region === 'Lagos' ? 'bg-emerald-50 border-emerald-100' : 
-                    currentSelectedAddress.deliveryPreference === 'doorstep' ? 'bg-orange-50 border-orange-100' : 'bg-blue-50 border-blue-100'
+                  <div className={`p-6 rounded-[2rem] border-2 shadow-sm ${
+                    currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? 'bg-orange-50 border-orange-100' : 'bg-blue-50 border-blue-100'
                   }`}>
-                    <div className="flex items-start gap-3">
-                      <div className={`p-2 rounded-xl ${
-                        currentSelectedAddress.region === 'Lagos' ? 'bg-emerald-500/10' : 
-                        currentSelectedAddress.deliveryPreference === 'doorstep' ? 'bg-orange-500/10' : 'bg-primary/10'
+                    <div className="flex items-start gap-4">
+                      <div className={`p-3 rounded-2xl ${
+                        currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? 'bg-orange-500/10' : 'bg-blue-600/10'
                       }`}>
-                         <Truck className={`w-4 h-4 ${
-                           currentSelectedAddress.region === 'Lagos' ? 'text-emerald-600' : 
-                           currentSelectedAddress.deliveryPreference === 'doorstep' ? 'text-orange-600' : 'text-primary'
+                         <Truck className={`w-5 h-5 ${
+                           currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? 'text-orange-600' : 'text-blue-600'
                          }`} />
                       </div>
                       <div className="flex-1">
-                        <p className={`text-[10px] font-bold uppercase tracking-wider ${
-                          currentSelectedAddress.region === 'Lagos' ? 'text-emerald-600' : 
-                          currentSelectedAddress.deliveryPreference === 'doorstep' ? 'text-orange-600' : 'text-primary'
+                        <p className={`text-[11px] font-black uppercase tracking-widest ${
+                          currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? 'text-orange-600' : 'text-blue-600'
                         }`}>
-                          {currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? '🏠 Doorstep Agreement' : 'Delivery Policy'}
+                          Delivery Conditions
                         </p>
-                        <p className="text-xs font-bold text-slate-700 mt-1 leading-relaxed">
-                          {currentSelectedAddress.region === 'Lagos' 
-                            ? "Your gadget will be delivered straight to your doorstep for FREE within 24-48 hours."
-                            : currentSelectedAddress.deliveryPreference === 'doorstep'
-                            ? "We send it to the nearest hub first, then a rider brings it to your house. Note: You will pay the rider for that local trip." 
-                            : REGION_MAPPING[currentSelectedAddress.region] === 'park'
-                            ? "We send it to the nearest main park for FREE. You'll go there to pick it up once it arrives."
-                            : "We send it to the nearest airport hub for FREE. You'll go there to pick it up once it arrives."}
-                        </p>
+                        <div className="mt-3 space-y-3">
+                          <p className="text-[13px] font-bold text-slate-800 leading-snug flex items-center gap-2">
+                            <span className="text-xl">🏠</span>
+                            {currentSelectedAddress.region === 'Lagos' 
+                              ? "Your gadget will be delivered straight to your doorstep for FREE within 2-4 working days."
+                              : currentSelectedAddress.deliveryPreference === 'doorstep'
+                              ? "Sent to the nearest Station first, then a rider brings it to your house. (Rider fee is paid on arrival)" 
+                              : "Sent to the nearest Station for FREE. You'll go there to pick it up in 3-5 working days."}
+                          </p>
+                          
+                          <div className="flex items-center gap-2 text-[11px] font-black text-slate-900 uppercase">
+                             <Check className={`w-4 h-4 shrink-0 ${
+                               currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? 'text-orange-600' : 'text-blue-600'
+                             }`} />
+                             6 Months Warranty included on core parts.
+                          </div>
+
+                          <div className="flex items-center gap-2 text-[11px] font-black text-slate-500 uppercase italic">
+                             <Check className="w-4 h-4 text-slate-400 shrink-0" />
+                             By paying, you agree to our transparent delivery and return terms.
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Delivery Conditions Checklist */}
-                  <div className={`rounded-xl p-4 sm:p-5 border ${
-                     currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos'
-                     ? 'bg-orange-50/50 border-orange-200 shadow-sm'
-                     : 'bg-white border-slate-200 shadow-sm'
-                  }`}>
-                    <h3 className={`text-[10px] font-bold uppercase tracking-wider mb-4 ${
-                      currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? 'text-orange-600' : 'text-slate-500'
-                    }`}>
-                      {currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? '⚠️ Important: Doorstep Conditions' : 'Condition for Delivery'}
-                    </h3>
-                     <div className="space-y-3.5">
-                        <div className="flex items-start gap-3">
-                           <div className="w-4 h-4 rounded bg-slate-100 border border-slate-200 flex items-center justify-center mt-0.5 shrink-0">
-                              <Check className="w-2.5 h-2.5 text-slate-500" />
-                           </div>
-                           <p className="text-[10px] sm:text-xs font-medium text-slate-600 leading-normal">
-                              <strong className="text-slate-900 font-bold">6 Months Warranty</strong> included on motherboard and core parts.
-                           </p>
-                        </div>
-
-                        {paymentType === "commitment" && (
-                          <div className="flex items-start gap-3">
-                             <div className="w-4 h-4 rounded bg-slate-100 border border-slate-200 flex items-center justify-center mt-0.5 shrink-0">
-                                <Check className="w-2.5 h-2.5 text-slate-500" />
-                             </div>
-                             <p className="text-[10px] sm:text-xs font-medium text-slate-600 leading-normal">
-                                The Commitment fee (<strong className="text-slate-900 font-bold">₦10,000</strong>) is <span className="text-emerald-700 font-black italic tracking-wide">FULLY REFUNDABLE</span> instantly if the product does not meet your expectations upon delivery.
-                             </p>
-                          </div>
-                        )}
-                        
-                        {/* Dynamic Condition for Doorstep Outside Lagos */}
-                        {currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? (
-                           <div className="flex items-start gap-3 p-3 bg-orange-100/50 border border-orange-200/60 rounded-lg animate-in fade-in zoom-in-95 duration-500">
-                             <div className="w-4 h-4 rounded bg-orange-500 flex items-center justify-center mt-0.5 shrink-0 shadow-sm shadow-orange-500/20">
-                                <Truck className="w-2.5 h-2.5 text-white" />
-                             </div>
-                             <p className="text-[10px] sm:text-xs font-bold text-orange-800 leading-tight uppercase tracking-tight">
-                                Doorstep Delivery Selected: You will pay the rider for the local trip from the hub to your house.
-                             </p>
-                           </div>
-                        ) : paymentType === "commitment" ? (
-                          <div className="flex items-start gap-3">
-                             <div className="w-4 h-4 rounded bg-slate-100 border border-slate-200 flex items-center justify-center mt-0.5 shrink-0">
-                                <Check className="w-2.5 h-2.5 text-slate-500" />
-                             </div>
-                             <p className="text-[10px] sm:text-xs font-semibold text-slate-600 leading-normal uppercase italic">
-                                Pay balance only <strong className="text-slate-900 font-black tracking-wide">AFTER</strong> you check and confirm the gadget.
-                             </p>
-                          </div>
-                        ) : null}
-
-                        <div className="flex items-start gap-3 pt-1 border-t border-slate-100 mt-1 pt-4">
-                           <div className="w-4 h-4 rounded bg-slate-100 border border-slate-200 flex items-center justify-center mt-0.5 shrink-0">
-                              <Check className="w-2.5 h-2.5 text-slate-500" />
-                           </div>
-                           <p className="text-[10px] sm:text-xs font-medium text-slate-500 leading-normal">
-                              By paying {paymentType === "commitment" ? <strong className="text-slate-700">commitment fee</strong> : <strong className="text-slate-700">full payment</strong>}, you agree to these transparent delivery and return terms.
-                           </p>
-                        </div>
-                     </div>
                   </div>
                </div>
             )}
           </div>
 
-          {/* 3. Payment Method */}
-          <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h2 className="text-lg sm:text-xl font-bold mb-6 flex items-center gap-4 text-slate-900 uppercase">
-              <div className="p-3 bg-blue-600 rounded-2xl shadow-lg shadow-blue-600/20">
+          {/* 3. RECEIPT OWNERSHIP */}
+          {purchaseIntent !== "personal" && (
+            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
+              <h2 className="text-lg sm:text-xl font-black flex items-center gap-4 text-slate-900 uppercase mb-8">
+                <div className="p-3 bg-blue-900 rounded-2xl shadow-lg shadow-blue-900/20">
+                  <Gift className="w-5 h-5 text-white" />
+                </div>
+                RECEIPT
+              </h2>
+              
+              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Whose name should be on the receipt & warranty?</p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                 {/* Me */}
+                 <button
+                   onClick={() => setReceiptOwner("me")}
+                   className={`p-5 rounded-2xl border-2 transition-all text-left relative ${
+                     receiptOwner === 'me' ? "border-orange-500 bg-orange-50" : "border-slate-100 bg-white hover:border-slate-200"
+                   }`}
+                 >
+                   <span className="font-black text-xs text-slate-900 uppercase tracking-widest block">Me (My Profile)</span>
+                   <span className="text-[10px] font-medium text-slate-500 uppercase mt-1 leading-tight block">Use my account: {user?.userName}</span>
+                   {receiptOwner === 'me' && <div className="absolute top-3 right-3"><Check className="w-4 h-4 text-orange-600" /></div>}
+                 </button>
+
+                 {/* Recipient */}
+                 <button
+                   disabled={!currentSelectedAddress}
+                   onClick={() => setReceiptOwner("recipient")}
+                   className={`p-5 rounded-2xl border-2 transition-all text-left relative ${
+                     !currentSelectedAddress ? "opacity-50 cursor-not-allowed border-slate-50" :
+                     receiptOwner === 'recipient' ? "border-orange-500 bg-orange-50" : "border-slate-100 bg-white hover:border-slate-200"
+                   }`}
+                 >
+                   <span className="font-black text-xs text-slate-900 uppercase tracking-widest block">The Recipient</span>
+                   <span className="text-[10px] font-medium text-slate-500 uppercase mt-1 leading-tight block">Name on delivery address</span>
+                   {receiptOwner === 'recipient' && <div className="absolute top-3 right-3"><Check className="w-4 h-4 text-orange-600" /></div>}
+                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* 4. PAYMENT METHOD */}
+          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100">
+            <h2 className="text-lg sm:text-xl font-black mb-8 flex items-center gap-4 text-slate-900 uppercase">
+              <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/20">
                 <CreditCard className="w-5 h-5 text-white" />
               </div>
-              Step 2: Payment Method
+              PAYMENT
             </h2>
+
+            {/* POD BLUE POLICY BOX */}
+            {paymentType === "commitment" && (
+              <div className="mb-8 bg-blue-900 rounded-[2rem] p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:rotate-12 transition-transform duration-700">
+                  <Truck className="w-24 h-24" />
+                </div>
+                
+                <h3 className="text-base sm:text-lg font-black uppercase tracking-[0.1em] mb-4 flex items-center gap-2">
+                   <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                   Payment on Delivery Policy
+                </h3>
+                
+                <div className="space-y-4 relative z-10">
+                   {[
+                     { text: "To secure your order, a ₦10,000 commitment fee is required before delivery." },
+                     { text: "* The fee is fully refundable if the gadget delivered does not match your confirmed order." },
+                     { text: "* If the device meets your expectations, the remaining balance must be completed before our logistics partner leaves your location." }
+                   ].map((item, i) => (
+                     <div key={i} className="flex gap-3 items-start">
+                        <div className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 bg-white/40" />
+                        <p className="text-xs sm:text-sm font-bold leading-relaxed text-slate-100">
+                          {item.text}
+                        </p>
+                     </div>
+                   ))}
+                   
+                   <p className="pt-4 text-xs sm:text-sm font-black text-white leading-relaxed italic border-t border-white/10">
+                     This ensures fairness, transparency, and a smooth delivery experience for both you and Afkit.
+                   </p>
+
+                   <div className="mt-4 bg-white/10 p-4 rounded-xl border border-white/10">
+                      <p className="text-[10px] sm:text-xs font-bold text-orange-400 leading-tight">
+                        <strong>📍 Note:</strong> Doorstep POD is only available in Lagos. Outside Lagos, POD is done at the nearest Station or Airport Station.
+                      </p>
+                   </div>
+                </div>
+              </div>
+            )}
 
             {/* Accessory notice */}
             {!hasMajorGadget && cartItems?.items?.length > 0 && (
-              <div className="mb-4 bg-amber-50 border-2 border-amber-200 p-4 rounded-xl flex gap-3 items-start">
-                <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div className="mb-6 bg-slate-900 rounded-2xl p-5 flex gap-4 items-start border border-slate-800">
+                <div className="p-2 bg-amber-500/20 rounded-lg">
+                  <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
+                </div>
                 <div>
-                  <p className="text-xs font-bold text-amber-900 uppercase">Accessory Cart</p>
-                  <p className="text-[10px] font-medium text-amber-800 mt-0.5 uppercase leading-relaxed">
-                    Pay on Delivery is only available for Major Gadgets. Full payment required.
+                  <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-1 leading-none">Accessory Notice</p>
+                  <p className="text-xs font-bold text-white leading-relaxed">
+                    Pay on Delivery is only for Smartphones, Laptops and Monitors. Please use Full Payment for accessories.
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Gift locked notice */}
-            {purchaseIntent !== "personal" && (
-              <div className="mb-4 bg-orange-50 border-2 border-orange-200 p-4 rounded-xl flex gap-3 items-center">
-                <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
-                  <Check className="w-4 h-4 text-white" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-orange-900 uppercase">Full Payment Required</p>
-                  <p className="text-[10px] font-medium text-orange-700/80 uppercase mt-0.5">Recipient orders require full upfront payment.</p>
-                </div>
-              </div>
-            )}
-
-            <div className={`grid gap-3 ${canUsePOD ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
+            <div className={`grid gap-4 ${canUsePOD ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
               {/* POD Option */}
               {canUsePOD && (
                 <button
                   onClick={() => setPaymentType("commitment")}
-                  className={`p-4 rounded-2xl border-2 cursor-pointer transition-all relative text-left focus:outline-none ${
+                  className={`p-6 rounded-3xl border-2 cursor-pointer transition-all relative text-left focus:outline-none ${
                     paymentType === "commitment"
-                      ? "border-orange-500 bg-orange-100/50 ring-4 ring-orange-500/5"
-                      : "border-slate-100 bg-white hover:border-orange-300"
+                      ? "border-orange-500 bg-orange-50/30 ring-8 ring-orange-500/5"
+                      : "border-slate-50 bg-slate-50/50 hover:border-orange-200"
                   }`}
                 >
-                  <p className="font-bold text-slate-900 uppercase text-xs">Payment on Delivery</p>
-                  <p className="text-[10px] font-medium text-slate-500 mt-1.5">Pay ₦10k deposit now, balance on arrival.</p>
+                  <p className="font-black text-slate-900 uppercase text-xs tracking-widest">Payment on Delivery</p>
+                  <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Commitment Fee: ₦10,000</p>
                   {paymentType === "commitment" && (
-                    <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 bg-orange-500 rounded-full">
-                      <Check className="w-2.5 h-2.5 text-white" />
-                      <span className="text-[8px] font-bold text-white uppercase">Selected</span>
+                    <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 bg-orange-500 rounded-full shadow-lg shadow-orange-500/20">
+                      <Check className="w-3 h-3 text-white" />
+                      <span className="text-[9px] font-black text-white uppercase tracking-widest">Active</span>
                     </div>
                   )}
                 </button>
@@ -581,19 +629,18 @@ function ShoppingCheckout() {
               {/* Full Payment Option */}
               <button
                 onClick={() => setPaymentType("full")}
-                disabled={purchaseIntent !== "personal" || !canUsePOD ? false : false}
-                className={`p-4 rounded-2xl border-2 cursor-pointer transition-all relative text-left focus:outline-none ${
+                className={`p-6 rounded-3xl border-2 cursor-pointer transition-all relative text-left focus:outline-none ${
                   paymentType === "full"
-                    ? "border-orange-500 bg-orange-100/50 ring-4 ring-orange-500/5"
-                    : "border-slate-100 bg-white hover:border-orange-300"
+                    ? "border-orange-500 bg-orange-50/30 ring-8 ring-orange-500/5"
+                    : "border-slate-50 bg-slate-50/50 hover:border-orange-200"
                 }`}
               >
-                <p className="font-bold text-slate-900 uppercase text-xs">Full Upfront Payment</p>
-                <p className="text-[10px] font-medium text-slate-500 mt-1.5">Complete payment now for fastest delivery.</p>
+                <p className="font-black text-slate-900 uppercase text-xs tracking-widest">Full Payment</p>
+                <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Pay once, expect delivery</p>
                 {paymentType === "full" && (
-                  <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 bg-orange-500 rounded-full">
-                    <Check className="w-2.5 h-2.5 text-white" />
-                    <span className="text-[8px] font-bold text-white uppercase">Selected</span>
+                  <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 bg-orange-500 rounded-full shadow-lg shadow-orange-500/20">
+                    <Check className="w-3 h-3 text-white" />
+                    <span className="text-[9px] font-black text-white uppercase tracking-widest">Active</span>
                   </div>
                 )}
               </button>
@@ -753,10 +800,11 @@ function ShoppingCheckout() {
                   "Select Delivery Address"
                 ) : !isAddressConfirmed ? (
                   "Confirm Address to Continue"
-                ) : paymentType === "commitment" ? (
-                  "PAY DEPOSIT (₦10,000)"
                 ) : (
-                  `PAY ₦${totalCartAmount.toLocaleString()}`
+                  <span className="flex items-center gap-3">
+                    <Shield className="w-4 h-4" />
+                    {paymentType === "commitment" ? "PAY DEPOSIT (₦10,000)" : `PAY ₦${totalCartAmount.toLocaleString()}`}
+                  </span>
                 )}
               </Button>
             </div>

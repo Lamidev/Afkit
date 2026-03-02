@@ -167,18 +167,28 @@ exports.sendAdminOrderNotificationEmail = async (order) => {
         <p style="margin:4px 0 0; opacity:0.6; font-size:12px;">Order ID: ${order.orderId}</p>
       </div>
       <table style="width:100%; border-collapse: collapse; font-size:13px;">
-        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Buyer Email</td><td style="padding:8px 0;">${order.payerEmail}</td></tr>
-        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Ship To</td><td style="padding:8px 0;">${order.addressInfo?.fullName} — ${order.addressInfo?.address}</td></tr>
-        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">State</td><td style="padding:8px 0;">${order.addressInfo?.region || 'N/A'}</td></tr>
-        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Delivery Info</td><td style="padding:8px 0; font-weight:bold; color:${order.addressInfo?.deliveryPreference === 'doorstep' ? '#ea580c' : '#2563eb'};">
+        <!-- Payer (Receipt Information) -->
+        <tr style="background:#f1f5f9;"><td colspan="2" style="padding:10px; font-weight:900; color:#0f172a; text-transform:uppercase; letter-spacing:1px; border-radius:6px 6px 0 0;">👤 Payer (Receipt Details)</td></tr>
+        <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">Name</td><td style="padding:8px 10px; font-weight:800;">${order.addressInfo?.receiptInfo?.name || order.payerEmail} <span style="font-size:10px; color:${order.addressInfo?.receiptInfo?.ownerType === 'me' ? '#2563eb' : '#ea580c'};">(${order.addressInfo?.receiptInfo?.ownerType === 'me' ? 'Account Owner' : 'Recipient'})</span></td></tr>
+        <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">Email</td><td style="padding:8px 10px;">${order.addressInfo?.receiptInfo?.email || order.payerEmail}</td></tr>
+        
+        <!-- Recipient (Shipping Information) -->
+        <tr style="background:#fff7ed;"><td colspan="2" style="padding:10px; font-weight:900; color:#9a3412; text-transform:uppercase; letter-spacing:1px; margin-top:10px;">🚚 Recipient (Shipping Details)</td></tr>
+        <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">Name</td><td style="padding:8px 10px; font-weight:800;">${order.addressInfo?.shippingInfo?.name || order.addressInfo?.fullName}</td></tr>
+        <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">Phone</td><td style="padding:8px 10px;">${order.addressInfo?.shippingInfo?.phone || order.addressInfo?.phone}</td></tr>
+        <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">Location</td><td style="padding:8px 10px;">${order.addressInfo?.shippingInfo?.location || order.addressInfo?.address}</td></tr>
+        <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">State</td><td style="padding:8px 10px;">${order.addressInfo?.region || 'N/A'}</td></tr>
+        
+        <!-- Order Context -->
+        <tr style="background:#f8fafc;"><td colspan="2" style="padding:10px; font-weight:900; color:#475569; text-transform:uppercase; letter-spacing:1px;">📋 Order Context</td></tr>
+        <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">Purchase Type</td><td style="padding:8px 10px; font-weight:bold;">${isGift ? '🎁 GIFT / SOMEONE ELSE' : '📦 Personal Purchase'}${isGift ? ` (Receipt issued to: ${order.addressInfo?.receiptInfo?.ownerType === 'me' ? 'Account Owner' : 'The Recipient'})` : ''}</td></tr>
+        <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">Delivery Preference</td><td style="padding:8px 10px; font-weight:bold; color:${order.addressInfo?.deliveryPreference === 'doorstep' ? '#ea580c' : '#2563eb'};">
           ${order.addressInfo?.region === 'Lagos' ? '🏠 Free Home Delivery' :
             order.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Home Delivery (Pay Rider)' :
-            ['Oyo', 'Ogun', 'Osun', 'Ondo', 'Ekiti'].includes(order.addressInfo?.region) ? '🏢 Free Park Pickup' : '✈️ Free Airport Pickup'}
+            ['Oyo', 'Ogun', 'Osun', 'Ondo', 'Ekiti'].includes(order.addressInfo?.region) ? '🏢 Free Park Pickup' : '✈️ Free Airport Station'}
         </td></tr>
-        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Phone</td><td style="padding:8px 0;">${order.addressInfo?.phone}</td></tr>
-        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Order Type</td><td style="padding:8px 0;">${isGift ? '🎁 GIFT / SOMEONE ELSE' : '📦 Personal Order'}</td></tr>
-        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Items</td><td style="padding:8px 0;">${items}</td></tr>
-        <tr><td style="padding:8px 0; color:#64748b; font-weight:bold;">Payment</td><td style="padding:8px 0; color:#f97316; font-weight:bold;">${paymentTypeLabel}</td></tr>
+        <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">Items</td><td style="padding:8px 10px;">${items}</td></tr>
+        <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">Payment</td><td style="padding:8px 10px; color:#f97316; font-weight:bold;">${paymentTypeLabel}</td></tr>
       </table>
       <div style="margin-top:24px; padding:16px; background:#fff7ed; border:2px solid #f97316; border-radius:8px; font-size:12px; color:#9a3412;">
         <strong>⚡ Action Required:</strong> Log in to the admin panel to confirm and begin processing this order.
@@ -199,60 +209,72 @@ exports.sendAdminOrderNotificationEmail = async (order) => {
   }
 };
 
-// ─── Warranty Activation (On Delivery) ───────────────────────────────────────
-// For gift orders: sends warranty email to RECIPIENT + a separate delivery
-// notification to the BUYER so both parties are informed.
-exports.sendWarrantyActivationEmail = async (order) => {
+// ─── Delivered Status Notifications ──────────────────────────────────────────
+// Consolidates all delivery emails to avoid redundancy.
+// 1. Personal: ONLY 1 email to Payer (Warranty + Delivery Confirmation)
+// 2. Gift (Me): ONLY 1 email to Payer (Gift Delivered + Warranty Active)
+// 3. Gift (Recipient): 2 emails - Warranty to Recipient + Brief "Mission Success" to Payer
+exports.sendDeliveredNotifications = async (order) => {
   const isGift = order.addressInfo?.isGift;
-  const recipientEmail = order.addressInfo?.recipientEmail;
+  const receiptInfo = order.addressInfo?.receiptInfo;
+  const ownerType = receiptInfo?.ownerType || (isGift ? "recipient" : "me");
+  const recipientEmail = order.addressInfo?.recipientEmail || order.addressInfo?.email;
+  const payerEmail = order.payerEmail;
 
-  const warrantyHtml = getWarrantyActivationTemplate(order);
-
-  if (isGift && recipientEmail) {
-    // Send warranty/delivery info to the recipient
-    try {
-      await mailtrapClient.send({
-        from: sender,
-        to: [{ email: recipientEmail }],
-        subject: `🎁 Your Gift Has Arrived! Warranty Now Active.`,
-        html: warrantyHtml,
-        category: "Warranty Activation",
-      });
-    } catch (error) {
-      handleEmailError(error, "Error sending gift warranty email to recipient");
-    }
-  } else {
-    // Personal order — send warranty to the buyer themselves
-    if (!order.payerEmail) return;
-    try {
-      await mailtrapClient.send({
-        from: sender,
-        to: [{ email: order.payerEmail }],
-        subject: `🛡️ Warranty Activated: Your Gadget is Now Insured!`,
-        html: warrantyHtml,
-        category: "Warranty Activation",
-      });
-    } catch (error) {
-      handleEmailError(error, "Error sending warranty activation email");
-    }
-  }
-};
-
-// ─── Payer Delivery Confirmation (On Delivery) ──────────────────────────────────
-exports.sendDeliveryConfirmationToPayer = async (order) => {
-  if (!order.payerEmail) return;
-
-  const recipient = [{ email: order.payerEmail }];
   try {
-    await mailtrapClient.send({
-      from: sender,
-      to: recipient,
-      subject: `📦 Delivery Successful: Order ${order.orderId}`,
-      html: getPayerDeliveryConfirmationTemplate(order),
-      category: "Delivery Confirmation",
-    });
+    // SCENARIO 1: PERSONAL PURCHASE
+    if (!isGift) {
+      if (!payerEmail) return;
+      await mailtrapClient.send({
+        from: sender,
+        to: [{ email: payerEmail }],
+        subject: `🛡️ Warranty Activated: Your Gadget is Now Insured!`,
+        html: getWarrantyActivationTemplate(order),
+        category: "Personal Delivery Success",
+      });
+      return;
+    }
+
+    // SCENARIO 2: GIFT (Account Owner holds the Warranty)
+    if (isGift && ownerType === "me") {
+      if (!payerEmail) return;
+      await mailtrapClient.send({
+        from: sender,
+        to: [{ email: payerEmail }],
+        subject: `🛡️ Warranty Active: Gift for ${order.addressInfo?.fullName} Delivered`,
+        html: getWarrantyActivationTemplate(order),
+        category: "Gift Delivery Success (Me)",
+      });
+      // (Optional) We could notify the recipient too, but "Love Simple" says keep it lean.
+      return;
+    }
+
+    // SCENARIO 3: GIFT (Recipient holds the Warranty)
+    if (isGift && ownerType === "recipient") {
+      // 3A. Send the Surprise + Warranty to the Recipient
+      if (recipientEmail) {
+        await mailtrapClient.send({
+          from: sender,
+          to: [{ email: recipientEmail }],
+          subject: `🎁 Your Gift Has Arrived! Warranty Now Active.`,
+          html: getWarrantyActivationTemplate(order),
+          category: "Gift Recipient surprise",
+        });
+      }
+
+      // 3B. Send the "Mission Success" notice to the Payer
+      if (payerEmail) {
+        await mailtrapClient.send({
+          from: sender,
+          to: [{ email: payerEmail }],
+          subject: `📦 Delivery Successful: Gift for ${order.addressInfo?.fullName}`,
+          html: getPayerDeliveryConfirmationTemplate(order),
+          category: "Gift Payer Mission Success",
+        });
+      }
+    }
   } catch (error) {
-    handleEmailError(error, "Error sending delivery confirmation to payer");
+    handleEmailError(error, `Error sending delivered notifications for order ${order._id}`);
   }
 };
 

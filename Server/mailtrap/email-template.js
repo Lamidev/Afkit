@@ -2,16 +2,7 @@ const BRAND_ORANGE = "#f97316";
 const BRAND_DARK   = "#0d1b2a";
 const BRAND_LIGHT  = "#fff7ed";
 
-// Helper: maps a logisticsRoute code to a human label
-const getRouteLabel = (routeCode) => {
-  const labels = {
-    "lagos": "Lagos Doorstep",
-    "south-west": "South-West Region",
-    "south-east-south": "Eastern Region",
-    "north": "Northern Region",
-  };
-  return labels[routeCode] || "Lagos Doorstep";
-};
+
 
 
 const HEADER_ROW = `
@@ -316,13 +307,14 @@ const getAdminNewsletterTemplate = (subscriberEmail) => wrap(`
 `);
 
 // Thank-you email sent to the participant
-const getDebateThankYouTemplate = ({ fullName, email, phone, tikTokHandle, instagramHandle }) => {
+const getDebateThankYouTemplate = ({ fullName, email, phone, tikTokHandle, instagramHandle, brandToDefend }) => {
   const rows = [
     ["👤 Full Name", fullName],
     ["📧 Email", email],
     ["📱 Phone", phone],
     ...(tikTokHandle ? [["🎵 TikTok", tikTokHandle]] : []),
     ...(instagramHandle ? [["📸 Instagram", instagramHandle]] : []),
+    ["🛡️ Brand", brandToDefend],
   ];
 
   return wrap(`
@@ -374,11 +366,12 @@ const getDebateThankYouTemplate = ({ fullName, email, phone, tikTokHandle, insta
 };
 
 // Admin notification when a new participant registers
-const getDebateAdminTemplate = ({ fullName, email, phone, tikTokHandle, instagramHandle, createdAt }) => {
+const getDebateAdminTemplate = ({ fullName, email, phone, tikTokHandle, instagramHandle, brandToDefend, createdAt }) => {
   const rows = [
     ["👤 Full Name", fullName],
     ["📧 Email", email],
     ["📱 Phone", phone],
+    ["🛡️ Defending", brandToDefend],
     ["🎵 TikTok", tikTokHandle || "—"],
     ["📸 Instagram", instagramHandle || "—"],
     ["🕐 Registered At", createdAt
@@ -440,7 +433,8 @@ const getOrderConfirmationTemplate = (order) => {
   const isPOD = order.paymentType === "commitment";
   const isGift = order.addressInfo?.isGift;
   const isAssisted = order.addressInfo?.isAssisted;
-  const recipientName = order.addressInfo?.receiptName || order.addressInfo?.fullName;
+  const recipientName = order.addressInfo?.shippingInfo?.name || order.addressInfo?.fullName || "Valued Customer";
+  const payerName = order.addressInfo?.receiptInfo?.name || order.addressInfo?.fullName || "Valued Customer";
 
   return wrap(`
     <tr>
@@ -524,18 +518,19 @@ const getOrderConfirmationTemplate = (order) => {
             <strong>Recipient: ${recipientName}</strong><br/>
             Address: ${order.addressInfo?.address || 'N/A'}<br/>
             State: ${order.addressInfo?.region || 'N/A'}<br/>
-            Route: <strong style="color:${BRAND_ORANGE}; text-transform:uppercase;">${getRouteLabel(order.addressInfo?.logisticsRoute || 'lagos')}</strong><br/>
+
             Method: <strong style="color:${BRAND_ORANGE}; text-transform:uppercase;">
               ${order.addressInfo?.region === 'Lagos' ? 'Free Home Delivery' :
                 order.addressInfo?.deliveryPreference === 'doorstep' ? 'Home Delivery (Pay Rider)' :
-                ['Oyo', 'Ogun', 'Osun', 'Ondo', 'Ekiti'].includes(order.addressInfo?.region) ? 'Free Park Pickup' : 'Free Airport Pickup'}
+                ['Oyo', 'Ogun', 'Osun', 'Ondo', 'Ekiti'].includes(order.addressInfo?.region) ? 'Free Park Pickup' : 'Free Airport Station' }
             </strong><br/>
             Phone: ${order.addressInfo?.phone || 'N/A'}
           </p>
           ${isGift || isAssisted ? `
           <div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e2e8f0;">
              <p style="margin:0;font-size:12px;color:#6b21a8;"><strong>Order Category:</strong> ${isGift ? 'Gift' : 'Assisted Purchase'}</p>
-             ${order.addressInfo?.recipientEmail ? `<p style="margin:4px 0 0;font-size:12px;color:#6b21a8;">Warranty certificate will be sent to: ${order.addressInfo.recipientEmail}</p>` : ''}
+             <p style="margin:4px 0 0;font-size:12px;color:#6b21a8;"><strong>Receipt/Warranty Owner:</strong> ${order.addressInfo?.receiptInfo?.ownerType === 'me' ? 'Account Owner' : 'Recipient (' + (order.addressInfo?.shippingInfo?.name || order.addressInfo?.fullName) + ')'}</p>
+             ${order.addressInfo?.receiptInfo?.ownerType === 'recipient' && order.addressInfo?.recipientEmail ? `<p style="margin:4px 0 0;font-size:12px;color:#6b21a8;">Warranty certificate will be sent to: ${order.addressInfo.recipientEmail}</p>` : `<p style="margin:4px 0 0;font-size:12px;color:#6b21a8;">Warranty certificate will be sent to your account email.</p>`}
           </div>
           ` : ''}
         </div>
@@ -729,7 +724,7 @@ const getPayerDeliveryConfirmationTemplate = (order) => {
 
         <p style="font-size:15px;color:#475569;line-height:1.8;margin:0 0 32px;">
           ${isGift 
-            ? `Your surprise gift for <strong>${recipientName}</strong> has been successfully delivered! We've also sent them their official warranty certificate.` 
+            ? `Your surprise gift for <strong>${recipientName}</strong> has been successfully delivered! ${order.addressInfo?.receiptInfo?.ownerType === 'me' ? "We've sent the official warranty certificate to your email." : "We've also sent them their official warranty certificate."}` 
             : isAssisted
             ? `The assisted purchase you facilitated for <strong>${recipientName}</strong> has been delivered. Thank you for using Afkit.`
             : `Your gadgets have been delivered. We hope you love your new tech!`

@@ -31,7 +31,7 @@ const debateRegistrationSchema = new mongoose.Schema(
     brandToDefend: {
       type: String,
       required: [true, "Please choose a brand to defend"],
-      enum: ["Samsung", "iPhone"],
+      enum: ["Android", "Samsung", "iPhone"],
       trim: true,
     },
   },
