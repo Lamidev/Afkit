@@ -26,7 +26,6 @@ const initialAddressFormData = {
   notes: "",
   addressType: "personal",
   deliveryPreference: "hub", // default to free pickup
-  doorstepAgreement: false
 };
 
 function Address({ 
@@ -128,7 +127,7 @@ function Address({
                      <div className="flex items-center justify-between mb-1">
                         <span className="text-[11px] font-black uppercase text-slate-900">
                           {formData.region === 'Lagos' ? 'Free Home Delivery' : 
-                           REGION_MAPPING[formData.region] === 'park' ? 'Free Park Pickup' : 'Free Airport Pickup'}
+                           REGION_MAPPING[formData.region] === 'park' ? 'Free Park Pickup' : 'Free Airport Station'}
                         </span>
                         <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${formData.deliveryPreference === 'hub' ? 'bg-primary border-primary' : 'border-slate-300'}`}>
                            {formData.deliveryPreference === 'hub' && <Check className="w-3 h-3 text-white" />}
@@ -136,7 +135,7 @@ function Address({
                      </div>
                      <p className="text-[10px] font-medium text-slate-500 leading-snug">
                        {formData.region === 'Lagos' ? 'We bring it to your door for free.' : 
-                        REGION_MAPPING[formData.region] === 'park' ? 'Collect it at the nearest main motor park for FREE.' : 'Collect it at the nearest airport hub for FREE.'}
+                        REGION_MAPPING[formData.region] === 'park' ? 'Collect it at the nearest main motor park for FREE.' : 'Collect it at the nearest airport station for FREE.'}
                      </p>
                    </button>
 
@@ -159,27 +158,10 @@ function Address({
                              </div>
                           </div>
                           <p className="text-[10px] font-medium text-slate-500 leading-snug">
-                            We send it to the nearest hub, then a local rider brings it to you. <strong>You will pay the rider for the local trip.</strong>
+                            We send it to the nearest station, then a local rider brings it to you. <strong>You will pay the rider for the local trip.</strong>
                           </p>
                         </button>
-
-                        {/* Agreement Mandatory Checkbox for non-Lagos Doorstep */}
-                        {formData.deliveryPreference === 'doorstep' && (
-                           <div 
-                             onClick={() => setFormData(prev => ({ ...prev, doorstepAgreement: !prev.doorstepAgreement }))}
-                             className={`p-3 rounded-lg border-2 cursor-pointer transition-all flex items-start gap-3 ${
-                               formData.doorstepAgreement ? 'bg-emerald-50 border-emerald-500' : 'bg-orange-100 border-orange-300 animate-pulse'
-                             }`}
-                           >
-                             <div className={`mt-0.5 w-4 h-4 rounded border flex items-center justify-center shrink-0 ${formData.doorstepAgreement ? 'bg-emerald-500 border-emerald-500' : 'bg-white border-orange-400'}`}>
-                                {formData.doorstepAgreement && <Check className="w-2.5 h-2.5 text-white" />}
-                             </div>
-                             <p className={`text-[9px] font-bold uppercase leading-tight ${formData.doorstepAgreement ? 'text-emerald-700' : 'text-orange-700'}`}>
-                                I understand that I am responsible for paying the local rider fee for home delivery outside Lagos.
-                             </p>
-                           </div>
-                        )}
-                     </div>
+                      </div>
                    )}
                 </div>
               </div>
@@ -283,6 +265,41 @@ function Address({
       toast.error("Maximum 3 addresses allowed.");
       return;
     }
+
+    // --- Validation Logic ---
+    const required = ["fullName", "phone", "address", "region"];
+    const type = filterType || formData.addressType;
+    if (type === "recipient") required.push("email");
+
+    const missingField = required.find(f => !formData[f]?.trim());
+    if (missingField) {
+      const label = missingField === "fullName" ? "Name" : missingField;
+      toast.error(`Please fill in the ${label} field.`);
+      return;
+    }
+
+    if (formData.email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        toast.error("Please enter a valid email address.");
+        return;
+      }
+    }
+
+    const phoneDigits = formData.phone.replace(/\D/g, "");
+    if (phoneDigits.length < 10) {
+      toast.error("Main phone number must be at least 10 digits.");
+      return;
+    }
+
+    if (formData.backupPhone && formData.backupPhone.trim() !== "") {
+      const backupDigits = formData.backupPhone.replace(/\D/g, "");
+      if (backupDigits.length < 10) {
+        toast.error("Backup phone number must be at least 10 digits.");
+        return;
+      }
+    }
+
     if (!userId) return;
 
     const resolvedType = filterType || formData.addressType;
@@ -367,16 +384,7 @@ function Address({
     const required = ["fullName", "phone", "address", "region"];
     const type = filterType || formData.addressType;
     if (type === "recipient") required.push("email");
-    
-    const basicValid = required.every((f) => formData[f]?.trim()?.length > 0);
-    if (!basicValid) return false;
-
-    // Check doorstep agreement if outside lagos
-    if (formData.region !== 'Lagos' && formData.deliveryPreference === 'doorstep' && !formData.doorstepAgreement) {
-       return false;
-    }
-
-    return true;
+    return required.every((f) => formData[f]?.trim()?.length > 0);
   }
 
   const formTitle = currentEditedId ? "Edit Details" : (filterType || formData.addressType) === "recipient" ? "Recipient Details" : "Delivery Details";

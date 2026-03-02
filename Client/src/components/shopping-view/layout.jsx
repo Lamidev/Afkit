@@ -104,7 +104,7 @@ const ShoppingLayout = () => {
               <AccordionContent className="text-muted-foreground text-base p-4 bg-white leading-relaxed">
                 We offer free delivery nationwide with specific regional pickup points:
                 Lagos (Doorstep), South-West (Major Car Parks), and East/North (Nearest
-                Airport or Logistics Hub). Doorstep delivery outside Lagos is 
+                Airport or Logistics Station). Doorstep delivery outside Lagos is 
                 available as a paid upgrade during checkout.
               </AccordionContent>
             </AccordionItem>
@@ -116,12 +116,9 @@ const ShoppingLayout = () => {
                 How long does delivery take?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground text-base p-4 bg-white leading-relaxed">
-                For deliveries within our office locations, it's 1-2 working days.
-                For deliveries outside our office locations: South West – 2 to 3
-                working days East and North – 3 to 5 working days We’ve added a
-                little extra time to carefully retest the product for top-notch
-                quality and possibly reduce the chances of any delivery delays caused
-                by logistics.
+                For Lagos and South West – 2 to 3 working days.
+                For East and North – 3 to 5 working days.
+                We’ve added a little extra time to carefully retest the product for top-notch quality and possibly reduce the chances of any delivery delays caused by logistics.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem

@@ -12,6 +12,10 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageCircle,
+  Truck,
+  CreditCard,
+  ShoppingCart,
+  Heart,
 } from "lucide-react";
 import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { toast } from "sonner";
@@ -155,6 +159,39 @@ export default function ShoppingProductDetails() {
     if (imagePath.startsWith("/"))
       return `${window.location.origin}${imagePath}`;
     return `${window.location.origin}/${imagePath}`;
+  };
+
+  const handleDirectCheckout = async (paymentType) => {
+    try {
+      const userId = user?.id;
+      const sessionId = userId ? null : getOrCreateSessionId();
+      
+      // Add to cart first
+      const currentCartItems = cartItems?.items || [];
+      const existingItem = currentCartItems.find(
+        (item) => item.productId === productDetails._id
+      );
+
+      // Only add if not already in cart, otherwise we just proceed to checkout
+      if (!existingItem) {
+        await dispatch(
+          addToCart({
+            userId,
+            productId: productDetails._id,
+            quantity: quantity,
+            sessionId,
+          })
+        ).unwrap();
+        // Refresh cart items to ensure checkout has latest data
+        await dispatch(fetchCartItems({ userId, sessionId })).unwrap();
+      }
+      
+      // Navigate to checkout with payment type focus
+      navigate("/shop/checkout", { state: { paymentType } });
+    } catch (error) {
+      console.error("Direct checkout error:", error);
+      toast.error("Failed to initiate checkout");
+    }
   };
 
   const handleAddToCart = useCallback(
@@ -657,25 +694,35 @@ export default function ShoppingProductDetails() {
             </div>
           </div>
 
-            {/* Premium Action Grid */}
-            <div className="flex flex-col gap-3 pt-4">
-              {/* Primary Actions Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* 1. PAY NOW */}
-                <Button
-                  className="h-13 bg-primary hover:bg-primary/90 text-white font-bold text-sm rounded-xl transition-all hover:scale-[1.01] active:scale-95 uppercase tracking-widest"
-                  onClick={async () => {
-                    await handleAddToCart(productDetails._id, productDetails.totalStock);
-                    navigate("/shop/checkout", { state: { paymentType: 'full' } });
-                  }}
-                  disabled={productDetails.totalStock === 0}
-                >
-                  Pay Now
-                </Button>
+            {/* ── Main Action Grid ── */}
+            <div className="flex flex-col gap-4 pt-6">
+              {/* 1. PAY NOW (Full) */}
+              <Button
+                className="h-16 w-full bg-primary hover:bg-primary/90 text-white font-black text-base rounded-2xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-widest flex items-center justify-center gap-3"
+                onClick={() => handleDirectCheckout('full')}
+                disabled={productDetails.totalStock === 0}
+              >
+                <CreditCard className="w-5 h-5" />
+                Pay Now
+              </Button>
 
-                {/* 2. ORDER ON WHATSAPP */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* 2. PAY ON DELIVERY (Conditional) */}
+                {productDetails.price >= 15000 && (
+                  <Button
+                    variant="secondary"
+                    className="h-14 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-2xl shadow-lg shadow-slate-900/10 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-widest flex items-center justify-center gap-2"
+                    onClick={() => handleDirectCheckout('commitment')}
+                    disabled={productDetails.totalStock === 0}
+                  >
+                    <Truck className="w-4 h-4" />
+                    Pay on Delivery
+                  </Button>
+                )}
+
+                {/* 3. ORDER ON WHATSAPP */}
                 <Button
-                  className="h-13 bg-[#25D366] hover:bg-[#22c35e] text-white font-bold text-sm rounded-xl transition-all hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest"
+                  className="h-14 bg-[#25D366] hover:bg-[#22c35e] text-white font-bold text-sm rounded-2xl shadow-lg shadow-green-500/10 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest"
                   onClick={handleOrderOnWhatsApp}
                 >
                   <MessageCircle className="w-4 h-4" />
@@ -683,30 +730,15 @@ export default function ShoppingProductDetails() {
                 </Button>
               </div>
 
-              {/* Secondary Actions Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* 3. PAY ON DELIVERY */}
-                {productDetails.price >= 15000 && (
-                  <Button
-                    variant="secondary"
-                    className="h-13 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl transition-all hover:scale-[1.01] active:scale-95 uppercase tracking-widest"
-                    onClick={async () => {
-                      await handleAddToCart(productDetails._id, productDetails.totalStock);
-                      navigate("/shop/checkout", { state: { paymentType: 'commitment' } });
-                    }}
-                    disabled={productDetails.totalStock === 0}
-                  >
-                    Pay on Delivery
-                  </Button>
-                )}
-
-                {/* 4. ADD TO CART */}
+              {/* Secondary Utility Row */}
+              <div className="grid grid-cols-1">
                 <Button
                   variant="outline"
-                  className="h-13 border-2 border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-sm rounded-xl transition-all"
+                  className="h-12 border-2 border-slate-100 text-slate-600 hover:bg-slate-50 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2"
                   onClick={() => handleAddToCart(productDetails._id, productDetails.totalStock)}
                   disabled={productDetails.totalStock === 0}
                 >
+                  <ShoppingCart className="w-4 h-4" />
                   Add to Cart
                 </Button>
               </div>

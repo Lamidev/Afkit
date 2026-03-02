@@ -12,15 +12,10 @@ import {
 } from "@/store/admin/order-slice";
 import { toast } from "sonner";
 import { CreditCard, Truck, Gift, AlertTriangle, Package, MapPin, UserCheck, DollarSign, Check } from "lucide-react";
-import { formatAestheticId, getRouteFromRegion, REGION_MAPPING } from "@/utils/common";
+import { formatAestheticId, REGION_MAPPING } from "@/utils/common";
 
 
-const ROUTE_LABELS = {
-  "lagos": "Lagos Doorstep",
-  "south-west": "South-West (Park Pickup)",
-  "south-east-south": "Eastern Hub (Airport)",
-  "north": "Northern Hub (Airport)"
-};
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -197,21 +192,17 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                         </p>
                       </div>
                       <div>
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">State & Route</span>
-                        <div className="space-y-1">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">State & Method</span>
+                        <div className="space-y-2">
                           <p className="text-xs font-bold text-gray-900 uppercase">
                             {orderDetails?.addressInfo?.region || "N/A"} State
                           </p>
-                          <p className="text-[9px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 w-fit px-2 py-0.5 rounded border border-blue-100 italic">
-                            {ROUTE_LABELS[orderDetails?.addressInfo?.logisticsRoute] ||
-                             (orderDetails?.addressInfo?.region ? ROUTE_LABELS[getRouteFromRegion(orderDetails?.addressInfo?.region)] : "N/A")}
-                          </p>
-                        </div>
-                         <Badge className={`mt-2 text-[8px] font-bold uppercase tracking-widest ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-600 text-white' : 'bg-blue-600 text-white'}`}>
+                          <Badge className={`text-[8px] font-bold uppercase tracking-widest py-0.5 ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-600 text-white' : 'bg-blue-600 text-white'}`}>
                             {orderDetails?.addressInfo?.region === 'Lagos' ? '🏠 Free Home Delivery' :
                              orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Home Delivery (Pay Rider)' :
-                             REGION_MAPPING[orderDetails?.addressInfo?.region] === 'park' ? '🏢 Free Park Pickup' : '✈️ Free Airport Pickup'}
-                         </Badge>
+                             REGION_MAPPING[orderDetails?.addressInfo?.region] === 'park' ? '🏢 Free Park Pickup' : '✈️ Free Airport Station'}
+                          </Badge>
+                        </div>
                       </div>
                      
                      <div className="pt-4 border-t border-slate-100">
@@ -220,7 +211,7 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                            <p className={`text-[11px] font-bold uppercase tracking-tight ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' && orderDetails?.addressInfo?.region !== 'Lagos' ? 'text-orange-800' : 'text-emerald-800'}`}>
                              {orderDetails?.addressInfo?.region === 'Lagos' ? 'Free Home Delivery (No rider fee)' :
                               orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'Customer pays local rider fee on delivery' :
-                              'Free Hub/Park Pickup'}
+                              'Free Station/Park Pickup'}
                            </p>
                         </div>
                      </div>
@@ -262,7 +253,12 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">Legal Owner</span>
-                            <p className="text-xs font-bold text-white uppercase">{orderDetails?.addressInfo?.receiptInfo?.name || orderDetails?.addressInfo?.receiptName || "N/A"}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs font-bold text-white uppercase">{orderDetails?.addressInfo?.receiptInfo?.name || orderDetails?.addressInfo?.fullName || "N/A"}</p>
+                              <Badge className={`px-1.5 py-0 rounded text-[7px] border-0 uppercase font-bold tracking-tighter ${orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'bg-blue-500 text-white' : 'bg-orange-500 text-white'}`}>
+                                {orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'Account Owner' : 'Recipient'}
+                              </Badge>
+                            </div>
                           </div>
                           <div>
                             <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">Warranty Email</span>

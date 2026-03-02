@@ -2,7 +2,7 @@ const Order = require("../../models/order");
 const Product = require("../../models/products");
 const Cart = require("../../models/cart");
 const Notification = require("../../models/notification");
-const { sendWarrantyActivationEmail, sendDeliveryConfirmationToPayer } = require("../../mailtrap/emails");
+const { sendDeliveredNotifications } = require("../../mailtrap/emails");
 
 const getAllOrdersOfAllUsers = async (req, res) => {
   try {
@@ -140,12 +140,8 @@ const updateOrderStatus = async (req, res) => {
 
       // Special handling for delivery (Emails)
       if (order.orderStatus === "delivered") {
-        sendWarrantyActivationEmail(order).catch(err => {
-          console.error("Warranty activation email error:", err.message);
-        });
-        
-        sendDeliveryConfirmationToPayer(order).catch(err => {
-          console.error("Payer delivery confirmation email error:", err.message);
+        sendDeliveredNotifications(order).catch(err => {
+          console.error("Delivery notification email error:", err.message);
         });
       }
     }

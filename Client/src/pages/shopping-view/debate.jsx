@@ -169,12 +169,12 @@ const DebatePage = () => {
                 <br />
                 CHALLENGE
               </h1>
-              <p className="text-slate-400 text-lg sm:text-xl max-w-lg leading-relaxed font-medium">
+                <p className="text-slate-400 text-lg sm:text-xl max-w-lg leading-relaxed font-medium">
                 This is a live TikTok debate challenge.
 
 Register to stand your ground in a head to head battle: 
 
-IPHONE vs SAMSUNG
+IPHONE vs ANDROID
 
 Two participants will be selected to compete live. Choose your side and defend it
               </p>
@@ -296,7 +296,7 @@ Two participants will be selected to compete live. Choose your side and defend i
                         Brand to Defend <span className="text-orange-500">*</span>
                       </Label>
                       <div className="grid grid-cols-2 gap-4">
-                         {["Samsung", "iPhone"].map((brand) => (
+                         {["Android", "iPhone"].map((brand) => (
                            <button
                              key={brand}
                              type="button"
