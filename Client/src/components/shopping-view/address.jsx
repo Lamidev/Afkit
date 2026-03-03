@@ -127,7 +127,7 @@ function Address({
                      <div className="flex items-center justify-between mb-1">
                         <span className="text-[11px] font-black uppercase text-slate-900">
                           {formData.region === 'Lagos' ? 'Free Home Delivery' : 
-                           REGION_MAPPING[formData.region] === 'park' ? 'Free Park Pickup' : 'Free Airport Station'}
+                           REGION_MAPPING[formData.region] === 'park' ? 'Free Car Park Pickup' : 'Free Airport Pickup'}
                         </span>
                         <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${formData.deliveryPreference === 'hub' ? 'bg-primary border-primary' : 'border-slate-300'}`}>
                            {formData.deliveryPreference === 'hub' && <Check className="w-3 h-3 text-white" />}
@@ -135,7 +135,7 @@ function Address({
                      </div>
                      <p className="text-[10px] font-medium text-slate-500 leading-snug">
                        {formData.region === 'Lagos' ? 'We bring it to your door for free.' : 
-                        REGION_MAPPING[formData.region] === 'park' ? 'Collect it at the nearest main motor park for FREE.' : 'Collect it at the nearest airport station for FREE.'}
+                        REGION_MAPPING[formData.region] === 'park' ? 'Collect it at the nearest main motor park for FREE.' : 'Collect it at the nearest Airport for FREE.'}
                      </p>
                    </button>
 
@@ -158,7 +158,7 @@ function Address({
                              </div>
                           </div>
                           <p className="text-[10px] font-medium text-slate-500 leading-snug">
-                            We send it to the nearest station, then a local rider brings it to you. <strong>You will pay the rider for the local trip.</strong>
+                            We send it to the nearest Car Park/Station first, then a rider brings it to your house. <strong>You will pay the rider for the local trip.</strong>
                           </p>
                         </button>
                       </div>

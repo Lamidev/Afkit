@@ -104,7 +104,7 @@ const ShoppingLayout = () => {
               <AccordionContent className="text-muted-foreground text-base p-4 bg-white leading-relaxed">
                 We offer free delivery nationwide with specific regional pickup points:
                 Lagos (Doorstep), South-West (Major Car Parks), and East/North (Nearest
-                Airport or Logistics Station). Doorstep delivery outside Lagos is 
+                Airport). Doorstep delivery outside Lagos is 
                 available as a paid upgrade during checkout.
               </AccordionContent>
             </AccordionItem>

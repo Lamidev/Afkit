@@ -200,7 +200,7 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                           <Badge className={`text-[8px] font-bold uppercase tracking-widest py-0.5 ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-600 text-white' : 'bg-blue-600 text-white'}`}>
                             {orderDetails?.addressInfo?.region === 'Lagos' ? '🏠 Free Home Delivery' :
                              orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Home Delivery (Pay Rider)' :
-                             REGION_MAPPING[orderDetails?.addressInfo?.region] === 'park' ? '🏢 Free Park Pickup' : '✈️ Free Airport Station'}
+                             REGION_MAPPING[orderDetails?.addressInfo?.region] === 'park' ? '🏢 Free Car Park Pickup' : '✈️ Free Airport Pickup'}
                           </Badge>
                         </div>
                       </div>
@@ -211,7 +211,7 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                            <p className={`text-[11px] font-bold uppercase tracking-tight ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' && orderDetails?.addressInfo?.region !== 'Lagos' ? 'text-orange-800' : 'text-emerald-800'}`}>
                              {orderDetails?.addressInfo?.region === 'Lagos' ? 'Free Home Delivery (No rider fee)' :
                               orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'Customer pays local rider fee on delivery' :
-                              'Free Station/Park Pickup'}
+                              'Free Hub Pickup'}
                            </p>
                         </div>
                      </div>

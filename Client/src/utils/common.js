@@ -52,13 +52,13 @@ export const createSlug = (text) => {
  * 3. North/East/South-South: Free Airport Delivery
  */
 export const REGION_MAPPING = {
-  // LAGOS ZONE
+  // LAGOS ZONE (Home Delivery)
   "Lagos": "lagos",
   
-  // PARK ZONE (SOUTH-WEST / YORUBALAND)
+  // PARK ZONE (SOUTH-WEST) - 2-3 Working Days
   "Oyo": "park", "Ogun": "park", "Osun": "park", "Ondo": "park", "Ekiti": "park",
   
-  // AIRPORT ZONE (NORTH / EAST / SOUTH-SOUTH)
+  // AIRPORT ZONE (NORTH / EAST / SOUTH-SOUTH) - 3-5 Working Days
   "Abia": "airport", "Anambra": "airport", "Ebonyi": "airport", "Enugu": "airport", "Imo": "airport",
   "Akwa Ibom": "airport", "Bayelsa": "airport", "Cross River": "airport", "Delta": "airport", "Edo": "airport", "Rivers": "airport",
   "FCT": "airport", "Adamawa": "airport", "Bauchi": "airport", "Benue": "airport", "Borno": "airport", "Gombe": "airport", "Jigawa": "airport", "Kaduna": "airport",
@@ -67,48 +67,51 @@ export const REGION_MAPPING = {
 };
 
 /**
+ * Returns the estimated delivery days based on the state.
+ * South West (including Lagos) = 2-3 Days
+ * Others = 3-5 Days
+ */
+export const getDeliveryDays = (state) => {
+  if (!state) return "";
+  const southWestStates = ["Lagos", "Oyo", "Ogun", "Osun", "Ondo", "Ekiti"];
+  return southWestStates.includes(state) ? "2 - 3 WORKING DAYS" : "3 - 5 WORKING DAYS";
+};
+
+/**
  * Returns simple, plain-English instructions for delivery based on state and preference.
  * Designed to be understood by everyone (10-70 years old).
  */
 export const getDeliveryPolicy = (state, preference) => {
   if (!state) return null;
+  const days = getDeliveryDays(state);
   const zone = REGION_MAPPING[state] || "airport";
 
   if (state === "Lagos") {
     return {
       title: "Free Home Delivery",
-      description: "We will bring your gadget directly to your house for FREE.",
+      description: `We will bring your gadget directly to your house for FREE within ${days}.`,
       feeLabel: "FREE",
-      isFree: true
+      isFree: true,
+      days
     };
   }
 
   const isHome = preference === "doorstep";
+  const hubName = zone === "park" ? "Car Park" : "Airport";
 
-  if (zone === "park") {
-    return {
-      title: isHome ? "Deliver to My House" : "Pick up at the Park",
-      description: isHome 
-        ? "We send it to the nearest main motor park, then a local rider brings it to your house. Note: You will pay the rider for the local delivery." 
-        : "We send it to the nearest main motor park for FREE. You go there to pick it up.",
-      feeLabel: isHome ? "Pay Rider" : "FREE",
-      isFree: !isHome
-    };
-  }
-
-  // Airport Zone (Default for everything else)
   return {
-    title: isHome ? "Deliver to My House" : "Pick up at the Airport",
+    title: isHome ? "Deliver to My House" : `Pick up at the ${hubName}`,
     description: isHome 
-      ? "We send it to the nearest airport station, then a local rider brings it to your house. Note: You will pay the rider for the local delivery." 
-      : "We send it to the nearest airport station for FREE. You go there to pick it up.",
+      ? `We send it to the nearest ${hubName} first, then a local rider brings it to your house. Note: You will pay the rider for the local delivery. Delivery takes ${days}.` 
+      : `We send it to the nearest ${hubName} for FREE. You go there to pick it up in ${days}.`,
     feeLabel: isHome ? "Pay Rider" : "FREE",
-    isFree: !isHome
+    isFree: !isHome,
+    days
   };
 };
 
 export const getRouteFromRegion = (region) => {
   if (!region) return "lagos";
   const normalized = region.toString().trim();
-  return REGION_MAPPING[normalized] || "airport";
+  return REGION_MAPPING[normalized] || "park";
 };

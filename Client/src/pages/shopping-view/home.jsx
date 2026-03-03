@@ -544,10 +544,10 @@ function ShoppingHome() {
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-2 uppercase tracking-tight">East & North</h3>
                   <div className="bg-slate-100 text-slate-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase mb-4">
-                    Airport/Station Pickup
+                    Airport Pickup
                   </div>
                   <p className="text-slate-500 text-sm font-semibold leading-relaxed">
-                    FREE delivery to the nearest Airport or Major Logistics Station in your city.
+                    FREE delivery to the nearest Airport in your city.
                   </p>
                </motion.div>
             </div>

@@ -522,7 +522,7 @@ const getOrderConfirmationTemplate = (order) => {
             Method: <strong style="color:${BRAND_ORANGE}; text-transform:uppercase;">
               ${order.addressInfo?.region === 'Lagos' ? 'Free Home Delivery' :
                 order.addressInfo?.deliveryPreference === 'doorstep' ? 'Home Delivery (Pay Rider)' :
-                ['Oyo', 'Ogun', 'Osun', 'Ondo', 'Ekiti'].includes(order.addressInfo?.region) ? 'Free Park Pickup' : 'Free Airport Station' }
+                ['Oyo', 'Ogun', 'Osun', 'Ondo', 'Ekiti'].includes(order.addressInfo?.region) ? 'Free Car Park Pickup' : 'Free Airport Pickup' }
             </strong><br/>
             Phone: ${order.addressInfo?.phone || 'N/A'}
           </p>
@@ -534,11 +534,11 @@ const getOrderConfirmationTemplate = (order) => {
           </div>
           ` : ''}
         </div>
-
+ 
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td align="center">
-              <p style="font-size:14px;color:#64748b;margin-bottom:20px;">Order is being processed for delivery in 1-3 business days.</p>
+              <p style="font-size:14px;color:#64748b;margin-bottom:20px;">Order is being processed for delivery within ${['Lagos', 'Oyo', 'Ogun', 'Osun', 'Ondo', 'Ekiti'].includes(order.addressInfo?.region) ? '2-3' : '3-5'} business days.</p>
               <a href="https://afkit.ng/shop/account" style="display:inline-block;background:${BRAND_ORANGE};color:#ffffff;text-decoration:none;font-size:14px;font-weight:800;padding:14px 32px;border-radius:10px;">
                 View Order History
               </a>

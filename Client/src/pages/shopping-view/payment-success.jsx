@@ -78,6 +78,17 @@ function PaymentSuccessPage() {
     const isPOD = orderDetails?.paymentType === "commitment";
     const paymentStatusHeader = isPOD ? "🟠 DEPOSIT PAID (₦10,000)" : "🟢 FULLY PAID (100%)";
 
+    // Delivery Logic
+    const isSouthWest = ["Lagos", "Oyo", "Ogun", "Osun", "Ondo", "Ekiti"].includes(orderDetails.addressInfo?.region);
+    const deliveryDays = isSouthWest ? "2-3 Working Days" : "3-5 Working Days";
+    const hubName = isSouthWest ? "Car Park/Station" : "Airport";
+    
+    const deliveryMethod = orderDetails.addressInfo?.region === 'Lagos' 
+      ? "🏠 FREE HOME DELIVERY" 
+      : orderDetails.addressInfo?.deliveryPreference === 'doorstep'
+      ? "🏠 HOME DELIVERY (PAY RIDER)"
+      : `🏢 FREE ${hubName.toUpperCase()} PICKUP`;
+
     const cartItemsText = orderDetails.cartItems
       .map((item) => {
         // WhatsApp link scraper works best with backend OG routes to show metadata/images
@@ -109,6 +120,8 @@ ${isPOD ? `*DOOR PAYMENT:* ${recipientName} will pay ₦${parseFloat(orderDetail
 
 ${divider}
 *📍 DELIVERY DETAILS:*
+*Method:* ${deliveryMethod}
+*Est. Arrival:* ${deliveryDays}
 *Recipient:* ${recipientName}
 *Address:* ${orderDetails.addressInfo?.shippingInfo?.location || orderDetails.addressInfo?.address || 'N/A'}
 *State:* ${orderDetails.addressInfo?.region || 'N/A'}
