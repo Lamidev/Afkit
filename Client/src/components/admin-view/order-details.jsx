@@ -205,16 +205,16 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                         </div>
                       </div>
                      
-                     <div className="pt-4 border-t border-slate-100">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Condition for Delivery</span>
-                        <div className={`p-3 rounded-xl border-l-4 ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' && orderDetails?.addressInfo?.region !== 'Lagos' ? 'bg-orange-50 border-orange-500' : 'bg-emerald-50 border-emerald-500'}`}>
-                           <p className={`text-[11px] font-bold uppercase tracking-tight ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' && orderDetails?.addressInfo?.region !== 'Lagos' ? 'text-orange-800' : 'text-emerald-800'}`}>
-                             {orderDetails?.addressInfo?.region === 'Lagos' ? 'Free Home Delivery (No rider fee)' :
-                              orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'Customer pays local rider fee on delivery' :
-                              'Free Hub Pickup'}
-                           </p>
-                        </div>
-                     </div>
+                      {orderDetails?.addressInfo?.deliveryPreference === 'doorstep' && orderDetails?.addressInfo?.region !== 'Lagos' && (
+                       <div className="pt-4 border-t border-slate-100">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Condition for Delivery</span>
+                          <div className="p-3 rounded-xl border-l-4 bg-orange-50 border-orange-500">
+                             <p className="text-[11px] font-bold uppercase tracking-tight text-orange-800">
+                               Customer pays local rider fee on delivery
+                             </p>
+                          </div>
+                       </div>
+                      )}
                     </div>
                     
                     <div className="flex flex-wrap gap-4 pt-4 border-t border-slate-100">
