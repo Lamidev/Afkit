@@ -185,7 +185,7 @@ exports.sendAdminOrderNotificationEmail = async (order) => {
         <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">Delivery Preference</td><td style="padding:8px 10px; font-weight:bold; color:${order.addressInfo?.deliveryPreference === 'doorstep' ? '#ea580c' : '#2563eb'};">
           ${order.addressInfo?.region === 'Lagos' ? '🏠 Free Home Delivery' :
             order.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Home Delivery (Pay Rider)' :
-            ['Oyo', 'Ogun', 'Osun', 'Ondo', 'Ekiti'].includes(order.addressInfo?.region) ? '🏢 Free Park Pickup' : '✈️ Free Airport Station'}
+            ['Oyo', 'Ogun', 'Osun', 'Ondo', 'Ekiti'].includes(order.addressInfo?.region) ? '🏢 Free Car Park Pickup' : '✈️ Free Airport Pickup'}
         </td></tr>
         <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">Items</td><td style="padding:8px 10px;">${items}</td></tr>
         <tr><td style="padding:8px 10px; color:#64748b; font-weight:bold;">Payment</td><td style="padding:8px 10px; color:#f97316; font-weight:bold;">${paymentTypeLabel}</td></tr>

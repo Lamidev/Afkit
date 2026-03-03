@@ -8,7 +8,7 @@ import { createNewOrder } from "@/store/shop/order-slice";
 import { fetchLastUsedAddress } from "@/store/shop/address-slice";
 import { CreditCard, Truck, Check, AlertCircle, Gift, User, ChevronLeft, Loader2, MapPin, Shield } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getRouteFromRegion, REGION_MAPPING } from "@/utils/common";
+import { getRouteFromRegion, REGION_MAPPING, getDeliveryDays, getDeliveryPolicy } from "@/utils/common";
 
 
 function ShoppingCheckout() {
@@ -320,9 +320,7 @@ function ShoppingCheckout() {
                   <div className="flex flex-col">
                     <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-0.5">Estimated Arrival</span>
                     <span className="text-xs font-black uppercase">
-                      {["Lagos", "Oyo", "Ogun", "Osun", "Ondo", "Ekiti"].includes(currentSelectedAddress.region) 
-                        ? "2 - 3 WORKING DAYS" 
-                        : "3 - 5 WORKING DAYS"}
+                      {getDeliveryDays(currentSelectedAddress.region)}
                     </span>
                   </div>
                 </div>
@@ -362,8 +360,8 @@ function ShoppingCheckout() {
                         ? 'text-orange-600 bg-orange-50 border-orange-100' 
                         : 'text-blue-600 bg-blue-50 border-blue-100'
                      }`}>
-                        {currentSelectedAddress.deliveryPreference === 'doorstep' ? '🏠 Home Delivery (Pay Rider)' : 
-                          REGION_MAPPING[currentSelectedAddress.region] === 'park' ? '🏢 Free Park Pickup' : '✈️ Free Airport Station'}
+                         {currentSelectedAddress.deliveryPreference === 'doorstep' ? '🏠 Home Delivery (Pay Rider)' : 
+                          REGION_MAPPING[currentSelectedAddress.region] === 'park' ? '🏢 Free Car Park Pickup' : '✈️ Free Airport Pickup'}
                      </p>
                    )}
                 </div>
@@ -474,10 +472,10 @@ function ShoppingCheckout() {
                           <p className="text-[13px] font-bold text-slate-800 leading-snug flex items-center gap-2">
                             <span className="text-xl">🏠</span>
                             {currentSelectedAddress.region === 'Lagos' 
-                              ? "Your gadget will be delivered straight to your doorstep for FREE within 2-4 working days."
+                              ? `Your gadget will be delivered straight to your doorstep for FREE within ${getDeliveryDays(currentSelectedAddress.region)}.`
                               : currentSelectedAddress.deliveryPreference === 'doorstep'
-                              ? "Sent to the nearest Station first, then a rider brings it to your house. (Rider fee is paid on arrival)" 
-                              : "Sent to the nearest Station for FREE. You'll go there to pick it up in 3-5 working days."}
+                              ? `Sent to the nearest ${REGION_MAPPING[currentSelectedAddress.region] === 'park' ? 'Car Park/Station' : 'Airport'} first, then a rider brings it to your house. (Rider fee is paid on arrival)` 
+                              : `Sent to the nearest ${REGION_MAPPING[currentSelectedAddress.region] === 'park' ? 'Car Park' : 'Airport'} for FREE. You'll go there to pick it up in ${getDeliveryDays(currentSelectedAddress.region)}.`}
                           </p>
                           
                           <div className="flex items-center gap-2 text-[11px] font-black text-slate-900 uppercase">
@@ -582,7 +580,7 @@ function ShoppingCheckout() {
 
                    <div className="mt-4 bg-white/10 p-4 rounded-xl border border-white/10">
                       <p className="text-[10px] sm:text-xs font-bold text-orange-400 leading-tight">
-                        <strong>📍 Note:</strong> Doorstep POD is only available in Lagos. Outside Lagos, POD is done at the nearest Station or Airport Station.
+                        <strong>📍 Note:</strong> Doorstep POD is only available in Lagos. Outside Lagos, POD is done at the nearest Car Park/Airport.
                       </p>
                    </div>
                 </div>
@@ -675,8 +673,8 @@ function ShoppingCheckout() {
                 <span className="text-right leading-tight text-xs sm:text-sm">
                    {!currentSelectedAddress ? "Pending Selection" : 
                     currentSelectedAddress.region === 'Lagos' ? "Free Home Delivery" :
-                    currentSelectedAddress.deliveryPreference === 'doorstep' ? "Home Delivery (Pay Rider)" :
-                    REGION_MAPPING[currentSelectedAddress.region] === 'park' ? "Free Park Pickup" : "Free Airport Pickup"}
+                    currentSelectedAddress.deliveryPreference === 'doorstep' ? "Home Delivery (Pay Rider)" : 
+                    REGION_MAPPING[currentSelectedAddress.region] === 'park' ? "Free Car Park Pickup" : "Free Airport Pickup"}
                 </span>
               </div>
               <div className="flex justify-between items-center pt-5 border-t-2 border-slate-900">

@@ -140,7 +140,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                   <Badge className={`text-[8px] font-bold uppercase tracking-widest w-fit py-0.5 ${orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? 'bg-orange-600 text-white border-0' : 'bg-blue-600 text-white border-0'}`}>
                     {orderDetails?.addressInfo?.region === 'Lagos' ? '🏠 Free Home Delivery' :
                      orderDetails?.addressInfo?.deliveryPreference === 'doorstep' ? '🏠 Home Delivery (Pay Rider)' :
-                     REGION_MAPPING[orderDetails?.addressInfo?.region] === 'park' ? '🏢 Free Park Pickup' : '✈️ Free Airport Station'}
+                     REGION_MAPPING[orderDetails?.addressInfo?.region] === 'park' ? '🏢 Free Car Park Pickup' : '✈️ Free Airport Pickup'}
                   </Badge>
                 )}
               </div>
