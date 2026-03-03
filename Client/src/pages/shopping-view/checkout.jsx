@@ -242,8 +242,8 @@ function ShoppingCheckout() {
         {/* ── LEFT COLUMN ── */}
         <div className="lg:col-span-7 space-y-5">
 
-          {/* 1. Who is receiving? (Purchaser vs Gift) */}
-          <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100">
+          {/* 1. Who is receiving? (Purchaser vs Someone Else) */}
+          <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-md border-2 border-slate-100">
             <h2 className="text-sm sm:text-base font-bold flex items-center gap-3 text-slate-800 uppercase tracking-tight mb-5">
               <div className="p-2 bg-blue-600/10 rounded-lg">
                 <Gift className="w-4 h-4 text-blue-600" />
@@ -287,8 +287,8 @@ function ShoppingCheckout() {
                   <Truck className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="font-black text-xs text-slate-900 uppercase tracking-widest block leading-none">Gift Mode</span>
-                  <span className="text-[10px] font-medium text-slate-400 uppercase mt-1.5 block">Buying for someone else</span>
+                  <span className="font-black text-xs text-slate-900 uppercase tracking-widest block leading-none">Someone Else</span>
+                  <span className="text-[10px] font-medium text-slate-400 uppercase mt-1.5 block">Buying for a friend or family</span>
                 </div>
                 {purchaseIntent !== "personal" && (
                   <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center border-2 border-white">
@@ -300,7 +300,7 @@ function ShoppingCheckout() {
           </div>
 
           {/* 2. DELIVERY LOCATION */}
-          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100 mb-6">
+          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-md border-2 border-slate-100 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
               <h2 className="text-lg sm:text-xl font-black flex items-center gap-4 text-slate-900 uppercase">
                 <div className="p-3 bg-blue-600 rounded-2xl shadow-lg shadow-blue-600/20">
@@ -499,7 +499,7 @@ function ShoppingCheckout() {
 
           {/* 3. RECEIPT OWNERSHIP */}
           {purchaseIntent !== "personal" && (
-            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-md border-2 border-slate-100 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
               <h2 className="text-lg sm:text-xl font-black flex items-center gap-4 text-slate-900 uppercase mb-8">
                 <div className="p-3 bg-blue-900 rounded-2xl shadow-lg shadow-blue-900/20">
                   <Gift className="w-5 h-5 text-white" />
@@ -540,7 +540,7 @@ function ShoppingCheckout() {
           )}
 
           {/* 4. PAYMENT METHOD */}
-          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-slate-100">
+          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-md border-2 border-slate-100">
             <h2 className="text-lg sm:text-xl font-black mb-8 flex items-center gap-4 text-slate-900 uppercase">
               <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/20">
                 <CreditCard className="w-5 h-5 text-white" />
@@ -562,13 +562,13 @@ function ShoppingCheckout() {
                 
                 <div className="space-y-4 relative z-10">
                    {[
-                     { text: "To secure your order, a ₦10,000 commitment fee is required before delivery." },
-                     { text: "* The fee is fully refundable if the gadget delivered does not match your confirmed order." },
-                     { text: "* If the device meets your expectations, the remaining balance must be completed before our logistics partner leaves your location." }
+                     { text: "Commitment Fee: ₦10,000 required before dispatch (Fully Refundable)." },
+                     { text: "Purpose: This secure deposit filters out prank orders and covers logistics costs." },
+                     { text: "Balance: Pay the remaining amount only after inspecting the gadget." }
                    ].map((item, i) => (
                      <div key={i} className="flex gap-3 items-start">
                         <div className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 bg-white/40" />
-                        <p className="text-xs sm:text-sm font-bold leading-relaxed text-slate-100">
+                        <p className="text-xs sm:text-sm font-black leading-relaxed text-slate-100 uppercase tracking-tight">
                           {item.text}
                         </p>
                      </div>
@@ -578,9 +578,9 @@ function ShoppingCheckout() {
                      This ensures fairness, transparency, and a smooth delivery experience for both you and Afkit.
                    </p>
 
-                   <div className="mt-4 bg-white/10 p-4 rounded-xl border border-white/10">
-                      <p className="text-[10px] sm:text-xs font-bold text-orange-400 leading-tight">
-                        <strong>📍 Note:</strong> Doorstep POD is only available in Lagos. Outside Lagos, POD is done at the nearest Car Park/Airport.
+                   <div className="mt-4 bg-orange-600/20 p-4 rounded-xl border border-orange-500/30 shadow-lg shadow-orange-600/10 animate-pulse">
+                      <p className="text-[10px] sm:text-xs font-black text-white leading-tight uppercase tracking-widest text-center sm:text-left">
+                        🚨 IMPORTANT: DOORSTEP POD is Lagos-only. Outside Lagos, pickup is at the nearest Car Park/Airport.
                       </p>
                    </div>
                 </div>

@@ -223,7 +223,7 @@ export const addressFormControls = [
     placeholder: "Secondary contact (Optional)",
   },
   {
-    label: "Delivery Address",
+    label: "Delivery Address/City",
     name: "address",
     componentType: "input",
     type: "text",

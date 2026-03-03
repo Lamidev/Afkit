@@ -131,7 +131,7 @@ function ShoppingHome() {
       sessionStorage.setItem("filters", JSON.stringify(currentFilter));
       const queryParams = new URLSearchParams();
       queryParams.set(section, item.id);
-      queryParams.set("sort", "random");
+      queryParams.set("sort", "price-lowtohigh");
       navigate(`/shop/listing?${queryParams.toString()}`);
     }
   };

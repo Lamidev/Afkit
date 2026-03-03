@@ -189,26 +189,20 @@ ${cartItems
           </div>
 
           <div className="flex flex-col gap-3">
-            {/* 1. PAY NOW - High Contrast Style */}
-            <button
+            {/* 1. PAY NOW (Full) - Matching Product Details Style */}
+            <Button
+              className="h-14 sm:h-16 w-full bg-primary hover:bg-primary/90 text-white font-black text-sm sm:text-base rounded-2xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-widest flex items-center justify-center gap-3"
               onClick={() => {
                 navigate("/shop/checkout", { state: { paymentType: "full" } });
                 setOpenCartSheet(false);
               }}
-              className="w-full flex items-center justify-center gap-2.5 py-1.5 group"
             >
-              <div className="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors">
-                <CreditCard className="w-4 h-4 text-blue-900" />
-              </div>
-              <span className="text-[11px] font-black text-slate-950 uppercase tracking-[0.2em] group-hover:text-blue-900 transition-colors">
-                Pay Now
-              </span>
-            </button>
+              <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
+              Pay Now
+            </Button>
 
-            <div className="h-px bg-slate-100 mx-8" />
-
-            <div className="flex flex-col gap-3 px-1">
-              {/* 2. PAY ON DELIVERY */}
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+              {/* 2. PAY ON DELIVERY (Conditional) */}
               {(() => {
                 const hasMajorGadget = cartItems.some(item => 
                   item.category && ["smartphones", "laptops", "monitors"].includes(item.category)
@@ -216,42 +210,35 @@ ${cartItems
                 
                 if (totalCartAmount >= 15000 && hasMajorGadget) {
                   return (
-                    <button
+                    <Button
+                      variant="secondary"
+                      className="h-10 sm:h-14 bg-slate-900 hover:bg-slate-800 text-white font-bold text-[9px] sm:text-sm rounded-xl sm:rounded-2xl shadow-lg shadow-slate-900/10 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-tighter sm:tracking-widest flex flex-col items-center justify-center leading-none"
                       onClick={() => {
                         navigate("/shop/checkout", { state: { paymentType: "commitment" } });
                         setOpenCartSheet(false);
                       }}
-                      className="flex items-center justify-center gap-2.5 group"
                     >
-                      <div className="p-1.5 bg-slate-50 rounded-lg group-hover:bg-orange-50 transition-colors">
-                        <Truck className="w-4 h-4 text-slate-600 group-hover:text-orange-600" />
+                      <div className="flex items-center gap-1 sm:gap-2">
+                         <Truck className="w-3 h-3 sm:w-4 sm:h-4" />
+                         <span>P.O.D</span>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <span className="text-[10px] font-black text-slate-950 uppercase tracking-widest group-hover:text-orange-600 transition-colors">
-                          Pay on Delivery
-                        </span>
-                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter opacity-70">
-                          ₦10,000 Deposit Required
-                        </span>
-                      </div>
-                    </button>
+                      <span className="text-[7px] sm:text-[8px] font-black opacity-60 mt-0.5">₦10k Deposit</span>
+                    </Button>
                   );
                 }
                 return null;
               })()}
 
-              {/* 3. PAY ON WHATSAPP */}
-              <button
+              {/* 3. ORDER VIA WHATSAPP */}
+              <Button
+                className={`h-10 sm:h-14 bg-[#25D366] hover:bg-[#22c35e] text-white font-bold text-[9px] sm:text-sm rounded-xl sm:rounded-2xl shadow-lg shadow-green-500/10 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-1 sm:gap-2 uppercase tracking-tighter sm:tracking-widest ${
+                  !(totalCartAmount >= 15000 && cartItems.some(item => item.category && ["smartphones", "laptops", "monitors"].includes(item.category))) ? "col-span-2" : ""
+                }`}
                 onClick={handleCheckout}
-                className="flex items-center justify-center gap-2.5 group"
               >
-                <div className="p-1.5 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors">
-                  <FaWhatsapp className="w-4 h-4 text-[#25D366]" />
-                </div>
-                <span className="text-[10px] font-black text-slate-950 uppercase tracking-widest group-hover:text-green-600 transition-colors">
-                  Order via WhatsApp
-                </span>
-              </button>
+                <FaWhatsapp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
+                Order on WhatsApp
+              </Button>
             </div>
           </div>
         </motion.div>
