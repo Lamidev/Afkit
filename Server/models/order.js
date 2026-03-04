@@ -38,6 +38,7 @@ const OrderSchema = new mongoose.Schema(
       isAssisted: Boolean,
       receiptName: String,
       recipientEmail: String,
+      deliveryTarget: String, // 'recipient' or 'personal'
       // Enhanced tracking for "Someone Else"
       receiptInfo: {
         name: String,

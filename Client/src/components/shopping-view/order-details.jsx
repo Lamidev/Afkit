@@ -107,28 +107,34 @@ function ShoppingOrderDetailsView({ orderDetails }) {
         <Separator />
 
         <div className="grid gap-4">
-          <div className="font-semibold text-lg">Delivery Information</div>
+          <div className="font-semibold text-lg flex items-center gap-2">
+            <Truck className="w-5 h-5 text-slate-400" />
+            Delivery & Ownership
+          </div>
           <div className="grid gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Recipient</span>
-              <span className="font-bold text-slate-900">{orderDetails?.addressInfo?.fullName}</span>
-              {orderDetails?.addressInfo?.isGift && (
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase tracking-tighter">
-                     Receipt: {orderDetails?.addressInfo?.receiptInfo?.name || orderDetails?.addressInfo?.fullName}
-                  </span>
-                  <Badge className={`px-1.5 py-0 rounded text-[7px] border-0 uppercase font-bold tracking-tighter ${orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'bg-blue-500 text-white' : 'bg-orange-500 text-white'}`}>
-                    {orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'Account Owner' : 'Recipient'}
-                  </Badge>
-                </div>
-              )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-3 border-b border-slate-100">
+               <div>
+                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
+                    {orderDetails?.addressInfo?.deliveryTarget === 'personal' ? "Destination (Collected By Payer)" : "Destination (Sent to Recipient)"}
+                 </span>
+                 <p className="font-bold text-slate-900 uppercase">
+                    {orderDetails?.addressInfo?.fullName}
+                 </p>
+                 <p className="text-[11px] text-slate-500 font-medium leading-tight mt-1 truncate">
+                    {orderDetails?.addressInfo?.address}
+                 </p>
+               </div>
+               <div>
+                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Warranty Owner</span>
+                 <p className="font-bold text-slate-900 uppercase">
+                    {orderDetails?.addressInfo?.receiptInfo?.name || orderDetails?.addressInfo?.fullName}
+                 </p>
+                 <p className="text-[10px] font-bold text-blue-600 truncate mt-1">
+                    {orderDetails?.addressInfo?.receiptInfo?.email || "Email Pending"}
+                 </p>
+               </div>
             </div>
-            <div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Delivery Address</span>
-              <span className="text-sm text-slate-700 font-medium">
-                {orderDetails?.addressInfo?.address}
-              </span>
-            </div>
+
             <div className="grid grid-cols-2 gap-3 pb-3 border-b border-slate-100">
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">State</span>

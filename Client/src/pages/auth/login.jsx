@@ -20,8 +20,18 @@ function AuthLogin() {
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
-  function onSubmit(event) {
+  function handleLoginSubmit(event) {
     event.preventDefault();
+
+    // Email Validation Check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address.", {
+        icon: <AlertCircle className="text-red-500" />,
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     dispatch(loginUser(formData))
@@ -80,7 +90,7 @@ function AuthLogin() {
             buttonText={isLoading ? <Loader className="w-6 h-6 animate-spin mx-auto" /> : "Login"}
             formData={formData}
             setFormData={setFormData}
-            onSubmit={onSubmit}
+            onSubmit={handleLoginSubmit}
           />
 
           {error && <p className="text-red-500 font-semibold mb-2">{error}</p>}

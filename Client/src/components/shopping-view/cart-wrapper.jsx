@@ -189,19 +189,19 @@ ${cartItems
           </div>
 
           <div className="flex flex-col gap-3">
-            {/* 1. PAY NOW (Full) - Matching Product Details Style */}
+            {/* 1. PAY NOW (In Full) */}
             <Button
-              className="h-14 sm:h-16 w-full bg-primary hover:bg-primary/90 text-white font-black text-sm sm:text-base rounded-2xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-widest flex items-center justify-center gap-3"
+              className="h-10 sm:h-12 w-full bg-primary hover:bg-primary/90 text-white font-black text-[10px] sm:text-xs rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-widest flex items-center justify-center gap-2 sm:gap-3"
               onClick={() => {
                 navigate("/shop/checkout", { state: { paymentType: "full" } });
                 setOpenCartSheet(false);
               }}
             >
-              <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
-              Pay Now
+              <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+              <span>Pay Now (In Full)</span>
             </Button>
 
-            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
               {/* 2. PAY ON DELIVERY (Conditional) */}
               {(() => {
                 const hasMajorGadget = cartItems.some(item => 
@@ -212,17 +212,17 @@ ${cartItems
                   return (
                     <Button
                       variant="secondary"
-                      className="h-10 sm:h-14 bg-slate-900 hover:bg-slate-800 text-white font-bold text-[9px] sm:text-sm rounded-xl sm:rounded-2xl shadow-lg shadow-slate-900/10 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-tighter sm:tracking-widest flex flex-col items-center justify-center leading-none"
+                      className="h-10 sm:h-12 bg-slate-900 hover:bg-slate-800 text-white font-bold text-[9px] sm:text-[10px] rounded-xl shadow-lg shadow-slate-900/10 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-tight sm:tracking-widest flex items-center justify-center gap-2"
                       onClick={() => {
                         navigate("/shop/checkout", { state: { paymentType: "commitment" } });
                         setOpenCartSheet(false);
                       }}
                     >
-                      <div className="flex items-center gap-1 sm:gap-2">
-                         <Truck className="w-3 h-3 sm:w-4 sm:h-4" />
-                         <span>P.O.D</span>
+                      <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                      <div className="flex flex-col items-center leading-none">
+                        <span>Pay on Delivery</span>
+                        <span className="text-[7px] font-black opacity-60 mt-0.5 whitespace-nowrap">₦10k Deposit</span>
                       </div>
-                      <span className="text-[7px] sm:text-[8px] font-black opacity-60 mt-0.5">₦10k Deposit</span>
                     </Button>
                   );
                 }
@@ -231,15 +231,23 @@ ${cartItems
 
               {/* 3. ORDER VIA WHATSAPP */}
               <Button
-                className={`h-10 sm:h-14 bg-[#25D366] hover:bg-[#22c35e] text-white font-bold text-[9px] sm:text-sm rounded-xl sm:rounded-2xl shadow-lg shadow-green-500/10 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-1 sm:gap-2 uppercase tracking-tighter sm:tracking-widest ${
-                  !(totalCartAmount >= 15000 && cartItems.some(item => item.category && ["smartphones", "laptops", "monitors"].includes(item.category))) ? "col-span-2" : ""
-                }`}
+                className={`h-10 sm:h-12 bg-[#25D366] hover:bg-[#22c35e] text-white font-bold text-[10px] sm:text-[10px] rounded-xl shadow-lg shadow-green-500/10 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 uppercase tracking-tight sm:tracking-widest`}
                 onClick={handleCheckout}
               >
-                <FaWhatsapp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-                Order on WhatsApp
+                <FaWhatsapp className="w-4 h-4 sm:w-4 sm:h-4 text-white shrink-0" />
+                <span className="whitespace-nowrap">Order on WhatsApp</span>
               </Button>
             </div>
+
+            {/* 4. CONTINUE SHOPPING */}
+            <button
+               className="mt-2 w-full text-slate-400 hover:text-slate-600 font-bold text-[10px] uppercase tracking-[0.2em] transition-colors"
+               onClick={() => {
+                 setOpenCartSheet(false);
+               }}
+            >
+              Continue Shopping →
+            </button>
           </div>
         </motion.div>
       )}

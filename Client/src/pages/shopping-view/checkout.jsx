@@ -6,9 +6,11 @@ import UserCartItemsContent from "@/components/shopping-view/cart-items-content"
 import Address from "@/components/shopping-view/address";
 import { createNewOrder } from "@/store/shop/order-slice";
 import { fetchLastUsedAddress } from "@/store/shop/address-slice";
-import { CreditCard, Truck, Check, AlertCircle, Gift, User, ChevronLeft, Loader2, MapPin, Shield } from "lucide-react";
+import { CreditCard, Truck, Check, AlertCircle, Gift, User, ChevronLeft, Loader2, MapPin, Shield, FileText, UserPlus, History, Mail } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getRouteFromRegion, REGION_MAPPING, getDeliveryDays, getDeliveryPolicy } from "@/utils/common";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 
 function ShoppingCheckout() {
@@ -25,6 +27,9 @@ function ShoppingCheckout() {
   const [receiptOwner, setReceiptOwner] = useState("me"); // "me", "recipient", "other"
   const [customReceiptName, setCustomReceiptName] = useState("");
   const [customReceiptEmail, setCustomReceiptEmail] = useState("");
+  // Where should the product be delivered? Only relevant for "Someone Else" purchases.
+  // "recipient" = to recipient's address, "personal" = to payer's own address
+  const [deliveryTarget, setDeliveryTarget] = useState("recipient");
 
   // --- Address UI State ---
   // true = show summary card, false = show address list/form
@@ -33,6 +38,8 @@ function ShoppingCheckout() {
   const [isAddressConfirmed, setIsAddressConfirmed] = useState(false);
   // Separate doorstep confirmation for non-lagos doorstep delivery
   const [isDoorstepConfirmed, setIsDoorstepConfirmed] = useState(false);
+  // Custom receipt confirmation
+  const [isCustomReceiptConfirmed, setIsCustomReceiptConfirmed] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -70,13 +77,21 @@ function ShoppingCheckout() {
   useEffect(() => {
     if (!user?.id) return;
 
-    const type = purchaseIntent === "personal" ? "personal" : "recipient";
+    const type = purchaseIntent === "personal" ? "personal" : deliveryTarget;
 
     // Reset state when intent changes
     setCurrentSelectedAddress(null);
     setIsAddressConfirmed(false);
     setIsDoorstepConfirmed(false);
     setShowAddressSummary(false);
+    setDeliveryTarget("recipient"); // always default to recipient address on intent switch
+    
+    // Reset receipt owner to "me" for personal purchases
+    if (purchaseIntent === "personal") {
+      setReceiptOwner("me");
+      setCustomReceiptName("");
+      setCustomReceiptEmail("");
+    }
 
     dispatch(fetchLastUsedAddress({ userId: user.id, type })).then((result) => {
       if (result?.payload?.success && result.payload.data) {
@@ -116,6 +131,19 @@ function ShoppingCheckout() {
       return;
     }
 
+    if (receiptOwner === 'other') {
+      if (!isCustomReceiptConfirmed) {
+        toast.error("Please confirm the custom receipt details first.");
+        return;
+      }
+      
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(customReceiptEmail)) {
+        toast.error("Invalid email format for the receipt. Please check it.");
+        return;
+      }
+    }
+
     const orderData = {
       userId: user?.id,
       cartItems: cartItems.items.map((cartItem) => ({
@@ -139,14 +167,23 @@ function ShoppingCheckout() {
         notes: currentSelectedAddress?.notes,
         isGift: purchaseIntent !== "personal",
         isAssisted: false,
-        recipientEmail: purchaseIntent !== "personal" ? currentSelectedAddress?.email : null,
+        deliveryTarget: purchaseIntent !== "personal" ? deliveryTarget : "personal",
+        recipientEmail: purchaseIntent !== "personal" && deliveryTarget === "recipient" ? currentSelectedAddress?.email : null,
         deliveryPreference: currentSelectedAddress?.deliveryPreference || "hub",
         // Admin View Sync logic
         receiptInfo: {
-          name: receiptOwner === 'me' ? (user?.userName || "Registered User") : currentSelectedAddress?.fullName,
-          email: receiptOwner === 'me' ? user?.email : (currentSelectedAddress?.email || ""),
-          phone: receiptOwner === 'me' ? (user?.phone || "") : (currentSelectedAddress?.phone || ""),
-          address: receiptOwner === 'me' ? "" : (currentSelectedAddress?.address || ""),
+          name: receiptOwner === 'me' 
+            ? (user?.userName || "Registered User") 
+            : receiptOwner === 'recipient' 
+              ? (currentSelectedAddress?.fullName || "") 
+              : customReceiptName,
+          email: receiptOwner === 'me' 
+            ? user?.email 
+            : receiptOwner === 'recipient' 
+              ? (currentSelectedAddress?.email || "") 
+              : customReceiptEmail,
+          phone: receiptOwner === 'recipient' ? (currentSelectedAddress?.phone || "") : (user?.phone || ""),
+          address: receiptOwner === 'recipient' ? (currentSelectedAddress?.address || "") : "",
           ownerType: receiptOwner
         },
         shippingInfo: {
@@ -243,7 +280,7 @@ function ShoppingCheckout() {
         <div className="lg:col-span-7 space-y-5">
 
           {/* 1. Who is receiving? (Purchaser vs Someone Else) */}
-          <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-md border-2 border-slate-100">
+          <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-md border-2 border-slate-200">
             <h2 className="text-sm sm:text-base font-bold flex items-center gap-3 text-slate-800 uppercase tracking-tight mb-5">
               <div className="p-2 bg-blue-600/10 rounded-lg">
                 <Gift className="w-4 h-4 text-blue-600" />
@@ -265,7 +302,6 @@ function ShoppingCheckout() {
                 </div>
                 <div>
                   <span className="font-black text-xs text-slate-900 uppercase tracking-widest block leading-none">For Myself</span>
-                  <span className="text-[10px] font-medium text-slate-400 uppercase mt-1.5 block">I am collecting it personally</span>
                 </div>
                 {purchaseIntent === "personal" && (
                   <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center border-2 border-white">
@@ -288,8 +324,8 @@ function ShoppingCheckout() {
                 </div>
                 <div>
                   <span className="font-black text-xs text-slate-900 uppercase tracking-widest block leading-none">Someone Else</span>
-                  <span className="text-[10px] font-medium text-slate-400 uppercase mt-1.5 block">Buying for a friend or family</span>
                 </div>
+
                 {purchaseIntent !== "personal" && (
                   <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center border-2 border-white">
                     <Check className="w-3 h-3 text-white" />
@@ -300,7 +336,7 @@ function ShoppingCheckout() {
           </div>
 
           {/* 2. DELIVERY LOCATION */}
-          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-md border-2 border-slate-100 mb-6">
+          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-md border-2 border-slate-200 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
               <h2 className="text-lg sm:text-xl font-black flex items-center gap-4 text-slate-900 uppercase">
                 <div className="p-3 bg-blue-600 rounded-2xl shadow-lg shadow-blue-600/20">
@@ -327,6 +363,53 @@ function ShoppingCheckout() {
               )}
             </div>
 
+            {/* ── Delivery Destination Toggle (Someone Else only) ── */}
+            {purchaseIntent !== "personal" && (
+              <div className="mb-6 animate-in fade-in slide-in-from-top-2 duration-300">
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3">Where should the product be delivered?</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => {
+                      if (deliveryTarget !== "recipient") {
+                        setDeliveryTarget("recipient");
+                        setCurrentSelectedAddress(null);
+                        setIsAddressConfirmed(false);
+                        setShowAddressSummary(false);
+                      }
+                    }}
+                    className={`p-3 rounded-xl border-2 text-center transition-all relative ${
+                      deliveryTarget === "recipient"
+                        ? "border-orange-600 bg-orange-50 text-orange-800"
+                        : "border-slate-100 bg-white text-slate-500"
+                    }`}
+                  >
+                    <span className="text-[10px] font-black uppercase tracking-widest block">Recipient</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (deliveryTarget !== "personal") {
+                        setDeliveryTarget("personal");
+                        setCurrentSelectedAddress(null);
+                        setIsAddressConfirmed(false);
+                        setShowAddressSummary(false);
+                        // If receipt was set to the recipient we just hid, reset to 'Me'
+                        if (receiptOwner === 'recipient') {
+                          setReceiptOwner("me");
+                        }
+                      }
+                    }}
+                    className={`p-3 rounded-xl border-2 text-center transition-all relative ${
+                      deliveryTarget === "personal"
+                        ? "border-orange-600 bg-orange-50 text-orange-800"
+                        : "border-slate-100 bg-white text-slate-500"
+                    }`}
+                  >
+                    <span className="text-[10px] font-black uppercase tracking-widest block">My Address</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {showAddressSummary && currentSelectedAddress ? (
               /* ── Summary Card ── */
               <div className={`p-4 sm:p-5 rounded-2xl border-2 relative transition-all ${
@@ -338,7 +421,7 @@ function ShoppingCheckout() {
                   <div className="flex items-center gap-2">
                     <MapPin className="w-3 h-3 text-orange-500" />
                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
-                      {purchaseIntent === "personal" ? "Selected Address" : "Recipient Info"}
+                      {purchaseIntent === "personal" || deliveryTarget === "personal" ? "Your Delivery Address" : "Recipient Address"}
                     </span>
                   </div>
                   {isAddressConfirmed && (
@@ -432,7 +515,7 @@ function ShoppingCheckout() {
                   }}
                   className="mt-3 w-full text-[10px] font-bold text-slate-400 hover:text-orange-600 uppercase tracking-widest transition-colors text-center"
                 >
-                  Change {purchaseIntent === "personal" ? "Address" : "Recipient"} →
+                  Change {purchaseIntent === "personal" || deliveryTarget === "personal" ? "Address" : "Recipient"} →
                 </button>
               </div>
             ) : (
@@ -440,7 +523,7 @@ function ShoppingCheckout() {
               <div>
                  <Address
                    selectedId={currentSelectedAddress}
-                   filterType={purchaseIntent === "personal" ? "personal" : "recipient"}
+                   filterType={purchaseIntent === "personal" ? "personal" : deliveryTarget}
                    setCurrentSelectedAddress={handleAddressSelected}
                    hideHeader={true}
                    isCheckoutPage={true}
@@ -450,46 +533,26 @@ function ShoppingCheckout() {
 
             {/* ── Contextual Delivery Info & Service Standards ── */}
             {currentSelectedAddress && isAddressConfirmed && (
-               <div className="mt-6 space-y-4 animate-in fade-in slide-in-from-bottom-2">
-                  <div className={`p-6 rounded-[2rem] border-2 shadow-sm ${
-                    currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? 'bg-orange-50 border-orange-100' : 'bg-blue-50 border-blue-100'
+               <div className="mt-4 animate-in fade-in slide-in-from-bottom-2">
+                  <div className={`p-4 rounded-3xl border-2 ${
+                    currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? 'bg-orange-50/50 border-orange-100' : 'bg-blue-50/50 border-blue-100'
                   }`}>
-                    <div className="flex items-start gap-4">
-                      <div className={`p-3 rounded-2xl ${
-                        currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? 'bg-orange-500/10' : 'bg-blue-600/10'
-                      }`}>
-                         <Truck className={`w-5 h-5 ${
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2">
+                         <Check className={`w-3.5 h-3.5 ${
                            currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? 'text-orange-600' : 'text-blue-600'
                          }`} />
+                         <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest">
+                           {currentSelectedAddress.region === 'Lagos' 
+                             ? "Free Home Delivery" 
+                             : currentSelectedAddress.deliveryPreference === 'doorstep' 
+                             ? "Home Delivery (+Local Rider Fee)" 
+                             : "Free Pickup at Station/Airport"}
+                         </span>
                       </div>
-                      <div className="flex-1">
-                        <p className={`text-[11px] font-black uppercase tracking-widest ${
-                          currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? 'text-orange-600' : 'text-blue-600'
-                        }`}>
-                          Delivery Conditions
-                        </p>
-                        <div className="mt-3 space-y-3">
-                          <p className="text-[13px] font-bold text-slate-800 leading-snug flex items-center gap-2">
-                            <span className="text-xl">🏠</span>
-                            {currentSelectedAddress.region === 'Lagos' 
-                              ? `Your gadget will be delivered straight to your doorstep for FREE within ${getDeliveryDays(currentSelectedAddress.region)}.`
-                              : currentSelectedAddress.deliveryPreference === 'doorstep'
-                              ? `Sent to the nearest ${REGION_MAPPING[currentSelectedAddress.region] === 'park' ? 'Car Park/Station' : 'Airport'} first, then a rider brings it to your house. (Rider fee is paid on arrival)` 
-                              : `Sent to the nearest ${REGION_MAPPING[currentSelectedAddress.region] === 'park' ? 'Car Park' : 'Airport'} for FREE. You'll go there to pick it up in ${getDeliveryDays(currentSelectedAddress.region)}.`}
-                          </p>
-                          
-                          <div className="flex items-center gap-2 text-[11px] font-black text-slate-900 uppercase">
-                             <Check className={`w-4 h-4 shrink-0 ${
-                               currentSelectedAddress.deliveryPreference === 'doorstep' && currentSelectedAddress.region !== 'Lagos' ? 'text-orange-600' : 'text-blue-600'
-                             }`} />
-                             6 Months Warranty included on core parts.
-                          </div>
-
-                          <div className="flex items-center gap-2 text-[11px] font-black text-slate-500 uppercase italic">
-                             <Check className="w-4 h-4 text-slate-400 shrink-0" />
-                             By paying, you agree to our transparent delivery and return terms.
-                          </div>
-                        </div>
+                      <div className="flex items-center gap-2">
+                         <Check className="w-3.5 h-3.5 text-emerald-600" />
+                         <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest">6 Months Warranty Included</span>
                       </div>
                     </div>
                   </div>
@@ -497,50 +560,163 @@ function ShoppingCheckout() {
             )}
           </div>
 
-          {/* 3. RECEIPT OWNERSHIP */}
+          {/* 3. RECEIPT & WARRANTY (Gift/Proxy Scenarios) */}
           {purchaseIntent !== "personal" && (
-            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-md border-2 border-slate-100 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
-              <h2 className="text-lg sm:text-xl font-black flex items-center gap-4 text-slate-900 uppercase mb-8">
+            <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-md border-2 border-slate-200 mb-6 animate-in fade-in slide-in-from-top-4 duration-500">
+             <h2 className="text-lg sm:text-xl font-black flex items-center gap-4 text-slate-900 uppercase">
                 <div className="p-3 bg-blue-900 rounded-2xl shadow-lg shadow-blue-900/20">
-                  <Gift className="w-5 h-5 text-white" />
+                  <FileText className="w-5 h-5 text-white" />
                 </div>
-                RECEIPT
-              </h2>
-              
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">Whose name should be on the receipt & warranty?</p>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                 {/* Me */}
-                 <button
-                   onClick={() => setReceiptOwner("me")}
-                   className={`p-5 rounded-2xl border-2 transition-all text-left relative ${
-                     receiptOwner === 'me' ? "border-orange-500 bg-orange-50" : "border-slate-100 bg-white hover:border-slate-200"
-                   }`}
-                 >
-                   <span className="font-black text-xs text-slate-900 uppercase tracking-widest block">Me (My Profile)</span>
-                   <span className="text-[10px] font-medium text-slate-500 uppercase mt-1 leading-tight block">Use my account: {user?.userName}</span>
-                   {receiptOwner === 'me' && <div className="absolute top-3 right-3"><Check className="w-4 h-4 text-orange-600" /></div>}
-                 </button>
+                Receipt Details
+             </h2>
+             
+             <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-50 pb-4">
+                Whose name goes on the official 6-month Warranty?
+             </p>
+             
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Me */}
+                <button
+                  onClick={() => {
+                    setReceiptOwner("me");
+                  }}
+                  className={`p-4 rounded-2xl border-2 transition-all text-left relative ${
+                    receiptOwner === 'me' ? "border-orange-500 bg-orange-50" : "border-slate-100 bg-white hover:border-slate-200"
+                  }`}
+                >
+                  <span className="font-black text-[10px] text-slate-900 uppercase tracking-widest block">
+                    {deliveryTarget === "personal" ? "Me (Payer & Recipient)" : "Me (The Payer)"}
+                  </span>
+                  <p className="text-[8px] font-bold text-slate-400 uppercase mt-1 leading-snug">Sent to your account email</p>
+                  {receiptOwner === 'me' && <div className="absolute top-3 right-3"><Check className="w-3.5 h-3.5 text-orange-600" /></div>}
+                </button>
 
-                 {/* Recipient */}
-                 <button
-                   disabled={!currentSelectedAddress}
-                   onClick={() => setReceiptOwner("recipient")}
-                   className={`p-5 rounded-2xl border-2 transition-all text-left relative ${
-                     !currentSelectedAddress ? "opacity-50 cursor-not-allowed border-slate-50" :
-                     receiptOwner === 'recipient' ? "border-orange-500 bg-orange-50" : "border-slate-100 bg-white hover:border-slate-200"
-                   }`}
-                 >
-                   <span className="font-black text-xs text-slate-900 uppercase tracking-widest block">The Recipient</span>
-                   <span className="text-[10px] font-medium text-slate-500 uppercase mt-1 leading-tight block">Name on delivery address</span>
-                   {receiptOwner === 'recipient' && <div className="absolute top-3 right-3"><Check className="w-4 h-4 text-orange-600" /></div>}
-                 </button>
+                {/* Recipient - Only shown if it's different from the personal address */}
+                {deliveryTarget !== "personal" && (
+                  <button
+                    disabled={!currentSelectedAddress}
+                    onClick={() => {
+                      setReceiptOwner("recipient");
+                    }}
+                    className={`p-4 rounded-2xl border-2 transition-all text-left relative ${
+                      !currentSelectedAddress ? "opacity-50 cursor-not-allowed border-slate-50" :
+                      receiptOwner === 'recipient' ? "border-orange-500 bg-orange-50" : "border-slate-100 bg-white hover:border-slate-200"
+                    }`}
+                  >
+                    <span className="font-black text-[10px] text-slate-900 uppercase tracking-widest block">Recipient Above</span>
+                    <p className="text-[8px] font-bold text-slate-400 uppercase mt-1 leading-snug truncate">Sent to {currentSelectedAddress?.fullName || 'the recipient'}</p>
+                    {receiptOwner === 'recipient' && <div className="absolute top-3 right-3"><Check className="w-3.5 h-3.5 text-orange-600" /></div>}
+                  </button>
+                )}
+
+                {/* Other */}
+                <button
+                  onClick={() => {
+                    if (receiptOwner !== "other") {
+                      setIsCustomReceiptConfirmed(false);
+                      setReceiptOwner("other");
+                    }
+                  }}
+                  className={`p-4 rounded-2xl border-2 transition-all text-left relative ${
+                    receiptOwner === 'other' ? "border-orange-500 bg-orange-50" : "border-slate-100 bg-white hover:border-slate-200"
+                  }`}
+                >
+                  <span className="font-black text-[10px] text-slate-900 uppercase tracking-widest block">Custom Person</span>
+                  <p className="text-[8px] font-bold text-slate-400 uppercase mt-1 leading-snug">Enter a name & email below</p>
+                  {receiptOwner === 'other' && <div className="absolute top-3 right-3"><Check className="w-3.5 h-3.5 text-orange-600" /></div>}
+                </button>
+             </div>
+
+              {/* ── Concise Summary ── */}
+              <div className="mt-5 space-y-3 px-1 border-l-2 border-slate-100 ml-2">
+                 <div className="flex items-center gap-3">
+                    <span className="p-1 bg-emerald-50 text-emerald-600 rounded">
+                      <Check className="w-3 h-3" />
+                    </span>
+                    <span className="text-[10px] font-black uppercase text-slate-600 tracking-tight">
+                      Order Confirmation: Always sent to you (Payer)
+                    </span>
+                 </div>
+                 <div className="flex items-center gap-3">
+                    <span className="p-1 bg-amber-50 text-amber-600 rounded">
+                      <FileText className="w-3 h-3" />
+                    </span>
+                    <span className="text-[10px] font-black uppercase text-slate-800 tracking-tight">
+                      6-Month Warranty: Sent to {
+                        receiptOwner === 'me' ? "Your email" :
+                        receiptOwner === 'recipient' ? (currentSelectedAddress?.fullName || "the recipient") :
+                        (isCustomReceiptConfirmed ? customReceiptName : "the person below")
+                      }
+                    </span>
+                 </div>
               </div>
+
+             {/* Custom Input Form */}
+             {receiptOwner === 'other' && (
+                <div className="mt-6 p-4 sm:p-6 bg-slate-50 rounded-2xl border border-slate-200 animate-in slide-in-from-top-2 duration-300">
+                   {!isCustomReceiptConfirmed ? (
+                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                        <div className="space-y-1.5">
+                           <Label className="text-[9px] font-black uppercase tracking-widest text-slate-500">Full Name on Receipt</Label>
+                           <Input 
+                             placeholder="e.g. Samuel Adewale"
+                             value={customReceiptName}
+                             onChange={(e) => setCustomReceiptName(e.target.value)}
+                             className="bg-white h-12 border-slate-200 rounded-xl shadow-sm focus:ring-orange-500 font-bold"
+                           />
+                        </div>
+                        <div className="space-y-2">
+                           <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Email for Warranty Certificate</Label>
+                           <Input 
+                             placeholder="Where should the warranty go?"
+                             type="email"
+                             value={customReceiptEmail}
+                             onChange={(e) => setCustomReceiptEmail(e.target.value)}
+                             className="bg-white h-12 border-slate-200 rounded-xl shadow-sm focus:ring-orange-500 font-bold"
+                           />
+                           <p className="text-[9px] font-bold text-orange-500 uppercase">⚠ Warranty is sent here when Afkit marks the order as Delivered.</p>
+                        </div>
+                        <div className="sm:col-span-2 pt-2">
+                           <Button 
+                             onClick={() => {
+                               if(!customReceiptName || !customReceiptEmail) {
+                                 toast.error("Enter both name and email first");
+                                 return;
+                               }
+                               setIsCustomReceiptConfirmed(true);
+                             }}
+                             className="w-full h-11 bg-blue-900 hover:bg-blue-800 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-blue-600/20 transition-all active:scale-95"
+                           >
+                             Confirm Receipt Details
+                           </Button>
+                        </div>
+                     </div>
+                   ) : (
+                     <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                           <div className="p-3 bg-orange-100 rounded-xl">
+                              <Check className="w-5 h-5 text-orange-600" />
+                           </div>
+                           <div>
+                              <p className="text-[10px] font-black uppercase tracking-widest text-orange-600 leading-none mb-1">Receipt Details Confirmed</p>
+                              <p className="text-sm font-bold text-slate-900 leading-none">{customReceiptName} <span className="text-slate-400 font-normal ml-2">({customReceiptEmail})</span></p>
+                           </div>
+                        </div>
+                        <button 
+                          onClick={() => setIsCustomReceiptConfirmed(false)}
+                          className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-orange-600 transition-colors"
+                        >
+                          Change →
+                        </button>
+                     </div>
+                   )}
+                </div>
+             )}
             </div>
           )}
 
           {/* 4. PAYMENT METHOD */}
-          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-md border-2 border-slate-100">
+          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-md border-2 border-slate-200">
             <h2 className="text-lg sm:text-xl font-black mb-8 flex items-center gap-4 text-slate-900 uppercase">
               <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/20">
                 <CreditCard className="w-5 h-5 text-white" />
@@ -550,7 +726,7 @@ function ShoppingCheckout() {
 
             {/* POD BLUE POLICY BOX */}
             {paymentType === "commitment" && (
-              <div className="mb-8 bg-blue-900 rounded-[2rem] p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden group">
+              <div className="mb-8 bg-blue-900 rounded-[2rem] p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden group animate-in zoom-in-95 duration-500">
                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:rotate-12 transition-transform duration-700">
                   <Truck className="w-24 h-24" />
                 </div>
@@ -713,7 +889,8 @@ function ShoppingCheckout() {
                 <div>
                   <p className="text-[9px] font-bold text-slate-400 uppercase">Order Purpose</p>
                   <p className={`text-[11px] font-bold ${purchaseIntent !== "personal" ? "text-purple-600" : "text-slate-900"}`}>
-                    {purchaseIntent !== "personal" ? "🎁 GIFT / SOMEONE ELSE" : "📦 PERSONAL ORDER"}
+                    {purchaseIntent === "personal" ? "📦 FOR MYSELF" : 
+                     deliveryTarget === "personal" ? "🎁 SOMEONE ELSE (COLLECTED BY ME)" : "🎁 SOMEONE ELSE (SENT TO RECIPIENT)"}
                   </p>
                 </div>
               </div>
@@ -756,13 +933,33 @@ function ShoppingCheckout() {
                     <User className="w-3 h-3 text-slate-400" />
                   </div>
                   <div>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase">Recipient Name</p>
+                    <p className="text-[9px] font-bold text-slate-400 uppercase">Delivery Destination</p>
                     <p className="text-[11px] font-bold text-purple-700 uppercase">
-                      {currentSelectedAddress.fullName}
+                      {deliveryTarget === "personal" ? "YOU (YOUR SAVED ADDRESS)" : currentSelectedAddress.fullName}
                     </p>
                   </div>
                 </div>
               )}
+
+              {/* Receipt Owner Summary */}
+              <div className="flex items-start gap-3 pt-2 border-t border-slate-200">
+                <div className="p-1.5 bg-white rounded-lg border border-slate-200 shrink-0">
+                  <FileText className="w-3 h-3 text-slate-400" />
+                </div>
+                <div>
+                  <p className="text-[9px] font-bold text-slate-400 uppercase">Warranty Receipt For</p>
+                  <p className="text-[11px] font-bold text-slate-900 uppercase">
+                    {receiptOwner === 'me' ? (user?.userName || "Me") : 
+                     receiptOwner === 'recipient' ? (currentSelectedAddress?.fullName || "Recipient") :
+                     (isCustomReceiptConfirmed ? customReceiptName : "Selecting...")}
+                  </p>
+                  <p className="text-[9px] font-bold text-blue-600 uppercase mt-0.5">
+                    {receiptOwner === 'me' ? user?.email : 
+                     receiptOwner === 'recipient' ? (currentSelectedAddress?.email || "Email Pending") :
+                     (isCustomReceiptConfirmed ? customReceiptEmail : "Email required")}
+                  </p>
+                </div>
+              </div>
 
               {/* Doorstep Confirmation Badge for Summary */}
               {currentSelectedAddress?.deliveryPreference === 'doorstep' && currentSelectedAddress?.region !== 'Lagos' && (
@@ -813,9 +1010,10 @@ function ShoppingCheckout() {
               </p>
             )}
 
-            <p className="text-center text-[9px] font-bold text-slate-300 mt-3 px-4 leading-relaxed uppercase tracking-widest">
-              Secured by Paystack • End-to-End Encrypted
-            </p>
+            <div className="flex items-center justify-center gap-3 mt-4 text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">
+               <Shield className="w-3 h-3" />
+               <span>Secured by Paystack</span>
+            </div>
           </div>
         </div>
       </div>

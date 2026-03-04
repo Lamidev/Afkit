@@ -185,9 +185,18 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                 <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Destination</span>
-                        <p className="text-xs font-bold text-gray-900 leading-relaxed">
-                          {orderDetails?.addressInfo?.fullName}<br/>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">
+                          {orderDetails?.addressInfo?.deliveryTarget === 'personal' ? "Collected By (Payer)" : "Delivered To (Recipient)"}
+                        </span>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-xs font-bold text-gray-900 leading-relaxed uppercase">
+                            {orderDetails?.addressInfo?.fullName}
+                          </p>
+                          {orderDetails?.addressInfo?.deliveryTarget === 'personal' && (
+                             <Badge className="bg-blue-600 text-white text-[7px] font-black uppercase py-0 px-1">Payer</Badge>
+                          )}
+                        </div>
+                        <p className="text-xs font-medium text-gray-500 leading-relaxed italic">
                           {orderDetails?.addressInfo?.address}
                         </p>
                       </div>
@@ -256,12 +265,13 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                             <div className="flex items-center gap-2">
                               <p className="text-xs font-bold text-white uppercase">{orderDetails?.addressInfo?.receiptInfo?.name || orderDetails?.addressInfo?.fullName || "N/A"}</p>
                               <Badge className={`px-1.5 py-0 rounded text-[7px] border-0 uppercase font-bold tracking-tighter ${orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'bg-blue-500 text-white' : 'bg-orange-500 text-white'}`}>
-                                {orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'Account Owner' : 'Recipient'}
+                                {orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'Account Owner' : 
+                                 orderDetails?.addressInfo?.receiptInfo?.ownerType === 'recipient' ? 'Recipient Above' : 'Custom Person'}
                               </Badge>
                             </div>
                           </div>
                           <div>
-                            <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">Warranty Email</span>
+                            <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">Certificate Destination Email</span>
                             <p className="text-xs font-bold text-blue-400 truncate">{orderDetails?.addressInfo?.receiptInfo?.email || orderDetails?.addressInfo?.recipientEmail || "N/A"}</p>
                           </div>
                           <div className="col-span-full">
