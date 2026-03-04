@@ -20,8 +20,16 @@ function AuthRegister() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  function onSubmit(event) {
+  function handleRegisterSubmit(event) {
     event.preventDefault();
+    
+    // Email Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Please enter a valid email address format.");
+      return;
+    }
+
     dispatch(registerUser(formData)).then((data) => {
       if (data?.payload?.success) {
         toast.success(data?.payload?.message, {
@@ -55,7 +63,7 @@ function AuthRegister() {
             buttonText="Sign Up"
             formData={formData}
             setFormData={setFormData}
-            onSubmit={onSubmit}
+            onSubmit={handleRegisterSubmit}
           />
 
           <PasswordStrengthMeter password={formData.password} />

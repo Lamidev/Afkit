@@ -513,28 +513,33 @@ const getOrderConfirmationTemplate = (order) => {
         </div>
 
         <div style="border:1px solid #e2e8f0;border-radius:16px;padding:24px;margin-bottom:32px;">
-          <h3 style="margin:0 0 12px;font-size:12px;color:${BRAND_DARK};text-transform:uppercase;letter-spacing:1px;">Delivery Details</h3>
-          <p style="margin:0;font-size:14px;color:#475569;line-height:1.6;">
-            <strong>Recipient: ${recipientName}</strong><br/>
-            Address: ${order.addressInfo?.address || 'N/A'}<br/>
-            State: ${order.addressInfo?.region || 'N/A'}<br/>
-
-            Method: <strong style="color:${BRAND_ORANGE}; text-transform:uppercase;">
-              ${order.addressInfo?.region === 'Lagos' ? 'Free Home Delivery' :
-                order.addressInfo?.deliveryPreference === 'doorstep' ? 'Home Delivery (Pay Rider)' :
-                ['Oyo', 'Ogun', 'Osun', 'Ondo', 'Ekiti'].includes(order.addressInfo?.region) ? 'Free Car Park Pickup' : 'Free Airport Pickup' }
-            </strong><br/>
-            Phone: ${order.addressInfo?.phone || 'N/A'}
-          </p>
-          ${isGift || isAssisted ? `
-          <div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e2e8f0;">
-             <p style="margin:0;font-size:12px;color:#6b21a8;"><strong>Order Category:</strong> ${isGift ? 'Gift' : 'Assisted Purchase'}</p>
-             <p style="margin:4px 0 0;font-size:12px;color:#6b21a8;"><strong>Receipt/Warranty Owner:</strong> ${order.addressInfo?.receiptInfo?.ownerType === 'me' ? 'Account Owner' : 'Recipient (' + (order.addressInfo?.shippingInfo?.name || order.addressInfo?.fullName) + ')'}</p>
-             ${order.addressInfo?.receiptInfo?.ownerType === 'recipient' && order.addressInfo?.recipientEmail ? `<p style="margin:4px 0 0;font-size:12px;color:#6b21a8;">Warranty certificate will be sent to: ${order.addressInfo.recipientEmail}</p>` : `<p style="margin:4px 0 0;font-size:12px;color:#6b21a8;">Warranty certificate will be sent to your account email.</p>`}
+          <h3 style="margin:0 0 12px;font-size:12px;color:${BRAND_DARK};text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid #f1f5f9;padding-bottom:10px;">Logistics & Ownership</h3>
+          
+          <!-- Delivery Part -->
+          <div style="margin-bottom:16px;">
+            <p style="margin:0;font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">📦 Delivery Destination</p>
+            <p style="margin:0;font-size:14px;color:#1e293b;font-weight:700;">
+              ${order.addressInfo?.deliveryTarget === 'personal' ? 'YOU (Collected at your address)' : recipientName}
+            </p>
+            <p style="margin:2px 0 0;font-size:13px;color:#64748b;line-height:1.5;">
+              ${order.addressInfo?.address || 'N/A'}<br/>
+              ${order.addressInfo?.region || 'N/A'} State (${order.addressInfo?.deliveryPreference === 'doorstep' ? 'Home Delivery' : 'Pickup'})
+            </p>
           </div>
-          ` : ''}
+
+          <!-- Ownership Part -->
+          <div style="padding-top:12px;border-top:1px dashed #e2e8f0;">
+            <p style="margin:0;font-size:11px;color:#94a3b8;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">🛡️ 6-Month Warranty Ownership</p>
+            <p style="margin:0;font-size:14px;color:#1e293b;font-weight:700;">
+              Issued to: ${order.addressInfo?.receiptInfo?.name || payerName}
+            </p>
+            <p style="margin:2px 0 0;font-size:13px;color:#64748b;">
+              Status: <span style="color:${BRAND_ORANGE};font-weight:700;">Active on Delivery</span><br/>
+              Certificate Email: <span style="color:#2563eb;text-decoration:none;">${order.addressInfo?.receiptInfo?.email || 'N/A'}</span>
+            </p>
+          </div>
         </div>
- 
+
         <table width="100%" cellpadding="0" cellspacing="0">
           <tr>
             <td align="center">

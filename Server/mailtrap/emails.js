@@ -217,62 +217,53 @@ exports.sendAdminOrderNotificationEmail = async (order) => {
 exports.sendDeliveredNotifications = async (order) => {
   const isGift = order.addressInfo?.isGift;
   const receiptInfo = order.addressInfo?.receiptInfo;
-  const ownerType = receiptInfo?.ownerType || (isGift ? "recipient" : "me");
-  const recipientEmail = order.addressInfo?.recipientEmail || order.addressInfo?.email;
+  
+  // The official email for the warranty certificate
+  // We prioritize the new receiptInfo.email structure, then fallback to payer/recipient
+  const warrantyEmail = receiptInfo?.email || (isGift ? (order.addressInfo?.recipientEmail || order.addressInfo?.email) : order.payerEmail);
   const payerEmail = order.payerEmail;
+  const ownerType = receiptInfo?.ownerType || (isGift ? "recipient" : "me");
 
   try {
-    // SCENARIO 1: PERSONAL PURCHASE
-    if (!isGift) {
-      if (!payerEmail) return;
+    // SCENARIO A: The Payer holds the warranty (Personal or Gift-to-self)
+    // We send ONLY ONE high-impact email.
+    if (ownerType === "me" || warrantyEmail === payerEmail) {
+      if (!warrantyEmail) return;
       await mailtrapClient.send({
         from: sender,
-        to: [{ email: payerEmail }],
+        to: [{ email: warrantyEmail }],
         subject: `🛡️ Warranty Activated: Your Gadget is Now Insured!`,
         html: getWarrantyActivationTemplate(order),
-        category: "Personal Delivery Success",
+        category: "Delivery & Warranty Success",
       });
       return;
     }
 
-    // SCENARIO 2: GIFT (Account Owner holds the Warranty)
-    if (isGift && ownerType === "me") {
-      if (!payerEmail) return;
+    // SCENARIO B: Someone else holds the warranty (Gift to Recipient or Custom Person)
+    // We send TWO targeted emails.
+    
+    // 1. Send the Warranty Certificate to the legal owner
+    if (warrantyEmail) {
+      await mailtrapClient.send({
+        from: sender,
+        to: [{ email: warrantyEmail }],
+        subject: `🎁 Your Gift Has Arrived! Warranty Now Active.`,
+        html: getWarrantyActivationTemplate(order),
+        category: "Gift Recipient Warranty",
+      });
+    }
+
+    // 2. Send a "Mission Success" confirmation to the Payer
+    if (payerEmail && payerEmail !== warrantyEmail) {
       await mailtrapClient.send({
         from: sender,
         to: [{ email: payerEmail }],
-        subject: `🛡️ Warranty Active: Gift for ${order.addressInfo?.fullName} Delivered`,
-        html: getWarrantyActivationTemplate(order),
-        category: "Gift Delivery Success (Me)",
+        subject: `📦 Delivery Successful: Gift for ${order.addressInfo?.fullName}`,
+        html: getPayerDeliveryConfirmationTemplate(order),
+        category: "Gift Payer Notification",
       });
-      // (Optional) We could notify the recipient too, but "Love Simple" says keep it lean.
-      return;
     }
 
-    // SCENARIO 3: GIFT (Recipient holds the Warranty)
-    if (isGift && ownerType === "recipient") {
-      // 3A. Send the Surprise + Warranty to the Recipient
-      if (recipientEmail) {
-        await mailtrapClient.send({
-          from: sender,
-          to: [{ email: recipientEmail }],
-          subject: `🎁 Your Gift Has Arrived! Warranty Now Active.`,
-          html: getWarrantyActivationTemplate(order),
-          category: "Gift Recipient surprise",
-        });
-      }
-
-      // 3B. Send the "Mission Success" notice to the Payer
-      if (payerEmail) {
-        await mailtrapClient.send({
-          from: sender,
-          to: [{ email: payerEmail }],
-          subject: `📦 Delivery Successful: Gift for ${order.addressInfo?.fullName}`,
-          html: getPayerDeliveryConfirmationTemplate(order),
-          category: "Gift Payer Mission Success",
-        });
-      }
-    }
   } catch (error) {
     handleEmailError(error, `Error sending delivered notifications for order ${order._id}`);
   }

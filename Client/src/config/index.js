@@ -510,6 +510,7 @@ export const filterOptions = {
 
 export const sortOptions = [
   { id: "latest-arrival", label: "Latest Arrival" },
+  { id: "random", label: "Shuffle Products" },
   { id: "price-lowtohigh", label: "Price: Low to High" },
   { id: "price-hightolow", label: "Price: High to Low" },
 ];

@@ -174,10 +174,11 @@ function MenuItems({ closeSheet }) {
         ? "/shop/listing?category=accessories"
         : menuItem.path;
 
-    // Consistency: Apply latest-arrival sort to category links if not present
+    // Consistency: Apply default sort to links if not present
     if (path.includes("/shop/listing") && !path.includes("sort=")) {
       const separator = path.includes("?") ? "&" : "?";
-      path = `${path}${separator}sort=latest-arrival`;
+      const defaultSort = path.includes("category=") ? "price-lowtohigh" : "random";
+      path = `${path}${separator}sort=${defaultSort}`;
     }
 
     navigate(path);
@@ -190,10 +191,11 @@ function MenuItems({ closeSheet }) {
     sessionStorage.removeItem("sort");
     
     let path = subItem.path;
-    // Consistency: Apply latest-arrival sort to category links if not present
+    // Consistency: Apply default sort to links if not present
     if (path.includes("/shop/listing") && !path.includes("sort=")) {
       const separator = path.includes("?") ? "&" : "?";
-      path = `${path}${separator}sort=latest-arrival`;
+      const defaultSort = path.includes("category=") ? "price-lowtohigh" : "random";
+      path = `${path}${separator}sort=${defaultSort}`;
     }
     
     navigate(path);
