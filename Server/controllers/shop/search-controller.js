@@ -71,7 +71,9 @@ const searchProducts = async (req, res) => {
         {
           $or: [
             { title: exactPhraseRegex },
-            { title: flexibleRegex }
+            { title: flexibleRegex },
+            { brand: exactPhraseRegex },
+            { category: exactPhraseRegex }
           ]
         },
         { isHidden: { $ne: true } }

@@ -369,6 +369,29 @@ function ShoppingListing() {
     }, 100);
   };
 
+  const handleResetFilters = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    setIsFilterLoading(true);
+    setMinimumLoaderTime(true);
+
+    const newSearchParams = new URLSearchParams();
+    if (searchParams.has("category")) {
+      newSearchParams.set("category", searchParams.get("category"));
+    }
+    if (sort !== "latest-arrival") {
+      newSearchParams.set("sort", sort);
+    }
+
+    setSearchParams(newSearchParams);
+    setIsMobileFilterOpen(false);
+    
+    setTimeout(() => {
+      scrollToTop();
+    }, 100);
+  };
+
   const indexOfLastProduct = currentPage * productsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
   // Business-logic deduplication: If products have same title and image, hide duplicates.
@@ -424,7 +447,7 @@ function ShoppingListing() {
     <div className="bg-gray-100 min-h-screen">
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* Mobile Control Bar */}
-        <div className="sm:hidden flex flex-col gap-4 mb-6">
+        <div className="sm:hidden flex flex-col gap-3 mb-4">
           <div className="flex items-center justify-between">
              <h2 className="text-xl font-black text-slate-900 tracking-tight uppercase">
                 {pageTitle}
@@ -433,7 +456,7 @@ function ShoppingListing() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleClearCategory}
+                  onClick={handleResetFilters}
                   className="text-red-500 hover:text-red-600 hover:bg-red-50 text-[10px] font-black uppercase tracking-widest h-7 px-2"
                   disabled={isFilterLoading || minimumLoaderTime}
                 >
@@ -498,6 +521,7 @@ function ShoppingListing() {
                     <ProductFilter
                       filters={filters}
                       onApplyFilters={onApplyFilters}
+                      onResetFilters={handleResetFilters}
                       filterOptions={currentFilterOptions}
                       priceRange={priceRange}
                       setPriceRange={setPriceRange}
@@ -546,6 +570,7 @@ function ShoppingListing() {
                 <ProductFilter
                   filters={filters}
                   onApplyFilters={onApplyFilters}
+                  onResetFilters={handleResetFilters}
                   filterOptions={currentFilterOptions}
                   priceRange={priceRange}
                   setPriceRange={setPriceRange}

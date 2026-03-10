@@ -62,6 +62,7 @@ export const addProductFormElements = [
       { id: "laptops", label: "Laptops" },
       { id: "monitors", label: "Monitors" },
       { id: "accessories", label: "Accessories" },
+      { id: "others", label: "Others" },
     ],
   },
   {
@@ -333,6 +334,7 @@ export const categoryOptionsMap = {
   laptops: "Laptops",
   monitors: "Monitors",
   accessories: "Accessories",
+  others: "Others",
   "smartphone-accessories": "Smartphone Accessories",
   "laptop-accessories": "Laptop Accessories",
   "monitor-accessories": "Monitor Accessories",
@@ -358,7 +360,8 @@ export const filterOptions = {
   priceRangeOptions: [
     { id: "under-200k", label: "Under ₦200k", min: 0, max: 200000 },
     { id: "200k-500k", label: "₦200k - ₦500k", min: 200000, max: 500000 },
-    { id: "500k-above", label: "₦500k Above", min: 500000, max: 5000000 },
+    { id: "500k-800k", label: "₦500k - ₦800k", min: 500000, max: 800000 },
+    { id: "800k-above", label: "₦800k Above", min: 800000, max: 5000000 },
   ],
   condition: [
     { id: "Brand New", label: "Brand New" },
@@ -393,11 +396,13 @@ export const filterOptions = {
       { id: "dell", label: "Dell" },
       { id: "lenovo", label: "Lenovo" },
       { id: "apple", label: "Apple" },
+      { id: "others", label: "Others" },
     ],
     laptopType: [
       { id: "basic", label: "Basic Laptop" },
       { id: "business", label: "Business Laptop" },
       { id: "gaming", label: "Gaming Laptop" },
+      { id: "others", label: "Others" },
     ],
     processor: [
       { id: "intel-i3", label: "Intel Core i3" },
@@ -555,6 +560,10 @@ export const categorySpecificFilters = {
     "condition",
     "priceRange",
   ],
+  others: [
+    "condition",
+    "priceRange",
+  ],
 };
 
 export const getFilterOptionsForCategory = (category) => {
@@ -576,6 +585,7 @@ export const getFilterOptionsForCategory = (category) => {
         { id: "laptops", label: "Laptops" },
         { id: "monitors", label: "Monitors" },
         { id: "accessories", label: "Accessories" },
+        { id: "others", label: "Others" },
       ];
     } 
     else if (key === "accessoryCategory") {
