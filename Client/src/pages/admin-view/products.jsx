@@ -56,7 +56,14 @@ const adminMenuItems = [
   { id: "laptops", label: "Laptops", path: "/admin/products?category=laptops" },
   { id: "monitors", label: "Monitors", path: "/admin/products?category=monitors" },
   { id: "accessories", label: "Accessories", path: "/admin/products?category=accessories" },
+  { id: "others", label: "Others", path: "/admin/products?category=others" },
 ];
+
+const formatWithCommas = (value) => {
+  if (!value && value !== 0) return "";
+  const numericValue = value.toString().replace(/\D/g, "");
+  return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
 
 function AdminProducts() {
   const dispatch = useDispatch();
@@ -242,7 +249,7 @@ function AdminProducts() {
     const productData = {
       ...formData,
       images: uploadedImageUrls.length > 0 ? uploadedImageUrls : formData.images,
-      price: Number(formData.price),
+      price: Number(formData.price.toString().replace(/,/g, "")),
       totalStock: Number(formData.totalStock),
     };
 
@@ -373,6 +380,7 @@ function AdminProducts() {
               { id: "laptops", label: "Laptops" },
               { id: "monitors", label: "Monitors" },
               { id: "accessories", label: "Accessories" },
+              { id: "others", label: "Others" },
             ];
           }
         }
@@ -735,7 +743,7 @@ function AdminProducts() {
                             description: data.description || "",
                             category: data.category || "",
                             brand: data.brand || "",
-                            price: data.price || "",
+                            price: data.price ? formatWithCommas(data.price) : "",
                             storage: data.storage || "",
                             ram: data.ram || "",
                             processor: data.processor || "",

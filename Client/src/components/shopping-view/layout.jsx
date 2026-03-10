@@ -30,7 +30,7 @@ const ShoppingLayout = () => {
       </div>
 
       {/* Scrollable Content */}
-      <div className="pt-[145px] sm:pt-[170px] bg-slate-50/50 min-h-[calc(100vh-80px)]"> 
+      <div className="pt-[115px] sm:pt-[130px] bg-slate-50/50 min-h-[calc(100vh-80px)]"> 
         <Breadcrumbs />
         <main className="flex-grow w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-10">
           <motion.div

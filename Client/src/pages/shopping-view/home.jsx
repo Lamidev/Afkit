@@ -131,7 +131,15 @@ function ShoppingHome() {
       sessionStorage.setItem("filters", JSON.stringify(currentFilter));
       const queryParams = new URLSearchParams();
       queryParams.set(section, item.id);
-      queryParams.set("sort", "price-lowtohigh");
+      
+      if (item.id === "laptops" || item.id === "monitors") {
+        queryParams.set("sort", "price-lowtohigh");
+      } else if (item.id === "smartphones" || item.id === "accessories") {
+        queryParams.set("sort", "random");
+      } else {
+        queryParams.set("sort", "price-lowtohigh");
+      }
+      
       navigate(`/shop/listing?${queryParams.toString()}`);
     }
   };
@@ -235,10 +243,10 @@ function ShoppingHome() {
   }, [dispatch]);
 
   return (
-    <div className="flex flex-col space-y-4 sm:space-y-12">
+    <div className="flex flex-col space-y-2 sm:space-y-6">
       {/* Premium Hero Section - Entirely Clickable */}
       <section 
-        className="relative w-full min-h-[420px] sm:min-h-[520px] flex items-center justify-center overflow-hidden bg-white cursor-pointer group"
+        className="relative w-full min-h-[320px] sm:min-h-[420px] flex items-center justify-center overflow-hidden bg-white cursor-pointer group"
         onClick={() => handleNavigateToListingPage({ id: "all-products" }, null)}
       >
         {/* Subtle Background Pattern/Gradient */}
@@ -250,7 +258,7 @@ function ShoppingHome() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8 }}
-          className="container mx-auto px-4 pt-12 sm:pt-16 relative z-10 text-center"
+          className="container mx-auto px-4 pt-6 sm:pt-10 relative z-10 text-center"
         >
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className="flex items-center justify-center gap-2 mb-2">
@@ -298,36 +306,14 @@ function ShoppingHome() {
                 Shop Now
               </Button>
 
-              {/* Debate Campaign Link */}
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative group/debate"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/shop/debate");
-                }}
-              >
-                <div className="absolute -inset-1 bg-gradient-to-r from-orange-600 to-blue-600 rounded-2xl blur opacity-25 group-hover/debate:opacity-50 transition duration-1000 group-hover/debate:duration-200"></div>
-                <div className="relative flex flex-col items-center p-4 bg-white border border-slate-100 rounded-2xl shadow-sm cursor-pointer min-w-[280px]">
-                  <span className="text-[10px] font-black text-orange-500 uppercase tracking-[4px] mb-1">
-                    Join the Contest
-                  </span>
-                  <h3 className="text-xl font-black text-slate-900 leading-none">
-                    "DEFEND YOUR FAVE"
-                  </h3>
-                  <p className="text-sm font-bold text-blue-600 mt-1 uppercase tracking-widest">
-                    Challenge
-                  </p>
-                </div>
-              </motion.div>
+              {/* Debate Campaign Link Removed as Requested */}
             </motion.div>
           </div>
         </motion.div>
       </section>
 
       {/* Shop by category */}
-      <section className="py-4 sm:py-8 bg-gray-50 px-4 sm:px-6">
+      <section className="py-2 sm:py-4 bg-gray-50 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-center mb-5 sm:mb-8">
             <h2 className="text-xl sm:text-2xl font-bold text-center">
@@ -348,10 +334,10 @@ function ShoppingHome() {
                       id === "all-products" ? null : "category"
                     )
                   }
-                  className="cursor-pointer hover:shadow-md h-full"
+                  className="cursor-pointer hover:shadow-lg h-full bg-blue-900 text-white border-blue-800 transition-all"
                 >
                   <CardContent className="flex flex-col items-center justify-center p-4 sm:p-6">
-                    <Icon className="w-8 h-8 sm:w-10 sm:h-10 mb-2 text-blue-900 group-hover:text-orange-500 transition-colors" />
+                    <Icon className="w-8 h-8 sm:w-10 sm:h-10 mb-2 text-white group-hover:text-orange-400 transition-colors" />
                     <span className="text-sm sm:text-base font-bold text-center leading-tight uppercase tracking-tight">
                       {label}
                     </span>
@@ -389,8 +375,8 @@ function ShoppingHome() {
           </div>
         </motion.div>
       </section>
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <div className="flex items-center justify-between mb-8 sm:mb-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex flex-col gap-1">
             <h2 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
               <span className="relative">
@@ -451,8 +437,8 @@ function ShoppingHome() {
       </section>
 
       {/* Support Features */}
-      <section className="max-w-7xl mx-auto py-8 sm:py-12 px-4 sm:px-6">
-        <div className="text-center mb-6 sm:mb-8">
+      <section className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6">
+        <div className="text-center mb-4 sm:mb-6">
           <h2 className="text-xl sm:text-2xl font-bold">Why Choose Afkit?</h2>
           <p className="text-gray-600 mt-2 text-sm sm:text-base">
             We're committed to providing the best shopping experience
@@ -487,9 +473,9 @@ function ShoppingHome() {
       </section>
 
       {/* Regional Logistics Section */}
-      <section className="bg-slate-50 border-y border-slate-100 py-12 sm:py-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+      <section className="bg-slate-50 border-y border-slate-100 py-8 sm:py-12 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
          <div className="max-w-7xl mx-auto">
-            <div className="flex flex-col items-center text-center mb-12 sm:mb-16">
+            <div className="flex flex-col items-center text-center mb-8">
                <span className="text-[10px] sm:text-[12px] font-bold text-blue-600 uppercase tracking-[0.3em] mb-4">
                  Our Logistics Network
                </span>

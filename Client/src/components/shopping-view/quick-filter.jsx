@@ -51,9 +51,9 @@ const QuickFilter = ({ categories, subOptions, paramKey, onClearAll }) => {
   const hasAnyFilter = ["brand", "laptopType", "monitorType", "accessoryCategory", "minPrice", "maxPrice"].some(p => searchParams.has(p));
 
   return (
-    <div className="flex flex-col gap-6 py-2 px-1">
+    <div className="flex flex-col gap-1.5 py-1.5 px-3 bg-blue-50/50 border border-blue-100/50 rounded-xl shadow-sm">
       {/* Subcategories Wrapped Grid */}
-      <div className="flex flex-wrap gap-x-6 gap-y-3 items-center">
+      <div className="flex flex-wrap gap-1.5 items-center">
         <button
           onClick={() => {
             const newParams = new URLSearchParams(searchParams);
@@ -61,65 +61,44 @@ const QuickFilter = ({ categories, subOptions, paramKey, onClearAll }) => {
             newParams.delete("page");
             setSearchParams(newParams);
           }}
-          className={`whitespace-nowrap text-[11px] font-black uppercase tracking-[0.12em] transition-all relative py-1 ${
+          className={`whitespace-nowrap text-[9px] font-black uppercase tracking-tight transition-all px-2.5 py-1 rounded-lg ${
             !["brand", "laptopType", "monitorType", "accessoryCategory"].some(p => searchParams.has(p))
-              ? "text-blue-900"
-              : "text-slate-400 hover:text-slate-600"
+              ? "bg-blue-900 text-white shadow-md"
+              : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 shadow-sm"
           }`}
         >
           All Items
-          {!["brand", "laptopType", "monitorType", "accessoryCategory"].some(p => searchParams.has(p)) && (
-            <motion.div
-              layoutId="activeSub"
-              className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-900 rounded-full"
-              transition={{ type: "spring", stiffness: 380, damping: 30 }}
-            />
-          )}
         </button>
 
         {subOptions.map((opt) => (
           <button
             key={opt.id}
             onClick={() => handleFilterClick(paramKey, opt.id)}
-            className={`whitespace-nowrap text-[11px] font-black uppercase tracking-[0.12em] transition-all relative py-1 ${
+            className={`whitespace-nowrap text-[9px] font-black uppercase tracking-tight transition-all px-2.5 py-1 rounded-lg ${
               isActive(paramKey, opt.id)
-                ? "text-orange-600"
-                : "text-slate-400 hover:text-slate-600"
+                ? "bg-blue-900 text-white shadow-md"
+                : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 shadow-sm"
             }`}
           >
             {opt.label}
-            {isActive(paramKey, opt.id) && (
-              <motion.div
-                layoutId="activeSub"
-                className="absolute -bottom-1 left-0 right-0 h-0.5 bg-orange-600 rounded-full"
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            )}
           </button>
         ))}
       </div>
 
       {/* Price Ranges Wrapped Grid */}
-      <div className="flex flex-wrap gap-x-6 gap-y-3 items-center border-t border-slate-100 pt-4">
-        <span className="text-[10px] font-black text-slate-300 uppercase shrink-0 tracking-[0.2em]">Budget:</span>
+      <div className="flex flex-wrap gap-1.5 items-center border-t border-slate-100 pt-1.5">
+        <span className="text-[9px] font-black text-blue-900 uppercase shrink-0 tracking-tight mr-1">Budget:</span>
         {filterOptions.priceRangeOptions?.map((range) => (
           <button
             key={range.id}
             onClick={() => handlePriceClick(range)}
-            className={`whitespace-nowrap text-[11px] font-black uppercase tracking-[0.12em] transition-all relative py-1 ${
+            className={`whitespace-nowrap text-[9px] font-black uppercase tracking-tight transition-all px-2.5 py-1 rounded-lg ${
               isPriceActive(range)
-                ? "text-blue-600"
-                : "text-slate-400 hover:text-slate-600"
+                ? "bg-blue-900 text-white shadow-md"
+                : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 shadow-sm"
             }`}
           >
             {range.label}
-            {isPriceActive(range) && (
-              <motion.div
-                layoutId="activePrice"
-                className="absolute -bottom-1 left-0 right-0 h-0.5 bg-blue-600 rounded-full"
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            )}
           </button>
         ))}
       </div>

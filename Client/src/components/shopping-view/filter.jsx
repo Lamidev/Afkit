@@ -21,18 +21,24 @@ function ProductFilter({
   setIsMobileFilterOpen,
   isFilterLoading,
 }) {
-  const [localFilters, setLocalFilters] = useState(filters);
-  const [localPriceRange, setLocalPriceRange] = useState(priceRange);
-  const [minPriceInput, setMinPriceInput] = useState(
-    priceRange?.min === 0 ? "" : priceRange?.min?.toString() ?? ""
-  );
-  const [maxPriceInput, setMaxPriceInput] = useState(
-    priceRange?.max === 5000000 ? "" : priceRange?.max?.toString() ?? ""
-  );
-  const [dynamicSpecificAccessoryOptions, setDynamicSpecificAccessoryOptions] = useState([]);
-
   const MIN_PRICE_LIMIT = 0;
   const MAX_PRICE_LIMIT = 5000000;
+
+  const [localFilters, setLocalFilters] = useState(filters);
+  const [localPriceRange, setLocalPriceRange] = useState(priceRange);
+  const formatWithCommas = (value) => {
+    if (!value && value !== 0) return "";
+    const numericValue = value.toString().replace(/\D/g, "");
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
+  const [minPriceInput, setMinPriceInput] = useState(
+    priceRange?.min === MIN_PRICE_LIMIT ? "" : formatWithCommas(priceRange?.min)
+  );
+  const [maxPriceInput, setMaxPriceInput] = useState(
+    priceRange?.max === MAX_PRICE_LIMIT ? "" : formatWithCommas(priceRange?.max)
+  );
+  const [dynamicSpecificAccessoryOptions, setDynamicSpecificAccessoryOptions] = useState([]);
 
   const isTypingMinRef = useRef(false);
   const isTypingMaxRef = useRef(false);
@@ -41,12 +47,12 @@ function ProductFilter({
     setLocalFilters(filters);
     if (!isTypingMinRef.current) {
       setMinPriceInput(
-        priceRange?.min === MIN_PRICE_LIMIT ? "" : priceRange?.min?.toString() ?? ""
+        priceRange?.min === MIN_PRICE_LIMIT ? "" : formatWithCommas(priceRange?.min)
       );
     }
     if (!isTypingMaxRef.current) {
       setMaxPriceInput(
-        priceRange?.max === MAX_PRICE_LIMIT ? "" : priceRange?.max?.toString() ?? ""
+        priceRange?.max === MAX_PRICE_LIMIT ? "" : formatWithCommas(priceRange?.max)
       );
     }
     setLocalPriceRange(priceRange);
@@ -116,8 +122,8 @@ function ProductFilter({
   };
 
   const handleApply = () => {
-    let finalMin = parseInt(minPriceInput, 10);
-    let finalMax = parseInt(maxPriceInput, 10);
+    let finalMin = parseInt(minPriceInput.replace(/,/g, ""), 10);
+    let finalMax = parseInt(maxPriceInput.replace(/,/g, ""), 10);
 
     if (minPriceInput === "") finalMin = MIN_PRICE_LIMIT;
     if (maxPriceInput === "") finalMax = MAX_PRICE_LIMIT;
@@ -133,8 +139,8 @@ function ProductFilter({
     }
 
     setLocalPriceRange({ min: finalMin, max: finalMax });
-    setMinPriceInput(finalMin === MIN_PRICE_LIMIT ? "" : finalMin.toString());
-    setMaxPriceInput(finalMax === MAX_PRICE_LIMIT ? "" : finalMax.toString());
+    setMinPriceInput(finalMin === MIN_PRICE_LIMIT ? "" : formatWithCommas(finalMin));
+    setMaxPriceInput(finalMax === MAX_PRICE_LIMIT ? "" : formatWithCommas(finalMax));
 
     onApplyFilters(localFilters, { min: finalMin, max: finalMax });
     if (setIsMobileFilterOpen) {
@@ -159,11 +165,12 @@ function ProductFilter({
 
   const handlePriceInputChange = (type, value) => {
     const numericValue = value.replace(/\D/g, "");
+    const formattedValue = formatWithCommas(numericValue);
 
     if (type === "min") {
-      setMinPriceInput(numericValue);
+      setMinPriceInput(formattedValue);
     } else {
-      setMaxPriceInput(numericValue);
+      setMaxPriceInput(formattedValue);
     }
   };
 
@@ -177,7 +184,7 @@ function ProductFilter({
 
   const handleMinInputBlur = () => {
     isTypingMinRef.current = false;
-    let parsedMin = parseInt(minPriceInput, 10);
+    let parsedMin = parseInt(minPriceInput.replace(/,/g, ""), 10);
 
     if (minPriceInput === "") parsedMin = MIN_PRICE_LIMIT;
     if (isNaN(parsedMin)) parsedMin = MIN_PRICE_LIMIT;
@@ -190,12 +197,12 @@ function ProductFilter({
       min: parsedMin,
       max: prev.max,
     }));
-    setMinPriceInput(parsedMin === MIN_PRICE_LIMIT ? "" : parsedMin.toString());
+    setMinPriceInput(parsedMin === MIN_PRICE_LIMIT ? "" : formatWithCommas(parsedMin));
   };
 
   const handleMaxInputBlur = () => {
     isTypingMaxRef.current = false;
-    let parsedMax = parseInt(maxPriceInput, 10);
+    let parsedMax = parseInt(maxPriceInput.replace(/,/g, ""), 10);
 
     if (maxPriceInput === "") parsedMax = MAX_PRICE_LIMIT;
     if (isNaN(parsedMax)) parsedMax = MAX_PRICE_LIMIT;
@@ -208,7 +215,7 @@ function ProductFilter({
       min: prev.min,
       max: parsedMax,
     }));
-    setMaxPriceInput(parsedMax === MAX_PRICE_LIMIT ? "" : parsedMax.toString());
+    setMaxPriceInput(parsedMax === MAX_PRICE_LIMIT ? "" : formatWithCommas(parsedMax));
   };
 
   const formatKeyForDisplay = (key) => {

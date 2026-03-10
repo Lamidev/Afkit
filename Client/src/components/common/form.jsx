@@ -108,8 +108,21 @@ function CommonForm({
     return fieldValue === value;
   };
 
+  const formatWithCommas = (value) => {
+    if (!value && value !== 0) return "";
+    const numericValue = value.toString().replace(/\D/g, "");
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
   const handleFieldChange = (name, value) => {
-    const newFormData = { ...formData, [name]: value };
+    let finalValue = value;
+    
+    // Auto-format price fields with commas
+    if (name === 'price') {
+      finalValue = formatWithCommas(value);
+    }
+
+    const newFormData = { ...formData, [name]: finalValue };
 
     if (name === "category") {
       if (value !== "laptops") {
@@ -169,7 +182,7 @@ function CommonForm({
               name={control.name}
               placeholder={control.placeholder}
               id={control.name}
-              type={showField ? "text" : control.type}
+              type={showField ? "text" : (control.name === 'price' ? 'text' : control.type)}
               value={value}
               onChange={(e) => handleFieldChange(control.name, e.target.value)}
               className={
@@ -263,9 +276,9 @@ function CommonForm({
           return (
             <div className={`grid w-full gap-2 ${control.componentType === 'textarea' || control.fullWidth ? 'md:col-span-2' : ''}`} key={control.name}>
               {control.label && (
-                <Label htmlFor={control.name} className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                <Label htmlFor={control.name} className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] mb-0.5">
                   {control.label}
-                  {control.required && <span className="text-destructive ml-1">*</span>}
+                  {control.required && <span className="text-red-600 ml-1 font-bold text-xs">*</span>}
                 </Label>
               )}
               {renderInputsByComponentType(control)}
