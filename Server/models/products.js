@@ -27,7 +27,7 @@ const ProductSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["smartphones", "laptops", "monitors", "accessories"],
+      enum: ["smartphones", "laptops", "monitors", "accessories", "others"],
       required: true,
     },
     brand: {
@@ -41,6 +41,7 @@ const ProductSchema = new mongoose.Schema(
         "google-pixel",
         "asus",
         "lg",
+        "others",
       ],
       required: function () {
         return ["smartphones", "laptops", "monitors"].includes(this.category);
@@ -74,7 +75,7 @@ const ProductSchema = new mongoose.Schema(
     },
     ram: {
       type: String,
-      enum: ["4GB", "6GB", "8GB", "12GB", "16GB", "32GB", "64GB"],
+      enum: ["4GB", "6GB", "8GB", "12GB", "16GB", "24GB", "32GB", "64GB"],
       required: function () {
         return ["laptops", "smartphones"].includes(this.category);
       },
@@ -107,7 +108,7 @@ const ProductSchema = new mongoose.Schema(
     },
     laptopType: {
       type: String,
-      enum: ["basic", "business", "gaming"],
+      enum: ["basic", "business", "gaming", "others"],
       required: function () {
         return this.category === "laptops";
       },

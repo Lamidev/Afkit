@@ -115,7 +115,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-3 border-b border-slate-100">
                <div>
                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
-                    {orderDetails?.addressInfo?.deliveryTarget === 'personal' ? "Destination (Collected By Payer)" : "Destination (Sent to Recipient)"}
+                    {orderDetails?.addressInfo?.deliveryTarget === 'personal' ? "Destination (Collected By Payer)" : "Destination (Someone Else)"}
                  </span>
                  <p className="font-bold text-slate-900 uppercase">
                     {orderDetails?.addressInfo?.fullName}
@@ -126,11 +126,16 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                </div>
                <div>
                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Warranty Owner</span>
-                 <p className="font-bold text-slate-900 uppercase">
-                    {orderDetails?.addressInfo?.receiptInfo?.name || orderDetails?.addressInfo?.fullName}
-                 </p>
+                 <div className="flex items-center gap-2">
+                   <p className="font-bold text-slate-900 uppercase">
+                      {orderDetails?.addressInfo?.receiptInfo?.name || orderDetails?.addressInfo?.fullName}
+                   </p>
+                   <Badge className={`px-1.5 py-0 rounded text-[7px] border-0 uppercase font-bold tracking-tighter ${orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'bg-blue-500 text-white' : 'bg-orange-500 text-white'}`}>
+                      {orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'Me' : 'Someone Else'}
+                   </Badge>
+                 </div>
                  <p className="text-[10px] font-bold text-blue-600 truncate mt-1">
-                    {orderDetails?.addressInfo?.receiptInfo?.email || "Email Pending"}
+                    ✉️ {orderDetails?.addressInfo?.receiptInfo?.email || orderDetails?.payerEmail || "Email Pending"}
                  </p>
                </div>
             </div>
