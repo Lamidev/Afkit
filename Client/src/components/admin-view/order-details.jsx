@@ -186,7 +186,7 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">
-                          {orderDetails?.addressInfo?.deliveryTarget === 'personal' ? "Collected By (Payer)" : "Delivered To (Recipient)"}
+                          {orderDetails?.addressInfo?.deliveryTarget === 'personal' ? "Collected By (Payer)" : "Delivered To (Someone Else)"}
                         </span>
                         <div className="flex items-center gap-2 mb-1">
                           <p className="text-xs font-bold text-gray-900 leading-relaxed uppercase">
@@ -265,14 +265,13 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                             <div className="flex items-center gap-2">
                               <p className="text-xs font-bold text-white uppercase">{orderDetails?.addressInfo?.receiptInfo?.name || orderDetails?.addressInfo?.fullName || "N/A"}</p>
                               <Badge className={`px-1.5 py-0 rounded text-[7px] border-0 uppercase font-bold tracking-tighter ${orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'bg-blue-500 text-white' : 'bg-orange-500 text-white'}`}>
-                                {orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'Account Owner' : 
-                                 orderDetails?.addressInfo?.receiptInfo?.ownerType === 'recipient' ? 'Recipient Above' : 'Custom Person'}
+                                {orderDetails?.addressInfo?.receiptInfo?.ownerType === 'me' ? 'Me' : 'Someone Else'}
                               </Badge>
                             </div>
                           </div>
                           <div>
                             <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">Certificate Destination Email</span>
-                            <p className="text-xs font-bold text-blue-400 truncate">{orderDetails?.addressInfo?.receiptInfo?.email || orderDetails?.addressInfo?.recipientEmail || "N/A"}</p>
+                            <p className="text-xs font-bold text-blue-400 truncate">✉️ {orderDetails?.addressInfo?.receiptInfo?.email || orderDetails?.payerEmail || "N/A"}</p>
                           </div>
                           <div className="col-span-full">
                             <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">Billing Address</span>

@@ -2,7 +2,6 @@ import {
   LayoutDashboard,
   ShoppingBasket,
   BadgeCheck,
-  Mic2,
 } from "lucide-react";
 import { Fragment } from "react";
 import { useNavigate } from "react-router-dom";
@@ -27,12 +26,6 @@ const adminSidebarMenuItems = [
     label: "Orders",
     path: "/admin/orders",
     icon: <BadgeCheck />,
-  },
-  {
-    id: "debate-registrations",
-    label: "Debate Registrations",
-    path: "/admin/debate-registrations",
-    icon: <Mic2 />,
   },
 ];
 

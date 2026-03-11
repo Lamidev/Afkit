@@ -404,7 +404,6 @@ function Address({
                  setCurrentEditedId(null);
                  setFormData({ ...initialAddressFormData, addressType: filterType || "personal" });
                  setShowForm(true);
-                 window.scrollTo({ top: 0, behavior: "smooth" });
                }}
                className="rounded-full border-primary/30 text-primary hover:bg-primary hover:text-white transition-all text-[9px] uppercase font-bold px-4 h-7"
              >
@@ -426,7 +425,6 @@ function Address({
               addressInfo={addr}
               handleEditAddress={(a) => {
                 handleEditAddress(a);
-                window.scrollTo({ top: 0, behavior: "smooth" });
               }}
               setCurrentSelectedAddress={setCurrentSelectedAddress}
             />

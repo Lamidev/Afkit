@@ -28,8 +28,6 @@ import AuthListener from "./components/shopping-view/auth-listener";
 import PaystackReturnPage from "./pages/shopping-view/paystack-return";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import ShoppingAccount from "./pages/shopping-view/account";
-import AdminDebateRegistrations from "./pages/admin-view/debate-registrations";
-import DebatePage from "./pages/shopping-view/debate";
 import ScrollToTop from "./components/common/scroll-to-top";
 
 function App() {
@@ -74,7 +72,6 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrdersPage />} />
-          <Route path="debate-registrations" element={<AdminDebateRegistrations />} />
         </Route>
 
         {/* Shopping Routes (Public) */}
@@ -87,7 +84,6 @@ function App() {
           <Route path="paystack-return" element={<PaystackReturnPage />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />
           <Route path="account" element={<ShoppingAccount />} />
-          <Route path="debate" element={<DebatePage />} />
           <Route
             path="checkout"
             element={
