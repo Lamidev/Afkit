@@ -46,7 +46,10 @@ function ShoppingCheckout() {
   // --- Derived Values ---
   const totalCartAmount =
     cartItems?.items?.length > 0
-      ? cartItems.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+      ? cartItems.items.reduce((sum, item) => {
+          const effectivePrice = (item.salePrice && item.salePrice > 0) ? item.salePrice : item.price;
+          return sum + effectivePrice * item.quantity;
+        }, 0)
       : 0;
 
   const hasMajorGadget = cartItems?.items?.some(
@@ -141,7 +144,7 @@ function ShoppingCheckout() {
         productId: cartItem?.productId,
         title: cartItem?.title,
         image: cartItem?.image,
-        price: cartItem?.price,
+        price: (cartItem?.salePrice && cartItem?.salePrice > 0) ? cartItem?.salePrice : cartItem?.price,
         quantity: cartItem?.quantity,
         condition: cartItem?.condition,
       })),

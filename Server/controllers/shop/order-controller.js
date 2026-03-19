@@ -1,6 +1,7 @@
 const Order = require("../../models/order");
 const Cart = require("../../models/cart");
 const Product = require("../../models/products");
+const crypto = require("crypto");
 const paystackHelper = require("../../helpers/paystack")(process.env.PAYSTACK_SECRET_KEY);
 const { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } = require("../../mailtrap/emails");
 
@@ -30,7 +31,9 @@ const createOrder = async (req, res) => {
           message: `Product ${item.title} is out of stock or does not exist.`,
         });
       }
-      calculatedTotal += product.price * item.quantity;
+      // Use salePrice if it exists and is greater than 0, otherwise use regular price
+      const effectivePrice = (product.salePrice && product.salePrice > 0) ? product.salePrice : product.price;
+      calculatedTotal += effectivePrice * item.quantity;
     }
 
     // Security: Validate that the total amount sent by client matches the server calculation
@@ -70,7 +73,7 @@ const createOrder = async (req, res) => {
     }
 
     // 4. Create Order in DB (Pending)
-    const orderId = `ORD-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const orderId = `ORD-${crypto.randomBytes(2).toString("hex").toUpperCase()}-${crypto.randomBytes(2).toString("hex").toUpperCase()}`;
 
     const newlyCreatedOrder = new Order({
       userId,
@@ -204,6 +207,87 @@ const capturePayment = async (req, res) => {
   }
 };
 
+const paystackWebhook = async (req, res) => {
+  try {
+    const secret = process.env.PAYSTACK_SECRET_KEY;
+    const hash = crypto
+      .createHmac("sha512", secret)
+      .update(req.rawBody || JSON.stringify(req.body))
+      .digest("hex");
+
+    if (hash === req.headers["x-paystack-signature"]) {
+      const event = req.body;
+
+      if (event.event === "charge.success") {
+        const paymentId = event.data.reference;
+        const amountReceived = event.data.amount / 100;
+
+        let order = await Order.findOne({ paymentId });
+
+        if (order) {
+          // Idempotency: Don't process twice
+          if (order.paymentStatus !== "paid" && order.paymentStatus !== "partially_paid") {
+            order.paymentStatus = order.paymentType === "commitment" ? "partially_paid" : "paid";
+            order.orderStatus = "confirmed";
+            order.amountPaid = amountReceived;
+            order.balanceAmount = order.totalAmount - amountReceived;
+            order.orderUpdateDate = new Date();
+
+            if (!order.isStockDeducted) {
+              for (let item of order.cartItems) {
+                let product = await Product.findById(item.productId);
+                if (product) {
+                  const deductQty = Math.min(item.quantity, product.totalStock);
+                  if (deductQty > 0) {
+                    product.totalStock = Math.max(0, product.totalStock - deductQty);
+                    await product.save();
+                  }
+                }
+              }
+              order.isStockDeducted = true;
+            }
+
+            await Cart.findOneAndUpdate({ userId: order.userId }, { items: [] });
+
+            if (!order.isEmailSent) {
+              order.isEmailSent = true;
+              await order.save();
+              sendOrderConfirmationEmail(order).catch(console.error);
+              sendAdminOrderNotificationEmail(order).catch(console.error);
+            } else {
+              await order.save();
+            }
+          }
+        }
+      }
+      res.status(200).send("Webhook received");
+    } else {
+      res.status(400).send("Invalid signature");
+    }
+  } catch (error) {
+    console.error("Webhook processing error:", error.message);
+    res.status(500).send("Webhook endpoint error");
+  }
+};
+
+const cleanupPendingOrders = async () => {
+  try {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    // Find orders that are pending and older than 24 hours
+    const result = await Order.deleteMany({
+      orderStatus: "pending",
+      paymentStatus: "pending",
+      createdAt: { $lt: twentyFourHoursAgo }
+    });
+    
+    if (result.deletedCount > 0) {
+      console.log(`🧹 Cleaned up ${result.deletedCount} abandoned pending orders.`);
+    }
+  } catch (error) {
+    console.error("Error cleaning up pending orders:", error.message);
+  }
+};
+
 const getAllOrdersByUser = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -283,6 +367,8 @@ const deleteOrder = async (req, res) => {
 module.exports = {
   createOrder,
   capturePayment,
+  paystackWebhook,
+  cleanupPendingOrders,
   getAllOrdersByUser,
   getOrderDetails,
   deleteOrder,

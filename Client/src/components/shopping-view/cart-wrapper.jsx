@@ -21,7 +21,10 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
   const totalCartAmount =
     cartItems && cartItems.length > 0
       ? cartItems.reduce(
-        (sum, currentItem) => sum + currentItem.price * currentItem.quantity,
+        (sum, currentItem) => {
+          const effectivePrice = (currentItem.salePrice && currentItem.salePrice > 0) ? currentItem.salePrice : currentItem.price;
+          return sum + effectivePrice * currentItem.quantity;
+        },
         0
       )
       : 0;
@@ -56,7 +59,7 @@ ${cartItems
 *Product:* ${item.title || "Product"}
 *ID:* ${formatAestheticId(item.productId, "GAD")}
 *Qty:* ${item.quantity}
-*Price:* ${formatNaira(item.price)}
+*Price:* ${formatNaira((item.salePrice && item.salePrice > 0) ? item.salePrice : item.price)}
 
 🔗 *View Detail:* ${apiBase}/og/product/${item.productId.toString().replace("#", "")}`
       )

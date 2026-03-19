@@ -11,4 +11,15 @@ const authRateLimiter = rateLimit({
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 
-module.exports = { authRateLimiter };
+const orderRateLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour window
+  max: 10, // Limit each IP to 10 orders per window
+  message: {
+    success: false,
+    message: "Too many orders created from this IP, please try again later",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+module.exports = { authRateLimiter, orderRateLimiter };
