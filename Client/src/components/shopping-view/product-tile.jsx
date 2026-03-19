@@ -86,7 +86,7 @@ function ShoppingProductTile({ product, handleAddToCart, handleViewDetails }) {
         <div className="mt-auto flex flex-col">
           {product?.salePrice > 0 ? (
             <div className="flex flex-col">
-              <span className="text-[10px] sm:text-xs text-slate-400 line-through font-bold whitespace-nowrap">
+              <span className="text-sm sm:text-base text-slate-900 line-through font-bold whitespace-nowrap">
                 {formattedPrice}
               </span>
               <span className="text-sm sm:text-base font-bold text-orange-600 whitespace-nowrap">

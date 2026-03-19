@@ -673,7 +673,7 @@ export default function ShoppingProductDetails() {
             <div className="flex flex-col">
               {productDetails.salePrice > 0 ? (
                 <>
-                  <span className="text-sm text-slate-400 line-through font-bold">
+                  <span className="text-2xl text-slate-900 line-through font-bold">
                     ₦{Number(productDetails.price).toLocaleString("en-NG")}
                   </span>
                   <p className="text-2xl font-semibold text-orange-600">
