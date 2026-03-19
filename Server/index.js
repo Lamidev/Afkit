@@ -58,7 +58,11 @@ mongoose
       })
     );
 
-    app.use(express.json());
+    app.use(express.json({
+      verify: (req, res, buf) => {
+        req.rawBody = buf;
+      }
+    }));
     app.use(cookieParser());
     app.use("/api/auth", authRouter);
     app.use("/api/admin/products", adminProductsRouter);
@@ -78,9 +82,14 @@ mongoose
     app.use("/api/og", shareOGRouter);
     app.use("/api/common/notifications", commonNotificationRouter);
 
+    const { cleanupPendingOrders } = require("./controllers/shop/order-controller");
+
     // Start the server
-    app.listen(PORT, () =>
-      console.log(`😍😍 Server is now running on port ${PORT} 🎉🥳`)
-    );
+    app.listen(PORT, () => {
+      console.log(`😍😍 Server is now running on port ${PORT} 🎉🥳`);
+      // Run cleanup on startup, then every 1 hour (3600000 ms)
+      cleanupPendingOrders();
+      setInterval(cleanupPendingOrders, 60 * 60 * 1000);
+    });
   })
   .catch((error) => console.error("Failed to connect to MongoDB", error));

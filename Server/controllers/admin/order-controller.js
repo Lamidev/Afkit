@@ -93,7 +93,7 @@ const updateOrderStatus = async (req, res) => {
       for (let item of order.cartItems) {
         let product = await Product.findById(item.productId);
         if (product) {
-          product.totalStock -= item.quantity;
+          product.totalStock = Math.max(0, product.totalStock - item.quantity);
           await product.save();
         }
       }

@@ -158,7 +158,7 @@ function UserCartItemsContent({ cartItem }) {
             {cartItem?.title}
           </h3>
           <p className="hidden sm:block font-black text-slate-900 whitespace-nowrap">
-            {formatNaira(cartItem?.price * cartItem?.quantity)}
+            {formatNaira(((cartItem?.salePrice && cartItem?.salePrice > 0) ? cartItem?.salePrice : cartItem?.price) * cartItem?.quantity)}
           </p>
         </div>
 
@@ -169,7 +169,7 @@ function UserCartItemsContent({ cartItem }) {
              </span>
            )}
            <span className="text-xs font-bold text-orange-600 px-2 py-0.5 bg-orange-50 rounded-full">
-            {formatNaira(cartItem?.price)}
+            {formatNaira((cartItem?.salePrice && cartItem?.salePrice > 0) ? cartItem?.salePrice : cartItem?.price)}
            </span>
            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
             Per Item
@@ -201,7 +201,7 @@ function UserCartItemsContent({ cartItem }) {
           </div>
 
           <div className="sm:hidden font-black text-slate-900 border-l border-slate-200 pl-4">
-             {formatNaira(cartItem?.price * cartItem?.quantity)}
+             {formatNaira(((cartItem?.salePrice && cartItem?.salePrice > 0) ? cartItem?.salePrice : cartItem?.price) * cartItem?.quantity)}
           </div>
 
           <button
