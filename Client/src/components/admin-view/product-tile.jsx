@@ -126,9 +126,22 @@ function AdminProductTile({
         </h2>
 
         {/* Price */}
-        <p className="text-xs font-bold text-primary leading-none">
-          {formatPrice(product.price)}
-        </p>
+        <div className="flex flex-col">
+          {product.salePrice > 0 ? (
+            <>
+              <span className="text-[10px] text-red-300 line-through font-bold leading-none mb-0.5">
+                {formatPrice(product.price)}
+              </span>
+              <p className="text-xs font-bold text-red-600 leading-none">
+                {formatPrice(product.salePrice)}
+              </p>
+            </>
+          ) : (
+            <p className="text-xs font-bold text-red-600 leading-none">
+              {formatPrice(product.price)}
+            </p>
+          )}
+        </div>
 
         {/* Condition */}
         <p className="text-[10px] text-slate-500 font-medium leading-none">

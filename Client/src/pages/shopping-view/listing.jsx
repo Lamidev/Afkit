@@ -52,7 +52,23 @@ function ShoppingListing() {
     const pageFromUrl = parseInt(searchParams.get("page")) || 1;
     return pageFromUrl;
   });
-  const [productsPerPage] = useState(12);
+  const [productsPerPage, setProductsPerPage] = useState(12);
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Mobile: 2 cols, 8 rows = 16 items
+      // Desktop (>= 1024px): 4 cols, 5 rows = 20 items
+      if (window.innerWidth < 1024) {
+        setProductsPerPage(16);
+      } else {
+        setProductsPerPage(20);
+      }
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const [priceRange, setPriceRange] = useState({
     min: 0,
@@ -428,8 +444,8 @@ function ShoppingListing() {
   const isNextDisabled = currentPage === totalPages;
 
   const getPaginationGroup = () => {
-    let start = Math.floor((currentPage - 1) / 3) * 3;
-    return new Array(Math.min(3, totalPages - start))
+    let start = Math.floor((currentPage - 1) / 5) * 5;
+    return new Array(Math.min(5, totalPages - start))
       .fill()
       .map((_, idx) => start + idx + 1);
   };
@@ -643,48 +659,23 @@ function ShoppingListing() {
             ) : (
               <>
                 {currentProducts && currentProducts.length > 0 ? (
-                  <>
-                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-                      {currentProducts.map((productItem, index) => (
-                        <motion.div
-                          key={productItem._id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3, delay: index * 0.05 }}
-                          whileHover={{ scale: 1.02 }}
-                        >
-                          <ShoppingProductTile
-                            product={productItem}
-                            handleAddToCart={handleAddToCart}
-                            handleViewDetails={handleViewProductDetails}
-                          />
-                        </motion.div>
-                      ))}
-                    </div>
-
-                    <section className="max-w-7xl mx-auto w-full mt-12">
+                  <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {currentProducts.map((productItem, index) => (
                       <motion.div
+                        key={productItem._id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg"
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        whileHover={{ scale: 1.02 }}
                       >
-                        <div className="text-center">
-                          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
-                            Can't find the product you are looking for?
-                          </h3>
-                          <Button
-                            onClick={handleWhatsAppRedirect}
-                            className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
-                            size="lg"
-                          >
-                            <MessageCircle className="w-5 h-5 mr-2" />
-                            ASK US ON WHATSAPP
-                          </Button>
-                        </div>
+                        <ShoppingProductTile
+                          product={productItem}
+                          handleAddToCart={handleAddToCart}
+                          handleViewDetails={handleViewProductDetails}
+                        />
                       </motion.div>
-                    </section>
-                  </>
+                    ))}
+                  </div>
                 ) : (
                   <div className="text-center py-10 text-gray-500">
                     <div className="mb-6">
@@ -760,6 +751,28 @@ function ShoppingListing() {
                   </div>
                 )}
 
+                <section className="max-w-7xl mx-auto w-full mt-12">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-xl p-6 sm:p-8 shadow-lg"
+                  >
+                    <div className="text-center">
+                      <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3">
+                        Can't find the product you are looking for?
+                      </h3>
+                      <Button
+                        onClick={handleWhatsAppRedirect}
+                        className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 hover:shadow-lg font-semibold"
+                        size="lg"
+                      >
+                        <MessageCircle className="w-5 h-5 mr-2" />
+                        ASK US ON WHATSAPP
+                      </Button>
+                    </div>
+                  </motion.div>
+                </section>
               </>
             )}
           </div>

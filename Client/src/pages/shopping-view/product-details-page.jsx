@@ -76,7 +76,8 @@ export default function ShoppingProductDetails() {
 
   const handleProductInfoWhatsApp = () => {
     const productLink = getProductLink();
-    const message = `Hi ${COMPANY_NAME}, I need more information about this product:\n\nProduct: ${productDetails.title}\nPrice: ₦${Number(productDetails.price).toLocaleString("en-NG")}\nProduct Link: ${productLink}\n\nCould you provide more details about this product?`;
+    const currentPrice = productDetails.salePrice > 0 ? productDetails.salePrice : productDetails.price;
+    const message = `Hi ${COMPANY_NAME}, I need more information about this product:\n\nProduct: ${productDetails.title}\nPrice: ₦${Number(currentPrice).toLocaleString("en-NG")}\nProduct Link: ${productLink}\n\nCould you provide more details about this product?`;
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
@@ -280,7 +281,8 @@ export default function ShoppingProductDetails() {
 
     const aestheticId = formatAestheticId(productDetails?._id, "GAD");
     const productLink = getProductLink();
-    const message = `🛍️ *AFKiT Product Inquiry*\n\n*Product:* ${productDetails.title}\n*ID:* ${aestheticId}\n*Price:* ₦${Number(productDetails.price).toLocaleString("en-NG")}\n*Quantity:* ${quantity}\n\nHello AFKiT, I'm interested in this product. Is it available?\n\n🔗 *Product Link:* ${productLink}`;
+    const currentPrice = productDetails.salePrice > 0 ? productDetails.salePrice : productDetails.price;
+    const message = `🛍️ *AFKiT Product Inquiry*\n\n*Product:* ${productDetails.title}\n*ID:* ${aestheticId}\n*Price:* ₦${Number(currentPrice).toLocaleString("en-NG")}\n*Quantity:* ${quantity}\n\nHello AFKiT, I'm interested in this product. Is it available?\n\n🔗 *Product Link:* ${productLink}`;
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(
       message
@@ -304,8 +306,9 @@ export default function ShoppingProductDetails() {
 
   const copyInstagramMessage = () => {
     const productLink = getProductLink();
+    const currentPrice = productDetails.salePrice > 0 ? productDetails.salePrice : productDetails.price;
     const message = `Hello AFKiT,\n\nI'm interested in "${productDetails.title}" for ₦${Number(
-      productDetails.price
+      currentPrice
     ).toLocaleString("en-NG")}.\n\nQuantity: ${quantity}.\n\nIs it still available?\n\nProduct Link: ${productLink}`;
 
     navigator.clipboard.writeText(message);
@@ -667,9 +670,22 @@ export default function ShoppingProductDetails() {
           </div>
 
           <div className="flex items-center gap-6 flex-wrap">
-            <p className="text-2xl font-semibold text-orange-600">
-              ₦{Number(productDetails.price).toLocaleString("en-NG")}
-            </p>
+            <div className="flex flex-col">
+              {productDetails.salePrice > 0 ? (
+                <>
+                  <span className="text-sm text-slate-400 line-through font-bold">
+                    ₦{Number(productDetails.price).toLocaleString("en-NG")}
+                  </span>
+                  <p className="text-2xl font-semibold text-orange-600">
+                    ₦{Number(productDetails.salePrice).toLocaleString("en-NG")}
+                  </p>
+                </>
+              ) : (
+                <p className="text-2xl font-semibold text-orange-600">
+                  ₦{Number(productDetails.price).toLocaleString("en-NG")}
+                </p>
+              )}
+            </div>
             <div className="flex items-center gap-4 bg-slate-50 p-2 rounded-2xl border border-slate-100">
               <Button
                 variant="ghost"
