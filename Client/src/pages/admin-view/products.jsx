@@ -34,6 +34,7 @@ const initialFormData = {
   category: "",
   brand: "",
   price: "",
+  salePrice: "",
   storage: "",
   ram: "",
   processor: "",
@@ -223,6 +224,7 @@ function AdminProducts() {
       category: "",
       brand: "",
       price: "",
+      salePrice: "",
       storage: "",
       ram: "",
       processor: "",
@@ -250,6 +252,7 @@ function AdminProducts() {
       ...formData,
       images: uploadedImageUrls.length > 0 ? uploadedImageUrls : formData.images,
       price: Number(formData.price.toString().replace(/,/g, "")),
+      salePrice: formData.salePrice ? Number(formData.salePrice.toString().replace(/,/g, "")) : 0,
       totalStock: Number(formData.totalStock),
     };
 
@@ -744,6 +747,7 @@ function AdminProducts() {
                             category: data.category || "",
                             brand: data.brand || "",
                             price: data.price ? formatWithCommas(data.price) : "",
+                            salePrice: data.salePrice ? formatWithCommas(data.salePrice) : "",
                             storage: data.storage || "",
                             ram: data.ram || "",
                             processor: data.processor || "",

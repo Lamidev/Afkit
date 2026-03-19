@@ -52,6 +52,11 @@ const ProductSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    salePrice: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
     storage: {
       type: String,
       enum: [

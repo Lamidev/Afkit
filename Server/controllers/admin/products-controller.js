@@ -696,6 +696,7 @@ const addProduct = async (req, res) => {
       specificAccessory,
       totalStock,
       condition,
+      salePrice,
     } = req.body;
 
     if (
@@ -721,6 +722,7 @@ const addProduct = async (req, res) => {
       description,
       category,
       price,
+      salePrice: salePrice || 0,
       totalStock,
       condition,
       isHidden: false,
@@ -837,6 +839,7 @@ const editProduct = async (req, res) => {
       specificAccessory,
       totalStock,
       condition,
+      salePrice,
     } = req.body;
 
     let findProduct = await Product.findById(id);
@@ -852,6 +855,7 @@ const editProduct = async (req, res) => {
     findProduct.description = description || findProduct.description;
     findProduct.category = category || findProduct.category;
     findProduct.price = price === 0 || price ? price : findProduct.price;
+    findProduct.salePrice = salePrice === 0 || salePrice ? salePrice : findProduct.salePrice;
     findProduct.totalStock =
       totalStock === 0 || totalStock ? totalStock : findProduct.totalStock;
     findProduct.condition = condition || findProduct.condition;

@@ -83,10 +83,25 @@ function ShoppingProductTile({ product, handleAddToCart, handleViewDetails }) {
         <h2 className="text-sm sm:text-base font-semibold text-slate-800 leading-snug break-words mb-1 sm:mb-2">
           {product?.title}
         </h2>
-        <div className="mt-auto">
-          <p className="text-sm sm:text-base font-bold text-orange-600">
-            {formattedPrice}
-          </p>
+        <div className="mt-auto flex flex-col">
+          {product?.salePrice > 0 ? (
+            <div className="flex flex-col">
+              <span className="text-[10px] sm:text-xs text-slate-400 line-through font-bold whitespace-nowrap">
+                {formattedPrice}
+              </span>
+              <span className="text-sm sm:text-base font-bold text-orange-600 whitespace-nowrap">
+                {new Intl.NumberFormat('en-NG', {
+                  style: 'currency',
+                  currency: 'NGN',
+                  minimumFractionDigits: 0
+                }).format(product?.salePrice).replace('NGN', '₦')}
+              </span>
+            </div>
+          ) : (
+            <p className="text-sm sm:text-base font-bold text-orange-600">
+              {formattedPrice}
+            </p>
+          )}
         </div>
       </div>
 

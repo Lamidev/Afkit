@@ -661,9 +661,10 @@ function ShoppingCheckout() {
                 
                 <div className="space-y-4 relative z-10">
                    {[
-                     { text: "Commitment Fee: ₦10,000 required before dispatch (Fully Refundable)." },
-                     { text: "Purpose: This secure deposit filters out prank orders and covers logistics costs." },
-                     { text: "Balance: Pay the remaining amount only after inspecting the gadget." }
+                     { text: "Commitment Fee: ₦10,000 required before processing order." },
+                     { text: "This is FULLY REFUNDABLE if the product doesn't meet your expectations." },
+                     { text: "Purpose: This secure deposit filters out prank orders." },
+                     { text: "Balance: Pay the remaining amount only after inspecting the gadget and you're Satisfied." }
                    ].map((item, i) => (
                      <div key={i} className="flex gap-3 items-start">
                         <div className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 bg-white/40" />
@@ -677,10 +678,28 @@ function ShoppingCheckout() {
                      This ensures fairness, transparency, and a smooth delivery experience for both you and Afkit.
                    </p>
 
-                   <div className="mt-4 bg-orange-600/20 p-4 rounded-xl border border-orange-500/30 shadow-lg shadow-orange-600/10 animate-pulse">
-                      <p className="text-[10px] sm:text-xs font-black text-white leading-tight uppercase tracking-widest text-center sm:text-left">
-                        🚨 IMPORTANT: DOORSTEP POD is Lagos-only. Outside Lagos, pickup is at the nearest Car Park/Airport.
+                   <div className="mt-4 bg-orange-600/20 p-4 sm:p-5 rounded-2xl border border-orange-500/30 shadow-lg shadow-orange-600/10">
+                      <p className="text-[11px] sm:text-xs font-black text-orange-400 leading-tight uppercase tracking-widest text-center sm:text-left mb-3">
+                        🚨 IMPORTANT
                       </p>
+                      <div className="space-y-3 sm:space-y-2 text-[10px] sm:text-xs font-black text-white leading-relaxed uppercase tracking-tight">
+                        <p className="flex gap-2">
+                          <span className="text-orange-500">•</span>
+                          <span>Within Lagos: Payment On Delivery is available to doorsteps or our pickup station in Computer village, Ikeja</span>
+                        </p>
+                        <p className="flex gap-2">
+                          <span className="text-orange-500">•</span>
+                          <span>South-West : Payment on Delivery is available to Car parks only</span>
+                        </p>
+                        <p className="flex gap-2">
+                          <span className="text-orange-500">•</span>
+                          <span>East/North : Payment on Delivery is available to Airports only.</span>
+                        </p>
+                        <p className="flex gap-2">
+                          <span className="text-orange-500">•</span>
+                          <span>In Ile-Ife, Osun state: Payment on Delivery is available at our pickup station inside OAU campus.</span>
+                        </p>
+                      </div>
                    </div>
                 </div>
               </div>
