@@ -256,6 +256,11 @@ function AdminProducts() {
       totalStock: Number(formData.totalStock),
     };
 
+    if (productData.salePrice > 0 && productData.salePrice >= productData.price) {
+      toast.error("Sale price (discount) cannot be equal to or higher than the original price.");
+      return;
+    }
+
     try {
       const action = currentEditedId
         ? dispatch(editProduct({ id: currentEditedId, productData }))
@@ -849,7 +854,8 @@ function AdminProducts() {
                             description: data.description || "",
                             category: data.category || "",
                             brand: data.brand || "",
-                            price: data.price || "",
+                            price: data.price ? formatWithCommas(data.price) : "",
+                            salePrice: data.salePrice ? formatWithCommas(data.salePrice) : "",
                             storage: data.storage || "",
                             ram: data.ram || "",
                             processor: data.processor || "",
