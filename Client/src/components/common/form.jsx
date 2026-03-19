@@ -118,7 +118,7 @@ function CommonForm({
     let finalValue = value;
     
     // Auto-format price fields with commas
-    if (name === 'price') {
+    if (name === 'price' || name === 'salePrice') {
       finalValue = formatWithCommas(value);
     }
 
@@ -182,7 +182,7 @@ function CommonForm({
               name={control.name}
               placeholder={control.placeholder}
               id={control.name}
-              type={showField ? "text" : (control.name === 'price' ? 'text' : control.type)}
+              type={showField ? "text" : (['price', 'salePrice'].includes(control.name) ? 'text' : control.type)}
               value={value}
               onChange={(e) => handleFieldChange(control.name, e.target.value)}
               className={

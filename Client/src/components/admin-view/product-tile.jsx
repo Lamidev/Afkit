@@ -26,7 +26,7 @@ function AdminProductTile({
       style: "currency",
       currency: "NGN",
       maximumFractionDigits: 0,
-    }).format(price);
+    }).format(price).replace('NGN', '₦');
   };
 
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
@@ -129,7 +129,7 @@ function AdminProductTile({
         <div className="flex flex-col">
           {product.salePrice > 0 ? (
             <>
-              <span className="text-[10px] text-red-300 line-through font-bold leading-none mb-0.5">
+              <span className="text-[10px] text-slate-400 line-through font-bold leading-none mb-0.5">
                 {formatPrice(product.price)}
               </span>
               <p className="text-xs font-bold text-red-600 leading-none">
