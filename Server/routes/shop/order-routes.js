@@ -1,7 +1,9 @@
 const express = require("express");
 const {
   createOrder,
+  payOrderBalance,
   capturePayment,
+  captureBalancePayment,
   paystackWebhook,
   getAllOrdersByUser,
   getOrderDetails,
@@ -18,6 +20,8 @@ router.post("/webhook", paystackWebhook);
 
 router.post("/create", authMiddleware, orderRateLimiter, createOrder);
 router.post("/capture", authMiddleware, capturePayment);
+router.post("/pay-balance/:id", authMiddleware, payOrderBalance);
+router.post("/capture-balance", authMiddleware, captureBalancePayment);
 router.get("/list/:userId", authMiddleware, getAllOrdersByUser);
 router.get("/details/:id", authMiddleware, getOrderDetails);
 router.delete("/delete/:id", authMiddleware, deleteOrder);

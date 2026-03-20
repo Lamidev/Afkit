@@ -306,108 +306,6 @@ const getAdminNewsletterTemplate = (subscriberEmail) => wrap(`
   </tr>
 `);
 
-// Thank-you email sent to the participant
-const getDebateThankYouTemplate = ({ fullName, email, phone, tikTokHandle, instagramHandle, brandToDefend }) => {
-  const rows = [
-    ["👤 Full Name", fullName],
-    ["📧 Email", email],
-    ["📱 Phone", phone],
-    ...(tikTokHandle ? [["🎵 TikTok", tikTokHandle]] : []),
-    ...(instagramHandle ? [["📸 Instagram", instagramHandle]] : []),
-    ["🛡️ Brand", brandToDefend],
-  ];
-
-  return wrap(`
-    <tr>
-      <td style="padding:40px 40px 20px;">
-        <div style="background:linear-gradient(135deg,${BRAND_ORANGE},#ea580c);border-radius:12px;padding:20px 24px;margin-bottom:24px;text-align:center;">
-          <span style="font-size:36px;">🎤</span>
-          <h1 style="margin:8px 0 4px;font-size:24px;font-weight:900;color:#ffffff;">You're Registered!</h1>
-          <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.85);">Afkit Debate Campaign</p>
-        </div>
-        <p style="font-size:15px;color:#475569;line-height:1.7;margin:0 0 24px;">
-          Hello <strong style="color:${BRAND_DARK};">${fullName}</strong>,<br/><br/>
-          Thank you for registering for the <strong>Afkit Debate Campaign</strong>! 🎙️
-          We're thrilled to have you as a participant. Your registration has been received and confirmed.
-        </p>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding:0 40px 40px;">
-        <p style="font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:#94a3b8;font-weight:700;margin:0 0 12px;">Your Registration Details</p>
-        <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:28px;">
-          ${rows
-            .map(
-              ([label, value], i) => `
-            <tr>
-              <td style="padding:14px 20px;border-bottom:${i < rows.length - 1 ? "1px solid #e2e8f0" : "none"};">
-                <p style="margin:0;font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px;">${label}</p>
-                <p style="margin:3px 0 0;font-size:14px;font-weight:700;color:${BRAND_DARK};">${value}</p>
-              </td>
-            </tr>`
-            )
-            .join("")}
-        </table>
-        <div style="background:${BRAND_LIGHT};border-left:4px solid ${BRAND_ORANGE};border-radius:0 10px 10px 0;padding:16px 20px;margin-bottom:28px;">
-          <p style="margin:0;font-size:14px;color:#92400e;font-weight:600;">📢 Watch your inbox and socials for updates about the debate event, schedule, and rules!</p>
-        </div>
-        <table width="100%" cellpadding="0" cellspacing="0">
-          <tr>
-            <td align="center" style="padding-bottom:8px;">
-              <a href="https://afkit.ng/shop/home" style="display:inline-block;background:${BRAND_DARK};color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;padding:14px 36px;border-radius:10px;">
-                Visit Afkit Website
-              </a>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  `);
-};
-
-// Admin notification when a new participant registers
-const getDebateAdminTemplate = ({ fullName, email, phone, tikTokHandle, instagramHandle, brandToDefend, createdAt }) => {
-  const rows = [
-    ["👤 Full Name", fullName],
-    ["📧 Email", email],
-    ["📱 Phone", phone],
-    ["🛡️ Defending", brandToDefend],
-    ["🎵 TikTok", tikTokHandle || "—"],
-    ["📸 Instagram", instagramHandle || "—"],
-    ["🕐 Registered At", createdAt
-      ? new Date(createdAt).toLocaleString("en-NG", { dateStyle: "full", timeStyle: "short" })
-      : new Date().toLocaleString("en-NG", { dateStyle: "full", timeStyle: "short" })],
-  ];
-
-  return wrap(`
-    <tr>
-      <td style="padding:40px 40px 20px;">
-        <h1 style="margin:0 0 8px;font-size:24px;font-weight:800;color:${BRAND_DARK};">🎤 New Debate Registration</h1>
-        <p style="margin:0;font-size:14px;color:#64748b;">A new participant has registered for the Afkit Debate Campaign.</p>
-      </td>
-    </tr>
-    <tr>
-      <td style="padding:0 40px 40px;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-bottom:24px;">
-          ${rows
-            .map(
-              ([label, value], i) => `
-            <tr>
-              <td style="padding:14px 20px;border-bottom:${i < rows.length - 1 ? "1px solid #e2e8f0" : "none"};">
-                <p style="margin:0;font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px;">${label}</p>
-                <p style="margin:3px 0 0;font-size:14px;font-weight:700;color:${BRAND_DARK};">${value}</p>
-              </td>
-            </tr>`
-            )
-            .join("")}
-        </table>
-        <div style="background:#fef9f0;border-left:4px solid ${BRAND_ORANGE};border-radius:0 10px 10px 0;padding:14px 20px;">
-          <p style="margin:0;font-size:13px;color:#92400e;font-weight:600;">View all registrations in the Admin Panel &rarr; Debate Registrations</p>
-        </div>
-      </td>
-    </tr>
-  `);
-};
 const getOrderConfirmationTemplate = (order) => {
   const itemsHtml = order.cartItems.map(item => `
     <tr>
@@ -750,6 +648,66 @@ const getPayerDeliveryConfirmationTemplate = (order) => {
   `);
 };
 
+const getDeliveryConfirmationTemplate = (order) => {
+  const recipientName = order.addressInfo?.fullName || "Valued Customer";
+  const balance = order.balanceAmount;
+  const orderId = order.orderId || order._id.toString();
+
+  return wrap(`
+    <tr>
+      <td style="padding:60px 40px 30px;text-align:center;">
+        <div style="background:#fff7ed;border-radius:12px;padding:12px 24px;display:inline-block;margin-bottom:24px;border:1px solid #ffedd5;">
+          <span style="color:#c2410c;font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Delivery Successful 📦</span>
+        </div>
+        <h1 style="margin:0 0 12px;font-size:32px;font-weight:900;color:${BRAND_DARK}; text-transform:uppercase;">YOU'VE GOT GADGETS!</h1>
+        <p style="margin:0;font-size:18px;color:#64748b;line-height:1.6;">Hello <strong>${recipientName}</strong>, your order has been successfully delivered today. We hope you enjoy your new tech!</p>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:0 40px 40px;">
+        <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:24px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.05);margin-bottom:32px;">
+          <div style="background:#fef3c7;padding:15px;text-align:center;border-bottom:1px solid #fde68a;">
+            <span style="color:#92400e;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2px;">⚠️ Pending Balance Completion</span>
+          </div>
+          <div style="padding:32px;text-align:center;">
+            <p style="margin:0 0 16px;font-size:14px;color:#475569;line-height:1.6;">
+              To finalize your official 6-Month Afkit Warranty and receive your full digital receipt, please clear your remaining balance.
+            </p>
+            
+            <div style="background:#f8fafc;border-radius:16px;padding:24px;margin-bottom:24px;border:1px solid #f1f5f9;">
+               <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Balance Amount</div>
+               <div style="font-size:32px;font-weight:900;color:#dc2626;">₦${Number(balance).toLocaleString()}</div>
+            </div>
+
+            <a href="${process.env.CLIENT_URL}/shop/account" style="background:${BRAND_DARK};color:#ffffff;text-decoration:none;font-weight:800;font-size:14px;padding:16px 32px;border-radius:12px;display:inline-block;text-transform:uppercase;letter-spacing:1px;box-shadow:0 4px 10px rgba(15,23,42,0.2);">
+              Clear Balance & Activate Warranty &rarr;
+            </a>
+
+            <p style="margin:24px 0 0;font-size:12px;color:#94a3b8;line-height:1.6;">
+              Simply login to your Afkit account, go to <strong>My Orders</strong>, and click <strong>Clear Balance</strong> on your delivered order.
+            </p>
+          </div>
+        </div>
+
+        <div style="border:1px solid #e2e8f0;border-radius:20px;padding:30px;margin-bottom:32px;">
+          <h3 style="margin:0 0 15px;font-size:12px;color:${BRAND_DARK};text-transform:uppercase;letter-spacing:1px;font-weight:800;">Purchase Summary</h3>
+          <p style="margin:0;font-size:14px;color:#475569;line-height:2;">
+            <strong>Order ID:</strong> #${orderId.startsWith('ORD-') ? orderId : 'ORD-' + orderId.slice(-8).toUpperCase()}<br/>
+            <strong>Total Amount:</strong> ₦${Number(order.totalAmount).toLocaleString()}<br/>
+            <strong>Amount Paid:</strong> ₦${Number(order.amountPaid).toLocaleString()}<br/>
+            <strong>Verification Date:</strong> ${new Date().toLocaleDateString("en-NG", { dateStyle: "long" })} ✓
+          </p>
+        </div>
+
+        <div style="text-align:center;">
+          <p style="font-size:14px;color:#94a3b8;margin-bottom:12px;">Need help with your balance or delivery?</p>
+          <a href="https://wa.me/2348164014304" style="color:${BRAND_ORANGE};text-decoration:none;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;">Contact Support 24/7 &rarr;</a>
+        </div>
+      </td>
+    </tr>
+  `);
+};
+
 module.exports = {
   VERIFICATION_EMAIL_TEMPLATE,
   PASSWORD_RESET_REQUEST_TEMPLATE,
@@ -760,6 +718,5 @@ module.exports = {
   getOrderConfirmationTemplate,
   getWarrantyActivationTemplate,
   getPayerDeliveryConfirmationTemplate,
-  getDebateThankYouTemplate,
-  getDebateAdminTemplate,
+  getDeliveryConfirmationTemplate,
 };

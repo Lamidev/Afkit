@@ -59,46 +59,42 @@ const searchProducts = async (req, res) => {
     }
 
     const cleanedKeyword = keyword.trim();
-    
-    // Create regex pattern that matches the exact phrase in title only
-    const exactPhraseRegex = new RegExp(cleanedKeyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "i");
-    
-    // Also create a flexible pattern that allows for variations in spacing/special characters
-    const flexibleRegex = new RegExp(cleanedKeyword.replace(/\s+/g, '\\s*'), "i");
+    if (cleanedKeyword.length === 0) {
+      return res.status(200).json({ success: true, data: [] });
+    }
 
+    const words = cleanedKeyword.split(/\s+/).filter(w => w.length > 0);
+    const wordRegexes = words.map(word => new RegExp(word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "i"));
+
+    // Logic: Each word in the search query MUST appear in at least one of the searchable fields.
+    // This allows searching for "HP 840 G7" and finding products where these words appear in any order.
     const createSearchQuery = {
       $and: [
+        { isHidden: { $ne: true } },
         {
-          $or: [
-            { title: exactPhraseRegex },
-            { title: flexibleRegex },
-            { brand: exactPhraseRegex },
-            { category: exactPhraseRegex }
-          ]
-        },
-        { isHidden: { $ne: true } }
+          $and: wordRegexes.map(r => ({
+            $or: [
+              { title: r },
+              { description: r },
+              { brand: r },
+              { category: r }
+            ]
+          }))
+        }
       ]
     };
 
     const searchResults = await Product.find(createSearchQuery);
 
-    // Sort by exact match first, then partial matches
+    // Prioritize exact phrase matches in title
+    const exactPhraseRegex = new RegExp(cleanedKeyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "i");
+    
     const sortedResults = searchResults.sort((a, b) => {
-      const aTitle = a.title.toLowerCase();
-      const bTitle = b.title.toLowerCase();
-      const searchText = cleanedKeyword.toLowerCase();
+      const aExact = exactPhraseRegex.test(a.title);
+      const bExact = exactPhraseRegex.test(b.title);
       
-      // Exact match gets highest priority
-      if (aTitle === searchText) return -1;
-      if (bTitle === searchText) return 1;
-      
-      // Starts with search text gets next priority
-      if (aTitle.startsWith(searchText)) return -1;
-      if (bTitle.startsWith(searchText)) return 1;
-      
-      // Contains search text
-      if (aTitle.includes(searchText)) return -1;
-      if (bTitle.includes(searchText)) return 1;
+      if (aExact && !bExact) return -1;
+      if (!aExact && bExact) return 1;
       
       return 0;
     });

@@ -3,7 +3,11 @@ const Cart = require("../../models/cart");
 const Product = require("../../models/products");
 const crypto = require("crypto");
 const paystackHelper = require("../../helpers/paystack")(process.env.PAYSTACK_SECRET_KEY);
-const { sendOrderConfirmationEmail, sendAdminOrderNotificationEmail } = require("../../mailtrap/emails");
+const { 
+  sendOrderConfirmationEmail, 
+  sendAdminOrderNotificationEmail,
+  sendDeliveredNotifications 
+} = require("../../mailtrap/emails");
 
 const createOrder = async (req, res) => {
   try {
@@ -105,6 +109,120 @@ const createOrder = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Some error occurred while creating order",
+    });
+  }
+};
+
+const payOrderBalance = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const order = await Order.findById(id);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (order.paymentStatus !== "partially_paid" || order.balanceAmount <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "This order does not have a balance to pay.",
+      });
+    }
+
+    const callbackUrl = `${process.env.CLIENT_URL}/shop/paystack-return`;
+
+    const paystackData = await paystackHelper.initializePayment({
+      email: order.payerEmail,
+      amount: order.balanceAmount * 100,
+      callback_url: callbackUrl,
+      metadata: {
+        orderId: order._id,
+        paymentType: "balance_completion",
+      },
+    });
+
+    if (!paystackData.status) {
+      return res.status(400).json({
+        success: false,
+        message: "Paystack initialization failed",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      approvalURL: paystackData.data.authorization_url,
+      orderId: order._id,
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Error initializing balance payment",
+    });
+  }
+};
+
+const captureBalancePayment = async (req, res) => {
+  try {
+    const { paymentId, orderId } = req.body;
+
+    let order = await Order.findById(orderId);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    // Idempotency: If already paid, just return success
+    if (order.paymentStatus === "paid") {
+      return res.status(200).json({
+        success: true,
+        message: "Balance already paid",
+        data: order,
+      });
+    }
+
+    const verificationData = await paystackHelper.verifyPayment(paymentId);
+
+    if (verificationData.status && verificationData.data.status === "success") {
+      const amountReceived = verificationData.data.amount / 100;
+
+      order.amountPaid += amountReceived;
+      order.balanceAmount = Math.max(0, order.totalAmount - order.amountPaid);
+      if (order.balanceAmount === 0) {
+        order.paymentStatus = "paid";
+      }
+      order.orderUpdateDate = new Date();
+
+      await order.save();
+
+      // Trigger Warranty Email / Receipt update
+      if (order.orderStatus === "delivered") {
+        sendDeliveredNotifications(order).catch(console.error);
+      } else {
+        sendOrderConfirmationEmail(order).catch(console.error);
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Balance payment captured successfully",
+        data: order,
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "Payment verification failed",
+      });
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({
+      success: false,
+      message: "Error capturing balance payment",
     });
   }
 };
@@ -219,14 +337,38 @@ const paystackWebhook = async (req, res) => {
       const event = req.body;
 
       if (event.event === "charge.success") {
-        const paymentId = event.data.reference;
+        const paymentReference = event.data.reference;
         const amountReceived = event.data.amount / 100;
+        const metadata = event.data.metadata;
 
-        let order = await Order.findOne({ paymentId });
+        // Try to find the order by paymentId (for initial payments)
+        // OR by orderId in metadata (for balance payments)
+        let order = await Order.findOne({ 
+          $or: [
+            { paymentId: paymentReference },
+            { _id: metadata?.orderId }
+          ]
+        });
 
         if (order) {
-          // Idempotency: Don't process twice
-          if (order.paymentStatus !== "paid" && order.paymentStatus !== "partially_paid") {
+           // If it's a balance completion payment
+           if (metadata?.paymentType === "balance_completion") {
+             if (order.paymentStatus !== "paid") {
+               order.amountPaid += amountReceived;
+               order.balanceAmount = Math.max(0, order.totalAmount - order.amountPaid);
+               if (order.balanceAmount === 0) order.paymentStatus = "paid";
+               order.orderUpdateDate = new Date();
+               await order.save();
+               
+               if (order.orderStatus === "delivered") {
+                 sendDeliveredNotifications(order).catch(console.error);
+               } else {
+                 sendOrderConfirmationEmail(order).catch(console.error);
+               }
+             }
+           } 
+           // Else it's an initial payment capture
+           else if (order.paymentStatus !== "paid" && order.paymentStatus !== "partially_paid") {
             order.paymentStatus = order.paymentType === "commitment" ? "partially_paid" : "paid";
             order.orderStatus = "confirmed";
             order.amountPaid = amountReceived;
@@ -366,7 +508,9 @@ const deleteOrder = async (req, res) => {
 
 module.exports = {
   createOrder,
+  payOrderBalance,
   capturePayment,
+  captureBalancePayment,
   paystackWebhook,
   cleanupPendingOrders,
   getAllOrdersByUser,
