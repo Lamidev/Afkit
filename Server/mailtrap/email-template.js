@@ -395,8 +395,8 @@ const getOrderConfirmationTemplate = (order) => {
             </tr>
             <tr style="text-align:center;">
               <td colspan="2" style="padding-top:16px;">
-                <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.5);font-style:italic;">
-                  ${isAssisted || isGift ? `Please ensure <strong>${recipientName}</strong> has the balance ready for the rider.` : 'Please have the balance ready for the rider on delivery.'}
+                <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.5);line-height:1.5;">
+                  ${isAssisted || isGift ? `Remaining balance of <strong>₦${Number(order.balanceAmount).toLocaleString()}</strong> can be paid on our website via <strong>My Orders</strong>, or provided upon delivery.` : 'You can pay the remaining balance on our website via <strong>My Orders</strong>, or provide it upon delivery.'}
                 </p>
               </td>
             </tr>
