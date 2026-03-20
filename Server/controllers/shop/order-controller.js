@@ -49,11 +49,11 @@ const createOrder = async (req, res) => {
     }
 
     // 2. Determine Paystack Amount
-    // ₦10,000 commitment fee or Full Amount
-    const COMMITMENT_FEE = 10000;
+    // ₦100 commitment fee or Full Amount
+    const COMMITMENT_FEE = 100;
     
-    // Enforcement: Orders under 15k MUST be paid in full
-    const enforcedPaymentType = totalAmount < 15000 ? "full" : paymentType;
+    // Enforcement: Orders under 100 MUST be paid in full
+    const enforcedPaymentType = totalAmount < 100 ? "full" : paymentType;
     const finalAmountToPay = enforcedPaymentType === "commitment" ? COMMITMENT_FEE : totalAmount;
 
     // 3. Initialize Paystack Transaction

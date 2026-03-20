@@ -56,7 +56,7 @@ function ShoppingCheckout() {
     (item) => item.category && ["smartphones", "laptops", "monitors"].includes(item.category)
   );
 
-  const canUsePOD = purchaseIntent === "personal" && totalCartAmount >= 15000 && hasMajorGadget;
+  const canUsePOD = purchaseIntent === "personal" && totalCartAmount >= 100 && hasMajorGadget;
 
   // --- Effects ---
 
@@ -664,7 +664,7 @@ function ShoppingCheckout() {
                 
                 <div className="space-y-4 relative z-10">
                    {[
-                     { text: "Commitment Fee: ₦10,000 required before processing order." },
+                     { text: "Commitment Fee: ₦100 required before processing order." },
                      { text: "This is FULLY REFUNDABLE if the product doesn't meet your expectations." },
                      { text: "Purpose: This secure deposit filters out prank orders." },
                      { text: "Balance: Pay the remaining amount only after inspecting the gadget and you're Satisfied." }
@@ -735,7 +735,7 @@ function ShoppingCheckout() {
                   }`}
                 >
                   <p className="font-black text-slate-900 uppercase text-xs tracking-widest">Payment on Delivery</p>
-                  <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Commitment Fee: ₦10,000</p>
+                  <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Commitment Fee: ₦100</p>
                   {paymentType === "commitment" && (
                     <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 bg-orange-500 rounded-full shadow-lg shadow-orange-500/20">
                       <Check className="w-3 h-3 text-white" />
@@ -819,11 +819,11 @@ function ShoppingCheckout() {
               <div className="bg-slate-900 p-4 rounded-xl mt-4 border border-slate-800">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Deposit Due Now</span>
-                  <span className="text-xl font-bold text-white">₦10,000</span>
+                  <span className="text-xl font-bold text-white">₦100</span>
                 </div>
                 <div className="flex justify-between text-[10px] text-white/40 mt-2 font-semibold uppercase tracking-widest border-t border-white/10 pt-2">
                   <span>Balance on Arrival</span>
-                  <span className="text-amber-400">₦{(totalCartAmount - 10000).toLocaleString()}</span>
+                  <span className="text-amber-400">₦{(totalCartAmount - 100).toLocaleString()}</span>
                 </div>
               </div>
             )}
@@ -856,7 +856,7 @@ function ShoppingCheckout() {
                   <p className="text-[9px] font-bold text-slate-400 uppercase">You Pay Now</p>
                   <p className="text-[11px] font-bold text-slate-900 uppercase leading-relaxed">
                     {paymentType === "commitment"
-                      ? `₦10,000 DEPOSIT`
+                      ? `₦100 DEPOSIT`
                       : `FULL ₦${totalCartAmount.toLocaleString()}`}
                   </p>
                 </div>
@@ -874,7 +874,7 @@ function ShoppingCheckout() {
                       : "PAYMENT ON DELIVERY"}
                   </p>
                   <p className="text-[8px] font-medium text-slate-400 uppercase mt-0.5 leading-tight">
-                    {paymentType === "full" ? "No balance due on arrival" : `Balance: ₦${(totalCartAmount - 10000).toLocaleString()} on arrival`}
+                    {paymentType === "full" ? "No balance due on arrival" : `Balance: ₦${(totalCartAmount - 100).toLocaleString()} on arrival`}
                   </p>
                 </div>
               </div>
@@ -971,7 +971,7 @@ function ShoppingCheckout() {
                 ) : (
                   <span className="flex items-center gap-3">
                     <Shield className="w-4 h-4" />
-                    {paymentType === "commitment" ? "PAY DEPOSIT (₦10,000)" : `PAY ₦${totalCartAmount.toLocaleString()}`}
+                    {paymentType === "commitment" ? "PAY DEPOSIT (₦100)" : `PAY ₦${totalCartAmount.toLocaleString()}`}
                   </span>
                 )}
               </Button>
