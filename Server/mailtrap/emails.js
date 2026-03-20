@@ -157,7 +157,7 @@ exports.sendOrderConfirmationEmail = async (order) => {
 exports.sendAdminOrderNotificationEmail = async (order) => {
   const isGift = order.addressInfo?.isGift;
   const items = order.cartItems?.map(i => `${i.title} x${i.quantity}`).join(", ") || "Unknown items";
-  const paymentTypeLabel = order.paymentType === "commitment" ? `Deposit (₦10,000 paid, ₦${(order.totalAmount - 10000).toLocaleString()} balance)` : `Full Payment (₦${order.totalAmount?.toLocaleString()})`;
+  const paymentTypeLabel = order.paymentType === "commitment" ? `Deposit (₦100 paid, ₦${(order.totalAmount - 100).toLocaleString()} balance)` : `Full Payment (₦${order.totalAmount?.toLocaleString()})`;
 
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; background: #f8fafc; padding: 32px; border-radius: 12px;">

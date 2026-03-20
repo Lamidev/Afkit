@@ -76,7 +76,7 @@ function PaymentSuccessPage() {
     
     // Payment Status Logic
     const isPOD = orderDetails?.paymentType === "commitment";
-    const paymentStatusHeader = isPOD ? "🟠 DEPOSIT PAID (₦10,000)" : "🟢 FULLY PAID (100%)";
+    const paymentStatusHeader = isPOD ? "🟠 DEPOSIT PAID (₦100)" : "🟢 FULLY PAID (100%)";
 
     // Delivery Logic
     const isSouthWest = ["Lagos", "Oyo", "Ogun", "Osun", "Ondo", "Ekiti"].includes(orderDetails.addressInfo?.region);
