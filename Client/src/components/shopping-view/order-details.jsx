@@ -19,6 +19,8 @@ function ShoppingOrderDetailsView({ orderDetails }) {
   function handlePayBalance() {
     dispatch(payOrderBalance(orderDetails?._id)).then((data) => {
       if (data?.payload?.success) {
+        sessionStorage.setItem("currentOrderId", JSON.stringify(orderDetails?._id));
+        sessionStorage.setItem("isBalancePayment", JSON.stringify(true));
         window.location.href = data.payload.approvalURL;
       } else {
         toast.error("Failed to initialize balance payment. Please try again.");
