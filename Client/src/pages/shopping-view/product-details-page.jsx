@@ -724,7 +724,7 @@ export default function ShoppingProductDetails() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* 2. PAY ON DELIVERY (Conditional) */}
-                {productDetails.price >= 100 && (
+                {productDetails.price >= 10000 && ["smartphones", "laptops", "monitors"].includes(productDetails.category) && (
                   <Button
                     variant="secondary"
                     className="h-14 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-2xl shadow-lg shadow-slate-900/10 transition-all hover:scale-[1.02] active:scale-95 uppercase tracking-widest flex items-center justify-center gap-2"
