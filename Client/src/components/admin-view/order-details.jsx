@@ -347,10 +347,10 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                     <p className="text-[10px] font-bold uppercase tracking-widest opacity-60">Logistics Requirement</p>
                     <p className="text-xs font-semibold leading-relaxed">
                       {orderDetails?.addressInfo?.isGift 
-                        ? orderDetails?.paymentType === 'commitment'
+                        ? (orderDetails?.paymentType === 'commitment' && orderDetails?.balanceAmount > 0)
                           ? `🚨 GIFT POD: Confirm with recipient ${orderDetails?.addressInfo?.fullName} first. Balance: ₦${orderDetails?.balanceAmount.toLocaleString()}.`
                           : `📦 GIFT FULLY PAID: Ensure ${orderDetails?.addressInfo?.fullName} knows this is a gift (₦0 required).`
-                        : orderDetails?.paymentType === 'commitment'
+                        : (orderDetails?.paymentType === 'commitment' && orderDetails?.balanceAmount > 0)
                           ? `📞 POD VERIFICATION: Confirm recipient has ₦${orderDetails?.balanceAmount.toLocaleString()} ready.`
                           : `✅ FULLY PAID: Standard delivery to ${orderDetails?.addressInfo?.fullName}.`
                       }

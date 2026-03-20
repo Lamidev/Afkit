@@ -52,8 +52,11 @@ const createOrder = async (req, res) => {
     // ₦100 commitment fee or Full Amount
     const COMMITMENT_FEE = 100;
     
-    // Enforcement: Orders under 100 MUST be paid in full
-    const enforcedPaymentType = totalAmount < 100 ? "full" : paymentType;
+    // Enforcement: 
+    // 1. Orders under ₦100 MUST be paid in full.
+    // 2. Gifts / Purchases for someone else MUST be paid in full (Business Rule).
+    const isGift = addressInfo?.isGift;
+    const enforcedPaymentType = (totalAmount < 100 || isGift) ? "full" : paymentType;
     const finalAmountToPay = enforcedPaymentType === "commitment" ? COMMITMENT_FEE : totalAmount;
 
     // 3. Initialize Paystack Transaction
@@ -65,7 +68,7 @@ const createOrder = async (req, res) => {
       callback_url: callbackUrl,
       metadata: {
         userId,
-        paymentType,
+        paymentType: enforcedPaymentType,
       },
     });
 
@@ -243,6 +246,9 @@ const capturePayment = async (req, res) => {
     // If this order was already confirmed (e.g. page refresh, React double-invoke),
     // return success without re-processing to prevent duplicate emails & stock deduction.
     if (order.paymentStatus === "paid" || order.paymentStatus === "partially_paid") {
+      // Even if already confirmed, try to ensure cart is cleared for this user
+      await Cart.findOneAndUpdate({ userId: order.userId }, { $set: { items: [] } });
+      
       return res.status(200).json({
         success: true,
         message: "Order already confirmed",
@@ -284,7 +290,7 @@ const capturePayment = async (req, res) => {
       }
 
       // Clear Cart
-      await Cart.findOneAndUpdate({ userId: order.userId }, { items: [] });
+      await Cart.findOneAndUpdate({ userId: order.userId }, { $set: { items: [] } });
 
       // ── Send Emails (non-blocking, single send guard) ──
       // Use isEmailSent flag to prevent duplicate emails if capture fires twice
@@ -389,7 +395,7 @@ const paystackWebhook = async (req, res) => {
               order.isStockDeducted = true;
             }
 
-            await Cart.findOneAndUpdate({ userId: order.userId }, { items: [] });
+            await Cart.findOneAndUpdate({ userId: order.userId }, { $set: { items: [] } });
 
             if (!order.isEmailSent) {
               order.isEmailSent = true;

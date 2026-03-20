@@ -235,12 +235,12 @@ exports.sendDeliveredNotifications = async (order) => {
         from: sender,
         to: [{ email: warrantyEmail }],
         subject: isPODWithBalance 
-          ? `📦 Your Order has been Delivered! [Balance Unpaid]`
-          : `🛡️ Warranty Activated: Your Gadget is Now Insured!`,
+          ? `📦 Order Delivered: Please Clear Balance for Warranty Protection`
+          : `🛡️ Afkit Warranty Active: Your New Tech is Now Protected!`,
         html: isPODWithBalance 
           ? getDeliveryConfirmationTemplate(order)
           : getWarrantyActivationTemplate(order),
-        category: isPODWithBalance ? "Delivery Confirmation (POD)" : "Delivery & Warranty Success",
+        category: isPODWithBalance ? "Delivery Notice (Balance Pending)" : "Warranty Success",
       });
       return;
     }
@@ -256,12 +256,12 @@ exports.sendDeliveredNotifications = async (order) => {
         from: sender,
         to: [{ email: warrantyEmail }],
         subject: isPODWithBalance
-          ? `🎁 A Gift has been Delivered to you!`
-          : `🎁 Your Gift Has Arrived! Warranty Now Active.`,
+          ? `🎁 A Gift has Been Delivered to You! (Clear Balance to Claim)`
+          : `🎁 Your Afkit Gift Has Arrived! Warranty Now Active.`,
         html: isPODWithBalance
           ? getDeliveryConfirmationTemplate(order) // Still tells them to pay balance if they are the owner
           : getWarrantyActivationTemplate(order),
-        category: isPODWithBalance ? "Gift Delivery Alert" : "Gift Recipient Warranty",
+        category: isPODWithBalance ? "Gift Delivered (Notice)" : "Gift Recipient Warranty",
       });
     }
 
