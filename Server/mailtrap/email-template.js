@@ -388,25 +388,28 @@ const getOrderConfirmationTemplate = (order) => {
               <td style="font-size:14px;color:rgba(255,255,255,0.8);">Paid via Paystack</td>
               <td align="right" style="font-size:14px;color:#ffffff;font-weight:700;">₦${Number(order.amountPaid).toLocaleString()}</td>
             </tr>
-            ${isPOD ? `
+            ${(isPOD && order.balanceAmount > 0) ? `
             <tr>
               <td style="font-size:14px;color:#fbbf24;padding-top:12px;"><strong>Balance on Arrival</strong></td>
               <td align="right" style="font-size:16px;color:#fbbf24;font-weight:800;padding-top:12px;">₦${Number(order.balanceAmount).toLocaleString()}</td>
             </tr>
-            <tr style="text-align:center;">
-              <td colspan="2" style="padding-top:16px;">
-                <p style="margin:0;font-size:11px;color:rgba(255,255,255,0.5);line-height:1.5;">
-                  ${isAssisted || isGift ? `Remaining balance of <strong>₦${Number(order.balanceAmount).toLocaleString()}</strong> can be paid on our website via <strong>My Orders</strong>, or provided upon delivery.` : 'You can pay the remaining balance on our website via <strong>My Orders</strong>, or provide it upon delivery.'}
-                </p>
+            <tr>
+              <td align="center" colspan="2" style="padding-top:20px;">
+                <div style="background:#fff7ed;border-radius:12px;padding:20px;border:1px solid #ffedd5;">
+                  <p style="margin:0 0 8px;font-size:11px;color:#9a3412;font-weight:800;text-transform:uppercase;letter-spacing:1px;">🚨 Balance to Pay on Delivery</p>
+                  <p style="margin:0;font-size:24px;font-weight:900;color:#c2410c;">₦${Number(order.balanceAmount).toLocaleString()}</p>
+                </div>
               </td>
             </tr>
-            ` : `
+            ` : (order.paymentStatus === 'paid' || order.balanceAmount === 0) ? `
             <tr>
               <td colspan="2" style="padding-top:12px;text-align:center;">
-                <p style="margin:0;font-size:12px;color:#4ade80;font-weight:700;">FULL PAYMENT RECEIVED — NO BALANCE DUE AT DOOR</p>
+                <div style="background:#f0fdf4; border-radius:12px; padding:12px; border:1px solid #dcfce7;">
+                   <p style="margin:0;font-size:12px;color:#166534;font-weight:800;text-transform:uppercase;letter-spacing:1px;">✅ FULL PAYMENT RECEIVED — NO BALANCE DUE</p>
+                </div>
               </td>
             </tr>
-            `}
+            ` : ``}
           </table>
         </div>
 
