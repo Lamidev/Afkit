@@ -13,7 +13,7 @@ import { toast } from "sonner";
 
 function ShoppingOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth);
-  const { approvalURL } = useSelector((state) => state.shoppingOrder);
+  const { approvalURL } = useSelector((state) => state.shopOrder);
   const dispatch = useDispatch();
 
   function handlePayBalance() {
@@ -110,9 +110,9 @@ Please check this for me. Thank you!`;
               <div className="mt-4 pt-4 border-t border-slate-200">
                 <Button 
                   onClick={handlePayBalance}
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold flex items-center justify-center gap-2 py-6 rounded-xl shadow-lg transition-all active:scale-[0.98]"
+                  className="w-full bg-primary hover:bg-primary/90 text-white font-black flex items-center justify-center gap-2 py-6 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] uppercase tracking-wider"
                 >
-                  <CreditCard className="w-5 h-5 text-orange-400" />
+                  <CreditCard className="w-5 h-5" />
                   Clear Remaining Balance (₦{orderDetails?.balanceAmount?.toLocaleString()})
                 </Button>
                 <p className="text-[10px] text-slate-400 text-center mt-2 font-medium">
@@ -241,9 +241,8 @@ Please check this for me. Thank you!`;
                Our technical team is available 24/7 to assist you.
              </p>
              <Button
-               variant="outline"
                onClick={handleContactSupport}
-               className="w-full sm:w-auto border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white font-bold px-8 py-5 rounded-xl transition-all active:scale-[0.98] flex items-center gap-2"
+               className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-black px-8 py-5 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
              >
                Contact Afkit Tech Support
              </Button>
