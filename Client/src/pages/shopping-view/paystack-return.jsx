@@ -42,8 +42,13 @@ function PaystackReturnPage() {
               orderData: data.payload.data 
             } 
           });
+        } else {
+          // If capture fails, go back home (or to a dedicated error page if available)
+          navigate("/shop/home");
         }
       });
+    } else if (!paymentId && !hasCaptured.current) {
+        navigate("/shop/home");
     }
   }, [paymentId, dispatch, navigate, user]);
 
