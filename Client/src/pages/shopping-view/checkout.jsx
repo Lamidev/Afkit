@@ -56,7 +56,7 @@ function ShoppingCheckout() {
     (item) => item.category && ["smartphones", "laptops", "monitors"].includes(item.category)
   );
 
-  const canUsePOD = purchaseIntent === "personal" && totalCartAmount >= 100 && hasMajorGadget;
+  const canUsePOD = purchaseIntent === "personal" && totalCartAmount >= 10000 && hasMajorGadget;
 
   // --- Effects ---
 
@@ -650,9 +650,68 @@ function ShoppingCheckout() {
               PAYMENT
             </h2>
 
+
+
+            {/* Accessory notice */}
+            {!hasMajorGadget && cartItems?.items?.length > 0 && (
+              <div className="mb-6 bg-slate-900 rounded-2xl p-5 flex gap-4 items-start border border-slate-800">
+                <div className="p-2 bg-amber-500/20 rounded-lg">
+                  <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-1 leading-none">Accessory Notice</p>
+                  <p className="text-xs font-bold text-white leading-relaxed">
+                    Pay on Delivery is only for Smartphones, Laptops and Monitors. Please use Full Payment for accessories.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <div className={`grid gap-4 ${canUsePOD ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
+              {/* POD Option */}
+              {canUsePOD && (
+                <button
+                  onClick={() => setPaymentType("commitment")}
+                  className={`p-6 rounded-3xl border-2 cursor-pointer transition-all relative text-left focus:outline-none ${
+                    paymentType === "commitment"
+                      ? "border-orange-500 bg-orange-50/30 ring-8 ring-orange-500/5"
+                      : "border-slate-50 bg-slate-50/50 hover:border-orange-200"
+                  }`}
+                >
+                  <p className="font-black text-slate-900 uppercase text-xs tracking-widest">Payment on Delivery</p>
+                  <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Commitment Fee: ₦10,000</p>
+                  {paymentType === "commitment" && (
+                    <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 bg-orange-500 rounded-full shadow-lg shadow-orange-500/20">
+                      <Check className="w-3 h-3 text-white" />
+                      <span className="text-[9px] font-black text-white uppercase tracking-widest">Active</span>
+                    </div>
+                  )}
+                </button>
+              )}
+
+              {/* Full Payment Option */}
+              <button
+                onClick={() => setPaymentType("full")}
+                className={`p-6 rounded-3xl border-2 cursor-pointer transition-all relative text-left focus:outline-none ${
+                  paymentType === "full"
+                    ? "border-orange-500 bg-orange-50/30 ring-8 ring-orange-500/5"
+                    : "border-slate-50 bg-slate-50/50 hover:border-orange-200"
+                }`}
+              >
+                <p className="font-black text-slate-900 uppercase text-xs tracking-widest">Full Payment</p>
+                <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Pay once, expect delivery</p>
+                {paymentType === "full" && (
+                  <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 bg-orange-500 rounded-full shadow-lg shadow-orange-500/20">
+                    <Check className="w-3 h-3 text-white" />
+                    <span className="text-[9px] font-black text-white uppercase tracking-widest">Active</span>
+                  </div>
+                )}
+              </button>
+            </div>
+
             {/* POD BLUE POLICY BOX */}
             {paymentType === "commitment" && (
-              <div className="mb-8 bg-blue-900 rounded-[2rem] p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden group animate-in zoom-in-95 duration-500">
+              <div className="mt-8 bg-blue-900 rounded-[2rem] p-6 sm:p-8 text-white shadow-2xl relative overflow-hidden group animate-in zoom-in-95 duration-500">
                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:rotate-12 transition-transform duration-700">
                   <Truck className="w-24 h-24" />
                 </div>
@@ -664,7 +723,7 @@ function ShoppingCheckout() {
                 
                 <div className="space-y-4 relative z-10">
                    {[
-                     { text: "Commitment Fee: ₦100 required before processing order." },
+                     { text: "Commitment Fee: ₦10,000 required before processing order." },
                      { text: "This is FULLY REFUNDABLE if the product doesn't meet your expectations." },
                      { text: "Purpose: This secure deposit filters out prank orders." },
                      { text: "Balance: Pay the remaining amount only after inspecting the gadget and you're Satisfied." }
@@ -707,63 +766,6 @@ function ShoppingCheckout() {
                 </div>
               </div>
             )}
-
-            {/* Accessory notice */}
-            {!hasMajorGadget && cartItems?.items?.length > 0 && (
-              <div className="mb-6 bg-slate-900 rounded-2xl p-5 flex gap-4 items-start border border-slate-800">
-                <div className="p-2 bg-amber-500/20 rounded-lg">
-                  <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
-                </div>
-                <div>
-                  <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-1 leading-none">Accessory Notice</p>
-                  <p className="text-xs font-bold text-white leading-relaxed">
-                    Pay on Delivery is only for Smartphones, Laptops and Monitors. Please use Full Payment for accessories.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div className={`grid gap-4 ${canUsePOD ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
-              {/* POD Option */}
-              {canUsePOD && (
-                <button
-                  onClick={() => setPaymentType("commitment")}
-                  className={`p-6 rounded-3xl border-2 cursor-pointer transition-all relative text-left focus:outline-none ${
-                    paymentType === "commitment"
-                      ? "border-orange-500 bg-orange-50/30 ring-8 ring-orange-500/5"
-                      : "border-slate-50 bg-slate-50/50 hover:border-orange-200"
-                  }`}
-                >
-                  <p className="font-black text-slate-900 uppercase text-xs tracking-widest">Payment on Delivery</p>
-                  <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Commitment Fee: ₦100</p>
-                  {paymentType === "commitment" && (
-                    <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 bg-orange-500 rounded-full shadow-lg shadow-orange-500/20">
-                      <Check className="w-3 h-3 text-white" />
-                      <span className="text-[9px] font-black text-white uppercase tracking-widest">Active</span>
-                    </div>
-                  )}
-                </button>
-              )}
-
-              {/* Full Payment Option */}
-              <button
-                onClick={() => setPaymentType("full")}
-                className={`p-6 rounded-3xl border-2 cursor-pointer transition-all relative text-left focus:outline-none ${
-                  paymentType === "full"
-                    ? "border-orange-500 bg-orange-50/30 ring-8 ring-orange-500/5"
-                    : "border-slate-50 bg-slate-50/50 hover:border-orange-200"
-                }`}
-              >
-                <p className="font-black text-slate-900 uppercase text-xs tracking-widest">Full Payment</p>
-                <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase">Pay once, expect delivery</p>
-                {paymentType === "full" && (
-                  <div className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1 bg-orange-500 rounded-full shadow-lg shadow-orange-500/20">
-                    <Check className="w-3 h-3 text-white" />
-                    <span className="text-[9px] font-black text-white uppercase tracking-widest">Active</span>
-                  </div>
-                )}
-              </button>
-            </div>
           </div>
         </div>
 
@@ -819,11 +821,11 @@ function ShoppingCheckout() {
               <div className="bg-slate-900 p-4 rounded-xl mt-4 border border-slate-800">
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest">Deposit Due Now</span>
-                  <span className="text-xl font-bold text-white">₦100</span>
+                  <span className="text-xl font-bold text-white">₦10,000</span>
                 </div>
                 <div className="flex justify-between text-[10px] text-white/40 mt-2 font-semibold uppercase tracking-widest border-t border-white/10 pt-2">
                   <span>Balance on Arrival</span>
-                  <span className="text-amber-400">₦{(totalCartAmount - 100).toLocaleString()}</span>
+                  <span className="text-amber-400">₦{(totalCartAmount - 10000).toLocaleString()}</span>
                 </div>
               </div>
             )}
@@ -856,7 +858,7 @@ function ShoppingCheckout() {
                   <p className="text-[9px] font-bold text-slate-400 uppercase">You Pay Now</p>
                   <p className="text-[11px] font-bold text-slate-900 uppercase leading-relaxed">
                     {paymentType === "commitment"
-                      ? `₦100 DEPOSIT`
+                      ? `₦10,000 DEPOSIT`
                       : `FULL ₦${totalCartAmount.toLocaleString()}`}
                   </p>
                 </div>
@@ -874,7 +876,7 @@ function ShoppingCheckout() {
                       : "PAYMENT ON DELIVERY"}
                   </p>
                   <p className="text-[8px] font-medium text-slate-400 uppercase mt-0.5 leading-tight">
-                    {paymentType === "full" ? "No balance due on arrival" : `Balance: ₦${(totalCartAmount - 100).toLocaleString()} on arrival`}
+                    {paymentType === "full" ? "No balance due on arrival" : `Balance: ₦${(totalCartAmount - 10000).toLocaleString()} on arrival`}
                   </p>
                 </div>
               </div>
@@ -971,7 +973,7 @@ function ShoppingCheckout() {
                 ) : (
                   <span className="flex items-center gap-3">
                     <Shield className="w-4 h-4" />
-                    {paymentType === "commitment" ? "PAY DEPOSIT (₦100)" : `PAY ₦${totalCartAmount.toLocaleString()}`}
+                    {paymentType === "commitment" ? "PAY DEPOSIT (₦10,000)" : `PAY ₦${totalCartAmount.toLocaleString()}`}
                   </span>
                 )}
               </Button>

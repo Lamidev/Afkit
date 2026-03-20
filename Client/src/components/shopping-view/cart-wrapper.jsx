@@ -211,7 +211,7 @@ ${cartItems
                   item.category && ["smartphones", "laptops", "monitors"].includes(item.category)
                 );
                 
-                if (totalCartAmount >= 100 && hasMajorGadget) {
+                if (totalCartAmount >= 10000 && hasMajorGadget) {
                   return (
                     <Button
                       variant="secondary"
@@ -224,7 +224,7 @@ ${cartItems
                       <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
                       <div className="flex flex-col items-center leading-none">
                         <span>Pay on Delivery</span>
-                        <span className="text-[7px] font-black opacity-60 mt-0.5 whitespace-nowrap">₦100 Deposit</span>
+                        <span className="text-[7px] font-black opacity-60 mt-0.5 whitespace-nowrap">₦10,000 Deposit</span>
                       </div>
                     </Button>
                   );

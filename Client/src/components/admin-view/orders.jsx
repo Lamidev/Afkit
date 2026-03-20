@@ -66,7 +66,7 @@ function AdminOrdersView() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (orderDetails !== null) setOpenDetailsDialog(true);
+    if (orderDetails && orderDetails._id) setOpenDetailsDialog(true);
   }, [orderDetails]);
 
   return (
