@@ -2,15 +2,51 @@ import { Badge } from "@/components/ui/badge";
 import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { formatAestheticId, REGION_MAPPING } from "@/utils/common";
-import { Gift, MapPin, Truck } from "lucide-react";
-
+import { Gift, MapPin, Truck, CreditCard, MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { payOrderBalance } from "@/store/shop/order-slice";
+import { toast } from "sonner";
 
 
 
 function ShoppingOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth);
+  const { approvalURL } = useSelector((state) => state.shoppingOrder);
+  const dispatch = useDispatch();
+
+  function handlePayBalance() {
+    dispatch(payOrderBalance(orderDetails?._id)).then((data) => {
+      if (data?.payload?.success) {
+        window.location.href = data.payload.approvalURL;
+      } else {
+        toast.error("Failed to initialize balance payment. Please try again.");
+      }
+    });
+  }
+
+  const handleContactSupport = () => {
+    const orderId = formatAestheticId(orderDetails?.orderId || orderDetails?._id, "ORD");
+    const products = orderDetails?.cartItems.map(item => `${item.title} (x${item.quantity})`).join(", ");
+    const date = orderDetails?.orderDate ? orderDetails.orderDate.split("T")[0] : "N/A";
+    const payment = `${orderDetails?.paymentType} Payment (${orderDetails?.paymentStatus || 'Pending'})`;
+    const address = `${orderDetails?.addressInfo?.address}, ${orderDetails?.addressInfo?.region}`;
+    
+    const message = `Hi Afkit Support, I'm having an issue with my order:
+
+📦 *Order ID:* ${orderId}
+🛒 *Products:* ${products}
+📅 *Purchased On:* ${date}
+💳 *Payment:* ${payment.toUpperCase()}
+📍 *Sent to:* ${address}
+
+Please check this for me. Thank you!`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappNumber = "2348164014304";
+    window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, "_blank");
+  };
 
   return (
     <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-auto">
@@ -69,6 +105,21 @@ function ShoppingOrderDetailsView({ orderDetails }) {
               <span className="text-bold text-slate-900">Balance to Pay:</span>
               <span className="font-bold text-red-600">₦{orderDetails?.balanceAmount.toLocaleString()}</span>
             </div>
+            
+            {orderDetails?.paymentStatus === 'partially_paid' && orderDetails?.balanceAmount > 0 && (
+              <div className="mt-4 pt-4 border-t border-slate-200">
+                <Button 
+                  onClick={handlePayBalance}
+                  className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold flex items-center justify-center gap-2 py-6 rounded-xl shadow-lg transition-all active:scale-[0.98]"
+                >
+                  <CreditCard className="w-5 h-5 text-orange-400" />
+                  Clear Remaining Balance (₦{orderDetails?.balanceAmount?.toLocaleString()})
+                </Button>
+                <p className="text-[10px] text-slate-400 text-center mt-2 font-medium">
+                  Proceed to Paystack for secure balance completion
+                </p>
+              </div>
+            )}
         </div>
 
         <Separator />
@@ -177,6 +228,26 @@ function ShoppingOrderDetailsView({ orderDetails }) {
               </div>
             )}
           </div>
+        </div>
+        <div className="mt-8 pt-6 border-t border-dashed border-slate-200">
+           <div className="flex flex-col items-center text-center">
+             <div className="p-3 bg-slate-50 rounded-full mb-3">
+               <MessageCircle className="w-6 h-6 text-slate-400" />
+             </div>
+             <p className="text-sm font-semibold text-slate-900 mb-1">
+               Having issues with your purchase?
+             </p>
+             <p className="text-xs text-slate-500 mb-4 max-w-[280px]">
+               Our technical team is available 24/7 to assist you.
+             </p>
+             <Button
+               variant="outline"
+               onClick={handleContactSupport}
+               className="w-full sm:w-auto border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white font-bold px-8 py-5 rounded-xl transition-all active:scale-[0.98] flex items-center gap-2"
+             >
+               Contact Afkit Tech Support
+             </Button>
+           </div>
         </div>
       </div>
     </DialogContent>

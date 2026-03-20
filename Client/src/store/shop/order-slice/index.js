@@ -36,6 +36,32 @@ export const capturePayment = createAsyncThunk(
   }
 );
 
+export const payOrderBalance = createAsyncThunk(
+  "/order/payOrderBalance",
+  async (orderId) => {
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/shop/order/pay-balance/${orderId}`
+    );
+
+    return response.data;
+  }
+);
+
+export const captureBalancePayment = createAsyncThunk(
+  "/order/captureBalancePayment",
+  async ({ paymentId, orderId }) => {
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/shop/order/capture-balance`,
+      {
+        paymentId,
+        orderId,
+      }
+    );
+
+    return response.data;
+  }
+);
+
 export const getAllOrdersByUserId = createAsyncThunk(
   "/order/getAllOrdersByUserId",
   async (userId) => {
@@ -92,6 +118,20 @@ const shoppingOrderSlice = createSlice({
         state.isLoading = false;
         state.approvalURL = null;
         state.orderId = null;
+      })
+      .addCase(payOrderBalance.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(payOrderBalance.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.approvalURL = action.payload.approvalURL;
+        state.orderId = action.payload.orderId;
+        sessionStorage.setItem("currentOrderId", JSON.stringify(action.payload.orderId));
+        sessionStorage.setItem("isBalancePayment", JSON.stringify(true));
+      })
+      .addCase(payOrderBalance.rejected, (state) => {
+        state.isLoading = false;
+        state.approvalURL = null;
       })
       .addCase(getAllOrdersByUserId.pending, (state) => {
         state.isLoading = true;

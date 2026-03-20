@@ -10,8 +10,7 @@ const {
   getOrderConfirmationTemplate,
   getWarrantyActivationTemplate,
   getPayerDeliveryConfirmationTemplate,
-  getDebateThankYouTemplate,
-  getDebateAdminTemplate,
+  getDeliveryConfirmationTemplate,
 } = require("./email-template.js");
 const { mailtrapClient, sender } = require("./mailtrap.config.js");
 
@@ -229,12 +228,19 @@ exports.sendDeliveredNotifications = async (order) => {
     // We send ONLY ONE high-impact email.
     if (ownerType === "me" || warrantyEmail === payerEmail) {
       if (!warrantyEmail) return;
+
+      const isPODWithBalance = order.paymentType === "commitment" && order.balanceAmount > 0;
+
       await mailtrapClient.send({
         from: sender,
         to: [{ email: warrantyEmail }],
-        subject: `🛡️ Warranty Activated: Your Gadget is Now Insured!`,
-        html: getWarrantyActivationTemplate(order),
-        category: "Delivery & Warranty Success",
+        subject: isPODWithBalance 
+          ? `📦 Your Order has been Delivered! [Balance Unpaid]`
+          : `🛡️ Warranty Activated: Your Gadget is Now Insured!`,
+        html: isPODWithBalance 
+          ? getDeliveryConfirmationTemplate(order)
+          : getWarrantyActivationTemplate(order),
+        category: isPODWithBalance ? "Delivery Confirmation (POD)" : "Delivery & Warranty Success",
       });
       return;
     }
@@ -242,14 +248,20 @@ exports.sendDeliveredNotifications = async (order) => {
     // SCENARIO B: Someone else holds the warranty (Gift to Recipient or Custom Person)
     // We send TWO targeted emails.
     
-    // 1. Send the Warranty Certificate to the legal owner
+    // 1. Send the Warranty Certificate (or delivery alert) to the legal owner
     if (warrantyEmail) {
+      const isPODWithBalance = order.paymentType === "commitment" && order.balanceAmount > 0;
+
       await mailtrapClient.send({
         from: sender,
         to: [{ email: warrantyEmail }],
-        subject: `🎁 Your Gift Has Arrived! Warranty Now Active.`,
-        html: getWarrantyActivationTemplate(order),
-        category: "Gift Recipient Warranty",
+        subject: isPODWithBalance
+          ? `🎁 A Gift has been Delivered to you!`
+          : `🎁 Your Gift Has Arrived! Warranty Now Active.`,
+        html: isPODWithBalance
+          ? getDeliveryConfirmationTemplate(order) // Still tells them to pay balance if they are the owner
+          : getWarrantyActivationTemplate(order),
+        category: isPODWithBalance ? "Gift Delivery Alert" : "Gift Recipient Warranty",
       });
     }
 
@@ -269,38 +281,4 @@ exports.sendDeliveredNotifications = async (order) => {
   }
 };
 
-// ─── DEBATE CAMPAIGN EMAILS ───────────────────────────────────────────────────
 
-// Send Thank-You Email (to participant)
-exports.sendDebateThankYouEmail = async (registration) => {
-  const html = getDebateThankYouTemplate(registration);
-
-  try {
-    await mailtrapClient.send({
-      from: sender,
-      to: [{ email: registration.email }],
-      subject: "🎤 Registration Confirmed — Afkit Debate Campaign",
-      html,
-      category: "Debate Registration",
-    });
-  } catch (error) {
-    handleEmailError(error, "Error sending debate thank-you email");
-  }
-};
-
-// Send Admin Notification (to info@afkit.ng)
-exports.sendDebateAdminNotificationEmail = async (registration) => {
-  const html = getDebateAdminTemplate(registration);
-
-  try {
-    await mailtrapClient.send({
-      from: sender,
-      to: [{ email: "info@afkit.ng" }],
-      subject: "🎤 New Debate Registration — Afkit Campaign",
-      html,
-      category: "Admin Notification",
-    });
-  } catch (error) {
-    handleEmailError(error, "Error sending debate admin notification");
-  }
-};

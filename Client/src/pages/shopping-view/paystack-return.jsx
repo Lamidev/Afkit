@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
-import { capturePayment } from "@/store/shop/order-slice";
+import { capturePayment, captureBalancePayment } from "@/store/shop/order-slice";
 import { fetchCartItems } from "@/store/shop/cart-slice";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,15 +20,22 @@ function PaystackReturnPage() {
     if (paymentId && !hasCaptured.current) {
       hasCaptured.current = true;
       const orderId = JSON.parse(sessionStorage.getItem("currentOrderId"));
+      const isBalancePayment = JSON.parse(sessionStorage.getItem("isBalancePayment"));
 
-      dispatch(capturePayment({ paymentId, orderId })).then((data) => {
+      // Dynamically select capture action
+      const captureAction = isBalancePayment ? captureBalancePayment : capturePayment;
+
+      dispatch(captureAction({ paymentId, orderId })).then((data) => {
         if (data?.payload?.success) {
           sessionStorage.removeItem("currentOrderId");
+          sessionStorage.removeItem("isBalancePayment");
           
-          // Clear cart in Redux by fetching the empty cart from server
-          const userId = user?.id || user?._id;
-          const sessionId = getOrCreateSessionId();
-          dispatch(fetchCartItems({ userId, sessionId }));
+          if (!isBalancePayment) {
+            // Only clear cart for initial purchases
+            const userId = user?.id || user?._id;
+            const sessionId = getOrCreateSessionId();
+            dispatch(fetchCartItems({ userId, sessionId }));
+          }
 
           navigate("/shop/payment-success", { 
             state: { 

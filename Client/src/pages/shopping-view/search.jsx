@@ -5,7 +5,7 @@ import ShoppingProductTile from "@/components/shopping-view/product-tile";
 import { addToCart, fetchCartItems } from "@/store/shop/cart-slice";
 import { getSearchResults, resetSearchResults, setSearchKeyword } from "@/store/shop/search-slice";
 import { motion } from "framer-motion";
-import { CheckCircle, AlertCircle, Search, MessageCircle } from "lucide-react";
+import { CheckCircle, AlertCircle, Search, MessageCircle, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { getOrCreateSessionId } from "@/components/utils/session";
 import { Button } from "@/components/ui/button";
@@ -150,6 +150,16 @@ function SearchProducts() {
   return (
     <div className="bg-gray-100 min-h-screen">
       <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div className="mb-6 flex items-center justify-between">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate("/shop/home")}
+            className="flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors py-0 px-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm font-semibold">Back to Home</span>
+          </Button>
+        </div>
         {isLoading && (
           <div className="flex justify-center items-center py-12">
             <div className="loader border-t-2 border-gray-600 rounded-full w-8 h-8 animate-spin" />
@@ -234,10 +244,17 @@ function SearchProducts() {
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
+                  onClick={() => navigate("/shop/home")}
+                  className="bg-slate-900 text-white font-bold h-12 px-8 rounded-xl"
+                >
+                  Return to Home
+                </Button>
+                <Button
                   variant="outline"
                   onClick={() => navigate("/shop/listing")}
+                  className="border-2 border-slate-900 text-slate-900 font-bold h-12 px-8 rounded-xl"
                 >
-                  Browse All Products
+                  Browse All Gadgets
                 </Button>
               </div>
             </div>
