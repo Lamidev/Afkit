@@ -183,7 +183,7 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                   <MapPin className="w-4 h-4" /> Shipping Address
                 </h3>
                 <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">
                           {orderDetails?.addressInfo?.deliveryTarget === 'personal' ? "Collected By (Payer)" : "Delivered To (Someone Else)"}
@@ -226,7 +226,7 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                       )}
                     </div>
                     
-                    <div className="flex flex-wrap gap-4 pt-4 border-t border-slate-100">
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-4 pt-4 border-t border-slate-100">
                       <div>
                         <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Primary Phone</span>
                         <p className="text-xs font-bold text-gray-900">{orderDetails?.addressInfo?.phone}</p>

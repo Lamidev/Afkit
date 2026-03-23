@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { CheckCircle, MessageCircle, ArrowRight, ShoppingBag } from "lucide-react";
+import { CheckCircle, ArrowRight, ShoppingBag } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -17,13 +17,7 @@ const formatAestheticId = (rawId, prefix = "ORD") => {
   return `${prefix}-${short}`;
 };
 
-const formatNaira = (amount) => {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
+
 
 function PaymentSuccessPage() {
   const navigate = useNavigate();
@@ -31,6 +25,7 @@ function PaymentSuccessPage() {
   const dispatch = useDispatch();
   const { productList } = useSelector((state) => state.shopProducts);
   const { user } = useSelector((state) => state.auth);
+
   const orderData = location.state?.orderData;
 
   const [accessories, setAccessories] = useState([]);
@@ -55,92 +50,9 @@ function PaymentSuccessPage() {
     }
   }, [orderData, navigate]);
 
-  const handleWhatsAppSync = () => {
-    if (!orderData) return;
-    
-    const phoneNumber = "2348164014304";
-    const orderDetails = orderData;
-    const isGift = orderDetails?.addressInfo?.isGift;
-    const isAssisted = orderDetails?.addressInfo?.isAssisted;
-    const recipientName = orderDetails?.addressInfo?.shippingInfo?.name || orderDetails?.addressInfo?.receiptName || orderDetails?.addressInfo?.fullName || "Valued Customer";
-    // Buyer is strictly the Account Owner (the payer)
-    const buyerName = orderDetails?.addressInfo?.receiptInfo?.name || user?.userName || user?.fullName || "AFKiT Customer";
-    const aestheticOrderId = orderDetails?.orderId || (orderDetails?._id ? formatAestheticId(orderDetails._id, "ORD") : "PENDING");
-    
-    // Premium Design Tokens
-    const divider = "━━━━━━━━━━━━━━━━━━━━";
-    const bullet = "🔸";
-    
-    // Intent-Specific Branding
-    const intentHeader = isGift ? "🎁 *PREMIUM SURPRISE GIFT*" : (isAssisted ? "🤝 *ASSISTED PURCHASE*" : "📦 *PERSONAL ORDER*");
-    
-    // Payment Status Logic
-    const isPOD = orderDetails?.paymentType === "commitment";
-    const paymentStatusHeader = isPOD ? "🟠 DEPOSIT PAID (₦100)" : "🟢 FULLY PAID (100%)";
 
-    // Delivery Logic
-    const isSouthWest = ["Lagos", "Oyo", "Ogun", "Osun", "Ondo", "Ekiti"].includes(orderDetails.addressInfo?.region);
-    const deliveryDays = isSouthWest ? "2-3 Working Days" : "3-5 Working Days";
-    const hubName = isSouthWest ? "Car Park/Station" : "Airport";
-    
-    const deliveryMethod = orderDetails.addressInfo?.region === 'Lagos' 
-      ? "🏠 FREE HOME DELIVERY" 
-      : orderDetails.addressInfo?.deliveryPreference === 'doorstep'
-      ? "🏠 HOME DELIVERY (PAY RIDER)"
-      : `🏢 FREE ${hubName.toUpperCase()} PICKUP`;
 
-    const cartItemsText = orderDetails.cartItems
-      .map((item) => {
-        // WhatsApp link scraper works best with backend OG routes to show metadata/images
-        const apiBase = import.meta.env.VITE_API_BASE_URL || "";
-        const shopUrl = item.productId ? `${apiBase}/og/product/${item.productId.toString().replace("#", "")}` : `${window.location.origin}/shop/listing`;
-        return `${bullet} *${item.title}*\n   _Condition: ${item.condition || "Standard"}_\n   _Qty: ${item.quantity}_\n   🔗 See Item: ${shopUrl}`;
-      })
-      .join("\n\n");
-
-    const messageRaw = `
-${intentHeader}
-${divider}
-
-*ORDER ID:* ${aestheticOrderId}
-*STATUS:* ${paymentStatusHeader}
-*BUYER (PAYER):* ${buyerName}
-
-${divider}
-*🛒 PURCHASED ITEMS:*
-${cartItemsText}
-
-${divider}
-*💰 FINANCIAL SUMMARY:*
-*Order Total:* ₦${parseFloat(orderDetails.totalAmount).toLocaleString()}
-*Amount Paid:* ₦${parseFloat(orderDetails.amountPaid).toLocaleString()}
-*Balance Due:* ₦${parseFloat(orderDetails.balanceAmount).toLocaleString()}
-
-${isPOD ? `*DOOR PAYMENT:* ${recipientName} will pay ₦${parseFloat(orderDetails.balanceAmount).toLocaleString()} to the rider.` : "*DOOR PAYMENT:* ₦0 (Fully Paid)"}
-
-${divider}
-*📍 DELIVERY DETAILS:*
-*Method:* ${deliveryMethod}
-*Est. Arrival:* ${deliveryDays}
-*Recipient:* ${recipientName}
-*Address:* ${orderDetails.addressInfo?.shippingInfo?.location || orderDetails.addressInfo?.address || 'N/A'}
-*State:* ${orderDetails.addressInfo?.region || 'N/A'}
-*Phone:* ${orderDetails.addressInfo?.shippingInfo?.phone || orderDetails.addressInfo?.phone || 'N/A'}
-${isGift ? `\n*NOTE:* This is a SURPRISE for ${recipientName}!` : ""}
-
-${divider}
-⚡ *ADMIN ACTION:*
-Please verify payment, confirm stock, and prepare for dispatch.
-Admin Link: ${window.location.origin}/admin/orders
-
-_Sent via AFKiT Secure Checkout_
-`;
-
-    const encodedMessage = encodeURIComponent(messageRaw.trim());
-    window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, "_blank");
-  };
-
-  const handleAddToCart = (getCurrentProductId, getTotalStock) => {
+  const handleAddToCart = (getCurrentProductId) => {
     dispatch(
       addToCart({
         userId: user?.id,
@@ -182,24 +94,7 @@ _Sent via AFKiT Secure Checkout_
           We've locked your gadgets and our logistics team is preparing them for delivery.
         </p>
 
-        {/* WhatsApp Notification Pulse Button */}
-        <div className="pt-4 flex flex-col items-center gap-4">
-          <Button 
-            onClick={handleWhatsAppSync}
-            className="group relative h-14 sm:h-16 px-6 sm:px-10 bg-green-600 hover:bg-green-700 text-white font-bold sm:font-black text-base sm:text-lg rounded-2xl shadow-xl shadow-green-200"
-          >
-            <motion.div 
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ repeat: Infinity, duration: 1.5 }}
-              className="absolute inset-0 bg-green-400 rounded-2xl -z-10 opacity-20"
-            />
-            <MessageCircle className="w-5 h-5 sm:w-6 h-6 mr-2 sm:mr-3 transition-transform group-hover:rotate-12" />
-            Notify Attendant on WhatsApp
-          </Button>
-          <p className="text-[10px] sm:text-sm text-slate-400 font-medium italic">
-            Speed up your delivery by notifying us directly!
-          </p>
-        </div>
+
       </motion.div>
 
       {/* Main Navigation Actions */}
