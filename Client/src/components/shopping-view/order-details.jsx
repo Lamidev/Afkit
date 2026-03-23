@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useSelector, useDispatch } from "react-redux";
 import { formatAestheticId, REGION_MAPPING } from "@/utils/common";
-import { Gift, MapPin, Truck, CreditCard, MessageCircle } from "lucide-react";
+import { Gift, MapPin, Truck, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { payOrderBalance } from "@/store/shop/order-slice";
 import { toast } from "sonner";
@@ -13,7 +13,7 @@ import { toast } from "sonner";
 
 function ShoppingOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth);
-  const { approvalURL } = useSelector((state) => state.shopOrder);
+
   const dispatch = useDispatch();
 
   function handlePayBalance() {
@@ -28,27 +28,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
     });
   }
 
-  const handleContactSupport = () => {
-    const orderId = formatAestheticId(orderDetails?.orderId || orderDetails?._id, "ORD");
-    const products = orderDetails?.cartItems.map(item => `${item.title} (x${item.quantity})`).join(", ");
-    const date = orderDetails?.orderDate ? orderDetails.orderDate.split("T")[0] : "N/A";
-    const payment = `${orderDetails?.paymentType} Payment (${orderDetails?.paymentStatus || 'Pending'})`;
-    const address = `${orderDetails?.addressInfo?.address}, ${orderDetails?.addressInfo?.region}`;
-    
-    const message = `Hi Afkit Support, I'm having an issue with my order:
 
-📦 *Order ID:* ${orderId}
-🛒 *Products:* ${products}
-📅 *Purchased On:* ${date}
-💳 *Payment:* ${payment.toUpperCase()}
-📍 *Sent to:* ${address}
-
-Please check this for me. Thank you!`;
-
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappNumber = "2348164014304";
-    window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, "_blank");
-  };
 
   return (
     <DialogContent className="sm:max-w-[600px] w-full max-w-[96%] sm:w-full max-h-[90vh] overflow-y-auto p-4 sm:p-6">
@@ -74,7 +54,7 @@ Please check this for me. Thank you!`;
         </div>
         <div className="flex items-center justify-between">
           <p className="font-semibold text-slate-500">Order Date</p>
-          <Label className="text-slate-900">{orderDetails?.orderDate.split("T")[0]}</Label>
+          <Label className="text-slate-900">{orderDetails?.orderDate?.split("T")[0] ?? "N/A"}</Label>
         </div>
         <div className="flex items-center justify-between">
           <p className="font-semibold text-slate-500">Order Status</p>
@@ -93,9 +73,10 @@ Please check this for me. Thank you!`;
         <div className="flex flex-row items-center justify-between gap-4 overflow-hidden">
           <p className="font-semibold text-slate-500 text-sm whitespace-nowrap">Total Amount</p>
           <Label className="text-lg sm:text-xl font-bold text-slate-900 text-right">
-            ₦{orderDetails?.totalAmount.toLocaleString()}
+            ₦{orderDetails?.totalAmount?.toLocaleString() ?? "—"}
           </Label>
         </div>
+
         
         {/* Payment Summary */}
         <div className="bg-slate-50 p-4 rounded-lg border border-slate-100 space-y-2">
@@ -105,11 +86,11 @@ Please check this for me. Thank you!`;
             </div>
             <div className="flex justify-between items-center text-sm">
               <span className="text-slate-500">Paid:</span>
-              <span className="font-bold text-green-600">₦{orderDetails?.amountPaid.toLocaleString()}</span>
+              <span className="font-bold text-green-600">₦{orderDetails?.amountPaid?.toLocaleString() ?? "0"}</span>
             </div>
             <div className="flex justify-between items-center text-sm pt-2">
-              <span className="text-bold text-slate-900">Balance:</span>
-              <span className="font-black text-red-600 text-base">₦{orderDetails?.balanceAmount.toLocaleString()}</span>
+              <span className="font-bold text-slate-900">Balance:</span>
+              <span className="font-black text-red-600 text-base">₦{orderDetails?.balanceAmount?.toLocaleString() ?? "0"}</span>
             </div>
             
             {orderDetails?.paymentStatus === 'partially_paid' && orderDetails?.balanceAmount > 0 && (
@@ -136,9 +117,9 @@ Please check this for me. Thank you!`;
             {orderDetails?.cartItems && orderDetails?.cartItems.length > 0
               ? orderDetails?.cartItems.map((item) => (
                   <li key={item.productId} className="flex flex-col bg-slate-50/50 p-3 rounded-xl border border-slate-100">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1">
-                      <span className="font-bold text-slate-800 text-sm sm:text-base leading-tight">{item.title}</span>
-                      <span className="text-[9px] font-mono font-black text-slate-400">
+                    <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-x-4 mb-1">
+                      <span className="font-bold text-slate-800 text-sm sm:text-base leading-tight break-words">{item.title}</span>
+                      <span className="text-[8px] font-mono font-black text-slate-400 shrink-0">
                         {formatAestheticId(item.productId, "GAD")}
                       </span>
                     </div>
@@ -229,31 +210,14 @@ Please check this for me. Thank you!`;
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Notes</span>
                 <span className="italic text-sm text-slate-400">
-                  {orderDetails?.addressInfo?.notes.replace(/<\/?[^>]+(>|$)/g, "")}
+                  {orderDetails?.addressInfo?.notes?.replace(/<\/?[^>]+(>|$)/g, "")}
                 </span>
               </div>
             )}
           </div>
         </div>
-        <div className="mt-8 pt-6 border-t border-dashed border-slate-200">
-           <div className="flex flex-col items-center text-center">
-             <div className="p-3 bg-slate-50 rounded-full mb-3">
-               <MessageCircle className="w-6 h-6 text-slate-400" />
-             </div>
-             <p className="text-sm font-semibold text-slate-900 mb-1">
-               Having issues with your purchase?
-             </p>
-             <p className="text-xs text-slate-500 mb-4 max-w-[280px]">
-               Our technical team is available 24/7 to assist you.
-             </p>
-              <Button
-                onClick={handleContactSupport}
-                className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white font-black px-6 sm:px-8 py-4 sm:py-5 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-widest text-[10px] sm:text-xs"
-              >
-               Contact Afkit Tech Support
-             </Button>
-           </div>
-        </div>
+
+
       </div>
     </DialogContent>
   );
