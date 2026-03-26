@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useSelector, useDispatch } from "react-redux";
 import { formatAestheticId, REGION_MAPPING } from "@/utils/common";
-import { Gift, MapPin, Truck, CreditCard } from "lucide-react";
+import { Gift, MapPin, Truck, CreditCard, PhoneCall } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { payOrderBalance } from "@/store/shop/order-slice";
 import { toast } from "sonner";
@@ -46,9 +46,9 @@ function ShoppingOrderDetailsView({ orderDetails }) {
         </DialogTitle>
       </DialogHeader>
       <div className="grid gap-6 mt-4">
-        <div className="flex flex-row items-center justify-between gap-2 overflow-hidden">
-          <p className="font-semibold text-slate-500 text-sm whitespace-nowrap">Order ID</p>
-          <Label className="text-slate-900 font-mono font-black text-xs sm:text-sm break-all text-right">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 overflow-hidden pb-1 border-b border-slate-50 sm:border-0 border-dashed">
+          <p className="font-semibold text-slate-500 text-xs sm:text-sm">Order ID</p>
+          <Label className="text-slate-900 font-mono font-black text-xs sm:text-sm break-all sm:text-right">
             {formatAestheticId(orderDetails?.orderId || orderDetails?._id, "ORD")}
           </Label>
         </div>
@@ -70,9 +70,9 @@ function ShoppingOrderDetailsView({ orderDetails }) {
             {orderDetails?.orderStatus}
           </Badge>
         </div>
-        <div className="flex flex-row items-center justify-between gap-4 overflow-hidden">
-          <p className="font-semibold text-slate-500 text-sm whitespace-nowrap">Total Amount</p>
-          <Label className="text-lg sm:text-xl font-bold text-slate-900 text-right">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 overflow-hidden">
+          <p className="font-semibold text-slate-500 text-xs sm:text-sm">Total Amount</p>
+          <Label className="text-lg sm:text-xl font-bold text-slate-900 sm:text-right">
             ₦{orderDetails?.totalAmount?.toLocaleString() ?? "—"}
           </Label>
         </div>
@@ -97,10 +97,10 @@ function ShoppingOrderDetailsView({ orderDetails }) {
               <div className="mt-4 pt-4 border-t border-slate-200">
                 <Button 
                   onClick={handlePayBalance}
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-black flex items-center justify-center gap-2 py-6 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] uppercase tracking-wider"
+                  className="w-full bg-primary hover:bg-primary/90 text-white font-black flex flex-col sm:flex-row items-center justify-center gap-2 py-4 sm:py-6 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] uppercase tracking-wider text-[10px] sm:text-xs"
                 >
-                  <CreditCard className="w-5 h-5" />
-                  Clear Remaining Balance (₦{orderDetails?.balanceAmount?.toLocaleString()})
+                  <CreditCard className="w-5 h-5 shrink-0" />
+                  <span className="text-center">Clear Remaining Balance (₦{orderDetails?.balanceAmount?.toLocaleString()})</span>
                 </Button>
                 <p className="text-[10px] text-slate-400 text-center mt-2 font-medium">
                   Proceed to Paystack for secure balance completion
@@ -178,10 +178,10 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 pb-3 border-b border-slate-100">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-3 border-b border-slate-100">
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">State</span>
-                <span className="text-sm font-bold text-slate-900">{orderDetails?.addressInfo?.region || "N/A"}</span>
+                <span className="text-sm font-bold text-slate-900 lowercase md:uppercase">{orderDetails?.addressInfo?.region || "N/A"}</span>
               </div>
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Method</span>
@@ -194,7 +194,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                 )}
               </div>
             </div>
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4">
               <div>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Phone</span>
                 <span className="text-sm font-bold text-slate-900 font-mono">{orderDetails?.addressInfo?.phone}</span>
@@ -218,6 +218,22 @@ function ShoppingOrderDetailsView({ orderDetails }) {
         </div>
 
 
+      </div>
+
+      {/* Need Help Section */}
+      <div className="mt-2 bg-slate-900 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left border border-slate-800">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-white/10 rounded-xl text-white shrink-0">
+            <PhoneCall className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-black text-white uppercase tracking-tight mb-1">Have questions?</h4>
+            <p className="text-xs font-medium text-slate-400">Our sales team is ready to assist you.</p>
+          </div>
+        </div>
+        <a href="tel:+2348164014304" className="w-full sm:w-auto px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-[0_4px_14px_rgba(249,115,22,0.35)] shrink-0 whitespace-nowrap text-center">
+          Call Sales Team
+        </a>
       </div>
     </DialogContent>
   );

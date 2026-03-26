@@ -6,7 +6,7 @@ import UserCartItemsContent from "@/components/shopping-view/cart-items-content"
 import Address from "@/components/shopping-view/address";
 import { createNewOrder } from "@/store/shop/order-slice";
 import { fetchLastUsedAddress } from "@/store/shop/address-slice";
-import { CreditCard, Truck, Check, AlertCircle, Gift, User, ChevronLeft, Loader2, MapPin, Shield, FileText, UserPlus, History, Mail } from "lucide-react";
+import { CreditCard, Truck, Check, AlertCircle, Gift, User, ChevronLeft, Loader2, MapPin, Shield, FileText, UserPlus, History, Mail, PhoneCall } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getRouteFromRegion, REGION_MAPPING, getDeliveryDays, getDeliveryPolicy } from "@/utils/common";
 
@@ -988,6 +988,20 @@ function ShoppingCheckout() {
             <div className="flex items-center justify-center gap-3 mt-4 text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">
                <Shield className="w-3 h-3" />
                <span>Secured by Paystack</span>
+            </div>
+
+            {/* Need Help Section */}
+            <div className="mt-8 bg-blue-50/50 rounded-2xl p-5 border border-blue-100 flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+              <div className="p-3 bg-blue-100 rounded-xl text-blue-600 shrink-0">
+                <PhoneCall className="w-6 h-6" />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight mb-1">Need help with your order?</h4>
+                <p className="text-xs font-semibold text-slate-500">Speak directly with our sales team for instant support.</p>
+              </div>
+              <a href="tel:+2348164014304" className="w-full sm:w-auto px-6 py-3 bg-white text-blue-600 border border-blue-200 hover:bg-blue-50 hover:border-blue-300 font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-sm shrink-0 whitespace-nowrap">
+                Call Sales
+              </a>
             </div>
           </div>
         </div>
