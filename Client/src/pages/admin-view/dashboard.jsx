@@ -122,12 +122,12 @@ function AdminDashboard() {
     { title: "Total Links Shared", value: (stats?.linkShares?.totalLinksShared || 0).toLocaleString(), icon: LinkIcon, color: "text-amber-600", bg: "bg-amber-50", delay: 0.6 },
     { title: "Verified Shares (Daily)", value: (stats?.linkShares?.dailyAuthenticatedShares || 0).toLocaleString(), icon: UserCheck, color: "text-sky-600", bg: "bg-sky-50", delay: 0.7 },
     { title: "Guest Shares (Daily)", value: (stats?.linkShares?.dailyGuestShares || 0).toLocaleString(), icon: UserX, color: "text-orange-600", bg: "bg-orange-50", delay: 0.8 },
+    { title: "Active Sender IDs", value: "1", icon: Share2, color: "text-purple-600", bg: "bg-purple-50", delay: 0.9 },
   ];
 
   return (
     <div className="p-3 sm:p-4 md:p-6 bg-gray-50 min-h-screen w-full overflow-x-hidden">
       <div className="max-w-[1400px] mx-auto min-w-0 overflow-hidden">
-        <div className="flex justify-between items-center mb-6 px-1">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-800 tracking-tight">Admin Dashboard</h1>
           <button
             onClick={refreshData}
@@ -178,6 +178,91 @@ function AdminDashboard() {
         ))}
         </div>
 
+      {/* Sender ID Management Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.7 }}
+        className="mb-10"
+      >
+        <Card className="border-0 shadow-lg overflow-hidden glass-morphism">
+          <CardHeader className="bg-white/50 backdrop-blur-sm border-b border-gray-100 pb-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+                  <Share2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg sm:text-xl font-bold text-gray-800 tracking-tight">
+                    Notification Sender IDs
+                  </CardTitle>
+                  <p className="text-xs text-gray-500 font-medium">Manage approved sender names for SMS/WhatsApp</p>
+                </div>
+              </div>
+              <div className="bg-indigo-100/50 px-3 py-1.5 rounded-full border border-indigo-200">
+                 <span className="text-xs font-semibold text-indigo-600 uppercase tracking-widest flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                    </span>
+                    1 Active Sender ID
+                 </span>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="bg-gray-50/80 border-b border-gray-100 text-left">
+                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">SL#</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Sender ID</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Status</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Usecase</th>
+                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-400 uppercase tracking-widest">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50 bg-white/30 backdrop-blur-sm">
+                  <tr className="hover:bg-indigo-50/30 transition-colors group">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">1</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-bold text-indigo-900 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">
+                        MyAfkit
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full bg-emerald-100 text-emerald-700 shadow-sm border border-emerald-200">
+                        ACTIVE
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-600 font-medium italic">"Afkit is here to serve"</span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                          <button 
+                            className="p-2 hover:bg-indigo-50 text-indigo-500 rounded-xl border border-transparent hover:border-indigo-100 transition-all bg-white shadow-sm"
+                            title="Review Config"
+                          >
+                            <Activity className="w-4 h-4" />
+                          </button>
+                          <button 
+                            className="p-2 hover:bg-amber-50 text-amber-500 rounded-xl border border-transparent hover:border-amber-100 transition-all bg-white shadow-sm"
+                            title="Edit Details"
+                          >
+                            <TrendingUp className="w-4 h-4" />
+                          </button>
+                       </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Customer List Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -374,7 +459,6 @@ function AdminDashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </div>
     </div>
   );
 }

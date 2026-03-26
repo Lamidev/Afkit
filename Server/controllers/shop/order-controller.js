@@ -4,10 +4,12 @@ const Product = require("../../models/products");
 const crypto = require("crypto");
 const paystackHelper = require("../../helpers/paystack")(process.env.PAYSTACK_SECRET_KEY);
 const { 
-  sendOrderConfirmationEmail, 
   sendAdminOrderNotificationEmail,
   sendDeliveredNotifications 
 } = require("../../mailtrap/emails");
+const { 
+  sendAdminAlerts 
+} = require("../../helpers/notifications");
 
 const createOrder = async (req, res) => {
   try {
@@ -208,6 +210,9 @@ const captureBalancePayment = async (req, res) => {
         sendDeliveredNotifications(order).catch(console.error);
       } else {
         sendOrderConfirmationEmail(order).catch(console.error);
+        
+        // Double Alerts for Admin (WhatsApp + SMS)
+        sendAdminAlerts(order, true).catch(console.error);
       }
 
       res.status(200).json({
@@ -307,6 +312,9 @@ const capturePayment = async (req, res) => {
         sendAdminOrderNotificationEmail(order).catch(err => {
           console.error("Admin order notification email error:", err.message);
         });
+
+        // 3. Automated Admin Alerts (WhatsApp + SMS)
+        sendAdminAlerts(order, false).catch(console.error);
       } else {
         await order.save();
       }
@@ -371,6 +379,8 @@ const paystackWebhook = async (req, res) => {
                } else {
                  sendOrderConfirmationEmail(order).catch(console.error);
                }
+                // 4. Balance Completion Alerts (WhatsApp + SMS)
+                sendAdminAlerts(order, true).catch(console.error);
              }
            } 
            // Else it's an initial payment capture
@@ -402,6 +412,9 @@ const paystackWebhook = async (req, res) => {
               await order.save();
               sendOrderConfirmationEmail(order).catch(console.error);
               sendAdminOrderNotificationEmail(order).catch(console.error);
+              
+              // 3. Automated Admin Alerts (WhatsApp + SMS)
+              sendAdminAlerts(order, false).catch(console.error);
             } else {
               await order.save();
             }

@@ -445,9 +445,13 @@ const getOrderConfirmationTemplate = (order) => {
           <tr>
             <td align="center">
               <p style="font-size:14px;color:#64748b;margin-bottom:20px;">Order is being processed for delivery within ${['Lagos', 'Oyo', 'Ogun', 'Osun', 'Ondo', 'Ekiti'].includes(order.addressInfo?.region) ? '2-3' : '3-5'} business days.</p>
-              <a href="https://afkit.ng/shop/account" style="display:inline-block;background:${BRAND_ORANGE};color:#ffffff;text-decoration:none;font-size:14px;font-weight:800;padding:14px 32px;border-radius:10px;">
+              <a href="https://afkit.ng/shop/account" style="display:inline-block;background:${BRAND_ORANGE};color:#ffffff;text-decoration:none;font-size:14px;font-weight:800;padding:14px 32px;border-radius:10px;margin-bottom:20px;">
                 View Order History
               </a>
+              <div style="margin-top: 8px;">
+                 <p style="font-size:13px;color:#94a3b8;margin-bottom:10px;">Have questions about your order?</p>
+                 <a href="tel:+2348164014304" style="color:${BRAND_DARK};text-decoration:none;font-weight:800;font-size:12px;padding:10px 20px;border:2px solid #e2e8f0;border-radius:10px;display:inline-block;text-transform:uppercase;letter-spacing:1px;">📞 Call Sales Team</a>
+              </div>
             </td>
           </tr>
         </table>
@@ -590,8 +594,11 @@ const getWarrantyActivationTemplate = (order) => {
         </div>
 
         <div style="text-align:center;">
-          <p style="font-size:14px;color:#94a3b8;margin-bottom:12px;">Need help setting up your new tech?</p>
-          <a href="https://wa.me/2348164014304" style="background:${BRAND_ORANGE};color:#ffffff;text-decoration:none;font-weight:800;font-size:13px;padding:12px 24px;border-radius:12px;display:inline-block;text-transform:uppercase;letter-spacing:1px;">Chat with Support &rarr;</a>
+          <p style="font-size:14px;color:#94a3b8;margin-bottom:14px;">Need help setting up your new tech?</p>
+          <div style="display:inline-block; margin-bottom:10px;">
+            <a href="https://wa.me/2348164014304" style="background:#25D366;color:#ffffff;text-decoration:none;font-weight:800;font-size:12px;padding:12px 20px;border-radius:10px;display:inline-block;text-transform:uppercase;letter-spacing:1px;margin: 0 4px;">WhatsApp Us</a>
+            <a href="tel:+2348164014304" style="background:${BRAND_ORANGE};color:#ffffff;text-decoration:none;font-weight:800;font-size:12px;padding:12px 20px;border-radius:10px;display:inline-block;text-transform:uppercase;letter-spacing:1px;margin: 0 4px;">Call Sales Team</a>
+          </div>
         </div>
       </td>
     </tr>
@@ -704,7 +711,8 @@ const getDeliveryConfirmationTemplate = (order) => {
 
         <div style="text-align:center;">
           <p style="font-size:14px;color:#94a3b8;margin-bottom:12px;">Need help with your balance or delivery?</p>
-          <a href="https://wa.me/2348164014304" style="color:${BRAND_ORANGE};text-decoration:none;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;">Contact Support 24/7 &rarr;</a>
+          <a href="https://wa.me/2348164014304" style="color:${BRAND_ORANGE};text-decoration:none;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-right:12px;">Chat Support &rarr;</a>
+          <a href="tel:+2348164014304" style="color:#2563eb;text-decoration:none;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;">📞 Call Sales</a>
         </div>
       </td>
     </tr>
