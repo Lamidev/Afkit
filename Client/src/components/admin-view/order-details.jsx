@@ -153,7 +153,7 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[11px] font-bold text-gray-900 leading-tight line-clamp-2">{item.title}</p>
+                          <p className="text-[11px] font-bold text-gray-900 leading-tight whitespace-normal break-words">{item.title}</p>
                           {item.condition && (
                             <span className={`inline-block text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full mt-0.5 mb-0.5 ${
                               item.condition === "Brand New"
