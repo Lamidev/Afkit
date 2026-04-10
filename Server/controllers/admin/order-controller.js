@@ -6,7 +6,7 @@ const { sendDeliveredNotifications } = require("../../mailtrap/emails");
 
 const getAllOrdersOfAllUsers = async (req, res) => {
   try {
-    const orders = await Order.find({}).sort({ createdAt: -1 });
+    const orders = await Order.find({ paymentStatus: { $in: ["paid", "partially_paid"] } }).sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,

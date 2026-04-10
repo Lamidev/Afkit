@@ -210,10 +210,10 @@ const captureBalancePayment = async (req, res) => {
         sendDeliveredNotifications(order).catch(console.error);
       } else {
         sendOrderConfirmationEmail(order).catch(console.error);
-        
-        // Double Alerts for Admin (WhatsApp + SMS)
-        sendAdminAlerts(order, true).catch(console.error);
       }
+
+      // 4. Balance Completion Alert to Admin (WhatsApp + SMS)
+      sendAdminAlerts(order, true).catch(console.error);
 
       res.status(200).json({
         success: true,
