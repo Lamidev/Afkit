@@ -27,7 +27,9 @@ export const uploadProductImages = createAsyncThunk(
         {
           headers: {
             'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
           },
+          withCredentials: true,
           onUploadProgress: (progressEvent) => {
             const progress = Math.round(
               (progressEvent.loaded * 100) / progressEvent.total
@@ -70,7 +72,11 @@ export const addNewProduct = createAsyncThunk(
         `${import.meta.env.VITE_API_BASE_URL}/admin/products/add`,
         productData,
         { 
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          },
+          withCredentials: true,
         }
       );
       return response.data;
@@ -104,7 +110,13 @@ export const fetchAllProducts = createAsyncThunk(
       }
 
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/products/get?${queryParams}`
+        `${import.meta.env.VITE_API_BASE_URL}/admin/products/get?${queryParams}`,
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          },
+          withCredentials: true,
+        }
       );
       return response.data;
     } catch (error) {
@@ -121,7 +133,11 @@ export const editProduct = createAsyncThunk(
         `${import.meta.env.VITE_API_BASE_URL}/admin/products/edit/${id}`,
         productData,
         { 
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          },
+          withCredentials: true,
         }
       );
       return response.data;
@@ -136,7 +152,13 @@ export const deleteProduct = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/products/delete/${id}`
+        `${import.meta.env.VITE_API_BASE_URL}/admin/products/delete/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          },
+          withCredentials: true,
+        }
       );
       return response.data;
     } catch (error) {
@@ -150,7 +172,14 @@ export const hideProduct = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/products/hide/${id}`
+        `${import.meta.env.VITE_API_BASE_URL}/admin/products/hide/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          },
+          withCredentials: true,
+        }
       );
       return response.data;
     } catch (error) {
@@ -164,7 +193,14 @@ export const unhideProduct = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.patch(
-        `${import.meta.env.VITE_API_BASE_URL}/admin/products/unhide/${id}`
+        `${import.meta.env.VITE_API_BASE_URL}/admin/products/unhide/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+          },
+          withCredentials: true,
+        }
       );
       return response.data;
     } catch (error) {

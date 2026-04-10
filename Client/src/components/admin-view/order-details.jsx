@@ -78,7 +78,12 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
             orderDetails?.orderStatus === 'delivered' ? 'bg-emerald-500 text-white' : 
             orderDetails?.orderStatus === 'rejected' ? 'bg-rose-500 text-white' : 'bg-blue-600 text-white'
           }`}>
-            Current: {orderDetails?.orderStatus}
+            Status: {orderDetails?.orderStatus}
+          </Badge>
+          <Badge className={`px-4 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-widest border-none ${
+            orderDetails?.paymentType === 'commitment' ? 'bg-amber-500 text-white shadow-md' : 'bg-emerald-600 text-white shadow-md'
+          }`}>
+             {orderDetails?.paymentType === 'commitment' ? 'Pay on Delivery' : 'Full Payment'}
           </Badge>
           <div className="flex gap-2">
             <Badge className={`px-3 py-1 border-none font-bold text-[10px] uppercase tracking-wider ${orderDetails?.addressInfo?.isGift ? 'bg-orange-500/20 text-orange-400' : orderDetails?.addressInfo?.isAssisted ? 'bg-blue-500/20 text-blue-400' : 'bg-slate-700 text-slate-300'}`}>
