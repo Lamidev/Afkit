@@ -1,19 +1,18 @@
 const axios = require("axios");
 
 /**
- * Sends an automated notification via Termii (or compatible API).
+ * Send directly to Meta WhatsApp Cloud API using our approved template
  */
-const sendTermiiMessage = async (to, message, type = "whatsapp") => {
+const sendMetaWhatsAppAlert = async (to, templateData) => {
   try {
-    const apiKey = process.env.TERMII_API_KEY;
-    
-    // Safety check for API Key
-    if (!apiKey || apiKey === "YOUR_API_KEY_HERE" || apiKey.length < 10) {
-      console.log(`⚠️ ${type.toUpperCase()} skipped: No valid TERMII_API_KEY detected.`);
-      return;
+    const metaToken = process.env.META_WHATSAPP_TOKEN;
+    const phoneNumberId = process.env.META_PHONE_NUMBER_ID;
+
+    if (!metaToken || !phoneNumberId) {
+       console.log(`⚠️ META WHATSAPP skipped: Missing META_WHATSAPP_TOKEN or META_PHONE_NUMBER_ID in .env`);
+       return;
     }
 
-    // Clean the phone number: Remove spaces, dashes, + and ensure it starts with 234
     let cleanNumber = to.replace(/[\s\-\+]/g, "");
     if (cleanNumber.startsWith("0")) {
       cleanNumber = "234" + cleanNumber.substring(1);
@@ -22,26 +21,42 @@ const sendTermiiMessage = async (to, message, type = "whatsapp") => {
     }
 
     const payload = {
+      messaging_product: "whatsapp",
       to: cleanNumber,
-      from: process.env.TERMII_WHATSAPP_SENDER || "Afkit",
-      sms: message,
-      type: type === "sms" ? "plain" : "whatsapp",
-      channel: type === "sms" ? "dnd" : "whatsapp", // "dnd" enables delivery even to numbers with DND active
-      api_key: apiKey,
+      type: "template",
+      template: {
+        name: "admin_payment_alert",
+        language: { code: "en" },
+        components: [
+          {
+            type: "body",
+            parameters: [
+              { type: "text", text: templateData.orderId },
+              { type: "text", text: templateData.customerName },
+              { type: "text", text: templateData.paymentTypeStr },
+              { type: "text", text: templateData.itemsList },
+              { type: "text", text: templateData.paymentSummary },
+              { type: "text", text: templateData.shippingRegion }
+            ]
+          }
+        ]
+      }
     };
 
-    console.log(`📡 Attempting ${type.toUpperCase()} to ${cleanNumber}...`);
+    console.log(`📡 Attempting META DIRECT WHATSAPP to ${cleanNumber}...`);
+    const url = `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`;
     
-    const response = await axios.post("https://v3.api.termii.com/api/sms/send", payload);
-    
-    if (response.data && (response.data.code === "ok" || response.data.message?.includes("successfully"))) {
-      console.log(`✅ ${type.toUpperCase()} alert sent to ${cleanNumber}`);
-      return response.data;
-    } else {
-      console.error(`❌ Termii API error [${type}]:`, response.data);
-    }
+    const response = await axios.post(url, payload, {
+      headers: {
+        "Authorization": `Bearer ${metaToken}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    console.log(`✅ META WhatsApp alert sent to ${cleanNumber}. Status:`, response.data.contacts[0].input);
+    return response.data;
   } catch (error) {
-    console.error(`❌ Network Error [${type}]:`, error.response?.data || error.message);
+    console.error(`❌ Meta API Error:`, error.response?.data || error.message);
   }
 };
 
@@ -57,18 +72,12 @@ const sendAdminAlerts = async (order, isBalanceUpdate = false) => {
   const orderId = order.orderId || order._id;
   const isPOD = order.paymentType === "commitment";
   
-  // Dynamic Headings
-  const whatsappHeader = isBalanceUpdate ? "💰 *BALANCE COMPLETED!*" : "📦 *NEW AFKIT ORDER!*";
-  const smsHeader = isBalanceUpdate ? "BALANCE PAID!" : (isPOD ? "POD Alert!" : "NEW PAID ORDER!");
-
-  const statusIcon = order.paymentStatus === "paid" ? "✅" : "💳";
-  const statusText = order.paymentStatus === "paid" 
-    ? (isBalanceUpdate ? "Remaining Balance Cleared" : "Full Payment received") 
-    : "POD (Commitment Paid)";
+  // Prepare variables for Meta Template
+  const customerName = order.addressInfo?.fullName || "A Customer";
+  const paymentTypeStr = isPOD ? "Pay on Delivery (POD)" : "Full Payment";
   
-  // Safe item mapping (fallback to empty array)
   const itemsList = (order.cartItems || [])
-    .map((item) => `• ${item.title} (x${item.quantity})`)
+    .map((item) => `- ${item.title} (x${item.quantity})`)
     .join("\n") || "No items listed";
 
   const total = order.totalAmount?.toLocaleString() || "0";
@@ -76,39 +85,24 @@ const sendAdminAlerts = async (order, isBalanceUpdate = false) => {
   const balance = order.balanceAmount?.toLocaleString() || "0";
 
   const paymentSummary = isPOD && order.balanceAmount > 0
-    ? `Total: ₦${total}
-*Commitment Paid (10k):* ✅ ₦${paid}
-*Collect on Delivery:* 🔴 ₦${balance}`
-    : `Total: ₦${total}
-*Status:* ✅ Fully Paid (${isBalanceUpdate ? "Balanced Cleared Online" : "Paid in Full"})`;
+    ? `Total: ₦${total}\nCommitment Paid (10k): ✅ ₦${paid}\nCollect on Delivery: 🔴 ₦${balance}`
+    : `Total: ₦${total}\nStatus: ✅ Fully Paid (${isBalanceUpdate ? "Balanced Cleared Online" : "Paid in Full"})`;
 
-  // 1. WhatsApp Template
-  const whatsappMessage = `${whatsappHeader}
-━━━━━━━━━━━━━━
-*Order ID:* \`${orderId}\`
-*Payment:* ${statusIcon} _${statusText}_
+  const shippingRegion = order.addressInfo?.region || "N/A";
 
-🛒 *Gadgets:*
-${itemsList}
-
-💰 *Payment Breakdown:*
-${paymentSummary}
-
-📍 *Shipping to:*
-Name: ${order.addressInfo?.fullName || "N/A"}
-Place: ${order.addressInfo?.region || "N/A"}
-
-━━━━━━━━━━━━━━
-${isBalanceUpdate ? "_Payment verified—No need to collect cash on delivery._" : "_Check your dashboard to process dispatch._"}`;
-
-  // 2. SMS Template (Short & Instant)
-  const smsBody = `${smsHeader} ID: ${orderId}. Total: N${total}. ${order.balanceAmount > 0 ? `Collect: N${balance}` : "Fully Paid (No balance)."}`;
+  const templateData = {
+    orderId,
+    customerName,
+    paymentTypeStr,
+    itemsList,
+    paymentSummary,
+    shippingRegion
+  };
 
   // Send to all administrators
   for (const number of adminNumbers) {
-    // Send without waiting (async)
-    sendTermiiMessage(number, whatsappMessage, "whatsapp");
-    sendTermiiMessage(number, smsBody, "sms");
+    // Fire Meta direct WhatsApp
+    sendMetaWhatsAppAlert(number, templateData);
   }
 };
 
