@@ -29,6 +29,8 @@ import PaystackReturnPage from "./pages/shopping-view/paystack-return";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import ShoppingAccount from "./pages/shopping-view/account";
 import ScrollToTop from "./components/common/scroll-to-top";
+import PrivacyPolicy from "./pages/shopping-view/privacy";
+import TermsOfService from "./pages/shopping-view/terms";
 
 function App() {
   const { user, isAuthenticated, isLoading } = useSelector(
@@ -84,6 +86,8 @@ function App() {
           <Route path="paystack-return" element={<PaystackReturnPage />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />
           <Route path="account" element={<ShoppingAccount />} />
+          <Route path="privacy" element={<PrivacyPolicy />} />
+          <Route path="terms" element={<TermsOfService />} />
           <Route
             path="checkout"
             element={

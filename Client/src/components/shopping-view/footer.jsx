@@ -109,6 +109,8 @@ const Footer = () => {
                 <FaMapMarkerAlt className="text-primary mt-1 shrink-0" />
                 <span>Shop A25, Platinum Plaza, Computer Village, Ikeja</span>
               </li>
+              <li><a href="/shop/privacy" className="hover:text-primary transition-colors">Privacy Policy</a></li>
+              <li><a href="/shop/terms" className="hover:text-primary transition-colors">Terms of Service</a></li>
             </ul>
           </div>
         </div>

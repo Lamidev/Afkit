@@ -1,5 +1,5 @@
 
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import ShoppingHeader from "./header";
 import Footer from "./footer";
 import Newsletter from "./newsletter";
@@ -18,19 +18,22 @@ const ShoppingLayout = () => {
   const whatsappPhoneNumber = "2348164014304";
   const whatsappMessage = "Hi, I would love to place an order";
   const whatsappLink = `https://wa.me/${whatsappPhoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+  const isLegalPage = location.pathname.includes('privacy') || location.pathname.includes('terms');
 
   return (
     <div className="flex flex-col min-h-screen bg-white overflow-hidden">
       {/* Fixed Header Section */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
         <ShoppingHeader />
-        <div className="py-2 sm:py-3 px-4 sm:px-6 lg:px-8 bg-gray-50 border-b border-gray-200">
-          <SearchMenu />
-        </div>
+        {!isLegalPage && (
+          <div className="py-2 sm:py-3 px-4 sm:px-6 lg:px-8 bg-gray-50 border-b border-gray-200">
+            <SearchMenu />
+          </div>
+        )}
       </div>
 
       {/* Scrollable Content */}
-      <div className="pt-[115px] sm:pt-[130px] bg-slate-50/50 min-h-[calc(100vh-80px)]"> 
+      <div className={`${isLegalPage ? 'pt-[80px]' : 'pt-[150px] sm:pt-[170px]'} bg-slate-50/50 min-h-[calc(100vh-80px)]`}> 
         <Breadcrumbs />
         <main className="flex-grow w-full px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-10">
           <motion.div
