@@ -61,8 +61,11 @@ const createOrder = async (req, res) => {
     const enforcedPaymentType = (totalAmount < 10000 || isGift) ? "full" : paymentType;
     const finalAmountToPay = enforcedPaymentType === "commitment" ? COMMITMENT_FEE : totalAmount;
 
-    // 3. Initialize Paystack Transaction
-    const callbackUrl = `${process.env.CLIENT_URL}/shop/paystack-return`;
+    // 3. Generate Order ID Early
+    const orderId = `ORD-${crypto.randomBytes(2).toString("hex").toUpperCase()}-${crypto.randomBytes(2).toString("hex").toUpperCase()}`;
+
+    // 4. Initialize Paystack Transaction
+    const callbackUrl = `${process.env.CLIENT_URL}/shop/paystack-return?orderId=${orderId}`;
 
     const paystackData = await paystackHelper.initializePayment({
       email: payerEmail,
@@ -70,6 +73,7 @@ const createOrder = async (req, res) => {
       callback_url: callbackUrl,
       metadata: {
         userId,
+        orderId, // Persist for webhook
         paymentType: enforcedPaymentType,
       },
     });
@@ -81,8 +85,7 @@ const createOrder = async (req, res) => {
       });
     }
 
-    // 4. Create Order in DB (Pending)
-    const orderId = `ORD-${crypto.randomBytes(2).toString("hex").toUpperCase()}-${crypto.randomBytes(2).toString("hex").toUpperCase()}`;
+    // 5. Create Order in DB (Pending)
 
     const newlyCreatedOrder = new Order({
       userId,
@@ -239,7 +242,14 @@ const capturePayment = async (req, res) => {
   try {
     const { paymentId, orderId } = req.body;
 
-    let order = await Order.findById(orderId);
+    let order;
+    if (orderId) {
+      order = await Order.findById(orderId);
+    } else if (paymentId) {
+      // Fallback: Find by payment reference if orderId is missing from session
+      order = await Order.findOne({ paymentId });
+    }
+
     if (!order) {
       return res.status(404).json({
         success: false,
@@ -340,94 +350,105 @@ const capturePayment = async (req, res) => {
 };
 
 const paystackWebhook = async (req, res) => {
+  // ── 1. Respond immediately so Paystack doesn't retry ──────────────────────
+  res.status(200).send("Webhook received");
+
   try {
     const secret = process.env.PAYSTACK_SECRET_KEY;
+
+    // rawBody is captured by express.json() verify callback in index.js
+    if (!req.rawBody) {
+      return;
+    }
+
     const hash = crypto
       .createHmac("sha512", secret)
-      .update(req.rawBody || JSON.stringify(req.body))
+      .update(req.rawBody)
       .digest("hex");
 
-    if (hash === req.headers["x-paystack-signature"]) {
-      const event = req.body;
+    const paystackSig = req.headers["x-paystack-signature"];
 
-      if (event.event === "charge.success") {
-        const paymentReference = event.data.reference;
-        const amountReceived = event.data.amount / 100;
-        const metadata = event.data.metadata;
+    if (hash !== paystackSig) {
+      return;
+    }
 
-        // Try to find the order by paymentId (for initial payments)
-        // OR by orderId in metadata (for balance payments)
-        let order = await Order.findOne({ 
-          $or: [
-            { paymentId: paymentReference },
-            { _id: metadata?.orderId }
-          ]
-        });
 
-        if (order) {
-           // If it's a balance completion payment
-           if (metadata?.paymentType === "balance_completion") {
-             if (order.paymentStatus !== "paid") {
-               order.amountPaid += amountReceived;
-               order.balanceAmount = Math.max(0, order.totalAmount - order.amountPaid);
-               if (order.balanceAmount === 0) order.paymentStatus = "paid";
-               order.orderUpdateDate = new Date();
-               await order.save();
-               
-               if (order.orderStatus === "delivered") {
-                 sendDeliveredNotifications(order).catch(console.error);
-               } else {
-                 sendOrderConfirmationEmail(order).catch(console.error);
-               }
-                // 4. Balance Completion Alerts (WhatsApp + SMS)
-                sendAdminAlerts(order, true).catch(console.error);
-             }
-           } 
-           // Else it's an initial payment capture
-           else if (order.paymentStatus !== "paid" && order.paymentStatus !== "partially_paid") {
-            order.paymentStatus = order.paymentType === "commitment" ? "partially_paid" : "paid";
-            order.orderStatus = "confirmed";
-            order.amountPaid = amountReceived;
-            order.balanceAmount = order.totalAmount - amountReceived;
+    const event = req.body;
+
+    if (event.event === "charge.success") {
+      const paymentReference = event.data.reference;
+      const amountReceived = event.data.amount / 100;
+      const metadata = event.data.metadata;
+
+      // Try to find the order by paymentId (for initial payments)
+      // OR by orderId in metadata (for balance payments)
+      let order = await Order.findOne({
+        $or: [
+          { paymentId: paymentReference },
+          { orderId: metadata?.orderId },
+          { _id: metadata?.orderId }
+        ]
+      });
+
+      if (order) {
+        // If it's a balance completion payment
+        if (metadata?.paymentType === "balance_completion") {
+          if (order.paymentStatus !== "paid") {
+            order.amountPaid += amountReceived;
+            order.balanceAmount = Math.max(0, order.totalAmount - order.amountPaid);
+            if (order.balanceAmount === 0) order.paymentStatus = "paid";
             order.orderUpdateDate = new Date();
+            await order.save();
 
-            if (!order.isStockDeducted) {
-              for (let item of order.cartItems) {
-                let product = await Product.findById(item.productId);
-                if (product) {
-                  const deductQty = Math.min(item.quantity, product.totalStock);
-                  if (deductQty > 0) {
-                    product.totalStock = Math.max(0, product.totalStock - deductQty);
-                    await product.save();
-                  }
+            if (order.orderStatus === "delivered") {
+              sendDeliveredNotifications(order).catch(console.error);
+            } else {
+              sendOrderConfirmationEmail(order).catch(console.error);
+            }
+            // 4. Balance Completion Alerts (WhatsApp + SMS)
+            sendAdminAlerts(order, true).catch(console.error);
+          }
+        }
+        // Else it's an initial payment capture
+        else if (order.paymentStatus !== "paid" && order.paymentStatus !== "partially_paid") {
+          order.paymentStatus = order.paymentType === "commitment" ? "partially_paid" : "paid";
+          order.orderStatus = "confirmed";
+          order.amountPaid = amountReceived;
+          order.balanceAmount = order.totalAmount - amountReceived;
+          order.orderUpdateDate = new Date();
+
+          if (!order.isStockDeducted) {
+            for (let item of order.cartItems) {
+              let product = await Product.findById(item.productId);
+              if (product) {
+                const deductQty = Math.min(item.quantity, product.totalStock);
+                if (deductQty > 0) {
+                  product.totalStock = Math.max(0, product.totalStock - deductQty);
+                  await product.save();
                 }
               }
-              order.isStockDeducted = true;
             }
+            order.isStockDeducted = true;
+          }
 
-            await Cart.findOneAndUpdate({ userId: order.userId }, { $set: { items: [] } });
+          await Cart.findOneAndUpdate({ userId: order.userId }, { $set: { items: [] } });
 
-            if (!order.isEmailSent) {
-              order.isEmailSent = true;
-              await order.save();
-              sendOrderConfirmationEmail(order).catch(console.error);
-              sendAdminOrderNotificationEmail(order).catch(console.error);
-              
-              // 3. Automated Admin Alerts (WhatsApp + SMS)
-              sendAdminAlerts(order, false).catch(console.error);
-            } else {
-              await order.save();
-            }
+          if (!order.isEmailSent) {
+            order.isEmailSent = true;
+            await order.save();
+            sendOrderConfirmationEmail(order).catch(console.error);
+            sendAdminOrderNotificationEmail(order).catch(console.error);
+
+            // 3. Automated Admin Alerts (WhatsApp + SMS)
+            sendAdminAlerts(order, false).catch(console.error);
+          } else {
+            await order.save();
           }
         }
       }
-      res.status(200).send("Webhook received");
-    } else {
-      res.status(400).send("Invalid signature");
     }
   } catch (error) {
-    console.error("Webhook processing error:", error.message);
-    res.status(500).send("Webhook endpoint error");
+    console.error("[WEBHOOK] ❌ Processing error:", error.message);
   }
 };
 
@@ -435,9 +456,11 @@ const cleanupPendingOrders = async () => {
   try {
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     // Find orders that are pending and older than 24 hours
+    // CRITICAL: We only delete if there is NO paymentId (meaning it was never even sent to Paystack)
     const result = await Order.deleteMany({
       orderStatus: "pending",
       paymentStatus: "pending",
+      paymentId: { $exists: false }, // Only delete if no payment attempt was made
       createdAt: { $lt: twentyFourHoursAgo }
     });
     

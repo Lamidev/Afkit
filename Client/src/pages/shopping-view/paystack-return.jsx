@@ -19,7 +19,11 @@ function PaystackReturnPage() {
   useEffect(() => {
     if (paymentId && !hasCaptured.current) {
       hasCaptured.current = true;
-      const orderId = JSON.parse(sessionStorage.getItem("currentOrderId"));
+      // Try to get orderId from URL first (fallback for lost session)
+      const orderIdFromUrl = params.get("orderId");
+      const orderIdFromSession = JSON.parse(sessionStorage.getItem("currentOrderId"));
+      const orderId = orderIdFromUrl || orderIdFromSession;
+      
       const isBalancePayment = JSON.parse(sessionStorage.getItem("isBalancePayment"));
 
       // Dynamically select capture action

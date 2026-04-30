@@ -85,10 +85,13 @@ function OrderCard({ orderItem, onViewDetails, openDetailsDialog, orderDetails }
             <p className="font-mono text-xs font-black text-slate-800 truncate">{orderId}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex flex-col items-end gap-1.5 shrink-0">
           <Badge className={`px-2.5 py-1 rounded-full border-none font-bold text-[9px] uppercase tracking-wider ${statusStyle}`}>
             {orderItem?.orderStatus}
           </Badge>
+          <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-100">
+            {orderItem?.orderDate ? new Date(orderItem.orderDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "N/A"}
+          </span>
           {isPOD && (
             <Badge className={`px-2 py-1 rounded-full border-none font-bold text-[8px] uppercase ${hasBalance && !isDelivered ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-500"}`}>
               POD
@@ -183,11 +186,6 @@ function OrderCard({ orderItem, onViewDetails, openDetailsDialog, orderDetails }
           Having issues with your order? Contact customer support
         </button>
 
-        <p className="text-[9px] font-bold text-slate-300 text-center uppercase tracking-widest">
-          {orderItem?.orderDate
-            ? new Date(orderItem.orderDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
-            : ""}
-        </p>
       </div>
     </motion.div>
   );
