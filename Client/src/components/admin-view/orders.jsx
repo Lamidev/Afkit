@@ -123,31 +123,36 @@ function AdminOrdersView() {
                         {orderItem?.payerEmail}
                       </p>
                     </div>
-                    <Badge
-                      className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md ${
-                        orderItem?.orderStatus === "delivered"
-                          ? "bg-green-100 text-green-700"
-                          : orderItem?.orderStatus === "rejected"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-slate-900 text-white"
-                      }`}
-                    >
-                      {orderItem?.orderStatus}
-                    </Badge>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <Badge
+                        className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-md ${
+                          orderItem?.orderStatus === "delivered"
+                            ? "bg-green-100 text-green-700"
+                            : orderItem?.orderStatus === "rejected"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-slate-900 text-white"
+                        }`}
+                      >
+                        {orderItem?.orderStatus}
+                      </Badge>
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                        {orderItem?.orderDate ? String(orderItem.orderDate).slice(0, 10) : "N/A"}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-3 gap-1 bg-slate-50/50 p-2.5 rounded-xl border border-slate-100">
                     <div className="px-1">
                       <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mb-0.5">Total</p>
-                      <p className="text-[11px] font-extrabold text-slate-900">₦{orderItem?.totalAmount.toLocaleString()}</p>
+                      <p className="text-[11px] font-extrabold text-slate-900">₦{(orderItem?.totalAmount || 0).toLocaleString()}</p>
                     </div>
                     <div className="px-1 border-x border-slate-200/60">
                       <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mb-0.5">Paid</p>
-                      <p className="text-[11px] font-extrabold text-emerald-600">₦{orderItem?.amountPaid.toLocaleString()}</p>
+                      <p className="text-[11px] font-extrabold text-emerald-600">₦{(orderItem?.amountPaid || 0).toLocaleString()}</p>
                     </div>
                     <div className="px-1">
                       <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mb-0.5">Balance</p>
-                      <p className="text-[11px] font-extrabold text-rose-600">₦{orderItem?.balanceAmount.toLocaleString()}</p>
+                      <p className="text-[11px] font-extrabold text-rose-600">₦{(orderItem?.balanceAmount || 0).toLocaleString()}</p>
                     </div>
                   </div>
 
@@ -210,7 +215,11 @@ function AdminOrdersView() {
                         )}
                       </TableCell>
                       <TableCell className="font-semibold text-slate-700 text-xs">{orderItem?.payerEmail}</TableCell>
-                      <TableCell className="text-slate-500 text-xs">{orderItem?.orderDate.split("T")[0]}</TableCell>
+                      <TableCell>
+                        <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded-md border border-slate-200">
+                          {orderItem?.orderDate ? String(orderItem.orderDate).slice(0, 10) : "N/A"}
+                        </span>
+                      </TableCell>
                       <TableCell>
                         <Badge
                           className={`text-[9px] uppercase font-bold px-2 py-0.5 rounded-md ${
@@ -232,12 +241,12 @@ function AdminOrdersView() {
                         </Badge>
                       </TableCell>
                       <TableCell className="font-bold text-emerald-600 text-xs text-nowrap">
-                        ₦{orderItem?.amountPaid.toLocaleString()}
+                        ₦{(orderItem?.amountPaid || 0).toLocaleString()}
                       </TableCell>
                       <TableCell className="font-bold text-red-600 text-xs text-nowrap">
-                        ₦{orderItem?.balanceAmount.toLocaleString()}
+                        ₦{(orderItem?.balanceAmount || 0).toLocaleString()}
                       </TableCell>
-                      <TableCell className="font-bold text-slate-900 text-xs text-nowrap">₦{orderItem?.totalAmount.toLocaleString()}</TableCell>
+                      <TableCell className="font-bold text-slate-900 text-xs text-nowrap">₦{(orderItem?.totalAmount || 0).toLocaleString()}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1.5">
                              <Button
