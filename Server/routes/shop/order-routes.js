@@ -4,7 +4,9 @@ const {
   payOrderBalance,
   capturePayment,
   captureBalancePayment,
+  captureMonnifyPayment,
   paystackWebhook,
+  monnifyWebhook,
   getAllOrdersByUser,
   getOrderDetails,
   deleteOrder,
@@ -15,11 +17,13 @@ const { orderRateLimiter } = require("../../middleware/rate-limiter");
 
 const router = express.Router();
 
-// Webhook route - must NOT be protected by authMiddleware
+// Webhook routes - must NOT be protected by authMiddleware
 router.post("/webhook", paystackWebhook);
+router.post("/monnify-webhook", monnifyWebhook);
 
 router.post("/create", authMiddleware, orderRateLimiter, createOrder);
 router.post("/capture", authMiddleware, capturePayment);
+router.post("/capture-monnify", authMiddleware, captureMonnifyPayment);
 router.post("/pay-balance/:id", authMiddleware, payOrderBalance);
 router.post("/capture-balance", authMiddleware, captureBalancePayment);
 router.get("/list/:userId", authMiddleware, getAllOrdersByUser);

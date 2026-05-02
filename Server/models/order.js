@@ -93,7 +93,12 @@ const OrderSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    paymentId: String, // Paystack Reference
+    paymentId: {
+      type: String,
+      index: true,
+      unique: true,
+      sparse: true, // Allows multiple pending orders to have no paymentId
+    }, // Paystack/Monnify Reference
     payerEmail: String,
     orderDate: {
       type: Date,

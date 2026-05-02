@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -13,11 +14,12 @@ import { toast } from "sonner";
 
 function ShoppingOrderDetailsView({ orderDetails }) {
   const { user } = useSelector((state) => state.auth);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("Monnify");
 
   const dispatch = useDispatch();
 
   function handlePayBalance() {
-    dispatch(payOrderBalance(orderDetails?._id)).then((data) => {
+    dispatch(payOrderBalance({ orderId: orderDetails?._id, paymentMethod: selectedPaymentMethod })).then((data) => {
       if (data?.payload?.success) {
         sessionStorage.setItem("currentOrderId", JSON.stringify(orderDetails?._id));
         sessionStorage.setItem("isBalancePayment", JSON.stringify(true));
@@ -95,6 +97,29 @@ function ShoppingOrderDetailsView({ orderDetails }) {
             
             {orderDetails?.paymentStatus === 'partially_paid' && orderDetails?.balanceAmount > 0 && (
               <div className="mt-4 pt-4 border-t border-slate-200">
+                <div className="flex flex-col gap-3 mb-4">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select Payment Method</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => setSelectedPaymentMethod("Monnify")}
+                      className={`py-2 px-3 rounded-lg border-2 transition-all text-[10px] font-bold uppercase tracking-tight flex items-center justify-center gap-2 ${
+                        selectedPaymentMethod === "Monnify" ? "border-orange-500 bg-orange-50 text-orange-700" : "border-slate-100 bg-white text-slate-400"
+                      }`}
+                    >
+                      <Truck className="w-3 h-3" />
+                      Transfer
+                    </button>
+                    <button
+                      onClick={() => setSelectedPaymentMethod("Paystack")}
+                      className={`py-2 px-3 rounded-lg border-2 transition-all text-[10px] font-bold uppercase tracking-tight flex items-center justify-center gap-2 ${
+                        selectedPaymentMethod === "Paystack" ? "border-orange-500 bg-orange-50 text-orange-700" : "border-slate-100 bg-white text-slate-400"
+                      }`}
+                    >
+                      <CreditCard className="w-3 h-3" />
+                      Card
+                    </button>
+                  </div>
+                </div>
                 <Button 
                   onClick={handlePayBalance}
                   className="w-full bg-primary hover:bg-primary/90 text-white font-black flex flex-col sm:flex-row items-center justify-center gap-2 py-4 sm:py-6 rounded-xl shadow-lg shadow-primary/20 transition-all active:scale-[0.98] uppercase tracking-wider text-[10px] sm:text-xs"
@@ -103,7 +128,7 @@ function ShoppingOrderDetailsView({ orderDetails }) {
                   <span className="text-center">Clear Remaining Balance (₦{orderDetails?.balanceAmount?.toLocaleString()})</span>
                 </Button>
                 <p className="text-[10px] text-slate-400 text-center mt-2 font-medium">
-                  Proceed to Paystack for secure balance completion
+                  Proceed to secure payment for balance completion
                 </p>
               </div>
             )}

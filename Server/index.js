@@ -62,6 +62,35 @@ mongoose
       }
     }));
     app.use(cookieParser());
+
+    // ── RATE LIMITING ────────────────────────────────────────────────────────
+    const { rateLimit } = require("express-rate-limit");
+
+    // 1. Global Rate Limiter: General protection against basic DDoS
+    const globalLimiter = rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      limit: 1000, // Limit each IP to 1000 requests per window
+      standardHeaders: "draft-7",
+      legacyHeaders: false,
+      message: "Too many requests from this IP, please try again later."
+    });
+    app.use(globalLimiter);
+
+    // 2. Sensitive Route Limiter: Protect Login and Order initialization
+    const sensitiveLimiter = rateLimit({
+      windowMs: 60 * 60 * 1000, // 1 hour
+      limit: 30, // Limit each IP to 30 requests per hour
+      standardHeaders: "draft-7",
+      legacyHeaders: false,
+      message: "Security limit reached. Please wait an hour before trying again."
+    });
+
+    app.use("/api/auth/login", sensitiveLimiter);
+    app.use("/api/auth/register", sensitiveLimiter);
+    app.use("/api/shop/order/create", sensitiveLimiter);
+    app.use("/api/shop/order/pay-balance", sensitiveLimiter);
+
+    // Routes
     app.use("/api/auth", authRouter);
     app.use("/api/admin/products", adminProductsRouter);
     app.use("/api/admin/user-stats", adminUserStatsRouter);

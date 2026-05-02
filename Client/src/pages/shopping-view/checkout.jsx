@@ -26,6 +26,7 @@ function ShoppingCheckout() {
   const [receiptOwner, setReceiptOwner] = useState("me"); // "me", "recipient", "other"
   const [customReceiptName, setCustomReceiptName] = useState("");
   const [customReceiptEmail, setCustomReceiptEmail] = useState("");
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("Monnify"); // Default to Monnify for lower costs
   // Where should the product be delivered? Only relevant for "Someone Else" purchases.
   // "recipient" = to recipient's address, "personal" = to payer's own address
   const [deliveryTarget, setDeliveryTarget] = useState("recipient");
@@ -121,7 +122,7 @@ function ShoppingCheckout() {
     setShowAddressSummary(true);
   }
 
-  function handleInitiatePaystackPayment() {
+  function handleInitiatePayment() {
     if (isProcessingOrder) return;
     if (!cartItems?.items?.length) {
       toast.error("Your cart is empty.");
@@ -185,7 +186,7 @@ function ShoppingCheckout() {
         },
       },
       orderStatus: "pending",
-      paymentMethod: "Paystack",
+      paymentMethod: selectedPaymentMethod,
       paymentStatus: "pending",
       totalAmount: totalCartAmount,
       paymentType: paymentType,
@@ -647,7 +648,62 @@ function ShoppingCheckout() {
               <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-600/20">
                 <CreditCard className="w-5 h-5 text-white" />
               </div>
-              PAYMENT
+              PAYMENT GATEWAY
+            </h2>
+
+            {/* Payment Gateway Selection */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+              <button
+                onClick={() => setSelectedPaymentMethod("Monnify")}
+                className={`p-5 rounded-2xl border-2 transition-all text-left relative focus:outline-none ${
+                  selectedPaymentMethod === "Monnify"
+                    ? "border-orange-500 bg-orange-50/30 shadow-lg shadow-orange-500/10"
+                    : "border-slate-50 bg-slate-50/50 hover:border-orange-200"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${selectedPaymentMethod === "Monnify" ? "bg-orange-500 text-white" : "bg-white text-slate-400 border"}`}>
+                    <Truck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="font-black text-[10px] text-slate-900 uppercase tracking-widest block">Bank Transfer</span>
+                    <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-tight">Recommended (Lowest Fees)</span>
+                  </div>
+                </div>
+                {selectedPaymentMethod === "Monnify" && (
+                  <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center border border-white">
+                    <Check className="w-2 h-2 text-white" />
+                  </div>
+                )}
+              </button>
+
+              <button
+                onClick={() => setSelectedPaymentMethod("Paystack")}
+                className={`p-5 rounded-2xl border-2 transition-all text-left relative focus:outline-none ${
+                  selectedPaymentMethod === "Paystack"
+                    ? "border-orange-500 bg-orange-50/30 shadow-lg shadow-orange-500/10"
+                    : "border-slate-50 bg-slate-50/50 hover:border-orange-200"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${selectedPaymentMethod === "Paystack" ? "bg-orange-500 text-white" : "bg-white text-slate-400 border"}`}>
+                    <CreditCard className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="font-black text-[10px] text-slate-900 uppercase tracking-widest block">Card Payment</span>
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight">Standard Fees</span>
+                  </div>
+                </div>
+                {selectedPaymentMethod === "Paystack" && (
+                  <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center border border-white">
+                    <Check className="w-2 h-2 text-white" />
+                  </div>
+                )}
+              </button>
+            </div>
+
+            <h2 className="text-sm sm:text-base font-bold mb-5 flex items-center gap-3 text-slate-800 uppercase tracking-tight border-t border-slate-100 pt-6">
+               PAYMENT PLAN
             </h2>
 
 
@@ -953,7 +1009,7 @@ function ShoppingCheckout() {
             {/* Pay Button */}
             <div className="sticky bottom-0 bg-white pt-2 pb-4 sm:static sm:bg-transparent sm:p-0">
               <Button
-                onClick={handleInitiatePaystackPayment}
+                onClick={handleInitiatePayment}
                 disabled={isPayButtonDisabled}
                 className={`w-full h-14 sm:h-12 text-xs sm:text-sm font-bold uppercase tracking-widest rounded-xl shadow-lg transition-all border-none text-white ${
                   isPayButtonDisabled
@@ -987,7 +1043,7 @@ function ShoppingCheckout() {
 
             <div className="flex items-center justify-center gap-3 mt-4 text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">
                <Shield className="w-3 h-3" />
-               <span>Secured by Paystack</span>
+               <span>Secured by {selectedPaymentMethod === "Monnify" ? "Monnify" : "Paystack"}</span>
             </div>
 
             {/* Need Help Section */}

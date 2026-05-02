@@ -132,9 +132,12 @@ function AdminOrderDetailsView({ orderDetails, setOpenDialog }) {
                       <span className="text-2xl font-bold text-white leading-none">₦{orderDetails?.balanceAmount.toLocaleString()}</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest block mb-1">Mode of Payment</span>
+                      <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest block mb-1">Gateway & Plan</span>
+                      <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded bg-white/10 text-white mr-2`}>
+                        {orderDetails?.paymentMethod || "Paystack"}
+                      </span>
                       <span className={`text-xs font-bold ${orderDetails?.paymentType === 'commitment' ? 'text-amber-400' : 'text-emerald-400'}`}>
-                        {orderDetails?.paymentType === 'commitment' ? 'Pay on Delivery' : 'Full Payment'}
+                        {orderDetails?.paymentType === 'commitment' ? 'POD' : 'FULL'}
                       </span>
                     </div>
                   </div>
