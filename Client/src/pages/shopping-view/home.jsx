@@ -104,7 +104,7 @@ function ShoppingHome() {
       const interval = setInterval(() => {
         const newProducts = shuffleArray([...productList]).slice(0, 8);
         setCurrentProducts(newProducts);
-      }, 20000);
+      }, 60000); // Slowed down from 20s to 60s
 
       return () => clearInterval(interval);
     }

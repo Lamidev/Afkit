@@ -38,9 +38,10 @@ export const capturePayment = createAsyncThunk(
 
 export const payOrderBalance = createAsyncThunk(
   "/order/payOrderBalance",
-  async (orderId) => {
+  async ({ orderId, paymentMethod }) => {
     const response = await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/shop/order/pay-balance/${orderId}`
+      `${import.meta.env.VITE_API_BASE_URL}/shop/order/pay-balance/${orderId}`,
+      { paymentMethod }
     );
 
     return response.data;
@@ -52,6 +53,21 @@ export const captureBalancePayment = createAsyncThunk(
   async ({ paymentId, orderId }) => {
     const response = await axios.post(
       `${import.meta.env.VITE_API_BASE_URL}/shop/order/capture-balance`,
+      {
+        paymentId,
+        orderId,
+      }
+    );
+
+    return response.data;
+  }
+);
+
+export const captureMonnifyPayment = createAsyncThunk(
+  "/order/captureMonnifyPayment",
+  async ({ paymentId, orderId }) => {
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/shop/order/capture-monnify`,
       {
         paymentId,
         orderId,
@@ -154,6 +170,15 @@ const shoppingOrderSlice = createSlice({
       .addCase(getOrderDetails.rejected, (state) => {
         state.isLoading = false;
         state.orderDetails = null;
+      })
+      .addCase(captureMonnifyPayment.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(captureMonnifyPayment.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(captureMonnifyPayment.rejected, (state) => {
+        state.isLoading = false;
       });
   },
 });
