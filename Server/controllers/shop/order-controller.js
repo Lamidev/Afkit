@@ -3,7 +3,6 @@ const Cart = require("../../models/cart");
 const Product = require("../../models/products");
 const mongoose = require("mongoose");
 const crypto = require("crypto");
-const paystackHelper = require("../../helpers/paystack")(process.env.PAYSTACK_SECRET_KEY);
 const monnifyHelper = require("../../helpers/monnify")(
   process.env.MONNIFY_API_KEY,
   process.env.MONNIFY_SECRET_KEY,
@@ -57,7 +56,7 @@ const createOrder = async (req, res) => {
       });
     }
 
-    // 2. Determine Paystack Amount
+    // 2. Determine Payment Amount
     // ₦10,000 commitment fee or Full Amount
     const COMMITMENT_FEE = 10000;
     
@@ -75,56 +74,32 @@ const createOrder = async (req, res) => {
     let approvalURL = "";
     let paymentReference = "";
 
-    if (paymentMethod === "Monnify") {
-      const monnifyData = await monnifyHelper.initializeTransaction({
-        amount: finalAmountToPay,
-        customerName: addressInfo.fullName || "Customer",
-        customerEmail: payerEmail,
-        paymentReference: orderId, // Use orderId as payment reference for Monnify
-        paymentDescription: `Order ${orderId}`,
-        currencyCode: "NGN",
-        contractCode: process.env.MONNIFY_CONTRACT_CODE,
-        redirectUrl: `${process.env.CLIENT_URL}/shop/monnify-return`,
-        metadata: {
-          userId,
-          orderId,
-          paymentType: enforcedPaymentType,
-        },
-        paymentMethods: ["CARD", "ACCOUNT_TRANSFER"],
+    const monnifyData = await monnifyHelper.initializeTransaction({
+      amount: finalAmountToPay,
+      customerName: addressInfo.fullName || "Customer",
+      customerEmail: payerEmail,
+      paymentReference: orderId, // Use orderId as payment reference for Monnify
+      paymentDescription: `Order ${orderId}`,
+      currencyCode: "NGN",
+      contractCode: (process.env.MONNIFY_CONTRACT_CODE || "").trim(),
+      redirectUrl: `${(process.env.CLIENT_URL || "").trim()}/shop/monnify-return`,
+      metaData: {
+        userId,
+        orderId,
+        paymentType: enforcedPaymentType,
+      },
+      paymentMethods: ["CARD", "ACCOUNT_TRANSFER"],
+    });
+
+    if (!monnifyData.requestSuccessful) {
+      console.error("Monnify Initialization Failed:", monnifyData);
+      return res.status(400).json({
+        success: false,
+        message: monnifyData.responseMessage || "Monnify initialization failed",
       });
-
-      if (!monnifyData.requestSuccessful) {
-        return res.status(400).json({
-          success: false,
-          message: "Monnify initialization failed",
-        });
-      }
-      approvalURL = monnifyData.responseBody.checkoutUrl;
-      paymentReference = monnifyData.responseBody.transactionReference;
-    } else {
-      // Default to Paystack
-      const callbackUrl = `${process.env.CLIENT_URL}/shop/paystack-return?orderId=${orderId}`;
-
-      const paystackData = await paystackHelper.initializePayment({
-        email: payerEmail,
-        amount: finalAmountToPay * 100, // Paystack uses Kobo
-        callback_url: callbackUrl,
-        metadata: {
-          userId,
-          orderId,
-          paymentType: enforcedPaymentType,
-        },
-      });
-
-      if (!paystackData.status) {
-        return res.status(400).json({
-          success: false,
-          message: "Paystack initialization failed",
-        });
-      }
-      approvalURL = paystackData.data.authorization_url;
-      paymentReference = paystackData.data.reference;
     }
+    approvalURL = monnifyData.requestSuccessful ? monnifyData.responseBody.checkoutUrl : "";
+    paymentReference = monnifyData.requestSuccessful ? monnifyData.responseBody.transactionReference : "";
 
     // 5. Create Order in DB (Pending)
 
@@ -181,55 +156,30 @@ const payOrderBalance = async (req, res) => {
       });
     }
 
-    const { paymentMethod: requestedPaymentMethod } = req.body;
-    const paymentMethod = requestedPaymentMethod || "Monnify"; // Priority to Monnify
+    const monnifyData = await monnifyHelper.initializeTransaction({
+      amount: order.balanceAmount,
+      customerName: order.addressInfo.fullName || "Customer",
+      customerEmail: order.payerEmail,
+      paymentReference: `${order.orderId}-BAL`,
+      paymentDescription: `Balance payment for Order ${order.orderId}`,
+      currencyCode: "NGN",
+      contractCode: (process.env.MONNIFY_CONTRACT_CODE || "").trim(),
+      redirectUrl: `${(process.env.CLIENT_URL || "").trim()}/shop/monnify-return`,
+      metaData: {
+        orderId: order._id,
+        paymentType: "balance_completion",
+      },
+      paymentMethods: ["CARD", "ACCOUNT_TRANSFER"],
+    });
 
-    let approvalURL = "";
-    if (paymentMethod === "Monnify") {
-      const monnifyData = await monnifyHelper.initializeTransaction({
-        amount: order.balanceAmount,
-        customerName: order.addressInfo.fullName || "Customer",
-        customerEmail: order.payerEmail,
-        paymentReference: `${order.orderId}-BAL`,
-        paymentDescription: `Balance payment for Order ${order.orderId}`,
-        currencyCode: "NGN",
-        contractCode: process.env.MONNIFY_CONTRACT_CODE,
-        redirectUrl: `${process.env.CLIENT_URL}/shop/monnify-return`,
-        metadata: {
-          orderId: order._id,
-          paymentType: "balance_completion",
-        },
-        paymentMethods: ["CARD", "ACCOUNT_TRANSFER"],
+    if (!monnifyData.requestSuccessful) {
+      console.error("Monnify Balance Initialization Failed:", monnifyData);
+      return res.status(400).json({
+        success: false,
+        message: monnifyData.responseMessage || "Monnify initialization failed",
       });
-
-      if (!monnifyData.requestSuccessful) {
-        return res.status(400).json({
-          success: false,
-          message: "Monnify initialization failed",
-        });
-      }
-      approvalURL = monnifyData.responseBody.checkoutUrl;
-    } else {
-      const callbackUrl = `${process.env.CLIENT_URL}/shop/paystack-return`;
-
-      const paystackData = await paystackHelper.initializePayment({
-        email: order.payerEmail,
-        amount: order.balanceAmount * 100,
-        callback_url: callbackUrl,
-        metadata: {
-          orderId: order._id,
-          paymentType: "balance_completion",
-        },
-      });
-
-      if (!paystackData.status) {
-        return res.status(400).json({
-          success: false,
-          message: "Paystack initialization failed",
-        });
-      }
-      approvalURL = paystackData.data.authorization_url;
     }
+    approvalURL = monnifyData.responseBody.checkoutUrl;
 
     res.status(200).json({
       success: true,
@@ -270,25 +220,15 @@ const captureBalancePayment = async (req, res) => {
     let amountReceived = 0;
     let gatewayOrderId = "";
 
-    if (paymentId.startsWith("MNFY") || !paymentId.includes("-")) {
-      // Try Monnify verification
-      try {
-        const monnifyData = await monnifyHelper.verifyTransaction(paymentId);
-        if (monnifyData.requestSuccessful && monnifyData.responseBody.paymentStatus === "PAID") {
-          amountReceived = monnifyData.responseBody.amountPaid;
-          gatewayOrderId = monnifyData.responseBody.paymentReference; // We sent `${order.orderId}-BAL` or orderId
-        }
-      } catch (err) {
-        // Fallback to Paystack if Monnify fails or if it's not a Monnify ref
+    // Try Monnify verification
+    try {
+      const monnifyData = await monnifyHelper.verifyTransaction(paymentId);
+      if (monnifyData.requestSuccessful && monnifyData.responseBody.paymentStatus === "PAID") {
+        amountReceived = monnifyData.responseBody.amountPaid;
+        gatewayOrderId = monnifyData.responseBody.paymentReference; // We sent `${order.orderId}-BAL` or orderId
       }
-    }
-
-    if (amountReceived === 0) {
-      const verificationData = await paystackHelper.verifyPayment(paymentId);
-      if (verificationData.status && verificationData.data.status === "success") {
-        amountReceived = verificationData.data.amount / 100;
-        gatewayOrderId = verificationData.data.metadata?.orderId || verificationData.data.reference;
-      }
+    } catch (err) {
+      console.error("Monnify Verification Error:", err.message);
     }
 
     if (amountReceived > 0) {
@@ -328,132 +268,7 @@ const captureBalancePayment = async (req, res) => {
   }
 };
 
-const capturePayment = async (req, res) => {
-  try {
-    const { paymentId, orderId } = req.body;
 
-    let order;
-    if (orderId) {
-      order = await Order.findById(orderId);
-    } else if (paymentId) {
-      // Fallback: Find by payment reference if orderId is missing from session
-      order = await Order.findOne({ paymentId });
-    }
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order can not be found",
-      });
-    }
-
-    // ── Idempotency Guard ───────────────────────────────────────────────────
-    // If this order was already confirmed (e.g. page refresh, React double-invoke),
-    // return success without re-processing to prevent duplicate emails & stock deduction.
-    if (order.paymentStatus === "paid" || order.paymentStatus === "partially_paid") {
-      // Even if already confirmed, try to ensure cart is cleared for this user
-      await Cart.findOneAndUpdate({ userId: order.userId }, { $set: { items: [] } });
-      
-      return res.status(200).json({
-        success: true,
-        message: "Order already confirmed",
-        data: order,
-      });
-    }
-
-    // Verify with Paystack
-    const verificationData = await paystackHelper.verifyPayment(paymentId);
-
-    if (verificationData.status && verificationData.data.status === "success") {
-      const amountReceived = verificationData.data.amount / 100;
-      const gatewayOrderId = verificationData.data.metadata?.orderId;
-      
-      // CRITICAL SECURITY CHECK: Ensure the payment was actually for THIS order
-      if (gatewayOrderId !== order.orderId && verificationData.data.reference !== order.paymentId) {
-        return res.status(400).json({
-          success: false,
-          message: "Payment reference mismatch. Security alert triggered.",
-        });
-      }
-
-      const paymentType = verificationData.data.metadata?.paymentType || order.paymentType;
-      await updateOrderOnPaymentSuccess(order, amountReceived, paymentType);
-
-      res.status(200).json({
-        success: true,
-        message: "Order confirmed and payment verified",
-        data: order,
-      });
-    } else {
-      res.status(400).json({
-        success: false,
-        message: "Payment verification failed or payment not successful",
-      });
-    }
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({
-      success: false,
-      message: "Some error occurred while capturing payment",
-    });
-  }
-};
-
-const paystackWebhook = async (req, res) => {
-  // ── 1. Respond immediately so Paystack doesn't retry ──────────────────────
-  res.status(200).send("Webhook received");
-
-  try {
-    const secret = process.env.PAYSTACK_SECRET_KEY;
-
-    // rawBody is captured by express.json() verify callback in index.js
-    if (!req.rawBody) {
-      return;
-    }
-
-    const hash = crypto
-      .createHmac("sha512", secret)
-      .update(req.rawBody)
-      .digest("hex");
-
-    const paystackSig = req.headers["x-paystack-signature"];
-
-    if (hash !== paystackSig) {
-      return;
-    }
-
-
-    const event = req.body;
-
-    if (event.event === "charge.success") {
-      const paymentReference = event.data.reference;
-      const amountReceived = event.data.amount / 100;
-      const metadata = event.data.metadata;
-
-      // Try to find the order by paymentId (for initial payments)
-      // OR by orderId in metadata (for balance payments)
-      let query = {
-        $or: [
-          { paymentId: paymentReference },
-          { orderId: metadata?.orderId }
-        ]
-      };
-
-      if (mongoose.Types.ObjectId.isValid(metadata?.orderId)) {
-        query.$or.push({ _id: metadata.orderId });
-      }
-
-      let order = await Order.findOne(query);
-
-      if (order) {
-        // Shared logic for updating order
-        await updateOrderOnPaymentSuccess(order, amountReceived, metadata?.paymentType || order.paymentType);
-      }
-    }
-  } catch (error) {
-    console.error("[PAYSTACK WEBHOOK] ❌ Processing error:", error.message);
-  }
-};
 
 const monnifyWebhook = async (req, res) => {
   try {
@@ -549,6 +364,7 @@ const captureMonnifyPayment = async (req, res) => {
         data: order,
       });
     } else {
+      console.error("Monnify Verification Failed or Not Paid:", verificationData);
       res.status(400).json({ success: false, message: "Monnify payment not successful" });
     }
   } catch (e) {
@@ -615,7 +431,7 @@ const cleanupPendingOrders = async () => {
   try {
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     // Find orders that are pending and older than 24 hours
-    // CRITICAL: We only delete if there is NO paymentId (meaning it was never even sent to Paystack)
+    // CRITICAL: We only delete if there is NO paymentId (meaning it was never even sent to the gateway)
     const result = await Order.deleteMany({
       orderStatus: "pending",
       paymentStatus: "pending",
@@ -715,10 +531,8 @@ const deleteOrder = async (req, res) => {
 module.exports = {
   createOrder,
   payOrderBalance,
-  capturePayment,
   captureBalancePayment,
   captureMonnifyPayment,
-  paystackWebhook,
   monnifyWebhook,
   cleanupPendingOrders,
   getAllOrdersByUser,

@@ -651,55 +651,22 @@ function ShoppingCheckout() {
               PAYMENT GATEWAY
             </h2>
 
-            {/* Payment Gateway Selection */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-              <button
-                onClick={() => setSelectedPaymentMethod("Monnify")}
-                className={`p-5 rounded-2xl border-2 transition-all text-left relative focus:outline-none ${
-                  selectedPaymentMethod === "Monnify"
-                    ? "border-orange-500 bg-orange-50/30 shadow-lg shadow-orange-500/10"
-                    : "border-slate-50 bg-slate-50/50 hover:border-orange-200"
-                }`}
-              >
+            {/* Payment Gateway Info */}
+            <div className="grid grid-cols-1 gap-4 mb-8">
+              <div className="p-5 rounded-2xl border-2 border-orange-500 bg-orange-50/30 shadow-lg shadow-orange-500/10 transition-all text-left relative">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${selectedPaymentMethod === "Monnify" ? "bg-orange-500 text-white" : "bg-white text-slate-400 border"}`}>
+                  <div className="p-2 rounded-lg bg-orange-500 text-white">
                     <Truck className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-black text-[10px] text-slate-900 uppercase tracking-widest block">Bank Transfer</span>
+                    <span className="font-black text-[10px] text-slate-900 uppercase tracking-widest block">Bank Transfer (Monnify)</span>
                     <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-tight">Recommended (Lowest Fees)</span>
                   </div>
                 </div>
-                {selectedPaymentMethod === "Monnify" && (
-                  <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center border border-white">
-                    <Check className="w-2 h-2 text-white" />
-                  </div>
-                )}
-              </button>
-
-              <button
-                onClick={() => setSelectedPaymentMethod("Paystack")}
-                className={`p-5 rounded-2xl border-2 transition-all text-left relative focus:outline-none ${
-                  selectedPaymentMethod === "Paystack"
-                    ? "border-orange-500 bg-orange-50/30 shadow-lg shadow-orange-500/10"
-                    : "border-slate-50 bg-slate-50/50 hover:border-orange-200"
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${selectedPaymentMethod === "Paystack" ? "bg-orange-500 text-white" : "bg-white text-slate-400 border"}`}>
-                    <CreditCard className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="font-black text-[10px] text-slate-900 uppercase tracking-widest block">Card Payment</span>
-                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight">Standard Fees</span>
-                  </div>
+                <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center border border-white">
+                  <Check className="w-2 h-2 text-white" />
                 </div>
-                {selectedPaymentMethod === "Paystack" && (
-                  <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-orange-500 flex items-center justify-center border border-white">
-                    <Check className="w-2 h-2 text-white" />
-                  </div>
-                )}
-              </button>
+              </div>
             </div>
 
             <h2 className="text-sm sm:text-base font-bold mb-5 flex items-center gap-3 text-slate-800 uppercase tracking-tight border-t border-slate-100 pt-6">
@@ -1043,7 +1010,7 @@ function ShoppingCheckout() {
 
             <div className="flex items-center justify-center gap-3 mt-4 text-[9px] font-black text-slate-300 uppercase tracking-[0.2em]">
                <Shield className="w-3 h-3" />
-               <span>Secured by {selectedPaymentMethod === "Monnify" ? "Monnify" : "Paystack"}</span>
+               <span>Secured by Monnify</span>
             </div>
 
             {/* Need Help Section */}

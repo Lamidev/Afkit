@@ -69,7 +69,7 @@ const OrderSchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      default: "Paystack",
+      default: "Monnify",
     },
     paymentType: {
       type: String,
@@ -98,7 +98,7 @@ const OrderSchema = new mongoose.Schema(
       index: true,
       unique: true,
       sparse: true, // Allows multiple pending orders to have no paymentId
-    }, // Paystack/Monnify Reference
+    }, // Monnify Reference
     payerEmail: String,
     orderDate: {
       type: Date,

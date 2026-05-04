@@ -19,7 +19,7 @@ const shareRouter = require("./routes/common/share-routes");
 const shareOGRouter = require("./routes/common/share-og-routes");
 const commonNotificationRouter = require("./routes/common/notification-routes");
 
-const dbURL = process.env.MONGODB_URL;
+const dbURL = (process.env.MONGODB_URL || "").trim();
 
 // Connect to MongoDB
 mongoose
