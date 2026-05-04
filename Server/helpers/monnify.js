@@ -31,8 +31,13 @@ const monnify = (apiKey, secretKey, baseUrl) => {
       });
       return response.data;
     } catch (error) {
-      console.error("Monnify Initialization Error:", error.response?.data || error.message);
-      throw error;
+      const errData = error.response?.data;
+      console.error("Monnify Initialization Error:", errData || error.message);
+      // Return a consistent failure shape so callers can handle it without a try/catch
+      return {
+        requestSuccessful: false,
+        responseMessage: errData?.responseMessage || error.message || "Monnify request failed",
+      };
     }
   };
 
