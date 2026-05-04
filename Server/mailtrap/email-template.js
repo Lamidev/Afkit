@@ -385,7 +385,7 @@ const getOrderConfirmationTemplate = (order) => {
           <h3 style="margin:0 0 12px;font-size:11px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;">Payment Status</h3>
           <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px;">
             <tr>
-              <td style="font-size:14px;color:rgba(255,255,255,0.8);">Paid via Paystack</td>
+              <td style="font-size:14px;color:rgba(255,255,255,0.8);">Paid via Monnify</td>
               <td align="right" style="font-size:14px;color:#ffffff;font-weight:700;">₦${Number(order.amountPaid).toLocaleString()}</td>
             </tr>
             ${(isPOD && order.balanceAmount > 0) ? `

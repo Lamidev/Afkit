@@ -99,25 +99,14 @@ function ShoppingOrderDetailsView({ orderDetails }) {
               <div className="mt-4 pt-4 border-t border-slate-200">
                 <div className="flex flex-col gap-3 mb-4">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Select Payment Method</span>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => setSelectedPaymentMethod("Monnify")}
-                      className={`py-2 px-3 rounded-lg border-2 transition-all text-[10px] font-bold uppercase tracking-tight flex items-center justify-center gap-2 ${
-                        selectedPaymentMethod === "Monnify" ? "border-orange-500 bg-orange-50 text-orange-700" : "border-slate-100 bg-white text-slate-400"
-                      }`}
-                    >
+                  <div className="bg-orange-50 border border-orange-100 p-3 rounded-xl flex items-center gap-3">
+                    <div className="p-2 bg-orange-500 rounded-lg text-white">
                       <Truck className="w-3 h-3" />
-                      Transfer
-                    </button>
-                    <button
-                      onClick={() => setSelectedPaymentMethod("Paystack")}
-                      className={`py-2 px-3 rounded-lg border-2 transition-all text-[10px] font-bold uppercase tracking-tight flex items-center justify-center gap-2 ${
-                        selectedPaymentMethod === "Paystack" ? "border-orange-500 bg-orange-50 text-orange-700" : "border-slate-100 bg-white text-slate-400"
-                      }`}
-                    >
-                      <CreditCard className="w-3 h-3" />
-                      Card
-                    </button>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase text-slate-900 tracking-tight">Bank Transfer (Monnify)</p>
+                      <p className="text-[8px] font-bold text-orange-600 uppercase">Secure Balance Payment</p>
+                    </div>
                   </div>
                 </div>
                 <Button 

@@ -25,7 +25,7 @@ import LoadingSpinner from "./components/shopping-view/loading-spinner";
 import { Toaster } from "./components/ui/sonner";
 import ShoppingProductDetails from "./pages/shopping-view/product-details-page";
 import AuthListener from "./components/shopping-view/auth-listener";
-import PaystackReturnPage from "./pages/shopping-view/paystack-return";
+
 import MonnifyReturnPage from "./pages/shopping-view/monnify-return";
 import PaymentSuccessPage from "./pages/shopping-view/payment-success";
 import ShoppingAccount from "./pages/shopping-view/account";
@@ -84,7 +84,7 @@ function App() {
           <Route path="product/:id" element={<ShoppingProductDetails />} />
           <Route path="search" element={<SearchProducts />} />
           <Route path="about" element={<AboutPage />} />
-          <Route path="paystack-return" element={<PaystackReturnPage />} />
+
           <Route path="monnify-return" element={<MonnifyReturnPage />} />
           <Route path="payment-success" element={<PaymentSuccessPage />} />
           <Route path="account" element={<ShoppingAccount />} />
