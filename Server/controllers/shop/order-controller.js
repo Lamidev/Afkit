@@ -76,7 +76,7 @@ const createOrder = async (req, res) => {
 
     const monnifyData = await monnifyHelper.initializeTransaction({
       amount: finalAmountToPay,
-      customerName: addressInfo.fullName || "Customer",
+      customerName: addressInfo?.fullName || "Customer",
       customerEmail: payerEmail,
       paymentReference: orderId, // Use orderId as payment reference for Monnify
       paymentDescription: `Order ${orderId}`,
@@ -158,7 +158,7 @@ const payOrderBalance = async (req, res) => {
 
     const monnifyData = await monnifyHelper.initializeTransaction({
       amount: order.balanceAmount,
-      customerName: order.addressInfo.fullName || "Customer",
+      customerName: order.addressInfo?.fullName || "Customer",
       customerEmail: order.payerEmail,
       paymentReference: `${order.orderId}-BAL`,
       paymentDescription: `Balance payment for Order ${order.orderId}`,
@@ -179,7 +179,7 @@ const payOrderBalance = async (req, res) => {
         message: monnifyData.responseMessage || "Monnify initialization failed",
       });
     }
-    approvalURL = monnifyData.responseBody.checkoutUrl;
+    const approvalURL = monnifyData.responseBody.checkoutUrl;
 
     res.status(200).json({
       success: true,
@@ -223,9 +223,9 @@ const captureBalancePayment = async (req, res) => {
     // Try Monnify verification
     try {
       const monnifyData = await monnifyHelper.verifyTransaction(paymentId);
-      if (monnifyData.requestSuccessful && monnifyData.responseBody.paymentStatus === "PAID") {
-        amountReceived = monnifyData.responseBody.amountPaid;
-        gatewayOrderId = monnifyData.responseBody.paymentReference; // We sent `${order.orderId}-BAL` or orderId
+      if (monnifyData.requestSuccessful && monnifyData.responseBody?.paymentStatus === "PAID") {
+        amountReceived = monnifyData.responseBody?.amountPaid || 0;
+        gatewayOrderId = monnifyData.responseBody?.paymentReference; // We sent `${order.orderId}-BAL` or orderId
       }
     } catch (err) {
       console.error("Monnify Verification Error:", err.message);
@@ -292,6 +292,7 @@ const monnifyWebhook = async (req, res) => {
 
     if (event.eventType === "SUCCESSFUL_TRANSACTION") {
       const transactionData = event.eventData;
+      if (!transactionData) return res.status(400).send("Invalid event data");
       const paymentReference = transactionData.transactionReference;
       const orderIdFromRef = transactionData.paymentReference; // We used orderId as paymentReference
       const amountReceived = transactionData.amountPaid;
@@ -343,9 +344,9 @@ const captureMonnifyPayment = async (req, res) => {
 
     const verificationData = await monnifyHelper.verifyTransaction(paymentId);
 
-    if (verificationData.requestSuccessful && verificationData.responseBody.paymentStatus === "PAID") {
-      const amountReceived = verificationData.responseBody.amountPaid;
-      const gatewayOrderId = verificationData.responseBody.paymentReference; // We sent orderId as paymentReference
+    if (verificationData.requestSuccessful && verificationData.responseBody?.paymentStatus === "PAID") {
+      const amountReceived = verificationData.responseBody?.amountPaid || 0;
+      const gatewayOrderId = verificationData.responseBody?.paymentReference; // We sent orderId as paymentReference
 
       // CRITICAL SECURITY CHECK: Ensure the payment was actually for THIS order
       if (gatewayOrderId !== order.orderId) {
