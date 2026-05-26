@@ -38,7 +38,7 @@ function OrderCard({ orderItem, onViewDetails, openDetailsDialog, orderDetails }
   const statusStyle = STATUS_STYLES[orderItem?.orderStatus] || STATUS_STYLES.pending;
 
   const handlePayBalance = () => {
-    dispatch(payOrderBalance(orderItem?._id)).then((data) => {
+    dispatch(payOrderBalance({ orderId: orderItem?._id, paymentMethod: "Monnify" })).then((data) => {
       if (data?.payload?.success) {
         sessionStorage.setItem("currentOrderId", JSON.stringify(orderItem?._id));
         sessionStorage.setItem("isBalancePayment", JSON.stringify(true));

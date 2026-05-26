@@ -44,12 +44,27 @@ const monnify = (apiKey, secretKey, baseUrl) => {
   const verifyTransaction = async (transactionReference) => {
     try {
       const token = await getAccessToken();
-      const response = await instance.get(`/api/v1/merchant/transactions/query?transactionReference=${transactionReference}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data;
+      try {
+        const response = await instance.get(`/api/v1/merchant/transactions/query?transactionReference=${transactionReference}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        // If the query fails with 404, or the reference looks like a merchant order ID (e.g. starts with ORD-),
+        // try checking via the merchantTransactionReference endpoint.
+        if (error.response?.status === 404 || (transactionReference && transactionReference.includes("ORD-"))) {
+          console.log(`Querying transaction reference failed or looks like merchant order ID. Trying merchantTransactionReference: ${transactionReference}`);
+          const response = await instance.get(`/api/v1/merchant/transactions/query/merchantTransactionReference/${transactionReference}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          return response.data;
+        }
+        throw error;
+      }
     } catch (error) {
       console.error("Monnify Verification Error:", error.response?.data || error.message);
       throw error;
