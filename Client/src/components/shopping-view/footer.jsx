@@ -123,8 +123,8 @@ const Footer = () => {
           </p>
           
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <p className="flex items-center gap-1.5 font-bold uppercase tracking-[0.2em] text-[10px] text-slate-400">
-               Built by <span className="text-blue-900 font-black cursor-pointer hover:text-orange-500 transition-colors">Lamidev</span>
+            <p className="font-bold uppercase tracking-[0.2em] text-[10px] text-slate-400 text-center md:text-left leading-relaxed break-words max-w-[90vw] md:max-w-none">
+               Built by <span className="text-blue-900 font-black cursor-pointer hover:text-orange-500 transition-colors inline-block md:inline">AkinByte Technologies Ltd (RC-9466327).</span>
             </p>
             
             <div className="flex items-center gap-5">
