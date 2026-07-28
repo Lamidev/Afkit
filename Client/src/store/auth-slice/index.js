@@ -230,7 +230,11 @@ const authSlice = createSlice({
         sessionStorage.removeItem("token");
       })
       .addCase(logoutUser.rejected, (state, action) => {
+        // Even if the server call fails, clear client-side auth state
         state.isLoading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        sessionStorage.removeItem("token");
         state.error = action.payload?.message || "Error logging out";
       })
       .addCase(forgotPassword.pending, (state) => {

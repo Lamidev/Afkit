@@ -23,4 +23,23 @@ const generateTokenAndSetCookie = (res, userId) => {
   return token;
 };
 
-module.exports = { generateTokenAndSetCookie };
+const clearTokenCookie = (res) => {
+  const isProduction = process.env.NODE_ENV === "production";
+  const cookieOptions = {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax',
+    expires: new Date(0),
+    maxAge: 0,
+    path: '/',
+  };
+
+  if (isProduction && process.env.COOKIE_DOMAIN) {
+    cookieOptions.domain = process.env.COOKIE_DOMAIN;
+  }
+
+  res.cookie("token", "", cookieOptions);
+  res.clearCookie("token", cookieOptions);
+};
+
+module.exports = { generateTokenAndSetCookie, clearTokenCookie };
