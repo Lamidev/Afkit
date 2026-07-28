@@ -95,6 +95,11 @@ function MenuItems({ closeSheet }) {
         label: "Gaming Laptops",
         path: "/shop/listing?category=laptops&laptopType=gaming",
       },
+      {
+        id: "macbook",
+        label: "Macbooks",
+        path: "/shop/listing?category=laptops&brand=apple",
+      },
     ],
     monitors: [
       {

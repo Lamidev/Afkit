@@ -8,15 +8,9 @@ export const fetchUserStats = createAsyncThunk(
   "userStats/fetchUserStats",
   async (_, { rejectWithValue }) => {
     try {
-      const token = sessionStorage.getItem("token");
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
-          withCredentials: true
-        }
+        { withCredentials: true }
       );
       return response.data;
     } catch (error) {
@@ -31,14 +25,10 @@ export const fetchAllUsersList = createAsyncThunk(
   "userStats/fetchAllUsersList",
   async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
-      const token = sessionStorage.getItem("token");
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats/users-list`,
         { 
           params: { page, limit },
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
           withCredentials: true 
         }
       );
@@ -56,15 +46,9 @@ export const deleteVerifiedUser = createAsyncThunk(
   "userStats/deleteVerifiedUser",
   async (id, { rejectWithValue }) => {
     try {
-      const token = sessionStorage.getItem("token");
       const response = await axios.delete(
         `${import.meta.env.VITE_API_BASE_URL}/admin/user-stats/delete-user/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
       return response.data;
     } catch (error) {

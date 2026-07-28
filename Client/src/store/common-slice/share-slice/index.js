@@ -7,23 +7,18 @@ export const recordLinkShare = createAsyncThunk(
   "shareTracking/recordLinkShare", 
   async ({ productId, productTitle, shareDestination, sourcePage, sessionId }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("token"); 
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      };
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-
       const response = await axios.post(`${API_BASE_URL}/shares/record`, {
         productId,
         productTitle,
         shareDestination,
         sourcePage,
         sessionId,
-      }, config);
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true
+      });
       return response.data;
     } catch (error) {
       console.error("Error recording link share:", error);

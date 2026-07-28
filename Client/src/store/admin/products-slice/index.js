@@ -27,7 +27,6 @@ export const uploadProductImages = createAsyncThunk(
         {
           headers: {
             'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
           },
           withCredentials: true,
           onUploadProgress: (progressEvent) => {
@@ -74,7 +73,6 @@ export const addNewProduct = createAsyncThunk(
         { 
           headers: { 
             "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
           },
           withCredentials: true,
         }
@@ -112,9 +110,6 @@ export const fetchAllProducts = createAsyncThunk(
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/admin/products/get?${queryParams}`,
         {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-          },
           withCredentials: true,
         }
       );
@@ -135,7 +130,6 @@ export const editProduct = createAsyncThunk(
         { 
           headers: { 
             "Content-Type": "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
           },
           withCredentials: true,
         }
@@ -154,9 +148,6 @@ export const deleteProduct = createAsyncThunk(
       const response = await axios.delete(
         `${import.meta.env.VITE_API_BASE_URL}/admin/products/delete/${id}`,
         {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-          },
           withCredentials: true,
         }
       );
@@ -175,9 +166,6 @@ export const hideProduct = createAsyncThunk(
         `${import.meta.env.VITE_API_BASE_URL}/admin/products/hide/${id}`,
         {},
         {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-          },
           withCredentials: true,
         }
       );
@@ -196,9 +184,6 @@ export const unhideProduct = createAsyncThunk(
         `${import.meta.env.VITE_API_BASE_URL}/admin/products/unhide/${id}`,
         {},
         {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("token")}`,
-          },
           withCredentials: true,
         }
       );
