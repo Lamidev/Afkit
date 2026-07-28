@@ -6,6 +6,7 @@ const crypto = require("crypto");
 const User = require("../../models/users");
 const {
   generateTokenAndSetCookie,
+  clearTokenCookie,
 } = require("../../utils/generateTokenAndSetCookies");
 const {
   sendPasswordResetEmail,
@@ -128,7 +129,7 @@ const verifyEmail = async (req, res) => {
 
     await sendWelcomeEmail(user.email, user.userName);
 
-    res.clearCookie("token");
+    clearTokenCookie(res);
 
     res.status(200).json({ success: true, message: "Email verified successfully" });
   } catch (error) {
@@ -171,15 +172,8 @@ const loginUser = async (req, res) => {
 
 // Logout User
 const logoutUser = (req, res) => {
-  const isProduction = process.env.NODE_ENV === "production";
-  res.cookie("token", "", {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
-      expires: new Date(0),
-      path: "/",
-    })
-    .json({ success: true, message: "Logged out successfully!" });
+  clearTokenCookie(res);
+  res.json({ success: true, message: "Logged out successfully!" });
 };
 
 // Forgot Password
@@ -286,14 +280,7 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
-    const isProduction = process.env.NODE_ENV === "production";
-    res.cookie("token", "", {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
-      expires: new Date(0),
-      path: "/",
-    });
+    clearTokenCookie(res);
 
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({

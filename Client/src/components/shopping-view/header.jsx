@@ -384,9 +384,9 @@ function ShoppingHeader() {
   const dispatch = useDispatch();
 
   function handleLogout() {
-    dispatch(logoutUser()).then(() => {
-      navigate("/shop/home");
-      window.location.reload(); // Force a clean state refresh
+    dispatch(logoutUser()).finally(() => {
+      // Hard redirect clears all React/Redux in-memory state and re-triggers checkAuth
+      window.location.href = "/shop/home";
     });
     setIsLogoutDialogOpen(false);
     setIsSheetOpen(false);

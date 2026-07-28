@@ -45,8 +45,9 @@ function AdminHeader({ setOpen }) {
   }, []);
 
   function handleLogout() {
-    dispatch(logoutUser()).then(() => {
-      navigate("/shop/home");
+    dispatch(logoutUser()).finally(() => {
+      // Hard redirect clears all React/Redux in-memory state and re-triggers checkAuth
+      window.location.href = "/shop/home";
     });
     setIsLogoutDialogOpen(false);
   }
