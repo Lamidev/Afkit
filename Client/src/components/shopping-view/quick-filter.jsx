@@ -7,9 +7,12 @@ const QuickFilter = ({ categories, subOptions, paramKey, onClearAll }) => {
 
   const handleFilterClick = (key, value) => {
     const newParams = new URLSearchParams(searchParams);
-    if (newParams.get(key) === value) {
-      newParams.delete(key);
-    } else {
+    const currentlyActive = searchParams.get(key) === value;
+
+    // Clear sub-category filter parameters first so switching options cleanly replaces the previous sub-filter
+    ["brand", "laptopType", "monitorType", "accessoryCategory"].forEach(p => newParams.delete(p));
+
+    if (!currentlyActive) {
       newParams.set(key, value);
     }
     // Reset page to 1 when filter changes
@@ -70,19 +73,23 @@ const QuickFilter = ({ categories, subOptions, paramKey, onClearAll }) => {
           All Items
         </button>
 
-        {subOptions.map((opt) => (
-          <button
-            key={opt.id}
-            onClick={() => handleFilterClick(paramKey, opt.id)}
-            className={`whitespace-nowrap text-[9px] font-black uppercase tracking-tight transition-all px-2.5 py-1 rounded-lg ${
-              isActive(paramKey, opt.id)
-                ? "bg-blue-900 text-white shadow-md"
-                : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 shadow-sm"
-            }`}
-          >
-            {opt.label}
-          </button>
-        ))}
+        {subOptions.map((opt) => {
+          const itemKey = opt.paramKey || paramKey;
+          const active = isActive(itemKey, opt.id);
+          return (
+            <button
+              key={opt.id}
+              onClick={() => handleFilterClick(itemKey, opt.id)}
+              className={`whitespace-nowrap text-[9px] font-black uppercase tracking-tight transition-all px-2.5 py-1 rounded-lg ${
+                active
+                  ? "bg-blue-900 text-white shadow-md"
+                  : "bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 shadow-sm"
+              }`}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Price Ranges Wrapped Grid */}

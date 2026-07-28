@@ -162,7 +162,6 @@ const loginUser = async (req, res) => {
       success: true,
       message: "Logged in successfully",
       user: userData,
-      token
     });
   } catch (e) {
     console.log(e);
@@ -172,11 +171,13 @@ const loginUser = async (req, res) => {
 
 // Logout User
 const logoutUser = (req, res) => {
+  const isProduction = process.env.NODE_ENV === "production";
   res.cookie("token", "", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
       expires: new Date(0),
+      path: "/",
     })
     .json({ success: true, message: "Logged out successfully!" });
 };
@@ -219,21 +220,31 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
+
   try {
     const user = await User.findOne({
       resetPasswordToken: token,
       resetPasswordExpiresAt: { $gt: Date.now() },
     });
-    if (!user)
-      return res.status(400).json({ success: false, message: "Invalid or expired reset token" });
 
-    user.password = await bcrypt.hash(password, 12);
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired reset token" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    user.password = hashedPassword;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiresAt = undefined;
     await user.save();
 
     await sendResetSuccessEmail(user.email);
-    res.status(200).json({ success: true, message: "Password reset successful" });
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successful",
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "An error occurred" });
@@ -275,6 +286,15 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (error) {
+    const isProduction = process.env.NODE_ENV === "production";
+    res.cookie("token", "", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      expires: new Date(0),
+      path: "/",
+    });
+
     if (error.name === "TokenExpiredError") {
       return res.status(401).json({
         success: false,

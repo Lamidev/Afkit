@@ -75,9 +75,7 @@ export const loginUser = createAsyncThunk(
         { withCredentials: true }
       );
 
-      // Store token in sessionStorage for API calls
-      if (response.data.token) {
-        sessionStorage.setItem("token", response.data.token);
+      if (response.data.user) {
         dispatch(setUser(response.data.user));
       }
 
@@ -93,9 +91,15 @@ export const logoutUser = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/logout`);
+      await axios.post(
+        `${import.meta.env.VITE_API_BASE_URL}/auth/logout`,
+        {},
+        { withCredentials: true }
+      );
+      sessionStorage.removeItem("token");
       return {};
     } catch (error) {
+      sessionStorage.removeItem("token");
       return rejectWithValue({ message: "Error logging out" });
     }
   }
@@ -140,20 +144,15 @@ export const checkAuth = createAsyncThunk(
   "auth/check-auth",
   async (_, { rejectWithValue, dispatch }) => {
     try {
-      const token = sessionStorage.getItem("token");
-      if (!token) throw new Error("No token found");
-
       const response = await axios.get(
         `${import.meta.env.VITE_API_BASE_URL}/auth/check-auth`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { withCredentials: true }
       );
       dispatch(setUser(response.data.user));
       return response.data;
     } catch (error) {
-      console.error("Check Auth Error:", error);
-      return rejectWithValue({ message: error.message || "Failed to check auth" });
+      sessionStorage.removeItem("token");
+      return rejectWithValue(error.response?.data || { message: "Failed to check auth" });
     }
   }
 );
@@ -214,7 +213,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload.user;
         state.isAuthenticated = true;
-        sessionStorage.setItem("token", action.payload.token);
+        sessionStorage.removeItem("token");
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;

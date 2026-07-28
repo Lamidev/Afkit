@@ -409,6 +409,7 @@ export const filterOptions = {
       { id: "basic", label: "Basic Laptop" },
       { id: "business", label: "Business Laptop" },
       { id: "gaming", label: "Gaming Laptop" },
+      { id: "apple", label: "Macbook", paramKey: "brand" },
       { id: "others", label: "Others" },
     ],
     processor: [

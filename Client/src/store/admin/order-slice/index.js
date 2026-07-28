@@ -12,7 +12,7 @@ export const getAllOrdersForAdmin = createAsyncThunk(
   async () => {
     const response = await axios.get(
       `${import.meta.env.VITE_API_BASE_URL}/admin/orders/get`,
-      { headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` } }
+      { withCredentials: true }
     );
     return response.data;
   }
@@ -23,7 +23,7 @@ export const getOrderDetailsForAdmin = createAsyncThunk(
   async (id) => {
     const response = await axios.get(
       `${import.meta.env.VITE_API_BASE_URL}/admin/orders/details/${id}`,
-      { headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` } }
+      { withCredentials: true }
     );
     return response.data;
   }
@@ -35,7 +35,7 @@ export const updateOrderStatus = createAsyncThunk(
     const response = await axios.put(
       `${import.meta.env.VITE_API_BASE_URL}/admin/orders/update/${id}`,
       { orderStatus, paymentStatus, amountPaid },
-      { headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` } }
+      { withCredentials: true }
     );
     return response.data;
   }
@@ -46,7 +46,7 @@ export const deleteOrderForAdmin = createAsyncThunk(
   async (id) => {
     const response = await axios.delete(
       `${import.meta.env.VITE_API_BASE_URL}/admin/orders/delete/${id}`,
-      { headers: { Authorization: `Bearer ${sessionStorage.getItem("token")}` } }
+      { withCredentials: true }
     );
     return response.data;
   }
