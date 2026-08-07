@@ -389,6 +389,7 @@ async function updateOrderOnPaymentSuccess(order, amountReceived, paymentType) {
       sendDeliveredNotifications(order).catch(console.error);
     } else {
       sendOrderConfirmationEmail(order).catch(console.error);
+      sendAdminOrderNotificationEmail(order).catch(console.error);
     }
     sendAdminAlerts(order, true).catch(console.error);
   } else {
