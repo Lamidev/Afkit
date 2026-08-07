@@ -18,6 +18,16 @@ const { mailtrapClient, sender } = require("./mailtrap.config.js");
 const MAILTRAP_TOKEN = process.env.MAILTRAP_TOKEN;
 const MAILTRAP_ENDPOINT = process.env.MAILTRAP_ENDPOINT;
 
+// Helper to get admin recipient array from process.env or fallback to info@afkit.ng
+const getAdminRecipients = () => {
+  const envEmails = process.env.ADMIN_EMAIL || "info@afkit.ng";
+  return envEmails
+    .split(",")
+    .map(e => e.trim())
+    .filter(Boolean)
+    .map(email => ({ email }));
+};
+
 // Common function for handling email sending errors with detailed logging
 const handleEmailError = (error, message) => {
   const errorDetails = error.response ? JSON.stringify(error.response.data) : error.message;
@@ -113,14 +123,14 @@ exports.sendNewsletterSubscriptionEmail = async (email) => {
   }
 };
 
-// Send Admin Newsletter Notification (to info@afkit.ng)
+// Send Admin Newsletter Notification
 exports.sendAdminNewsletterNotificationEmail = async (subscriberEmail) => {
   const html = getAdminNewsletterTemplate(subscriberEmail);
 
   try {
     await mailtrapClient.send({
       from: sender,
-      to: [{ email: "info@afkit.ng" }],
+      to: getAdminRecipients(),
       subject: "📬 New Newsletter Subscriber — Afkit",
       html,
       category: "Admin Notification",
@@ -130,7 +140,7 @@ exports.sendAdminNewsletterNotificationEmail = async (subscriberEmail) => {
   }
 };
 
-// ─── Order Confirmation (to Buyer) ───────────────────────────────────────────
+// ─── Order Confirmation (to Buyer & Admin Copy) ───────────────────────────────
 exports.sendOrderConfirmationEmail = async (order) => {
   if (!order.payerEmail) {
     console.warn("⚠️ Skipping order confirmation email: No payerEmail provided for order", order._id);
@@ -138,16 +148,26 @@ exports.sendOrderConfirmationEmail = async (order) => {
   }
 
   const recipient = [{ email: order.payerEmail }];
+  const adminRecipients = getAdminRecipients();
+  const bccRecipient = adminRecipients.filter(
+    admin => admin.email.trim().toLowerCase() !== order.payerEmail.trim().toLowerCase()
+  );
   const orderId = order.orderId || order._id.toString();
   
   try {
-    await mailtrapClient.send({
+    const payload = {
       from: sender,
       to: recipient,
       subject: `🎉 Order Confirmed! [ID: #${orderId.startsWith('ORD-') ? orderId : 'ORD-' + orderId.slice(-8).toUpperCase()}]`,
       html: getOrderConfirmationTemplate(order),
       category: "Order Confirmation",
-    });
+    };
+
+    if (bccRecipient.length > 0) {
+      payload.bcc = bccRecipient;
+    }
+
+    await mailtrapClient.send(payload);
   } catch (error) {
     handleEmailError(error, "Error sending order confirmation email");
   }
@@ -198,7 +218,7 @@ exports.sendAdminOrderNotificationEmail = async (order) => {
   try {
     await mailtrapClient.send({
       from: sender,
-      to: [{ email: "info@afkit.ng" }],
+      to: getAdminRecipients(),
       subject: `⚡ New Order: ${order.orderId} — ₦${order.totalAmount?.toLocaleString()}`,
       html,
       category: "Admin Order Alert",
