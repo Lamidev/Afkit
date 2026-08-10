@@ -113,7 +113,7 @@ const ProductSchema = new mongoose.Schema(
     },
     laptopType: {
       type: String,
-      enum: ["basic", "business", "gaming", "others"],
+      enum: ["basic", "business", "gaming", "apple", "macbook", "others"],
       required: function () {
         return this.category === "laptops";
       },

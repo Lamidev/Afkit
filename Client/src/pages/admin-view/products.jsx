@@ -274,7 +274,8 @@ function AdminProducts() {
         setOpenCreateProductsDialog(false);
         resetForm();
       } else {
-        throw new Error(result?.payload?.message || "Operation failed");
+        const detailMsg = result?.payload?.error || result?.payload?.message || "Operation failed";
+        throw new Error(detailMsg);
       }
     } catch (error) {
       toast.error(error.message);
