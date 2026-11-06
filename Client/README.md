@@ -99,13 +99,13 @@ Before you begin, ensure you have the following installed on your system:
         ```dotenv
         PORT=9050 # Recommended: Explicitly define the port
         NODE_ENV=development
-        CLIENT_URL=[https://afkit.ng](https://afkit.ng)
-        JWT_SECRET=mysecret
+        CLIENT_URL=https://afkit.ng
+        JWT_SECRET=your_jwt_secret_here
         COOKIE_DOMAIN=.afkit.ng
         COOKIE_SECURE=true
         COOKIE_SAMESITE=none
-        MAILTRAP_ENDPOINT=[https://send.api.mailtrap.io/api/send](https://send.api.mailtrap.io/api/send)
-        MAILTRAP_TOKEN=4e74396cbfa2f64b166eed87ca12a273
+        MAILTRAP_ENDPOINT=https://send.api.mailtrap.io/api/send
+        MAILTRAP_TOKEN=your_mailtrap_token_here
         ```
 
     * **For the Frontend (`client/.env`):**
